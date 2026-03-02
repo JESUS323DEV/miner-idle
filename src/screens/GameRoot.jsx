@@ -20,7 +20,7 @@ import InitialLadyState from "../game/initialState/lady/InitialLadyState.js";
 //modals-screens-
 import UpgradeModal from "../components/modals/UpgradeModal.jsx";
 import ModalsMenu from "../components/modals/ModalsMenu.jsx";
-import TavernModal from "../screens/modalTavern/tavernModal.jsx";
+import TavernModal from "./modalTavern/TavernModal.jsx";
 
 import GoldMine from "../components/GoldMine.jsx";
 import TutorialPointer from "../components/TutorialPointer.jsx";
@@ -140,7 +140,7 @@ function GameRoot() {
         handleRepairPickaxe,
         handleMine,
         handleMineClick,
-        
+
         handleUnlockMineType,
         handleEnterMine,
         handleDiscardMine,
