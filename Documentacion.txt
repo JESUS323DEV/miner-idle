@@ -1,0 +1,178 @@
+================================================================================
+LADY HUNGRY V2 - DOCUMENTACIÓN DE DESARROLLO
+================================================================================
+
+📂 ESTRUCTURA DE ARCHIVOS CLAVE
+================================================================================
+
+Estados y Configuración:
+- /src/game/InitialGameState.js - Valores iniciales del juego
+- /src/game/MinesConfig.js - Configuración de todas las minas
+- /src/game/InitialMinesState.js - Estado inicial del sistema de minas
+
+Lógica de Negocio:
+- /src/game/hooks/useGameActions.js - TODAS las funciones que modifican estado
+
+Componentes Principales:
+- /src/screens/GameRoot.jsx - Pantalla principal
+- /src/components/GoldMine.jsx - Mena de oro clickeable
+- /src/components/MineScreen.jsx - Pantalla dentro de minas
+- /src/components/MinesMapModal.jsx - Modal del mapa de minas
+
+
+💰 SISTEMA DE ORO
+================================================================================
+
+Valores Iniciales:
+  gold: 100
+  goldPerMine: 5
+  goldPerSecond: 0
+  staminaRefillCost: 100
+
+Costes que NO suben al usar:
+  - Recarga stamina: Solo sube al mejorar maxStamina (+10)
+  - Reparar pico: Solo sube al mejorar tier (+5) o material (+20)
+
+
+⚡ SISTEMA DE STAMINA
+================================================================================
+
+Valores:
+  stamina: 50
+  maxStamina: 50
+  staminaRefillCost: 100
+
+Funciones:
+  - handleRefillStamina - Recarga stamina
+  - handleBuyMaxStaminaUpgrade - Mejora máximo (+5 stamina)
+
+
+⛏️ SISTEMA DE PICO
+================================================================================
+
+Progresión Materiales:
+  stone (5 oro/click)
+    ↓ 50 bronce
+  bronze (8 oro/click)
+    ↓ 30 hierro
+  metal (12 oro/click)
+    ↓ 10 diamante
+  diamond (20 oro/click)
+
+Tier: 0-3 para cada material
+Al cambiar material → tier reset a 0
+
+
+🗺️ SISTEMA DE MINAS
+================================================================================
+
+Estructura Niveles:
+  LVL1 → 2⭐ desbloquea LVL2
+  LVL2 → 3⭐ desbloquea LVL3
+  LVL3 → Máximo nivel
+
+Tipos: Bronze (🟤), Iron (⚙️), Diamond (💎)
+
+Configuración Menas (MinesConfig.js):
+  baseVeinsCount: { min: 3, max: 3 }      // Número menas
+  baseVeinCapacity: { min: 20, max: 20 }  // Vida por mena
+  TOTAL: 3 × 20 = 60 clicks
+
+Yields (materiales por click):
+  stone: { min: 0, max: 1 }
+  bronze: { min: 1, max: 2 }
+  metal: { min: 2, max: 3 }
+  diamond: { min: 3, max: 5 }
+
+Sistema Estrellas:
+  LVL1: 3⭐≥100 / 2⭐≥50 / 1⭐<50
+  LVL2: 3⭐≥200 / 2⭐≥150 / 1⭐<150
+  LVL3: 3⭐≥300 / 2⭐≥200 / 1⭐<200
+
+Bonus Estrellas:
+  3⭐ → +50% materiales
+  2⭐ → +25% materiales
+  1⭐ → +0% materiales
+
+Mecánica: NO cobras hasta terminar TODAS las venas
+
+
+🔥 SISTEMA DE COMBOS
+================================================================================
+
+Valores:
+  comboCount: 0
+  maxComboEver: 0
+  lastClickTime: null
+
+Funcionamiento:
+  - Clicks seguidos suman combo
+  - >1 segundo sin click → Reset
+  - Aparece "x5" a partir del 5to click
+
+Dónde ajustar:
+  - Tiempo reset: handleMineClick → timeSinceLastClick > 1000
+  - Mínimo mostrar: GoldMine.jsx → if (currentCombo >= 5)
+
+
+🐛 BUGS COMUNES
+================================================================================
+
+NaN en oro:
+  Causa: Falta valor en InitialGameState
+  Fix: Añadir valor inicial
+
+Minas lvl2/3 no suman:
+  Causa: Usar mineType en vez de baseMineType
+  Fix: baseMineType = mineType.replace('_lvl2','').replace('_lvl3','')
+
+Thresholds imposibles:
+  Causa: Vida mina cambió pero thresholds no
+  Fix: Ajustar en handleExitMine
+
+
+🎯 WORKFLOW DE CAMBIOS
+================================================================================
+
+Antes:
+  1. ¿Qué archivo?
+  2. ¿Qué función?
+  3. ¿Rompe algo?
+
+Después:
+  1. Testea función
+  2. Testea relacionadas
+  3. Si ok → Guarda
+
+
+📍 DÓNDE CAMBIAR COSAS COMUNES
+================================================================================
+
+Yields minas → MinesConfig.js (yields)
+Thresholds estrellas → useGameActions.js (handleExitMine)
+Coste upgrades → InitialGameState.js
+Tiempo reset combo → useGameActions.js (handleMineClick > 1000)
+Vida minas → MinesConfig.js (baseVeinsCount + baseVeinCapacity)
+
+
+🚀 SISTEMAS PENDIENTES (FUTURO)
+================================================================================
+
+- Fortificación pico (end-game)
+- Items consumibles (oro pasivo)
+- Lady/Companion
+- Eventos noche
+- Taberna
+- Tutorial
+
+
+
+
+
+=============================IDEAS===================
+
+- UNIFICAR STAMINA Y DURABILIDAD DE PICO 
+- SISTEMA DE COMBOS
+- SNACKS PARA ORO X SECOND
+- SISTEMA VISUAL AL RECARGAR STAMINA
+- Taberna

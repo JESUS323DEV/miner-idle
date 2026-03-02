@@ -1,0 +1,223 @@
+.modal-overlay {
+    position: fixed;
+    top: 8rem;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.684);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.modal-content {
+    position: relative;
+    color: black;
+    border-radius: 0 0 0.3rem 0.3rem;
+    width: 100%;
+    min-height: 100%;
+    padding: 2.5rem 0.5rem;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 1;
+
+}
+
+.title-modal {
+    position: absolute;
+    top: 11.5rem;
+    left: 2.5rem;
+    font-size: 3rem;
+    z-index: 20;
+    animation: point-right 1s ease-in-out infinite;
+}
+
+@keyframes point-right {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(10px);
+    }
+}
+
+.title-modal p {
+
+    color: #FFD700;
+}
+
+
+.modal-content::before {
+
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, black, rgba(0, 0, 0, 0.471), rgba(0, 0, 0, 0.515), rgb(0, 0, 0), rgb(0, 0, 0));
+    z-index: -1;
+}
+
+
+.modal-content h2 {
+
+    color: white;
+
+    width: 100%;
+    padding-bottom: 1rem;
+
+}
+
+.modal {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+
+}
+
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+
+
+
+}
+
+.modal-close svg {
+
+    width: 30px;
+    height: 30px;
+}
+
+.modal-info {
+
+    text-align: center;
+    gap: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+
+}
+
+.gold-info {
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cost-info {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gold-info p {
+
+    font-size: 2.5rem;
+    color: rgb(255, 255, 255);
+    text-shadow: 5px 1px 5px rgb(0, 0, 0);
+}
+
+.gold-info img {
+
+    width: 70px;
+    height: auto;
+}
+
+.btn-upgrade {
+    background: none;
+    border: none;
+    padding: 1rem;
+    color: rgb(255, 255, 255);
+    backdrop-filter: blur(1px);
+    font-size: 1.2rem;
+
+}
+
+.btn-upgrade p,
+.btn-upgrade-material p {
+
+    text-shadow: 5px 2px 5px black;
+    padding: 0.5rem 0;
+}
+
+
+
+.btn-upgrade img,
+.btn-upgrade-material img {
+    width: 160px;
+    display: block;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 10px rgb(0, 0, 0);
+    background-color: rgb(0, 0, 0);
+}
+
+.btn-upgrade-material {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+
+
+
+
+
+.btn-upgrade.locked img,
+.refill-btn-modal.locked img,
+.btn-upgrade-material.locked img {
+    filter: grayscale(100%) brightness(0.5);
+    cursor: not-allowed;
+}
+
+.refill-btn-modal {
+
+    background: none;
+    border: none;
+    padding: 1rem;
+    color: rgb(255, 255, 255);
+    backdrop-filter: blur(1px);
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.refill-btn-modal img {
+    width: 80px;
+    display: block;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 10px rgb(0, 0, 0);
+    background-color: rgb(0, 0, 0);
+
+}

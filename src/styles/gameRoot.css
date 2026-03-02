@@ -1,0 +1,490 @@
+/* ============================================================
+   GAME ROOT - PANTALLA PRINCIPAL
+   Estructura: Container > Header > HUD > Ores > Game Area
+   ============================================================ */
+
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+   ============================================================ */
+
+.game-container {
+    position: relative;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+}
+
+/* Overlay oscuro sobre el fondo */
+.game-container::before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.29);
+    z-index: -1;
+}
+
+
+/* ============================================================
+   HEADER - ORO TOTAL + MENÚ
+   ============================================================ */
+
+.gold-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    padding: 1rem 0.3rem;
+    background-color: rgba(0, 0, 55, 0.381);
+
+}
+
+.gold-cont {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    /* necesario para los números flotantes */
+}
+
+.gold-cont img {
+    width: 50px;
+}
+
+/* Número de oro principal */
+.gold-cont p {
+    border: 1px solid rgba(175, 169, 0, 0.997);
+    background-color: rgba(0, 0, 55, 0.777);
+    border-radius: 0.5rem;
+    padding: 0.3rem 2rem;
+    font-size: 1rem;
+    color: white;
+}
+
+/* Botón menú hamburguesa */
+.gold-display button {
+    color: white;
+}
+
+/*=================================*/
+
+.container-coinTavern {
+
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-content: center;
+
+}
+
+.cont-coinTavern span {
+
+    padding: 0.3rem 1rem;
+    border: 1px solid rgba(175, 169, 0, 0.997);
+    background-color: rgba(0, 0, 55, 0.777);
+    border-radius: 0.5rem;
+
+    color: white;
+}
+
+.container-coinTavern img {
+    width: 30px;
+
+}
+
+
+
+/* ============================================================
+   HUD - ORO/SEG · STAMINA · PICO
+   ============================================================ */
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 0;
+    background-color: rgba(0, 0, 59, 0.475);
+    color: white;
+}
+
+/* Iconos del HUD */
+.img-goldSec {
+    width: 30px;
+}
+
+.pickaxe-display img {
+    width: 25px;
+}
+
+.stamina-display img {
+    width: 25px;
+}
+
+/* Alineación interna de cada sección del HUD */
+.stamina-display button,
+.pickaxe-display button {
+    display: flex;
+    align-items: end;
+}
+
+.gold-per-sec,
+.pickaxe-display,
+.stamina-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Icono stamina — no usado actualmente, reservado */
+.stamina-icons {
+
+    display: flex;
+    align-items: end;
+}
+
+
+/* ============================================================
+   BOTONES "+" DEL HUD  (abren modal o recargan)
+   Colores distintos para diferenciar: oro / stamina / pico
+   ============================================================ */
+
+/* Oro/segundo */
+.openDisplay1 {
+    padding: 0.2rem;
+    border-radius: 0.3rem;
+    background-color: rgb(253, 210, 67);
+    color: black;
+    box-shadow: 3px 2px 1px black;
+}
+
+/* Stamina */
+.openDisplay2 {
+    padding: 0.2rem;
+    border-radius: 0.3rem;
+    background-color: yellow;
+    color: black;
+    box-shadow: 3px 2px 1px black;
+}
+
+/* Pico */
+.openDisplay3 {
+    padding: 0.2rem;
+    border-radius: 0.3rem;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    box-shadow: 3px 2px 1px black;
+}
+
+/* Bloqueado mientras automine activo */
+.openDisplay2:disabled,
+.openDisplay3:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   ORES - MATERIALES (bronze / iron / diamond)
+   ============================================================ */
+
+.cont-hud-ores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.2rem 0;
+    font-size: 0.8rem;
+    background-color: rgba(37, 37, 37, 0.444);
+}
+
+.cont-hud-ores img {
+    width: 20px;
+}
+
+.cont-ore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* ============================================================
+   MODAL MINAS - botón de acceso (imagen clickable)
+   ============================================================ */
+
+.cont-screens {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+/* !img botones modales*/
+.modal-mine img,
+.modal-tavern img,
+.modal-forge img {
+    width: 70px;
+    height: 70px;
+
+    border-radius: 50%;
+    box-shadow: 1px 1px 10px rgb(55, 53, 52);
+}
+
+.mines-map-locked img {
+    filter: grayscale(100%) brightness(0.5);
+}
+
+.modal-mine button {
+
+    border-radius: 50%;
+    padding: 0.4rem;
+    box-shadow: 1px 1px 10px rgb(55, 53, 52);
+}
+
+.mines-map-locked {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+.mines-map-locked span {
+    position: absolute;
+    bottom: -1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    filter: grayscale(0%) brightness(2);
+}
+
+.mines-map-locked:disabled {
+    opacity: 0.6;
+}
+
+/*================TABERNA ==========================*/
+
+.tavern-btn {
+    position: relative;
+    border-radius: 50%;
+    padding: 0.4rem;
+    box-shadow: 1px 1px 10px rgb(55, 53, 52);
+}
+
+.tavern-locked img {
+    filter: grayscale(100%) brightness(0.5);
+    cursor: not-allowed;
+}
+
+.tavern-locked span {
+    position: absolute;
+    bottom: -1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.tavern-locked:disabled {
+    opacity: 0.6;
+}
+
+
+
+/* Wrapper relativo para posicionar elementos sobre la mina */
+.gold-mine-isolate {
+    position: relative;
+    width: fit-content;
+}
+
+
+
+/*================FORJA==========================*/
+.forge-btn {
+
+    border-radius: 50%;
+    padding: 0.45rem;
+    box-shadow: 1px 1px 10px rgb(55, 53, 52);
+}
+
+
+
+
+/* ============================================================
+   AUTOMINE - botón + cargas + timers
+   ============================================================ */
+.automine-container {
+    position: fixed;
+    top: 26rem;
+    left: 0.5rem;
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Botón bloqueado (igual que minas/taberna) */
+.automine-button.unlock {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.automine-button.unlock img {
+    width: 3.75rem;
+    filter: grayscale(100%) brightness(0.5);
+}
+
+.automine-button.unlock span {
+    color: white;
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    white-space: nowrap;
+}
+
+.automine-button.unlock:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Botón pico activo/inactivo */
+.automine-button-pico {
+    position: relative;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sin cargas → sin fondo ni borde */
+.automine-button-pico:disabled {
+    background: transparent;
+    border-color: transparent;
+    cursor: not-allowed;
+}
+
+.automine-button-pico:disabled img {
+    filter: grayscale(100%);
+}
+
+/* Anillo exterior - carga 2 */
+.automine-button-pico::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: conic-gradient(#FFD700 var(--progress2), transparent var(--progress2));
+    z-index: -2;
+}
+
+/* Anillo interior - carga 1 */
+.automine-button-pico::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: conic-gradient(#4CAF50 var(--progress1), transparent var(--progress1));
+    z-index: -1;
+}
+
+.automine-button-pico img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+.automine-charge-count {
+    position: absolute;
+    font-size: 0.8rem !important;
+    font-size: 0.6rem;
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+    top: 4rem;
+    text-shadow: 1px 1px 2px black;
+}
+
+/* ============================================================
+   FEEDBACK VISUAL - ALERTAS DE RECURSOS BAJOS
+   Se aplica sobre iconos y botones "+" del HUD
+   ============================================================ */
+
+/* Recurso bajo → parpadeo rojo (icono stamina/pico) */
+.low-resource {
+    animation: blink-red 1s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 68, 68, 0.996));
+}
+
+@keyframes blink-red {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 5px rgba(255, 68, 68, 0.701));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 2px rgba(255, 0, 0, 0.707));
+    }
+}
+
+/* Recurso bajo → parpadeo verde (botón "+" de recarga) */
+.low-resource-green {
+    animation: blink-green 1s ease-in-out infinite;
+    filter: drop-shadow(0 0 3px rgba(136, 255, 0, 0.8));
+}
+
+@keyframes blink-green {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.8);
+    }
+}
+
+
+.floating-gold-cost {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: #FF4444;
+    font-size: 1.5rem;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUpCost 1.5s ease-out forwards;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes floatUpCost {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateY(-3.75rem);
+    }
+}

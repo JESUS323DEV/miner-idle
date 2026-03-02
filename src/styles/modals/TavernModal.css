@@ -1,0 +1,160 @@
+.tavern-overlay {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    width: 100%;
+    height: 90vh;
+    top: 0;
+    z-index: 10;
+}
+
+.tavern-content {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    padding: 2.5rem 0.5rem;
+    z-index: 1;
+}
+
+.tavern-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, black, rgba(0, 0, 0, 0.471), rgba(0, 0, 0, 0.515), rgb(0, 0, 0), rgb(0, 0, 0));
+    z-index: -1;
+}
+
+.tavern-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+}
+
+.tavern-close svg {
+    width: 30px;
+    height: 30px;
+}
+
+.tavern-cambista {
+    background-color: rgb(0, 0, 0);
+    width: 100%;
+    min-height: 75vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 1rem;
+}
+
+.tavern-title {
+    color: #FFD700;
+    text-align: center;
+}
+
+.tavern-coins {
+    text-align: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+    color: #FFD700;
+}
+
+.tavern-subtitle {
+    text-align: center;
+    margin-bottom: 1.25rem;
+    color: #FFF;
+}
+
+.tavern-conversions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.tavern-conversion-row {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.9rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tavern-conversion-info {
+    color: #FFF;
+}
+
+.tavern-conversion-icon {
+    font-size: 1.5rem;
+}
+
+.tavern-conversion-text {
+    margin-left: 0.6rem;
+}
+
+.tavern-conversion-have {
+    font-size: 0.9rem;
+    color: #AAA;
+    margin-top: 0.3rem;
+}
+
+.tavern-convert-btn {
+    padding: 0.6rem 1.25rem;
+    background: #4CAF50;
+    border: none;
+    border-radius: 0.3rem;
+    color: #FFF;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tavern-convert-btn.locked {
+    background: #666;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tavern-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+}
+
+.tavern-menu-btn {
+    padding: 1rem;
+    background: rgba(255, 215, 0, 0.15);
+    border: 2px solid #FFD700;
+    border-radius: 0.5rem;
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tavern-menu-btn:hover {
+    background: rgba(255, 215, 0, 0.3);
+}
+
+.tavern-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    color: #AAA;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.tavern-back-btn:hover {
+    color: white;
+}

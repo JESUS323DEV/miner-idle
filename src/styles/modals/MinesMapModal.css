@@ -1,0 +1,225 @@
+/* ========== CONTENEDOR DEL MODAL ========== */
+
+.mines-modal-content {
+    position: relative;
+    background: rgba(20, 20, 30, 0.95);
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    height: 90vh;
+    overflow-y: auto;
+    color: white;
+    z-index: 3;
+
+    border: 1px solid red;
+
+}
+
+.modal-overlay1 {
+    position: fixed;
+    top: -8rem;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* ← arriba en vez de centrado */
+    padding-top: 8rem;
+    /* ← ajusta hasta que quede debajo de los materiales */
+    z-index: 10;
+}
+
+/* ========== HEADER ========== */
+
+.mines-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.mines-modal-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 24px;
+}
+
+/* ========== TABS ========== */
+
+.mines-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tab-btn.active {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+
+/* ========== CONTENIDO ========== */
+
+.mines-content {
+    min-height: 300px;
+}
+
+.no-mines {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 40px 20px;
+    font-size: 18px;
+}
+
+/* ========== TARJETAS DE MINAS ========== */
+
+.mine-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.mine-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.mine-card.locked {
+    opacity: 0.7;
+}
+
+/* ========== HEADER DE TARJETA ========== */
+
+.mine-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+    margin-bottom: 10px;
+}
+
+.mine-card-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 20px;
+
+}
+
+.lock-icon {
+    font-size: 24px;
+}
+
+/* ========== BODY DE TARJETA ========== */
+
+.mine-card-body {
+    margin-bottom: 15px;
+}
+
+.mine-description {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.mine-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    color: white;
+}
+
+.mine-value {
+    font-weight: bold;
+    color: #FFD700;
+}
+
+.can-afford {
+    color: #4CAF50;
+}
+
+.cannot-afford {
+    color: #F44336;
+}
+
+/* ========== BOTONES ========== */
+
+.mine-card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-enter-mine,
+.btn-discard-mine,
+.btn-unlock-mine {
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-enter-mine {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-enter-mine:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+.btn-discard-mine {
+    background: #F44336;
+    color: white;
+}
+
+.btn-discard-mine:hover {
+    background: #da190b;
+}
+
+.btn-unlock-mine {
+    background: #FFD700;
+    color: #1a1a2e;
+}
+
+.btn-unlock-mine:hover {
+    background: #FFC700;
+    transform: scale(1.05);
+}
+
+.btn-unlock-mine.disabled {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.btn-unlock-mine.disabled:hover {
+    transform: none;
+}

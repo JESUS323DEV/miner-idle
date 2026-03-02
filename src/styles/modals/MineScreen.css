@@ -1,0 +1,274 @@
+/**
+ * ESTILOS MINIMALISTAS PARA PANTALLA DE MINA
+ */
+
+/* ========== CONTENEDOR DEL MODAL ========== */
+
+.mine-screen-content {
+    position: relative;
+    top: -6rem;
+    background: rgba(20, 20, 30, 0.98);
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;
+    overflow-y: auto;
+    color: white;
+    z-index: 5;
+
+    border: 1px solid;
+
+}
+
+/* ========== HEADER ========== */
+
+.mine-screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mine-title h2 {
+    color: white;
+    margin: 0;
+    font-size: 18px;
+}
+
+.btn-exit-mine {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.2s;
+}
+
+.btn-exit-mine:hover {
+    color: #F44336;
+    transform: scale(1.1);
+}
+
+/* ========== STATS (MINIMALISTA EN FILA) ========== */
+
+.mine-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.stat-item span:first-child {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.stat-value {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+/* ========== CONTENEDOR DE VENAS (3-4 MENAS MAX) ========== */
+
+.veins-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 20px 10px;
+    min-height: 300px;
+}
+
+/* Si hay 3 menas, la tercera ocupa 2 columnas (centrada abajo) */
+.veins-container .vein:nth-child(3):last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+}
+
+/* ========== VENA INDIVIDUAL ========== */
+
+.vein {
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    width: 120px;
+    height: 120px;
+}
+
+.vein:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.vein.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.vein.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* VENA AGOTADA */
+.vein.depleted {
+    background: rgba(50, 50, 50, 0.5);
+    border-color: #555;
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
+.vein.depleted:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ========== ANIMACIÓN DE SHAKE ========== */
+
+.vein.shake {
+    animation: shake 0.15s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    75% {
+        transform: translateX(5px) rotate(2deg);
+    }
+}
+
+/* ========== ICONO DE VENA ========== */
+
+.vein-icon {
+    font-size: 50px;
+}
+
+/* ========== CONTADOR DE VENA ========== */
+
+.vein-counter {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+/* ========== MENSAJE DE MINA COMPLETADA ========== */
+
+.mine-completed {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #FFD700;
+    text-align: center;
+    z-index: 1000;
+}
+
+.mine-completed h3 {
+    color: #FFD700;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.mine-completed p {
+    color: white;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.btn-exit-completed {
+    padding: 12px 30px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-exit-completed:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+/* ========== NÚMEROS FLOTANTES ========== */
+
+.floating-number {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+/* ========== PARTÍCULAS ========== */
+
+.particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #FFD700;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleExplode 0.8s ease-out forwards;
+    z-index: 99;
+}
+
+@keyframes particleExplode {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(cos(var(--angle)) * var(--distance)),
+                calc(sin(var(--angle)) * var(--distance))) scale(0);
+    }
+}

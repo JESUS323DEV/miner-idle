@@ -1,0 +1,67 @@
+/* ============================================================
+   TUTORIAL - HIGHLIGHT + FLECHA + TEXTO
+   ============================================================ */
+
+/* Elemento resaltado durante tutorial */
+.tutorial-highlight {
+    position: relative;
+    z-index: 1000 !important;
+    animation: pulse-glow-border 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-border {
+
+    0%,
+    100% {
+        box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.6);
+        filter: brightness(1.2);
+    }
+
+    50% {
+        box-shadow: 0 0 50px 20px rgba(255, 215, 0, 1);
+        filter: brightness(1.5);
+    }
+}
+
+/* Flecha animada */
+.tutorial-arrow {
+    position: absolute;
+    top: -1.9rem;
+    left: 0.5rem;
+    font-size: 1rem;
+    color: #FFD700;
+    z-index: 1001;
+    pointer-events: none;
+    animation: bounce-arrow 1s ease-in-out infinite;
+}
+
+@keyframes bounce-arrow {
+
+    0%,
+    100% {
+        transform: translateX(-50%)  translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%)  translateY(-8px);
+    }
+}
+
+/* Texto tutorial */
+.game-container .tutorial-text {
+    position: absolute;
+    top: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    color: #FFD700;
+    padding: 0.8rem 1rem;
+    border: 1px solid #FFD700;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1001;
+    white-space: nowrap;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
