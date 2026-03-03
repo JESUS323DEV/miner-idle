@@ -27,7 +27,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.29);
+    background-color: rgba(0, 0, 0, 0.03);
     z-index: -1;
 }
 
@@ -41,17 +41,30 @@
     align-items: center;
     justify-content: center;
     gap: 3rem;
-    padding: 1rem 0.3rem;
-    background-color: rgba(0, 0, 55, 0.381);
+    background-color: rgba(52, 52, 52, 0.381);
 
 }
 
-.gold-cont {
+
+
+.cont-hud-gold {
+
     display: flex;
     align-items: center;
-    gap: 1rem;
-    position: relative;
-    /* necesario para los números flotantes */
+    background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
+
+    border-radius: 8px;
+
+    padding: 0.5rem 1.5rem;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 215, 120, 0.15),
+        0 0 6px rgba(199, 154, 43, 0.2);
+
 }
 
 .gold-cont img {
@@ -59,13 +72,57 @@
 }
 
 /* Número de oro principal */
-.gold-cont p {
-    border: 1px solid rgba(175, 169, 0, 0.997);
-    background-color: rgba(0, 0, 55, 0.777);
-    border-radius: 0.5rem;
-    padding: 0.3rem 2rem;
-    font-size: 1rem;
-    color: white;
+.gold-cont {
+    background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
+    border: 1px solid #ffe4a179;
+
+    padding: 1rem 1.5rem;
+
+    min-width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 215, 120, 0.15),
+        0 0 8px rgba(199, 154, 43, 0.25);
+}
+
+.cont-hud-gold p {
+    margin: 0;
+    font-weight: bold;
+    color: #f5d47a;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 10px rgb(160, 144, 0);
+}
+
+/* CONTENEDOR MONEDA TABERNA */
+.cont-coinTavern {
+    margin-left: 12px;
+}
+
+.container-coinTavern {
+    background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
+
+
+    border-radius: 8px;
+
+    padding: 0.5rem 1rem;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 215, 120, 0.15),
+        0 0 6px rgba(199, 154, 43, 0.2);
+}
+
+.container-coinTavern span {
+    font-weight: bold;
+    color: #f5d47a;
 }
 
 /* Botón menú hamburguesa */
@@ -73,26 +130,7 @@
     color: white;
 }
 
-/*=================================*/
 
-.container-coinTavern {
-
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    justify-content: center;
-
-}
-
-.cont-coinTavern span {
-
-    padding: 0.3rem 1rem;
-    border: 1px solid rgba(175, 169, 0, 0.997);
-    background-color: rgba(0, 0, 55, 0.777);
-    border-radius: 0.5rem;
-
-    color: white;
-}
 
 .container-coinTavern img {
     width: 30px;
@@ -109,22 +147,23 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 0.5rem 0;
-    background-color: rgba(0, 0, 59, 0.475);
+    padding: 0.8rem 0;
+    background-color: rgba(52, 52, 52, 0.803);
     color: white;
 }
 
 /* Iconos del HUD */
 .img-goldSec {
-    width: 30px;
+    width: 35px;
 }
 
 .pickaxe-display img {
     width: 25px;
+  
 }
 
 .stamina-display img {
-    width: 25px;
+    width: 23px;
 }
 
 /* Alineación interna de cada sección del HUD */
@@ -133,6 +172,8 @@
     display: flex;
     align-items: end;
 }
+
+
 
 .gold-per-sec,
 .pickaxe-display,
@@ -156,32 +197,17 @@
    Colores distintos para diferenciar: oro / stamina / pico
    ============================================================ */
 
-/* Oro/segundo */
-.openDisplay1 {
-    padding: 0.2rem;
-    border-radius: 0.3rem;
-    background-color: rgb(253, 210, 67);
-    color: black;
-    box-shadow: 3px 2px 1px black;
-}
-
-/* Stamina */
-.openDisplay2 {
-    padding: 0.2rem;
-    border-radius: 0.3rem;
-    background-color: yellow;
-    color: black;
-    box-shadow: 3px 2px 1px black;
-}
-
-/* Pico */
+/* Oro/segundo - Stamina - Pico */
+.openDisplay1,
+.openDisplay2,
 .openDisplay3 {
-    padding: 0.2rem;
-    border-radius: 0.3rem;
-    background-color: rgb(255, 255, 255);
-    color: black;
-    box-shadow: 3px 2px 1px black;
+    width: 25px;
 }
+
+
+
+
+
 
 /* Bloqueado mientras automine activo */
 .openDisplay2:disabled,
@@ -225,7 +251,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
     margin-top: 0.5rem;
 }
 
@@ -233,11 +258,9 @@
 .modal-mine img,
 .modal-tavern img,
 .modal-forge img {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
 
-    border-radius: 50%;
-    box-shadow: 1px 1px 10px rgb(55, 53, 52);
 }
 
 .mines-map-locked img {
@@ -246,14 +269,13 @@
 
 .modal-mine button {
 
-    border-radius: 50%;
     padding: 0.4rem;
-    box-shadow: 1px 1px 10px rgb(55, 53, 52);
 }
 
 .mines-map-locked {
     position: relative;
     cursor: not-allowed;
+
 }
 
 
@@ -278,12 +300,12 @@
     position: relative;
     border-radius: 50%;
     padding: 0.4rem;
-    box-shadow: 1px 1px 10px rgb(55, 53, 52);
 }
 
 .tavern-locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;
+    
 }
 
 .tavern-locked span {
@@ -313,9 +335,7 @@
 /*================FORJA==========================*/
 .forge-btn {
 
-    border-radius: 50%;
     padding: 0.45rem;
-    box-shadow: 1px 1px 10px rgb(55, 53, 52);
 }
 
 

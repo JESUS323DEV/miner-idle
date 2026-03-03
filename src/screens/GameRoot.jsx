@@ -27,10 +27,10 @@ import TutorialPointer from "../components/TutorialPointer.jsx";
 import ForgeModal from '../screens/modalForge/ForgeModal';
 
 // ===== ASSETS: UI =====
-import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro2.png";
+import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
 
 // ===== ASSETS: FONDOS =====
-import bgMain from "../assets/backgrounds/fondo2.png";
+import bgMain from "../assets/backgrounds/fondo2-1.png";
 
 // ===== ASSETS: ORES =====
 import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png"
@@ -38,14 +38,26 @@ import metal1 from "../assets/ui/icons-hud/hud-ores/metal1.png"
 import diamond1 from "../assets/ui/icons-hud/hud-ores/diamante1.png"
 
 // ===== ASSETS: HUD =====
-import gold from "../assets/ui/icons-hud/hud-principal/oro2.png";
-import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern.png"
-import stamina from "../assets/ui/icons-hud/hud-principal/rayo.png";
+import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png"
+
+import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
+
+import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.png"
+
+
 import pickAxe from "../assets/ui/pico1.png";
+import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png"
 
 // ===== ASSETS: HUD AUTO MINE =====
 import activeMine from "../assets/ui/icons-auto-mine/active-mine.png"
 import stopMine from "../assets/ui/icons-auto-mine/stop-mine.png"
+
+// ===== ASSETS: ICONS "+" =====
+import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.png"
+import repair from "../assets/ui/icons-hud/hud-principal/repair.png"
+import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.png"
+
+
 
 
 // ===== ASSETS: PICOS =====
@@ -303,9 +315,10 @@ function GameRoot() {
                 <div className="gold-display">
 
                     <div className="gold-cont" style={{ position: 'relative' }}>
-                        <img src={cofre} alt="Cofre Oro" />
-                        <p>{formatNumber(gameState.gold)}</p>
-
+                        <div className="cont-hud-gold">
+                            <img src={cofre} alt="Cofre Oro" />
+                            <p>{formatNumber(gameState.gold)}</p>
+                        </div>
                         {/* ✅ NÚMEROS FLOTANTES */}
                         {goldFloatingNumbers.map(num => (
                             <div
@@ -326,9 +339,6 @@ function GameRoot() {
                         </div>
 
                     </div>
-                    <div>
-                        <button onClick={() => setMenuOpenModal(prev => !prev)}><Settings /></button>
-                    </div>
 
                 </div>
 
@@ -347,7 +357,7 @@ function GameRoot() {
 
                 {/* ORO/SEGUNDO */}
                 <div className="gold-per-sec" >
-                    <img className="img-goldSec" src={gold} alt="Oro" />
+                    <img className="img-goldSec" src={gold1} alt="Oro" />
                     <p>+{gameState.goldPerSecond}</p>
 
                     <button
@@ -358,7 +368,7 @@ function GameRoot() {
                         className={`openDisplay1 ${tutorialStep === 0 ? 'tutorial-highlight' : ''}`}
                         style={{ position: 'relative' }}
                     >
-                        +
+                        <img src={goldOpen} alt="icon goldOpen" />
                         {tutorialStep === 0 && <TutorialPointer step={0} />}
                     </button>
                 </div>
@@ -403,7 +413,7 @@ function GameRoot() {
                             filter: (!gameState.tutorial?.staminaUnlocked && !gameState.tutorial?.completed) ? 'grayscale(100%)' : 'none'
                         }}
                     >
-                        <img src={stamina} loading='lazy' alt="Stamina" />
+                        <img src={stamina1} loading='lazy' alt="Stamina" />
                         {tutorialStep === 1 && <TutorialPointer step={1} />}
                     </button>
 
@@ -421,7 +431,7 @@ function GameRoot() {
                         disabled={gameState.automine?.isActive || gameState.stamina >= gameState.maxStamina}
                         className={`openDisplay2 ${gameState.stamina <= 5 ? 'low-resource-green' : ''}`}
                     >
-                        +
+                        <img src={refillStaminaIcon} alt="Refill-Stamina" />
                     </button>
 
                 </div>
@@ -465,7 +475,7 @@ function GameRoot() {
                             filter: (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'grayscale(100%)' : 'none'
                         }}
                     >
-                        <img src={pickAxe} loading='lazy' alt="Pickaxe" />
+                        <img src={pickAxeStone} loading='lazy' alt="Pickaxe" />
                         {tutorialStep === 2 && <TutorialPointer step={2} />}
                     </button>
 
@@ -483,7 +493,7 @@ function GameRoot() {
                         disabled={gameState.automine?.isActive || gameState.pickaxe.durability >= gameState.pickaxe.maxDurability}
                         className={`openDisplay3 ${gameState.pickaxe.durability <= 5 ? 'low-resource-green' : ''}`}
                     >
-                        +
+                        <img src={repair} alt="repair" />
                     </button>
                 </div>
 
@@ -518,9 +528,14 @@ function GameRoot() {
 
                 />
             </div>
+            
+            
 
-            {/* ORES */}
+
+            {/* ORES 
             <div className="cont-hud-ores">
+
+               
                 <div className="cont-ore" style={{ position: 'relative' }}>
                     <p>{gameState.bronze}</p>
                     <img src={bronze1} alt="Bronze" />
@@ -543,6 +558,7 @@ function GameRoot() {
                     ))}
                 </div>
             </div>
+            */}
 
             <div className="cont-screens">
                 {/* taberna */}
@@ -658,6 +674,10 @@ function GameRoot() {
                 onUpgradeFurnace={handleUpgradeFurnace}
 
             />
+
+            <div>
+                <button onClick={() => setMenuOpenModal(prev => !prev)}><Settings /></button>
+            </div>
 
             {/* GOLD MINE */}
             <GoldMine

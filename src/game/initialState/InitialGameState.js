@@ -309,7 +309,7 @@
 /**
  * thiefRisk: Nivel de riesgo acumulado de que aparezca el ladrón
  * - 0 = Sin riesgo
- * - Cada rechazo de evento de taberna suma +1
+ * - Cada rechazo de evento de taberna suma 
  * - A mayor valor, mayor probabilidad de evento nocturno
  * 
  * MECÁNICA:
