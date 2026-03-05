@@ -438,7 +438,7 @@ const InitialGameState = {
 
     // ========== OTROS ==========
     //=====moneda tavern
-    tavernCoins: 0,
+    tavernCoins: 50,
     thiefRisk: 0,
     hasTriggeredGoldThief: false,
     snacks: initialSnacksState,

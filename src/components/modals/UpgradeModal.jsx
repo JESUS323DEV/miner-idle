@@ -207,7 +207,7 @@ const UpgradeModal = ({
 
 
                                             <span>
-                                                <small>x5</small>
+                                                <small>Desbloquear x5</small>
                                                 <img src={coinTavern} alt="coin-tavern" />
                                             </span>
 
@@ -228,9 +228,19 @@ const UpgradeModal = ({
 
                                                 }}
                                             >
-                                                {snacksData.cookie.active !== null
-                                                    ? '⏳'
-                                                    : 'Usar (1 🪙)'}
+                                                {
+                                                    snacksData.cookie.active !== null
+                                                        ? "⌛"
+
+                                                        : (
+                                                            <>
+                                                                <span>
+                                                                    X1
+                                                                    <img src={coinTavern} alt="usar snack" />
+                                                                </span>
+                                                            </>
+                                                        )
+                                                }
                                             </button>
 
                                             {snacksData.cookie.level < 3 && (

@@ -256,6 +256,8 @@
     align-items: center;
     flex-direction: column;
     gap: 0.5rem;
+
+    min-width: 180px;
 }
 
 .snack1 button img {
