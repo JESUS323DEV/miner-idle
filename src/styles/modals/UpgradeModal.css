@@ -1,3 +1,4 @@
+/* ===== OVERLAY ===== */
 .modal-overlay {
     position: fixed;
     top: 8.8rem;
@@ -5,13 +6,13 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.684);
-
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1;
 }
 
+/* ===== CONTENEDOR MODAL ===== */
 .modal-content {
     position: relative;
     color: black;
@@ -19,14 +20,57 @@
     width: 100%;
     min-height: 100%;
     padding: 2.5rem 0.5rem;
-
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     z-index: 1;
-
 }
 
+/* Overlay oscuro sobre el fondo */
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, black, rgba(0, 0, 0, 0.471), rgba(0, 0, 0, 0.515), rgb(0, 0, 0), rgb(0, 0, 0));
+    z-index: -1;
+}
+
+.modal-content h2 {
+    color: white;
+    width: 100%;
+    padding-bottom: 1rem;
+}
+
+/* ===== LAYOUT INTERIOR ===== */
+.modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ===== BOTÓN CERRAR ===== */
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+}
+
+.modal-close svg {
+    width: 30px;
+    height: 30px;
+}
+
+/* ===== TUTORIAL POINTER ===== */
 .title-modal {
     position: absolute;
     top: 11.5rem;
@@ -49,78 +93,20 @@
 }
 
 .title-modal p {
-
     color: #FFD700;
 }
 
-
-.modal-content::before {
-
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, black, rgba(0, 0, 0, 0.471), rgba(0, 0, 0, 0.515), rgb(0, 0, 0), rgb(0, 0, 0));
-    z-index: -1;
-}
-
-
-.modal-content h2 {
-
-    color: white;
-
-    width: 100%;
-    padding-bottom: 1rem;
-
-}
-
-.modal {
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-
-}
-
-
-.modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: white;
-
-
-
-}
-
-.modal-close svg {
-
-    width: 30px;
-    height: 30px;
-}
-
+/* ===== SECCIÓN ICONO + NIVEL ===== */
 .modal-info {
-
     text-align: center;
     gap: 0.2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-
 }
 
 .gold-info {
-
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -128,27 +114,25 @@
     gap: 0.5rem;
 }
 
-.cost-info {
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
 .gold-info p {
-
     font-size: 2.5rem;
     color: rgb(255, 255, 255);
     text-shadow: 5px 1px 5px rgb(0, 0, 0);
 }
 
 .gold-info img {
-
     width: 70px;
     height: auto;
 }
 
+.cost-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== BOTÓN UPGRADE ===== */
 .btn-upgrade {
     background: none;
     border: none;
@@ -156,20 +140,14 @@
     color: rgb(255, 255, 255);
     backdrop-filter: blur(1px);
     font-size: 1.2rem;
-
 }
 
-.btn-upgrade p,
-.btn-upgrade-material p {
-
+.btn-upgrade p {
     text-shadow: 5px 2px 5px black;
     padding: 0.5rem 0;
 }
 
-
-
-.btn-upgrade img,
-.btn-upgrade-material img {
+.btn-upgrade img {
     width: 160px;
     display: block;
     border-radius: 1rem;
@@ -177,26 +155,15 @@
     background-color: rgb(0, 0, 0);
 }
 
-.btn-upgrade-material {
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-}
-
-
-
+/* Locked: imagen en gris */
 .btn-upgrade.locked img,
-.refill-btn-modal.locked img,
-.btn-upgrade-material.locked img {
+.refill-btn-modal.locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;
 }
 
+/* ===== BOTÓN REFILL (stamina) ===== */
 .refill-btn-modal {
-
     background: none;
     border: none;
     padding: 1rem;
@@ -216,14 +183,10 @@
     border-radius: 1rem;
     box-shadow: 1px 1px 10px rgb(0, 0, 0);
     background-color: rgb(0, 0, 0);
-
 }
 
-
-/*===================================SNACKS==============================*/
-
+/* ===== SNACKS ===== */
 .cont-snacks {
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -232,22 +195,18 @@
 }
 
 .cont-snacks h3 {
-
     font-size: 1.5rem;
     color: white;
 }
 
 .container-snacks {
-
     width: 100%;
     display: flex;
-
 }
 
+/* Snack individual */
 .snack1 {
-
     color: white;
-    padding: 0.2rem;
     border: 1px solid rgba(225, 112, 0, 0.736);
     display: flex;
     justify-content: center;
@@ -261,12 +220,10 @@
 }
 
 .snack1 button img {
-
     width: 20px;
 }
 
 .snack1 button span {
-
     display: flex;
     align-items: center;
     padding: 0.2rem 0.5rem;
@@ -274,51 +231,36 @@
     gap: 0.2rem;
     background-color: rgba(150, 75, 0, 0.615);
     border-radius: 0.5rem;
-
     border: 1px solid rgba(255, 239, 136, 0.3);
 }
 
+/* Botón mejorar snack */
 .mejorar-snack {
-
     background-color: rgba(225, 112, 0, 0.736) !important;
     color: black;
-
-
 }
 
-
 .snack1 p {
-
     display: flex;
     justify-content: center;
     flex-direction: column;
 }
 
 .cont-text-img {
-
     display: flex;
     flex-direction: column;
-
-
     gap: 0.5rem;
     width: 100%;
     padding: 0.5rem 0;
 }
 
 .cont-cookie img {
-
     width: 50px;
     margin: auto;
 }
 
-
-
-
-
-
-
+/* Placeholder próximamente */
 .snack2 {
-
     width: 40%;
     text-align: center;
     display: flex;

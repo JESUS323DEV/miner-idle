@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
 import { useGameActions } from "../game/hooks/useGameActions.js";
 import { useAutoMining } from "../game/hooks/useAutoMining.js";
-
 import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
 import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
-
 import { AutomineConfig } from "../game/AutomineConfig.js";
 
 // ===== ESTADOS INICIALES =====
@@ -17,98 +15,63 @@ import InitialPickaxeState from "../game/initialState/InitialPickaxeState.js";
 import InitialLadyState from "../game/initialState/lady/InitialLadyState.js";
 
 // ===== COMPONENTES =====
-//modals-screens-
 import UpgradeModal from "../components/modals/UpgradeModal.jsx";
 import ModalsMenu from "../components/modals/ModalsMenu.jsx";
+import PickaxeModal from "../components/modals/PickaxeModal.jsx";
 import TavernModal from "./modalTavern/TavernModal.jsx";
-
 import GoldMine from "../components/GoldMine.jsx";
 import TutorialPointer from "../components/TutorialPointer.jsx";
 import ForgeModal from '../screens/modalForge/ForgeModal';
 
-// ===== ASSETS: UI =====
+// ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
+import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png";
+import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
+import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.png";
+import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.png";
+import repair from "../assets/ui/icons-hud/hud-principal/repair.png";
+import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.png";
 
 // ===== ASSETS: FONDOS =====
 import bgMain from "../assets/backgrounds/fondo4.png";
 
-// ===== ASSETS: ORES =====
-import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png"
-import metal1 from "../assets/ui/icons-hud/hud-ores/metal1.png"
-import diamond1 from "../assets/ui/icons-hud/hud-ores/diamante1.png"
+// ===== ASSETS: ORES (comentado, en uso futuro) =====
+import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png";
+import metal1 from "../assets/ui/icons-hud/hud-ores/metal1.png";
+import diamond1 from "../assets/ui/icons-hud/hud-ores/diamante1.png";
 
-// ===== ASSETS: HUD =====
-import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png"
+// ===== ASSETS: PICKAXE — stone =====
+import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
+import pickAxeStone1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier1.png";
+import pickAxeStone2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier2.png";
+import pickAxeStone3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier3.png";
 
-import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
+// ===== ASSETS: PICKAXE — bronze =====
+import pickAxeBronze from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png";
+import pickAxeBronze1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier1.png";
+import pickAxeBronze2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier2.png";
+import pickAxeBronze3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier3.png";
 
-import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.png"
+// ===== ASSETS: PICKAXE — iron =====
+import pickAxeIron from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png";
+import pickAxeIron1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier1.png";
+import pickAxeIron2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier2.png";
+import pickAxeIron3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier3.png";
 
+// ===== ASSETS: PICKAXE — diamond =====
+import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png";
+import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.png";
+import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.png";
+import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png";
 
-import pickAxe from "../assets/ui/pico1.png";
-// ===== ASSETS: PICKAXE =====
+// ===== ASSETS: AUTOMINE =====
+import activeMine from "../assets/ui/icons-auto-mine/active-mine.png";
+import stopMine from "../assets/ui/icons-auto-mine/stop-mine.png";
 
-
-//stone
-import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png"
-//tier 1-2-3
-import pickAxeStone1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier1.png"
-import pickAxeStone2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier2.png"
-import pickAxeStone3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier3.png"
-
-//bronze
-import pickAxeBronze from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png"
-//tier 1-2-3
-import pickAxeBronze1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier1.png"
-import pickAxeBronze2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier2.png"
-import pickAxeBronze3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier3.png"
-
-//iron
-import pickAxeIron from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png"
-//tier 1-2-3
-import pickAxeIron1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier1.png"
-import pickAxeIron2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier2.png"
-import pickAxeIron3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier3.png"
-
-//diamond
-import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png"
-//tier 1-2-3
-import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.png"
-import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.png"
-import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png"
-
-
-
-// ===== ASSETS: HUD AUTO MINE =====
-import activeMine from "../assets/ui/icons-auto-mine/active-mine.png"
-import stopMine from "../assets/ui/icons-auto-mine/stop-mine.png"
-
-// ===== ASSETS: ICONS "+" =====
-import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.png"
-import repair from "../assets/ui/icons-hud/hud-principal/repair.png"
-import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.png"
-
-
-
-
-
-
-// ===== ASSETS: MODAL MINAS =====
-import mineModal from "../assets/ui/icon-mine1.png"
-
-// ===== ASSETS: MODAL TAVERN =====
-import iconTavern from "../assets/ui/icon-tavern1.png"
-// ===== ASSETS:fORGE =====
-import iconForge from "../assets/ui/icon-forge1.png"
-
-
-
-
-// ===== MINAS =====
-import MinesConfig from "../game/MinesConfig.js";
-import InitialMinesState from "../game/initialState/InitialMinesState.js";
-import MinesMapModal from "../screens/modalMine/MinesMapModal.jsx";
-import MineScreen from "../screens/modalMine/MineScreen.jsx";
+// ===== ASSETS: ICONOS PANTALLAS =====
+import mineModal from "../assets/ui/icon-mine1.png";
+import iconTavern from "../assets/ui/icon-tavern1.png";
+import iconForge from "../assets/ui/icon-forge1.png";
 
 // ===== ASSETS: MODALES =====
 import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.png";
@@ -122,6 +85,12 @@ import repairPickaxe from "../assets/ui/icons-hud/hud-modals/repairPickaxe.png";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
 
+// ===== MINAS =====
+import MinesConfig from "../game/MinesConfig.js";
+import InitialMinesState from "../game/initialState/InitialMinesState.js";
+import MinesMapModal from "../screens/modalMine/MinesMapModal.jsx";
+import MineScreen from "../screens/modalMine/MineScreen.jsx";
+
 // ===== CSS =====
 import "../styles/gameRoot.css";
 
@@ -129,7 +98,8 @@ import "../styles/gameRoot.css";
 import { Menu, Settings } from "lucide-react";
 
 function GameRoot() {
-    // ===== ESTADOS =====
+
+    // ===== ESTADOS UI =====
     const [isResetting, setIsResetting] = useState(false);
     const [isMineScreenOpen, setIsMineScreenOpen] = useState(false);
     const [openModal, setOpenModal] = useState(null);
@@ -139,9 +109,9 @@ function GameRoot() {
     const [goldFloatingNumbers, setGoldFloatingNumbers] = useState([]);
     const [tavernModalOpen, setTavernModalOpen] = useState(false);
     const [oreFloatingNumbers, setOreFloatingNumbers] = useState([]);
-    const [forgeModalOpen, setForgeModalOpen] = useState(false)
+    const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
-    // ===== GAME STATE =====
+    // ===== GAME STATE — carga desde localStorage si existe =====
     const [gameState, setGameState] = useState(() => {
         const saved = localStorage.getItem('ladyHungryGame');
         if (saved) return JSON.parse(saved);
@@ -153,14 +123,14 @@ function GameRoot() {
         };
     });
 
-    // ===== AUTO-SAVE =====
+    // ===== AUTO-SAVE — guarda en localStorage en cada cambio =====
     useEffect(() => {
         if (!isResetting) {
             localStorage.setItem('ladyHungryGame', JSON.stringify(gameState));
         }
     }, [gameState, isResetting]);
 
-    // ===== NEW GAME =====
+    // ===== NUEVO JUEGO — borra save y recarga =====
     const handleNewGame = () => {
         if (window.confirm('¿Seguro que quieres empezar un nuevo juego? Se perderá todo el progreso.')) {
             setIsResetting(true);
@@ -169,7 +139,7 @@ function GameRoot() {
         }
     };
 
-    // ===== ACTIONS =====
+    // ===== ACTIONS — todas las funciones de lógica del juego =====
     const {
         handleFeedLady,
         handleBuyGoldPerSecondUpgrade,
@@ -180,7 +150,6 @@ function GameRoot() {
         handleRepairPickaxe,
         handleMine,
         handleMineClick,
-
         handleUnlockMineType,
         handleEnterMine,
         handleDiscardMine,
@@ -203,18 +172,17 @@ function GameRoot() {
         handleStartSmelt,
         handleCollectIngot,
         handleUpgradeFurnace,
-
-
-
     } = useGameActions(setGameState);
 
     // ===== PICKAXE LOGIC =====
+    // Determina si el upgrade es de tier o de material
     const isTierUpgrade = gameState.pickaxe.tier < 3;
     const pickaxeUpgradeCost = isTierUpgrade ? gameState.pickaxe.tierUpgradeCost : gameState.pickaxe.materialUpgradeCost;
     const canUpgradePickaxe = gameState.gold >= pickaxeUpgradeCost;
     const handlePickaxeUpgrade = isTierUpgrade ? handleUpgradePickaxeTier : handleUpgradePickaxeMaterial;
     const canRepairPickaxe = gameState.pickaxe.durability < gameState.pickaxe.maxDurability && gameState.gold >= gameState.pickaxe.repairCost;
 
+    // Devuelve el material y cantidad requerida para upgrade de material
     const getMaterialRequired = () => {
         if (gameState.pickaxe.material === "stone") return { type: "bronzeIngot", amount: 5 };
         if (gameState.pickaxe.material === "bronze") return { type: "ironIngot", amount: 3 };
@@ -223,8 +191,12 @@ function GameRoot() {
     };
 
     const materialReq = getMaterialRequired();
-    const canAffordMaterialUpgrade = gameState.pickaxe.tier === 3 && gameState.gold >= gameState.pickaxe.materialUpgradeCost && materialReq && gameState[materialReq.type] >= materialReq.amount;
+    const canAffordMaterialUpgrade = gameState.pickaxe.tier === 3 &&
+        gameState.gold >= gameState.pickaxe.materialUpgradeCost &&
+        materialReq &&
+        gameState[materialReq.type] >= materialReq.amount;
 
+    // Devuelve imagen del pico según material y tier actual
     const getPickaxeIcon = (material, tier) => {
         const icons = {
             stone: [pickAxeStone, pickAxeStone1, pickAxeStone2, pickAxeStone3],
@@ -235,17 +207,17 @@ function GameRoot() {
         return icons[material]?.[tier] || pickAxeStone;
     };
 
-    // ===== HOOKS =====
-    useGoldPerSecond(gameState, setGameState);
-    useAutoMining(gameState, handleMine, setGameState);
-    useSnackBuffs(gameState, setGameState);
-    useAutomine(gameState, handleMineClick, handleStopAutomine);
-    useAutomineCooldown(gameState, setGameState);
+    // ===== HOOKS DE SISTEMA =====
+    useGoldPerSecond(gameState, setGameState);        // Tick oro/segundo
+    useAutoMining(gameState, handleMine, setGameState); // Automina continua
+    useSnackBuffs(gameState, setGameState);            // Aplica buffs activos
+    useAutomine(gameState, handleMineClick, handleStopAutomine); // Automine manual
+    useAutomineCooldown(gameState, setGameState);      // Recupera cargas de automine
 
-    // ✅ Calcula cooldown de automine
-
+    // Cargas disponibles de automine
     const availableCharges = gameState.automine?.charges?.filter(c => c.available).length || 0;
 
+    // ===== FLOATING NUMBERS — ores =====
     const showOreCost = (type, amount) => {
         const id = Date.now();
         setOreFloatingNumbers(prev => [...prev, { id, type, value: amount }]);
@@ -254,6 +226,7 @@ function GameRoot() {
         }, 1500);
     };
 
+    // Muestra número flotante al recibir recompensa de mina
     useEffect(() => {
         console.log('lastMineReward:', gameState.lastMineReward);
         if (gameState.lastMineReward) {
@@ -261,64 +234,58 @@ function GameRoot() {
         }
     }, [gameState.lastMineReward]);
 
+    // Calcula segundos restantes por cada carga de automine
     const getChargeTimers = () => {
         if (!gameState.automine?.charges) return [];
         const now = Date.now();
         return gameState.automine.charges.map(charge => {
             if (charge.available) return null;
             if (!charge.cooldownUntil) return null;
-            const remaining = Math.max(0, Math.ceil((charge.cooldownUntil - now) / 1000));
-            return remaining;
+            return Math.max(0, Math.ceil((charge.cooldownUntil - now) / 1000));
         });
     };
 
     const chargeTimers = getChargeTimers();
 
     // ===== TUTORIAL TRIGGERS =====
-    // Trigger paso 0: Oro/segundo (solo muestra animación)
+    // Paso 0: muestra animación en oro/segundo
     useEffect(() => {
         if (gameState.tutorial?.currentStep === 0 && !gameState.tutorial?.completed) {
             setTimeout(() => setTutorialStep(0), 500);
         }
     }, [gameState.tutorial?.currentStep]);
 
-    // Trigger paso 1: Stamina
+    // Paso 1: desbloquea stamina tras comprar oro/segundo
     useEffect(() => {
         if (gameState.tutorial?.goldPerSecondBought &&
             gameState.tutorial?.currentStep === 1 &&
             !gameState.tutorial?.staminaUnlocked) {
-
             setTutorialStep(1);
             handleUnlockTutorialFeature('stamina');
         }
     }, [gameState.tutorial?.goldPerSecondBought, gameState.tutorial?.currentStep, gameState.tutorial?.staminaUnlocked]);
 
-    // Trigger paso 2: Pico
+    // Paso 2: desbloquea pico tras mejorar stamina
     useEffect(() => {
         if (gameState.tutorial?.staminaUpgradeDone &&
             gameState.tutorial?.currentStep === 2 &&
             !gameState.tutorial?.pickaxeUnlocked) {
-
             setTutorialStep(2);
             handleUnlockTutorialFeature('pickaxe');
         }
     }, [gameState.tutorial?.staminaUpgradeDone, gameState.tutorial?.currentStep, gameState.tutorial?.pickaxeUnlocked]);
 
-    // ✅ Función para mostrar número flotante en HUD oro
+    // ===== FLOATING NUMBERS — oro =====
+    // Muestra coste negativo al gastar oro
     const showGoldCost = (cost) => {
         const id = Date.now();
-        setGoldFloatingNumbers(prev => [...prev, {
-            id: id,
-            value: -cost,  // Negativo
-            timestamp: Date.now()
-        }]);
-
+        setGoldFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
         setTimeout(() => {
             setGoldFloatingNumbers(prev => prev.filter(n => n.id !== id));
         }, 1500);
     };
 
-
+    // Formatea números grandes (10k, 1.5M...)
     const formatNumber = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 10000) return (num / 1000).toFixed(1) + 'k';
@@ -329,50 +296,40 @@ function GameRoot() {
     return (
         <div className="game-container" style={{ backgroundImage: `url(${bgMain})` }}>
 
-            {/* OVERLAY TUTORIAL */}
+            {/* OVERLAY OSCURO DURANTE TUTORIAL */}
             {tutorialStep !== null && (
                 <div style={{
                     position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
+                    top: 0, left: 0,
+                    width: '100%', height: '100%',
                     background: 'rgba(0, 0, 0, 0.85)',
                     zIndex: 500,
                     pointerEvents: 'none'
                 }} />
             )}
 
-            {/* HEADER */}
+            {/* HEADER — oro + monedas taberna + menú */}
             <div className="gold-menu-display">
                 <div className="gold-display">
-
                     <div className="gold-cont" style={{ position: 'relative' }}>
                         <div className="cont-hud-gold">
                             <img src={cofre} alt="Cofre Oro" />
                             <p>{formatNumber(gameState.gold)}</p>
                         </div>
-                        {/* ✅ NÚMEROS FLOTANTES */}
+
+                        {/* Números flotantes de gasto de oro */}
                         {goldFloatingNumbers.map(num => (
-                            <div
-                                key={num.id}
-                                className="floating-gold-cost"
-                            >
-                                {num.value}
-                            </div>
+                            <div key={num.id} className="floating-gold-cost">{num.value}</div>
                         ))}
 
-
+                        {/* Monedas de taberna */}
                         <div className="cont-coinTavern">
-
                             <div className="container-coinTavern">
                                 <img src={coinTavern} alt="Coin-Tavern" />
                                 <span>{gameState.tavernCoins}</span>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
 
                 <ModalsMenu
@@ -381,23 +338,17 @@ function GameRoot() {
                     button1={() => { handleNewGame(); }}
                     textButton={"newGame"}
                 />
-
             </div>
 
-
-            {/* HUD */}
+            {/* HUD — oro/seg, stamina, pico */}
             <div className="game-info">
 
                 {/* ORO/SEGUNDO */}
-                <div className="gold-per-sec" >
+                <div className="gold-per-sec">
                     <img className="img-goldSec" src={gold1} alt="Oro" />
                     <p>+{gameState.goldPerSecond}</p>
-
                     <button
-                        onClick={() => {
-                            setTutorialStep(null);
-                            setOpenModal("goldPerSecond");
-                        }}
+                        onClick={() => { setTutorialStep(null); setOpenModal("goldPerSecond"); }}
                         className={`openDisplay1 ${tutorialStep === 0 ? 'tutorial-highlight' : ''}`}
                         style={{ position: 'relative' }}
                     >
@@ -406,6 +357,7 @@ function GameRoot() {
                     </button>
                 </div>
 
+                {/* Modal oro/segundo + snacks */}
                 <UpgradeModal
                     isOpen={openModal === "goldPerSecond"}
                     onClose={() => setOpenModal(null)}
@@ -421,7 +373,6 @@ function GameRoot() {
                     bgImage={bgGold}
                     iconImage={iconGold}
                     buttonImage={buttonUpgrade}
-
                     showSnacks={true}
                     snacksData={gameState.snacks}
                     tavernCoins={gameState.tavernCoins}
@@ -432,11 +383,9 @@ function GameRoot() {
 
                 {/* STAMINA */}
                 <div className="stamina-display">
+                    {/* Botón abrir modal — bloqueado hasta tutorial paso 1 */}
                     <button
-                        onClick={() => {
-                            setTutorialStep(null);
-                            setOpenModal("maxStamina");
-                        }}
+                        onClick={() => { setTutorialStep(null); setOpenModal("maxStamina"); }}
                         disabled={!gameState.tutorial?.staminaUnlocked && !gameState.tutorial?.completed}
                         className={`${gameState.stamina <= 5 ? 'low-resource' : ''} ${tutorialStep === 1 ? 'tutorial-highlight' : ''}`}
                         style={{
@@ -452,13 +401,11 @@ function GameRoot() {
 
                     <p>{gameState.stamina}/{gameState.maxStamina}</p>
 
+                    {/* Botón recarga rápida sin abrir modal */}
                     <button
                         onClick={() => {
                             const cost = gameState.staminaRefillCost;
-                            if (gameState.gold >= cost) {
-                                showGoldCost(cost);  // ✅ Muestra -100
-                                handleRefillStamina();
-                            }
+                            if (gameState.gold >= cost) { showGoldCost(cost); handleRefillStamina(); }
                             setOpenModal(null);
                         }}
                         disabled={gameState.automine?.isActive || gameState.stamina >= gameState.maxStamina}
@@ -466,21 +413,16 @@ function GameRoot() {
                     >
                         <img src={refillStaminaIcon} alt="Refill-Stamina" />
                     </button>
-
                 </div>
 
+                {/* Modal stamina */}
                 <UpgradeModal
                     isOpen={openModal === "maxStamina"}
-                    onClose={() => {
-                        setOpenModal(null);
-                        setTutorialStep(null);
-
-                    }}
+                    onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`lvl ${gameState.maxStaminaLevel}`}
                     cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
                     onUpgrade={() => { handleBuyMaxStaminaUpgrade(); }}
                     canAfford={true}
-
                     showRefill={gameState.stamina < gameState.maxStamina}
                     refillCost={`Recargar: ${gameState.staminaRefillCost}`}
                     onRefill={() => { handleRefillStamina(); setOpenModal(null); }}
@@ -494,17 +436,15 @@ function GameRoot() {
 
                 {/* PICO */}
                 <div className="pickaxe-display">
+                    {/* Botón abrir modal — bloqueado hasta tutorial paso 2 */}
                     <button
-                        onClick={() => {
-                            setTutorialStep(null);
-                            setOpenModal("pickaxe");
-                        }}
+                        onClick={() => { setTutorialStep(null); setOpenModal("pickaxe"); }}
                         disabled={!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed}
                         className={`
-        ${gameState.pickaxe.durability <= 5 ? 'low-resource' : ''}
-        ${tutorialStep === 2 ? 'tutorial-highlight' : ''}
-        ${(!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'locked-tutorial' : ''}
-    `.trim()}
+                            ${gameState.pickaxe.durability <= 5 ? 'low-resource' : ''}
+                            ${tutorialStep === 2 ? 'tutorial-highlight' : ''}
+                            ${(!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'locked-tutorial' : ''}
+                        `.trim()}
                     >
                         <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} loading='lazy' alt="Pickaxe" />
                         {tutorialStep === 2 && <TutorialPointer step={2} />}
@@ -512,13 +452,11 @@ function GameRoot() {
 
                     <p>{gameState.pickaxe.durability}/{gameState.pickaxe.maxDurability}</p>
 
+                    {/* Botón reparación rápida sin abrir modal */}
                     <button
                         onClick={() => {
                             const cost = gameState.pickaxe.repairCost;
-                            if (gameState.gold >= cost) {
-                                showGoldCost(cost);  // ✅ Muestra -50 (o lo que cueste)
-                                handleRepairPickaxe();
-                            }
+                            if (gameState.gold >= cost) { showGoldCost(cost); handleRepairPickaxe(); }
                             setOpenModal(null);
                         }}
                         disabled={gameState.automine?.isActive || gameState.pickaxe.durability >= gameState.pickaxe.maxDurability}
@@ -528,45 +466,29 @@ function GameRoot() {
                     </button>
                 </div>
 
-                <UpgradeModal
+                {/* Modal pico */}
+                <PickaxeModal
                     isOpen={openModal === "pickaxe"}
-                    onClose={() => {
-                        setOpenModal(null);
-                        setTutorialStep(null);
-                    }}
-
+                    onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`Tier ${gameState.pickaxe.tier}`}
                     cost={gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0}
                     onUpgrade={handlePickaxeUpgrade}
                     canAfford={true}
-                    showRefill={gameState.pickaxe.durability < gameState.pickaxe.maxDurability}
-                    refillCost={`Reparar: ${gameState.pickaxe.repairCost}`}
-                    onRefill={() => { handleRepairPickaxe(); setOpenModal(null); }}
-                    canAffordRefill={canRepairPickaxe}
                     tutorialMessage={!gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null}
                     buttonImage={btnTier}
                     iconImage={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
                     bgImage={bgPickaxe}
-                    refillButtonImage={repairPickaxe}
-                    isPickaxe={true}
                     pickaxeTier={gameState.pickaxe.tier}
                     pickaxeMaterial={gameState.pickaxe.material}
                     onUpgradeMaterial={handleUpgradePickaxeMaterial}
                     materialCost={gameState.pickaxe.materialUpgradeCost}
                     canAffordMaterial={canAffordMaterialUpgrade}
                     materialButtonImage={PickAxeUp}
-
-
                 />
             </div>
 
-
-
-
-            {/* ORES 
+            {/* ORES HUD — comentado, pendiente de activar
             <div className="cont-hud-ores">
-
-               
                 <div className="cont-ore" style={{ position: 'relative' }}>
                     <p>{gameState.bronze}</p>
                     <img src={bronze1} alt="Bronze" />
@@ -591,8 +513,10 @@ function GameRoot() {
             </div>
             */}
 
+            {/* BOTONES PANTALLAS — Taberna, Minas, Forja */}
             <div className="cont-screens">
-                {/* taberna */}
+
+                {/* Taberna — bloqueada hasta pagar 1000 oro */}
                 <div className="modal-tavern">
                     {gameState.tavernUnlocked ? (
                         <button onClick={() => setTavernModalOpen(true)} className="tavern-btn">
@@ -606,7 +530,7 @@ function GameRoot() {
                     )}
                 </div>
 
-                {/* MINAS */}
+                {/* Minas — bloqueadas hasta pagar 2000 oro */}
                 <div className="modal-mine">
                     {gameState.minesMapUnlocked ? (
                         <button onClick={() => setMinesModalOpen(true)} className="mines-map-btn">
@@ -620,8 +544,7 @@ function GameRoot() {
                     )}
                 </div>
 
-
-                {/* FORGE */}
+                {/* Forja — siempre disponible */}
                 <div className="modal-forge">
                     <button onClick={() => setForgeModalOpen(true)} className="forge-btn">
                         <img src={iconForge} alt="Icon-Forge" />
@@ -629,11 +552,10 @@ function GameRoot() {
                 </div>
             </div>
 
-
-            {/* AUTOMINE */}
-
+            {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
             <div className="automine-container">
                 {!gameState.automine?.unlocked ? (
+                    // Bloqueado — muestra coste de desbloqueo
                     <button
                         onClick={handleUnlockAutomine}
                         disabled={gameState.gold < AutomineConfig.unlockCost}
@@ -643,6 +565,7 @@ function GameRoot() {
                         <span>🔒 {AutomineConfig.unlockCost} oro</span>
                     </button>
                 ) : (
+                    // Activo — muestra cargas disponibles y progreso de cooldown
                     <button
                         onClick={gameState.automine.isActive ? handleStopAutomine : handleActivateAutomine}
                         disabled={!gameState.automine.isActive && (availableCharges <= 0 || gameState.stamina <= 0 || gameState.pickaxe.durability <= 0)}
@@ -658,7 +581,7 @@ function GameRoot() {
                 )}
             </div>
 
-
+            {/* MAPA DE MINAS */}
             <MinesMapModal
                 isOpen={minesModalOpen}
                 onClose={() => setMinesModalOpen(false)}
@@ -672,6 +595,7 @@ function GameRoot() {
                 currentPickaxeMaterial={gameState.pickaxe.material}
             />
 
+            {/* PANTALLA DE MINA INTERIOR */}
             <MineScreen
                 isOpen={isMineScreenOpen}
                 onClose={() => { handleExitMine(); setIsMineScreenOpen(false); }}
@@ -681,6 +605,7 @@ function GameRoot() {
                 canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
             />
 
+            {/* TABERNA */}
             <TavernModal
                 isOpen={tavernModalOpen}
                 onClose={() => setTavernModalOpen(false)}
@@ -695,6 +620,7 @@ function GameRoot() {
                 onConvertCoins={handleConvertCoinsToGold}
             />
 
+            {/* FORJA */}
             <ForgeModal
                 isOpen={forgeModalOpen}
                 onClose={() => setForgeModalOpen(false)}
@@ -703,14 +629,14 @@ function GameRoot() {
                 onStartSmelt={handleStartSmelt}
                 onCollectIngot={handleCollectIngot}
                 onUpgradeFurnace={handleUpgradeFurnace}
-
             />
 
+            {/* SETTINGS */}
             <div>
                 <button onClick={() => setMenuOpenModal(prev => !prev)}><Settings /></button>
             </div>
 
-            {/* GOLD MINE */}
+            {/* MENA DE ORO — elemento principal clickeable */}
             <GoldMine
                 onMineClick={handleMineClick}
                 goldPerMine={gameState.goldPerMine}
@@ -718,7 +644,6 @@ function GameRoot() {
                 currentCombo={gameState.comboCount}
                 comboMilestones={gameState.comboMilestones}
             />
-
 
         </div>
     );
