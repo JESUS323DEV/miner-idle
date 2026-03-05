@@ -30,7 +30,7 @@ import ForgeModal from '../screens/modalForge/ForgeModal';
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
 
 // ===== ASSETS: FONDOS =====
-import bgMain from "../assets/backgrounds/fondo2-1.png";
+import bgMain from "../assets/backgrounds/fondo4.png";
 
 // ===== ASSETS: ORES =====
 import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png"
@@ -66,12 +66,12 @@ import pickAxeBronze from "../assets/ui/icons-pickaxe/pico-bronze.png";
 import pickAxeHierro from "../assets/ui/icons-pickaxe/pico-hierro.png";
 
 // ===== ASSETS: MODAL MINAS =====
-import mineModal from "../assets/ui/icon-mine.png"
+import mineModal from "../assets/ui/icon-mine1.png"
 
 // ===== ASSETS: MODAL TAVERN =====
-import iconTavern from "../assets/ui/icon-tavern.png"
+import iconTavern from "../assets/ui/icon-tavern1.png"
 // ===== ASSETS:fORGE =====
-import iconForge from "../assets/ui/icon-forge.png"
+import iconForge from "../assets/ui/icon-forge1.png"
 
 
 

@@ -1,6 +1,9 @@
 import '../../styles/modals/UpgradeModal.css';
 import { X } from "lucide-react";
 
+import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
+import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.png"
+
 /**
  * COMPONENTE: UpgradeModal
  * 
@@ -169,93 +172,102 @@ const UpgradeModal = ({
                         </button>
                     )}
 
+
                     {/* ========== SNACKS (solo si showSnacks = true) ========== */}
                     {showSnacks && snacksData && (
-                        <div style={{
-                            marginTop: '20px',
-                            borderTop: '2px solid rgba(255, 215, 0, 0.3)',
-                            paddingTop: '15px'
-                        }}>
-                            <h3 style={{ color: '#FFD700', textAlign: 'center', marginBottom: '15px' }}>
+                        <div className='cont-snacks' >
+
+                            <h3>
                                 SNACKS (Monedas: {tavernCoins} 🪙)
                             </h3>
 
                             {/* GALLETA */}
-                            <div style={{
-                                background: 'rgba(0,0,0,0.3)',
-                                padding: '10px',
-                                borderRadius: '8px',
-                                marginBottom: '10px'
-                            }}>
-                                <p style={{ color: '#FFD700', fontWeight: 'bold' }}>
-                                    🍪 Galleta {snacksData.cookie.unlocked ? `(Nivel ${snacksData.cookie.level})` : '(BLOQUEADA)'}
-                                </p>
+                            <div className='container-snacks'>
+                                <div className='snack1'>
 
-                                {!snacksData.cookie.unlocked ? (
-                                    <button
-                                        onClick={() => onUnlockSnack('cookie')}
-                                        disabled={tavernCoins < 5}
-                                        style={{ opacity: tavernCoins < 5 ? 0.5 : 1, color: '#FFD700', fontWeight: 'bold' }}
+                                    <div className='cont-cookie'>
+                                        <div className='cont-text-img'>
+                                            <img src={iconCookie} alt="icon-Cookie" />
+                                            <p>Galleta</p>
+                                        </div>
 
-                                    >
-                                        Desbloquear (5 🪙)
-                                    </button>
-                                ) : (
-                                    <>
-                                        {snacksData.cookie.level < 3 && (
-                                            <button
-                                                onClick={() => onUpgradeSnack('cookie')}
-                                                disabled={tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15)}
-                                                style={{
-                                                    opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1,
-                                                    marginRight: '10px',
-                                                    color: '#FFD700', fontWeight: 'bold'
-                                                }}
-                                            >
-                                                Mejorar a Lvl {snacksData.cookie.level + 1} ({snacksData.cookie.level === 1 ? 10 : 15} 🪙)
-                                            </button>
-                                        )}
 
+                                    </div>
+
+
+
+                                    {!snacksData.cookie.unlocked ? (
                                         <button
-                                            onClick={() => onUseSnack('cookie')}
-                                            disabled={
-                                                tavernCoins < 1 ||
-                                                snacksData.cookie.active !== null ||
-                                                (snacksData.drink?.active !== null || snacksData.cake?.active !== null)
-                                            }
+                                            onClick={() => onUnlockSnack('cookie')}
+                                            disabled={tavernCoins < 5}
                                             style={{
-                                                opacity: (tavernCoins < 1 || snacksData.cookie.active !== null) ? 0.5 : 1,
-                                                color: '#FFD700', fontWeight: 'bold'
+                                                opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1,
                                             }}
                                         >
-                                            {snacksData.cookie.active !== null
-                                                ? '⏳ Activa...'
-                                                : 'Usar (1 🪙)'}
+
+
+                                            <span>
+                                                <small>x5</small>
+                                                <img src={coinTavern} alt="coin-tavern" />
+                                            </span>
+
                                         </button>
-                                    </>
-                                )}
+
+                                    ) : (
+                                        <>
+
+                                            <button
+                                                onClick={() => onUseSnack('cookie')}
+                                                disabled={
+                                                    tavernCoins < 1 ||
+                                                    snacksData.cookie.active !== null ||
+                                                    (snacksData.drink?.active !== null || snacksData.cake?.active !== null)
+                                                }
+                                                style={{
+                                                    opacity: (tavernCoins < 1 || snacksData.cookie.active !== null) ? 0.5 : 1,
+
+                                                }}
+                                            >
+                                                {snacksData.cookie.active !== null
+                                                    ? '⏳'
+                                                    : 'Usar (1 🪙)'}
+                                            </button>
+
+                                            {snacksData.cookie.level < 3 && (
+                                                <button
+                                                    onClick={() => onUpgradeSnack('cookie')}
+                                                    disabled={tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15)}
+                                                    style={{
+                                                        opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1,
+                                                    }} >
+
+                                                    Mejorar a Lvl {snacksData.cookie.level + 1} ({snacksData.cookie.level === 1 ? 10 : 15} 🪙)
+                                                </button>
+                                            )}
+
+
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* BEBIDA (placeholder) */}
+                                <div className='snack2' >
+                                    <p>🥤 Bebida (Próximamente)</p>
+                                </div>
+
+                                {/* PASTEL (placeholder)
+                                <div style={{
+                                    background: 'rgba(0,0,0,0.3)',
+                                    padding: '10px',
+                                    borderRadius: '8px',
+                                    opacity: 0.5
+                                }}>
+                                    <p style={{ color: '#888' }}>🍰 Pastel (Próximamente)</p>
+                                </div>
+
+                                 */}
                             </div>
 
-                            {/* BEBIDA (placeholder) */}
-                            <div style={{
-                                background: 'rgba(0,0,0,0.3)',
-                                padding: '10px',
-                                borderRadius: '8px',
-                                marginBottom: '10px',
-                                opacity: 0.5
-                            }}>
-                                <p style={{ color: '#888' }}>🥤 Bebida (Próximamente)</p>
-                            </div>
-
-                            {/* PASTEL (placeholder) */}
-                            <div style={{
-                                background: 'rgba(0,0,0,0.3)',
-                                padding: '10px',
-                                borderRadius: '8px',
-                                opacity: 0.5
-                            }}>
-                                <p style={{ color: '#888' }}>🍰 Pastel (Próximamente)</p>
-                            </div>
                         </div>
                     )}
                 </div>

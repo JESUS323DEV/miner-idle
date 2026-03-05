@@ -1,6 +1,6 @@
 .modal-overlay {
     position: fixed;
-    top: 8rem;
+    top: 8.8rem;
     left: 0;
     width: 100%;
     height: 100%;
@@ -188,9 +188,6 @@
 
 
 
-
-
-
 .btn-upgrade.locked img,
 .refill-btn-modal.locked img,
 .btn-upgrade-material.locked img {
@@ -220,4 +217,86 @@
     box-shadow: 1px 1px 10px rgb(0, 0, 0);
     background-color: rgb(0, 0, 0);
 
+}
+
+
+/*===================================SNACKS==============================*/
+
+.cont-snacks {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.cont-snacks h3 {
+
+    font-size: 1.5rem;
+    color: white;
+}
+
+.container-snacks {
+
+    width: 100%;
+    border: 1px solid rgb(4, 0, 255);
+    display: flex;
+
+}
+
+.snack1 {
+
+    color: white;
+    padding: 0.2rem;
+    border: 1px solid yellow;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.snack1 button img {
+
+    width: 20px;
+}
+
+.snack1 button span {
+
+    display: flex;
+    align-items: center;
+}
+
+
+.snack1 p {
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.cont-cookie {
+
+    display: flex;
+    gap: 0.8rem;
+}
+
+.cont-cookie img {
+
+    width: 50px;
+}
+
+
+
+
+
+
+.snack2 {
+
+    width: 40%;
+    text-align: center;
+    color: white;
+    opacity: 0.4;
 }

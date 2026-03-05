@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/CombosConfig.js';
-import menaGold from '../assets/scenes/mining/menaGold3-2.png';
+import menaGold from '../assets/scenes/mining/mena-gold5.png';
 
 
 
