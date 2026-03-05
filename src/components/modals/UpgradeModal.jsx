@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import '../../styles/modals/UpgradeModal.css';
+
 import { X } from "lucide-react";
 
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
@@ -55,7 +57,14 @@ const UpgradeModal = ({
     onUpgradeSnack = null,        // ✅ NUEVO
     onUseSnack = null             // ✅ NUEVO
 }) => {
-    // Si el modal no está abierto, no renderiza nada
+    const [tick, setTick] = useState(0);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const interval = setInterval(() => setTick(t => t + 1), 1000);
+        return () => clearInterval(interval);
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     /**
@@ -177,9 +186,7 @@ const UpgradeModal = ({
                     {showSnacks && snacksData && (
                         <div className='cont-snacks' >
 
-                            <h3>
-                                SNACKS (Monedas: {tavernCoins} 🪙)
-                            </h3>
+
 
                             {/* GALLETA */}
                             <div className='container-snacks'>
@@ -188,7 +195,7 @@ const UpgradeModal = ({
                                     <div className='cont-cookie'>
                                         <div className='cont-text-img'>
                                             <img src={iconCookie} alt="icon-Cookie" />
-                                            <p>Galleta</p>
+                                            <p>Galleta Lvl {snacksData.cookie.level}</p>
                                         </div>
 
 
@@ -229,17 +236,13 @@ const UpgradeModal = ({
                                                 }}
                                             >
                                                 {
-                                                    snacksData.cookie.active !== null
-                                                        ? "⌛"
-
-                                                        : (
-                                                            <>
-                                                                <span>
-                                                                    X1
-                                                                    <img src={coinTavern} alt="usar snack" />
-                                                                </span>
-                                                            </>
-                                                        )
+                                                    snacksData.cookie.active !== null ? (() => {
+                                                        const { startTime, duration } = snacksData.cookie.active;
+                                                        const remaining = Math.max(0, duration - Math.floor((Date.now() - startTime) / 1000));
+                                                        const mins = Math.floor(remaining / 60);
+                                                        const secs = remaining % 60;
+                                                        return <span>{mins}:{secs.toString().padStart(2, '0')}</span>;
+                                                    })() : <span> Usar x1 <img src={coinTavern} alt="usar snack" /></span>
                                                 }
                                             </button>
 
@@ -251,7 +254,9 @@ const UpgradeModal = ({
                                                         opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1,
                                                     }} >
 
-                                                    Mejorar a Lvl {snacksData.cookie.level + 1} ({snacksData.cookie.level === 1 ? 10 : 15} 🪙)
+                                                    <span className='mejorar-snack'>Mejorar  {snacksData.cookie.level === 1 ? 10 : 15}
+                                                        <img src={coinTavern} alt="coin" /></span>
+
                                                 </button>
                                             )}
 

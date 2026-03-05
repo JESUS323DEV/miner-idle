@@ -46,7 +46,38 @@ import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.png"
 
 
 import pickAxe from "../assets/ui/pico1.png";
+// ===== ASSETS: PICKAXE =====
+
+
+//stone
 import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png"
+//tier 1-2-3
+import pickAxeStone1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier1.png"
+import pickAxeStone2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier2.png"
+import pickAxeStone3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier3.png"
+
+//bronze
+import pickAxeBronze from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png"
+//tier 1-2-3
+import pickAxeBronze1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier1.png"
+import pickAxeBronze2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier2.png"
+import pickAxeBronze3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier3.png"
+
+//iron
+import pickAxeIron from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png"
+//tier 1-2-3
+import pickAxeIron1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier1.png"
+import pickAxeIron2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier2.png"
+import pickAxeIron3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier3.png"
+
+//diamond
+import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png"
+//tier 1-2-3
+import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.png"
+import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.png"
+import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png"
+
+
 
 // ===== ASSETS: HUD AUTO MINE =====
 import activeMine from "../assets/ui/icons-auto-mine/active-mine.png"
@@ -60,10 +91,7 @@ import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stami
 
 
 
-// ===== ASSETS: PICOS =====
-import pickStone from "../assets/ui/pico1.png";
-import pickAxeBronze from "../assets/ui/icons-pickaxe/pico-bronze.png";
-import pickAxeHierro from "../assets/ui/icons-pickaxe/pico-hierro.png";
+
 
 // ===== ASSETS: MODAL MINAS =====
 import mineModal from "../assets/ui/icon-mine1.png"
@@ -197,9 +225,14 @@ function GameRoot() {
     const materialReq = getMaterialRequired();
     const canAffordMaterialUpgrade = gameState.pickaxe.tier === 3 && gameState.gold >= gameState.pickaxe.materialUpgradeCost && materialReq && gameState[materialReq.type] >= materialReq.amount;
 
-    const getPickaxeIcon = (material) => {
-        const icons = { stone: pickStone, bronze: pickAxeBronze, metal: pickAxeHierro };
-        return icons[material] || pickStone;
+    const getPickaxeIcon = (material, tier) => {
+        const icons = {
+            stone: [pickAxeStone, pickAxeStone1, pickAxeStone2, pickAxeStone3],
+            bronze: [pickAxeBronze, pickAxeBronze1, pickAxeBronze2, pickAxeBronze3],
+            metal: [pickAxeIron, pickAxeIron1, pickAxeIron2, pickAxeIron3],
+            diamond: [pickAxeDiamond, pickAxeDiamond1, pickAxeDiamond2, pickAxeDiamond3],
+        };
+        return icons[material]?.[tier] || pickAxeStone;
     };
 
     // ===== HOOKS =====
@@ -467,15 +500,13 @@ function GameRoot() {
                             setOpenModal("pickaxe");
                         }}
                         disabled={!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed}
-                        className={`${gameState.pickaxe.durability <= 5 ? 'low-resource' : ''} ${tutorialStep === 2 ? 'tutorial-highlight' : ''}`}
-                        style={{
-                            position: 'relative',
-                            opacity: (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 0.5 : 1,
-                            cursor: (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'not-allowed' : 'pointer',
-                            filter: (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'grayscale(100%)' : 'none'
-                        }}
+                        className={`
+        ${gameState.pickaxe.durability <= 5 ? 'low-resource' : ''}
+        ${tutorialStep === 2 ? 'tutorial-highlight' : ''}
+        ${(!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ? 'locked-tutorial' : ''}
+    `.trim()}
                     >
-                        <img src={pickAxeStone} loading='lazy' alt="Pickaxe" />
+                        <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} loading='lazy' alt="Pickaxe" />
                         {tutorialStep === 2 && <TutorialPointer step={2} />}
                     </button>
 
@@ -514,7 +545,7 @@ function GameRoot() {
                     canAffordRefill={canRepairPickaxe}
                     tutorialMessage={!gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null}
                     buttonImage={btnTier}
-                    iconImage={getPickaxeIcon(gameState.pickaxe.material)}
+                    iconImage={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
                     bgImage={bgPickaxe}
                     refillButtonImage={repairPickaxe}
                     isPickaxe={true}
@@ -528,8 +559,8 @@ function GameRoot() {
 
                 />
             </div>
-            
-            
+
+
 
 
             {/* ORES 

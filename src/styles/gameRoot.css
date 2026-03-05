@@ -162,6 +162,13 @@
   
 }
 
+.locked-tutorial {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    position: relative;
+}
+
 .stamina-display img {
     width: 23px;
 }
