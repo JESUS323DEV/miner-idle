@@ -50,7 +50,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
+    gap: 4rem;
+    padding-top: 1rem;
+
 }
 
 /* ===== BOTÓN CERRAR ===== */
@@ -73,8 +75,8 @@
 /* ===== TUTORIAL POINTER ===== */
 .title-modal {
     position: absolute;
-    top: 11.5rem;
-    left: 2.5rem;
+    top: 7.5rem;
+    left: 7.4rem;
     font-size: 3rem;
     z-index: 20;
     animation: point-right 1s ease-in-out infinite;
@@ -101,54 +103,107 @@
     text-align: center;
     gap: 0.2rem;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    margin-top: 2rem;
+
 }
 
 .gold-info {
     display: flex;
-    justify-content: center;
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+
 }
 
+
 .gold-info p {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     color: rgb(255, 255, 255);
+
     text-shadow: 5px 1px 5px rgb(0, 0, 0);
 }
 
 .gold-info img {
-    width: 70px;
+    width: 100px;
     height: auto;
+
 }
 
-.cost-info {
+
+
+
+
+
+/* ===== BOTÓN UPGRADE ===== */
+.cont-btn-upgrade {
+
+    min-width: 60%;
+    min-height: 100px;
+
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+}
+
+
+
+.info-gold {
+
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    text-shadow: 5px 2px 5px black;
+    font-size: 0.8rem;
+  
+}
+
+.info-gold .iconGold {
+
+    width: 35px;
+    background-color: transparent !important;
+    box-shadow: none;
+
+
+
+}
+
+.cont-btn-upgrade p {
+
+    color: white;
+
+    width: 85%;
+    margin: auto;
+}
+
+.btn-upgrade {
+    background: none;
+    color: rgb(255, 255, 255);
+    backdrop-filter: blur(1px);
+    font-size: 1.2rem;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 0.5rem;
 }
 
-/* ===== BOTÓN UPGRADE ===== */
-.btn-upgrade {
-    background: none;
-    border: none;
-    padding: 1rem;
-    color: rgb(255, 255, 255);
-    backdrop-filter: blur(1px);
-    font-size: 1.2rem;
-}
 
-.btn-upgrade p {
-    text-shadow: 5px 2px 5px black;
-    padding: 0.5rem 0;
-}
+
+
+
 
 .btn-upgrade img {
-    width: 160px;
+    width: 150px;
+    margin: auto;
+
     display: block;
     border-radius: 1rem;
     box-shadow: 1px 1px 10px rgb(0, 0, 0);
@@ -162,28 +217,7 @@
     cursor: not-allowed;
 }
 
-/* ===== BOTÓN REFILL (stamina) ===== */
-.refill-btn-modal {
-    background: none;
-    border: none;
-    padding: 1rem;
-    color: rgb(255, 255, 255);
-    backdrop-filter: blur(1px);
-    font-size: 1.2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-}
 
-.refill-btn-modal img {
-    width: 80px;
-    display: block;
-    border-radius: 1rem;
-    box-shadow: 1px 1px 10px rgb(0, 0, 0);
-    background-color: rgb(0, 0, 0);
-}
 
 /* ===== SNACKS ===== */
 .cont-snacks {
@@ -273,4 +307,32 @@
     opacity: 0.7;
     border: 1px solid rgba(225, 112, 0, 0.736);
     min-width: 170px;
+}
+
+
+/*================================cont-snack-stamina=====================*/
+
+.cont-snack-stamina {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+
+}
+
+.snack1-stamina,
+.snack2-repair {
+
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border: 1px solid rgba(225, 112, 0, 0.736);
+    min-width: 170px;
+    padding: 3rem 0;
+    background-color: rgba(0, 0, 0, 0.467);
+
+
 }

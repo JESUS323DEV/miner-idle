@@ -75,13 +75,11 @@ import iconForge from "../assets/ui/icon-forge1.png";
 
 // ===== ASSETS: MODALES =====
 import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.png";
-import iconGold from "../assets/ui/icons-hud/hud-modals/goldXsecond.png";
+import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.png";
 import buttonUpgrade from "../assets/ui/icons-hud/hud-modals/buttonUpgrade.png";
 import bgStamina from "../assets/backgrounds/bg-modals-hud/bgStamina.png";
-import upgradeStamina from "../assets/ui/icons-hud/hud-modals/upgradeStamina.png";
-import refillStamina from "../assets/ui/icons-hud/hud-modals/refillStamina.png";
+import upgradeStamina from "../assets/ui/icons-hud/hud-modals/icon-lvl-stamina.png";
 import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
-import repairPickaxe from "../assets/ui/icons-hud/hud-modals/repairPickaxe.png";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
 
@@ -379,6 +377,7 @@ function GameRoot() {
                     onUnlockSnack={handleUnlockSnack}
                     onUpgradeSnack={handleUpgradeSnack}
                     onUseSnack={handleUseSnack}
+                    title={ "Oro por segundo"}
                 />
 
                 {/* STAMINA */}
@@ -419,19 +418,16 @@ function GameRoot() {
                 <UpgradeModal
                     isOpen={openModal === "maxStamina"}
                     onClose={() => { setOpenModal(null); setTutorialStep(null); }}
-                    currentLevel={`lvl ${gameState.maxStaminaLevel}`}
+                    currentLevel={`Nivel ${gameState.maxStaminaLevel}`}
                     cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
                     onUpgrade={() => { handleBuyMaxStaminaUpgrade(); }}
                     canAfford={true}
-                    showRefill={gameState.stamina < gameState.maxStamina}
-                    refillCost={`Recargar: ${gameState.staminaRefillCost}`}
-                    onRefill={() => { handleRefillStamina(); setOpenModal(null); }}
-                    canAffordRefill={gameState.gold >= gameState.staminaRefillCost}
                     tutorialMessage={!gameState.tutorial?.staminaUpgradeDone ? " 👉" : null}
                     bgImage={bgStamina}
                     iconImage={upgradeStamina}
                     buttonImage={buttonUpgrade}
-                    refillButtonImage={refillStamina}
+                    showStaminaSnacks={true}
+                    title = {"Energía Max."}
                 />
 
                 {/* PICO */}

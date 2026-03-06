@@ -130,10 +130,28 @@
     text-align: center;
 }
 
-.text-upgrade-pickaxe {
+.info-upgrade-pickaxe {
 
-    margin-top: 0.5rem;
+    margin-top: 1rem;
     color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+
+}
+
+.info-upgrade-pickaxe span {
+
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    
+}
+
+.info-upgrade-pickaxe img {
+
+    width: 30px;
 }
 
 

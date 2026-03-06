@@ -5,7 +5,13 @@ import { X } from "lucide-react";
 
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
 import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.png"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
+const formatNumber = (num) => {
+    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
+    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
+    return num;
+};
 /**
  * COMPONENTE: UpgradeModal
  * Modal reutilizable para oro/segundo y stamina
@@ -43,7 +49,8 @@ const UpgradeModal = ({
     tavernCoins = 0,
     onUnlockSnack = null,
     onUpgradeSnack = null,
-    onUseSnack = null
+    onUseSnack = null,
+    showStaminaSnacks = false
 
 }) => {
     // Tick para actualizar el timer del snack cada segundo
@@ -89,18 +96,23 @@ const UpgradeModal = ({
                             <p>{currentLevel}</p>
                         </div>
 
-                        <button
-                            className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
-                            onClick={onUpgrade}
-                            disabled={!canAfford}
-                        >
-                            <img src={buttonImage} loading='lazy' alt="Upgrade" />
-                            <p>Coste: {cost} Oro</p>
-                        </button>
+                        <div className='cont-btn-upgrade'>
+                            <p>{title}</p>
+                            <button
+                                className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
+                                onClick={onUpgrade}
+                                disabled={!canAfford}
+                            >
+                                <img src={buttonImage} loading='lazy' alt="Upgrade" />
 
+
+                                <span className='info-gold'>coste: {formatNumber(cost)}<img className='iconGold' src={iconGold} alt="Gold" /></span>
+
+                            </button>
+                        </div>
                     </div>
 
-                    {/* BOTÓN REFILL — solo stamina */}
+                    {/* BOTÓN REFILL — solo stamina 
                     {showRefill && (
                         <button
                             className={`refill-btn-modal ${!canAffordRefill ? "locked" : ""}`}
@@ -110,7 +122,25 @@ const UpgradeModal = ({
                             <img src={refillButtonImage} loading='lazy' alt="Recargar" />
                             <p>{refillCost} Oro</p>
                         </button>
+                    )}*/}
+
+
+                    {/* SNACKS STAMINA — próximamente */}
+                    {showStaminaSnacks && (
+                        <div className="cont-snack-stamina">
+
+                            <div className='snack1-stamina'>
+                                <p>⚡Snack Stamina (Próximamente)</p>
+                            </div>
+
+                            <div className='snack2-repair'>
+                                <p>⛏️ Snack Repair (Próximamente)</p>
+                            </div>
+
+
+                        </div>
                     )}
+
 
                     {/* ===== SNACKS — solo modal de oro ===== */}
                     {showSnacks && snacksData && (

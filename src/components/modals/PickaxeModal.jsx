@@ -1,6 +1,26 @@
 import { X } from "lucide-react";
 import '../../styles/modals/PickaxeModal.css';
 
+
+//asset lingotes
+import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
+import lingoteIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
+import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-Diamond.png"
+//asset gold
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+
+const formatNumber = (num) => {
+    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
+    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
+    return num;
+};
+
+const lingoteIcons = {
+    "Lingotes Bronze": lingoteBronze,
+    "Lingotes Hierro": lingoteIron,
+    "Lingotes Diamante": lingoteDiamond,
+};
+
 const getMaterialName = (material) => {
     const names = { stone: "Piedra", bronze: "Bronze", metal: "Metal", diamond: "Diamante" };
     return names[material] || material;
@@ -93,9 +113,17 @@ const PickaxeModal = ({
                         )}
 
                         {pickaxeTier >= 3 && (
-                            <div className="text-upgrade-pickaxe">
-                                <p>Mejorar a {getNextMaterial(pickaxeMaterial)}</p>
-                                <p>Coste: {materialCost} Oro + {getMaterialCost(pickaxeMaterial)?.amount} {getMaterialCost(pickaxeMaterial)?.type}</p>
+                            <div className="info-upgrade-pickaxe">
+                                <p>Pico {getNextMaterial(pickaxeMaterial)}</p>
+
+                                <span>
+                                    Coste: {formatNumber(materialCost)} <img src={iconGold} alt="oro" />
+                                    {' + '}
+                                    {getMaterialCost(pickaxeMaterial)?.amount}
+
+                                    <img src={lingoteIcons[getMaterialCost(pickaxeMaterial)?.type]} alt="lingote" />
+                                </span>
+
                             </div>
                         )}
                     </div>
