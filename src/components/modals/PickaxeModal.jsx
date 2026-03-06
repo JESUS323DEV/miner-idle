@@ -5,7 +5,7 @@ import '../../styles/modals/PickaxeModal.css';
 //asset lingotes
 import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
 import lingoteIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
-import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-Diamond.png"
+import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
 //asset gold
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
