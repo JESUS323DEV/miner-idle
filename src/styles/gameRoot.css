@@ -83,7 +83,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 1.5rem;
 
     box-shadow:
         inset 0 1px 0 rgba(255, 215, 120, 0.15),
@@ -91,11 +91,12 @@
 }
 
 .cont-hud-gold p {
-    margin: 0;
+    min-width: 4rem;
     font-weight: bold;
     color: #f5d47a;
     letter-spacing: 1px;
     text-shadow: 1px 1px 10px rgb(160, 144, 0);
+
 }
 
 /* CONTENEDOR MONEDA TABERNA */
@@ -123,6 +124,9 @@
 .container-coinTavern span {
     font-weight: bold;
     color: #f5d47a;
+
+    min-width: 1.5rem;
+    
 }
 
 /* Botón menú hamburguesa */
@@ -159,7 +163,7 @@
 
 .pickaxe-display img {
     width: 25px;
-  
+
 }
 
 .locked-tutorial {
@@ -178,17 +182,41 @@
 .pickaxe-display button {
     display: flex;
     align-items: end;
+
+
 }
 
 
 
-.gold-per-sec,
+
 .pickaxe-display,
 .stamina-display {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.2rem;
+
+}
+
+.gold-per-sec {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+
+.stamina-display p,
+.pickaxe-display p {
+    min-width: 2.9rem;
+    text-align: center;
+}
+
+.gold-per-sec p {
+
+    min-width: 1.7rem;
+    text-align: center;
 }
 
 /* Icono stamina — no usado actualmente, reservado */
@@ -196,6 +224,8 @@
 
     display: flex;
     align-items: end;
+
+
 }
 
 
@@ -312,7 +342,7 @@
 .tavern-locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;
-    
+
 }
 
 .tavern-locked span {

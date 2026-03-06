@@ -64,6 +64,7 @@ const PickaxeModal = ({
     canAffordMaterial,
     materialButtonImage,
     tutorialMessage = null,
+    onShowGoldCost = null,
 
 }) => {
     if (!isOpen) return null;
@@ -94,7 +95,7 @@ const PickaxeModal = ({
                         {pickaxeTier < 3 ? (
                             <button
                                 className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
-                                onClick={onUpgrade}
+                                onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
                                 disabled={!canAfford}
                             >
                                 <img src={buttonImage} loading="lazy" alt="Upgrade" />
@@ -104,7 +105,7 @@ const PickaxeModal = ({
 
                             <button
                                 className={`btn-upgrade-material ${!canAffordMaterial ? "locked" : ""}`}
-                                onClick={onUpgradeMaterial}
+                                onClick={() => { onShowGoldCost?.(materialCost); onUpgradeMaterial(); }}
                                 disabled={!canAffordMaterial}
                             >
                                 <img src={materialButtonImage} loading="lazy" alt="Upgrade Material" />

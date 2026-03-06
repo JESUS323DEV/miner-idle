@@ -282,6 +282,17 @@ function GameRoot() {
             setGoldFloatingNumbers(prev => prev.filter(n => n.id !== id));
         }, 1500);
     };
+    // ===== FLOATING NUMBERS — COIN TAVERN =====
+    // Muestra coste negativo al gastar COIN TAVERN
+    const [tavernFloatingNumbers, setTavernFloatingNumbers] = useState([]);
+
+    const showTavernCost = (cost) => {
+        const id = Date.now();
+        setTavernFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
+        setTimeout(() => {
+            setTavernFloatingNumbers(prev => prev.filter(n => n.id !== id));
+        }, 1500);
+    };
 
     // Formatea números grandes (10k, 1.5M...)
     const formatNumber = (num) => {
@@ -321,12 +332,12 @@ function GameRoot() {
                         ))}
 
                         {/* Monedas de taberna */}
-                        <div className="cont-coinTavern">
-                            <div className="container-coinTavern">
-                                <img src={coinTavern} alt="Coin-Tavern" />
-                                <span>{gameState.tavernCoins}</span>
-                            </div>
+                        <div className="container-coinTavern">
+                            <img src={coinTavern} alt="Coin-Tavern" />
+                            <span>{gameState.tavernCoins}</span>
                         </div>
+
+
                     </div>
                 </div>
 
@@ -362,6 +373,7 @@ function GameRoot() {
                     currentLevel={`x${gameState.goldPerSecondLevel}`}
                     cost={gameState.goldPerSecondCost}
                     onUpgrade={() => {
+                        showGoldCost(gameState.goldPerSecondCost);
                         handleBuyGoldPerSecondUpgrade();
                         if (gameState.tutorial?.currentStep === 0) setOpenModal(null);
                     }}
@@ -377,7 +389,7 @@ function GameRoot() {
                     onUnlockSnack={handleUnlockSnack}
                     onUpgradeSnack={handleUpgradeSnack}
                     onUseSnack={handleUseSnack}
-                    title={ "Oro por segundo"}
+                    title={"Oro por segundo"}
                 />
 
                 {/* STAMINA */}
@@ -420,14 +432,17 @@ function GameRoot() {
                     onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`Nivel ${gameState.maxStaminaLevel}`}
                     cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
-                    onUpgrade={() => { handleBuyMaxStaminaUpgrade(); }}
-                    canAfford={true}
+                    onUpgrade={() => {
+                        showGoldCost(gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0);
+                        handleBuyMaxStaminaUpgrade();
+                    }}
+                    canAfford={gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0)}
                     tutorialMessage={!gameState.tutorial?.staminaUpgradeDone ? " 👉" : null}
                     bgImage={bgStamina}
                     iconImage={upgradeStamina}
                     buttonImage={buttonUpgrade}
                     showStaminaSnacks={true}
-                    title = {"Energía Max."}
+                    title={"Energía Max."}
                 />
 
                 {/* PICO */}
@@ -468,8 +483,11 @@ function GameRoot() {
                     onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`Tier ${gameState.pickaxe.tier}`}
                     cost={gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0}
-                    onUpgrade={handlePickaxeUpgrade}
-                    canAfford={true}
+                    onUpgrade={() => {
+                        showGoldCost(gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0);
+                        handlePickaxeUpgrade();
+                    }}
+                    canAfford={gameState.gold >= (gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0)}
                     tutorialMessage={!gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null}
                     buttonImage={btnTier}
                     iconImage={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
@@ -480,6 +498,7 @@ function GameRoot() {
                     materialCost={gameState.pickaxe.materialUpgradeCost}
                     canAffordMaterial={canAffordMaterialUpgrade}
                     materialButtonImage={PickAxeUp}
+                    onShowGoldCost={showGoldCost}
                 />
             </div>
 
@@ -521,7 +540,7 @@ function GameRoot() {
                     ) : (
                         <button onClick={handleUnlockTavern} disabled={gameState.gold < 1000} className="tavern-btn tavern-locked">
                             <img src={iconTavern} alt="Icono-Taberna" />
-                            <span>🔒 3000 oro</span>
+                            <span>🔒 1000 oro</span>
                         </button>
                     )}
                 </div>

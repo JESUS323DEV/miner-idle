@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 110000,
+    gold: 500,
     goldPerSecond: 0,
     goldPerMine: 5,
     passiveGoldBuffs: 0,
@@ -500,9 +500,9 @@ const InitialGameState = {
 
     //===============
     forgeUnlocked: true,
-    bronzeIngot: 100,
-    ironIngot: 100,
-    diamondIngot: 100,
+    bronzeIngot: 0,
+    ironIngot: 0,
+    diamondIngot: 0,
     //===================
     furnaces: {
         bronze: { unlocked: true, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },

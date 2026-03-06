@@ -50,7 +50,8 @@ const UpgradeModal = ({
     onUnlockSnack = null,
     onUpgradeSnack = null,
     onUseSnack = null,
-    showStaminaSnacks = false
+    showStaminaSnacks = false,
+
 
 }) => {
     // Tick para actualizar el timer del snack cada segundo
@@ -106,9 +107,9 @@ const UpgradeModal = ({
                                 <img src={buttonImage} loading='lazy' alt="Upgrade" />
 
 
-                                <span className='info-gold'>coste: {formatNumber(cost)}<img className='iconGold' src={iconGold} alt="Gold" /></span>
-
                             </button>
+                            <span className='info-gold'>coste: {formatNumber(cost)}<img className='iconGold' src={iconGold} alt="Gold" /></span>
+
                         </div>
                     </div>
 

@@ -158,10 +158,14 @@
 
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.1rem;
     text-shadow: 5px 2px 5px black;
     font-size: 0.8rem;
-  
+    color: white;
+    min-width: 70%;
+    margin: auto;
+
 }
 
 .info-gold .iconGold {
@@ -211,8 +215,7 @@
 }
 
 /* Locked: imagen en gris */
-.btn-upgrade.locked img,
-.refill-btn-modal.locked img {
+.btn-upgrade.locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;
 }
