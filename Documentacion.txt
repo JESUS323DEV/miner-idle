@@ -6,18 +6,41 @@ LADY HUNGRY V2 - DOCUMENTACIÓN DE DESARROLLO
 ================================================================================
 
 Estados y Configuración:
-- /src/game/InitialGameState.js - Valores iniciales del juego
-- /src/game/MinesConfig.js - Configuración de todas las minas
-- /src/game/InitialMinesState.js - Estado inicial del sistema de minas
+- /src/game/initialState/InitialGameState.js
+- /src/game/initialState/InitialPickaxeState.js
+- /src/game/initialState/InitialMinesState.js
+- /src/game/initialState/lady/InitialLadyState.js
+- /src/game/initialState/snacksGold/snacksConfig.js
+- /src/game/MinesConfig.js
+- /src/game/CombosConfig.js
+- /src/game/AutomineConfig.js
+- /src/game/config/ForgeConfig.js
 
 Lógica de Negocio:
 - /src/game/hooks/useGameActions.js - TODAS las funciones que modifican estado
+- /src/game/hooks/useGoldPerSecond.js - Tick oro/segundo
+- /src/game/hooks/useAutoMining.js - Automina continua
+- /src/game/hooks/useSnackBuffs.js - Aplica buffs activos
+- /src/game/hooks/useAutomine.js - Automine manual
+- /src/game/hooks/useAutomineCooldown.js - Recupera cargas automine
 
 Componentes Principales:
 - /src/screens/GameRoot.jsx - Pantalla principal
 - /src/components/GoldMine.jsx - Mena de oro clickeable
-- /src/components/MineScreen.jsx - Pantalla dentro de minas
-- /src/components/MinesMapModal.jsx - Modal del mapa de minas
+- /src/components/modals/UpgradeModal.jsx - Modal oro/segundo + stamina
+- /src/components/modals/PickaxeModal.jsx - Modal pico (separado)
+- /src/components/modals/ModalsMenu.jsx - Menú settings
+
+Pantallas/Modales:
+- /src/screens/modalMine/MineScreen.jsx - Pantalla interior mina
+- /src/screens/modalMine/MinesMapModal.jsx - Mapa de minas
+- /src/screens/modalForge/ForgeModal.jsx - Forja
+- /src/screens/modalTavern/TavernModal.jsx - Taberna
+
+Estilos:
+- /src/styles/gameRoot.css
+- /src/styles/modals/UpgradeModal.css - Oro + stamina
+- /src/styles/modals/PickaxeModal.css - Pico (separado)
 
 
 💰 SISTEMA DE ORO
@@ -38,12 +61,12 @@ Costes que NO suben al usar:
 ================================================================================
 
 Valores:
-  stamina: 50
-  maxStamina: 50
+  stamina: 20
+  maxStamina: 20
   staminaRefillCost: 100
 
 Funciones:
-  - handleRefillStamina - Recarga stamina
+  - handleRefillStamina - Recarga stamina al máximo
   - handleBuyMaxStaminaUpgrade - Mejora máximo (+5 stamina)
 
 
@@ -52,15 +75,25 @@ Funciones:
 
 Progresión Materiales:
   stone (5 oro/click)
-    ↓ 50 bronce
+    ↓ 5 lingotes bronze
   bronze (8 oro/click)
-    ↓ 30 hierro
+    ↓ 3 lingotes hierro
   metal (12 oro/click)
-    ↓ 10 diamante
+    ↓ 2 lingotes diamante
   diamond (20 oro/click)
 
 Tier: 0-3 para cada material
 Al cambiar material → tier reset a 0
+Reparar: coste sube +5 por tier, +20 por material
+
+Assets por material y tier:
+  stone/bronze/metal/diamond × tier 0-3 = 16 imágenes
+  Función getPickaxeIcon(material, tier) en GameRoot.jsx
+
+Funciones:
+  - handleUpgradePickaxeTier - Sube tier (0→1→2→3)
+  - handleUpgradePickaxeMaterial - Cambia material (requiere tier 3)
+  - handleRepairPickaxe - Repara durabilidad
 
 
 🗺️ SISTEMA DE MINAS
@@ -71,12 +104,7 @@ Estructura Niveles:
   LVL2 → 3⭐ desbloquea LVL3
   LVL3 → Máximo nivel
 
-Tipos: Bronze (🟤), Iron (⚙️), Diamond (💎)
-
-Configuración Menas (MinesConfig.js):
-  baseVeinsCount: { min: 3, max: 3 }      // Número menas
-  baseVeinCapacity: { min: 20, max: 20 }  // Vida por mena
-  TOTAL: 3 × 20 = 60 clicks
+Tipos: Bronze, Iron, Diamond
 
 Yields (materiales por click):
   stone: { min: 0, max: 1 }
@@ -100,19 +128,91 @@ Mecánica: NO cobras hasta terminar TODAS las venas
 🔥 SISTEMA DE COMBOS
 ================================================================================
 
-Valores:
-  comboCount: 0
-  maxComboEver: 0
-  lastClickTime: null
-
 Funcionamiento:
   - Clicks seguidos suman combo
-  - >1 segundo sin click → Reset
-  - Aparece "x5" a partir del 5to click
+  - >1000ms sin click → Reset
+  - Primer hito: combo 20, luego cada 5 (25, 30...)
+  - Hito nuevo: combo × bonusMultiplier oro
+  - Hito repetido: combo × bonusMultiplier × bonusRepeated oro
 
 Dónde ajustar:
-  - Tiempo reset: handleMineClick → timeSinceLastClick > 1000
-  - Mínimo mostrar: GoldMine.jsx → if (currentCombo >= 5)
+  - CombosConfig.js → firstMilestone, milestoneInterval, bonusMultiplier, bonusRepeated
+  - Tiempo reset: useGameActions.js → handleMineClick
+
+
+⚙️ SISTEMA AUTOMINE
+================================================================================
+
+  - 2 cargas independientes
+  - Cooldown configurable en AutomineConfig.js
+  - Se para solo al quedarse sin stamina o durabilidad
+  - Usa synthetic DOM events sobre [data-gold-mine="true"]
+  - Botón en GameRoot con indicador de cargas y progreso CSS
+
+Funciones:
+  - handleUnlockAutomine
+  - handleActivateAutomine
+  - handleStopAutomine
+
+
+🍪 SISTEMA DE SNACKS
+================================================================================
+
+  - Solo un snack activo a la vez
+  - Coste en monedas de taberna (🪙)
+  - Galleta: +oro/segundo temporal (RNG según nivel)
+    Lvl1: +1-2 oro/seg 90s
+    Lvl2: +2-3 oro/seg 120s
+    Lvl3: +3-4 oro/seg 150s + 30% chance refill stamina o reparar pico
+  - Bebida y Pastel: placeholders (próximamente)
+
+Dónde ajustar:
+  - snacksConfig.js → costes, efectos, duración
+
+
+🔨 SISTEMA DE FORJA
+================================================================================
+
+  3 hornos: bronze, iron, diamond
+  - Se desbloquean pagando oro
+  - Funden materiales → lingotes
+  - Auto-continúa si hay material suficiente
+  - 3 niveles de mejora (reducen tiempo)
+
+Recetas:
+  bronze: 10 ore → 1 lingote
+  iron: 6 ore → 1 lingote
+  diamond: 2 ore → 1 lingote
+
+Dónde ajustar:
+  - ForgeConfig.js → tiempos, costes, recetas
+
+
+🍺 SISTEMA DE TABERNA
+================================================================================
+
+  - Convierte lingotes → monedas de taberna (🪙)
+  - Convierte monedas → oro (1🪙 = 5000 oro)
+
+Tasas de conversión:
+  bronzeIngot: 10 → 1🪙
+  ironIngot: 6 → 1🪙
+  diamondIngot: 2 → 1🪙
+
+
+📖 SISTEMA DE TUTORIAL
+================================================================================
+
+  Paso 0: Compra oro/segundo (gratis)
+  Paso 1: Mejora stamina (gratis)
+  Paso 2: Mejora pico (gratis)
+  Paso 3: Tutorial completado, todo desbloqueado
+
+  Flags en gameState.tutorial:
+  - goldPerSecondBought
+  - staminaUpgradeDone
+  - pickaxeUpgradeDone
+  - completed
 
 
 🐛 BUGS COMUNES
@@ -134,15 +234,15 @@ Thresholds imposibles:
 🎯 WORKFLOW DE CAMBIOS
 ================================================================================
 
-Antes:
+Antes de tocar:
   1. ¿Qué archivo?
   2. ¿Qué función?
-  3. ¿Rompe algo?
+  3. ¿Rompe algo relacionado?
 
 Después:
-  1. Testea función
-  2. Testea relacionadas
-  3. Si ok → Guarda
+  1. Testea función tocada
+  2. Testea sistemas relacionados
+  3. Si ok → commit
 
 
 📍 DÓNDE CAMBIAR COSAS COMUNES
@@ -150,29 +250,30 @@ Después:
 
 Yields minas → MinesConfig.js (yields)
 Thresholds estrellas → useGameActions.js (handleExitMine)
-Coste upgrades → InitialGameState.js
-Tiempo reset combo → useGameActions.js (handleMineClick > 1000)
+Coste upgrades → InitialGameState.js / InitialPickaxeState.js
+Tiempo reset combo → CombosConfig.js
 Vida minas → MinesConfig.js (baseVeinsCount + baseVeinCapacity)
+Tiempos forja → ForgeConfig.js
+Efectos snacks → snacksConfig.js
+Cooldown automine → AutomineConfig.js
 
 
 🚀 SISTEMAS PENDIENTES (FUTURO)
 ================================================================================
 
-- Fortificación pico (end-game)
-- Items consumibles (oro pasivo)
-- Lady/Companion
+- Lady/Companion (handleFeedLady placeholder listo)
+- Snack bebida y pastel
+- Snack stamina/pico conjunto
 - Eventos noche
-- Taberna
-- Tutorial
-
-
-
+- Más secciones taberna
 
 
 =============================IDEAS===================
 
-- UNIFICAR STAMINA Y DURABILIDAD DE PICO 
-- SISTEMA DE COMBOS
-- SNACKS PARA ORO X SECOND
-- SISTEMA VISUAL AL RECARGAR STAMINA
-- Taberna
+- UNIFICAR STAMINA Y DURABILIDAD DE PICO
+- SISTEMA DE COMBOS ✅
+- SNACKS PARA ORO X SECOND ✅
+- SISTEMA VISUAL AL RECARGAR STAMINA ✅
+- TABERNA ✅
+- FORJA ✅
+- AUTOMINE ✅

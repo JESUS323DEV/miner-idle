@@ -26,6 +26,7 @@ p {
     margin: 0;
     padding: 0;
     font-weight: normal;
+    font-family: "Cinzel", serif;
 }
 
 /* Listas sin basura */
@@ -56,6 +57,7 @@ button {
     font: inherit;
     color: inherit;
     cursor: pointer;
+    font-family: "Cinzel", serif;
 }
 
 /* Inputs coherentes */
@@ -84,10 +86,10 @@ body {
 }
 
 summary {
-  list-style: none;
+    list-style: none;
 }
 
 
 summary::-webkit-details-marker {
-  display: none;
+    display: none;
 }
