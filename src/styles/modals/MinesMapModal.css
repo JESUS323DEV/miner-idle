@@ -76,9 +76,6 @@
 
 /* ========== CONTENIDO ========== */
 
-.mines-content {
-    border: 1px solid blue;
-}
 
 .no-mines {
     text-align: center;
@@ -89,37 +86,38 @@
 
 /* ========== TARJETAS DE MINAS ========== */
 
-.mine-card-lvl1 {
+.mine-card-bronze.mine-card-lvl1 {
     position: fixed;
+    top: 17.5rem;
+    left: 0.7rem;
 
-    background: rgba(0, 0, 0, 0.868);
-    border-radius: 10px;
     transition: all 0.3s;
-    width: 100px;
+    width: 90px;
     margin: auto;
 }
 
-.mine-card-lvl2 {
-    background: rgba(0, 0, 0, 0.868);
-    border: 2px solid rgb(255, 0, 0);
+.mine-card-bronze.mine-card-lvl2 {
+    position: fixed;
+    top: 14rem;
+    left: 8rem;
+
     border-radius: 10px;
-    padding: 15px;
     transition: all 0.3s;
-    width: 120px;
+    width: 90px;
+
     margin: auto;
-    margin-bottom: 15px;
 
 }
 
-.mine-card-lvl3 {
-    background: rgba(0, 0, 0, 0.868);
-    border: 2px solid rgb(255, 0, 0);
+.mine-card-bronze.mine-card-lvl3 {
+    position: fixed;
+    top: 14rem;
+    left: 16rem;
+
     border-radius: 10px;
-    padding: 15px;
     transition: all 0.3s;
-    width: 100px;
+    width: 90px;
     margin: auto;
-    margin-bottom: 15px;
 
 }
 
@@ -134,11 +132,19 @@
 .mine-card-header {
     display: flex;
     flex-direction: column;
-    border: 1px solid rgb(0, 255, 68);
     align-items: center;
+    padding: 0.2rem;
+    background-color: rgb(112, 112, 112);
+
 }
 
 
+.mine-card-body {
+
+    text-align: center;
+    background-color: rgba(254, 254, 254, 0.703);
+
+}
 
 .mine-card-header h3 {
     color: white;
@@ -153,30 +159,29 @@
 
 /* ========== BODY DE TARJETA ========== */
 
-.mine-card-body {
-    margin-bottom: 15px;
-}
-
-.mine-description {
-    color: rgb(255, 255, 255);
-    margin: 10px 0;
-    font-size: 10px;
-    text-align: center;
-}
 
 
 
-.mine-value {
-    font-weight: bold;
-    color: #FFD700;
-}
 
 .can-afford {
-    color: #4CAF50;
+    color: #060606;
+
+}
+
+.can-afford1 {
+    color: #7c0202;
+    font-size: 10px;
+
+
 }
 
 .cannot-afford {
-    color: #F44336;
+    color: #7c0202;
+    font-size: 10px;
+}
+
+.cannot-afford1 {
+    color: #7c0202;
     font-size: 10px;
 }
 
@@ -190,50 +195,34 @@
 .btn-enter-mine,
 .btn-discard-mine,
 .btn-unlock-mine {
-    flex: 1;
     font-size: 16px;
     font-weight: bold;
     border: none;
-    border-radius: 8px;
+    width: 100px;
+    margin: auto;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .btn-enter-mine {
-    background: #4CAF50;
+    background: #000000;
     color: white;
+    padding: 0.3rem 0;
 }
 
-.btn-enter-mine:hover {
-    background: #45a049;
-    transform: scale(1.05);
-}
 
-.btn-discard-mine {
-    background: #F44336;
-    color: white;
-}
-
-.btn-discard-mine:hover {
-    background: #da190b;
-}
 
 .btn-unlock-mine {
-    background: #FFD700;
+    background: #fbfbfb;
     color: #1a1a2e;
+
 }
 
-.btn-unlock-mine:hover {
-    background: #FFC700;
-    transform: scale(1.05);
-}
+
 
 .btn-unlock-mine.disabled {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.4);
+    background: rgba(159, 158, 158, 0.784);
+    color: rgb(0, 0, 0);
+    opacity: 0.7;
     cursor: not-allowed;
-}
-
-.btn-unlock-mine.disabled:hover {
-    transform: none;
 }

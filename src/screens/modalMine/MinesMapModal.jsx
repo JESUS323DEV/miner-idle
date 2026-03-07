@@ -63,26 +63,11 @@ const MinesMapModal = ({
                         return (
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
 
-                                <div className="mine-card-header" style={{ borderColor: config.color }}>
-                                    <h3>{config.name}</h3>
-                                </div>
-
-                                <div className="mine-card-body">
-                                    <div className="mine-info-row">
-                                        <span>Drop:</span>
-                                        <span className="mine-value">{getMineYield(type)}</span>
-                                    </div>
-                                    <div className="mine-info-row">
-                                        <span>Menas:</span>
-                                        <span className="mine-value">{config.baseVeinsCount.min}-{config.baseVeinsCount.max}</span>
-                                    </div>
-                                </div>
-
                                 <div className="mine-card-actions">
                                     <button className="btn-enter-mine" onClick={() => onEnterMine(type)}>
-                                        ENTRAR ➡️
+                                        entrar
                                     </button>
-                                
+
                                 </div>
 
 
@@ -92,31 +77,23 @@ const MinesMapModal = ({
 
                     {/* MINAS BLOQUEADAS */}
                     {filteredLocked.map(type => {
+
                         const config = minesConfig[type];
                         const canAfford = canAffordUnlock(config.unlockCost);
                         const meetsStarRequirement = config.requiresStars
-                            ? (bestScores?.[config.requiresStars.mineType] || 0) >= config.requiresStars.stars
+                            ? (bestScores?.[config.requiresStars.mineType] ?? 0) >= config.requiresStars.stars
                             : true;
                         const canUnlock = canAfford && meetsStarRequirement;
 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
-
                         return (
                             <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}>
-                                <div className="mine-card-header" >
-                                    <span className="lock-icon">🔒</span>
-
-                                    <span className={`mine-value ${canAfford ? 'can-afford' : 'cannot-afford'}`}>
-                                        {config.unlockCost} 🪙
-                                    </span>
-                                </div>
-
                                 <div className="mine-card-body">
 
-                                    {config.requiresStars && (
+                                    {config.requiresStars && !meetsStarRequirement && (
                                         <div className="mine-info-row">
-                                            <span className={`mine-value ${meetsStarRequirement ? 'can-afford' : 'cannot-afford'}`}>
+                                            <span className="cannot-afford1">
                                                 {config.requiresStars.stars}⭐ en {config.requiresStars.mineType}
                                             </span>
                                         </div>
@@ -124,28 +101,22 @@ const MinesMapModal = ({
 
                                 </div>
 
-
-
                                 <div className="mine-card-actions">
                                     <button
                                         className={`btn-unlock-mine ${!canUnlock ? 'disabled' : ''}`}
                                         onClick={() => { if (canUnlock) onUnlockType(type); }}
                                         disabled={!canUnlock}
                                     >
-                                        {!meetsStarRequirement ? '🔒 ' :
-                                            !canAfford ? '🔒' : '🔓 '}
+                                        {config.unlockCost} 🪙
                                     </button>
-
                                 </div>
+
 
                             </div>
                         );
                     })}
 
-                    {/* Sin minas */}
-                    {filteredUnlocked.length === 0 && filteredLocked.length === 0 && (
-                        <p className="no-mines">No hay minas disponibles.</p>
-                    )}
+
                 </div>
             </div>
         </div>
