@@ -76,7 +76,8 @@ const initialMinesState = {
      * - Stats en UI ("Has completado X minas de bronce")
      */
     completedMines: [],
-
+    
+    unlockedBiomes: [],
     /**
      * totalMinesCompleted: Contador total de minas completadas
      * - Número simple para stats rápidos

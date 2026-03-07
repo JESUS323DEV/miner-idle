@@ -1,0 +1,42 @@
+.biome-selector-overlay {
+
+    position: fixed;
+    top: 14rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+
+    min-height: 250px;
+    background: rgba(0, 0, 0, 0.684);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+
+}
+
+.biome-selector-modal h2 {
+
+color: white;
+}
+.biome-selector-modal {
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+}
+
+.biome-list {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.biome-btn {
+
+    border: 1px solid;
+    padding: 0.4rem;
+}
+

@@ -1,34 +1,49 @@
 /* ========== CONTENEDOR DEL MODAL ========== */
-
-.mines-modal-content {
-    position: relative;
-    background: rgba(20, 20, 30, 0.95);
-    padding: 20px;
-    max-width: 600px;
-    width: 100%;
-    height: 90vh;
-    overflow-y: auto;
-    color: white;
-    z-index: 3;
-
-    border: 1px solid red;
-
-}
-
 .modal-overlay1 {
     position: fixed;
-    top: -8rem;
+    top: 7rem;
     left: 0;
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    /* ← arriba en vez de centrado */
-    padding-top: 8rem;
-    /* ← ajusta hasta que quede debajo de los materiales */
-    z-index: 10;
+    align-items: center;
+    z-index: 1;
+
+
 }
+
+.mines-modal-content {
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+    min-height: 93vh;
+    overflow-y: auto;
+    color: white;
+    z-index: 3;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+
+.mines-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.568);
+    z-index: -1;
+
+}
+
+
+
+
+
 
 /* ========== HEADER ========== */
 
@@ -81,7 +96,7 @@
 /* ========== CONTENIDO ========== */
 
 .mines-content {
-    min-height: 300px;
+    border: 1px solid blue;
 }
 
 .no-mines {
@@ -93,19 +108,19 @@
 
 /* ========== TARJETAS DE MINAS ========== */
 
-.mine-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+.mine-card-bronze {
+    
+    background: rgb(0, 0, 0);
+    border: 2px solid rgb(255, 0, 0);
     border-radius: 10px;
     padding: 15px;
-    margin-bottom: 15px;
     transition: all 0.3s;
+    width: 300px;
+    margin: auto;
+    margin-bottom: 15px;
 }
 
-.mine-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
+
 
 .mine-card.locked {
     opacity: 0.7;
@@ -120,6 +135,7 @@
     padding-bottom: 10px;
     border-bottom: 2px solid;
     margin-bottom: 10px;
+
 }
 
 .mine-card-header h3 {
@@ -145,12 +161,7 @@
     font-size: 14px;
 }
 
-.mine-info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    color: white;
-}
+
 
 .mine-value {
     font-weight: bold;
@@ -176,7 +187,6 @@
 .btn-discard-mine,
 .btn-unlock-mine {
     flex: 1;
-    padding: 12px 20px;
     font-size: 16px;
     font-weight: bold;
     border: none;

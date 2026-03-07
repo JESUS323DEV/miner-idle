@@ -277,6 +277,7 @@ export const useGameActions = (setGameState) => {
             if (prevState.mines.unlockedTypes.includes(mineType)) return prevState;
 
             const cost = MinesConfig[mineType]?.unlockCost;
+            const baseBiome = mineType.replace('_lvl2', '').replace('_lvl3', '');
             if (cost === undefined) return prevState;
             if (prevState.gold < cost) return prevState;
 
@@ -285,7 +286,10 @@ export const useGameActions = (setGameState) => {
                 gold: prevState.gold - cost,
                 mines: {
                     ...prevState.mines,
-                    unlockedTypes: [...prevState.mines.unlockedTypes, mineType]
+                    unlockedTypes: [...prevState.mines.unlockedTypes, mineType],
+                    unlockedBiomes: prevState.mines.unlockedBiomes?.includes(baseBiome)
+                        ? prevState.mines.unlockedBiomes
+                        : [...(prevState.mines.unlockedBiomes || []), baseBiome]
                 }
             };
         });
@@ -294,10 +298,16 @@ export const useGameActions = (setGameState) => {
     // Entra a una mina → genera venas según MinesConfig
     const handleEnterMine = (mineType) => {
         setGameState(prevState => {
-            if (!prevState.mines.unlockedTypes.includes(mineType)) return prevState;
+            console.log('unlockedBiomes:', prevState.mines.unlockedBiomes);
+            console.log('gold:', prevState.gold);
+            console.log('unlockCost:', MinesConfig[mineType]?.unlockCost);
+            const baseBiome = mineType.replace('_lvl2', '').replace('_lvl3', '');
+            if (!prevState.mines.unlockedBiomes?.includes(baseBiome)) return prevState;
             if (prevState.mines.currentMine?.mineType === mineType) return prevState;
 
             const config = MinesConfig[mineType];
+            if (prevState.gold < config.unlockCost) return prevState;
+
             const numVeins = Math.floor(
                 Math.random() * (config.baseVeinsCount.max - config.baseVeinsCount.min + 1)
             ) + config.baseVeinsCount.min;
@@ -311,6 +321,7 @@ export const useGameActions = (setGameState) => {
 
             return {
                 ...prevState,
+                gold: prevState.gold - config.unlockCost,
                 mines: {
                     ...prevState.mines,
                     currentMine: {
@@ -324,8 +335,6 @@ export const useGameActions = (setGameState) => {
                 }
             };
         });
-
-        console.log(`Entrando a mina de ${mineType}...`);
     };
 
     // Descarta mina del mapa — si estás dentro también limpia currentMine
@@ -470,7 +479,7 @@ export const useGameActions = (setGameState) => {
                         ? prevState.mines.unlockedTypes.filter(t => t !== mineType)
                         : prevState.mines.unlockedTypes,
                     completedMines: allVeinsEmpty
-                        ? [...prevState.mines.completedMines, mineType + '_' + Date.now()]
+                        ? [...prevState.mines.completedMines, mineType + '_' + Date.now() + '_' + Math.random()]
                         : prevState.mines.completedMines,
                     totalMinesCompleted: allVeinsEmpty
                         ? prevState.mines.totalMinesCompleted + 1

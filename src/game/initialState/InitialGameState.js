@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 500,
+    gold: 1000000,
     goldPerSecond: 0,
     goldPerMine: 5,
     passiveGoldBuffs: 0,

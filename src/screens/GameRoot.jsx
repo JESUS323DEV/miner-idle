@@ -22,6 +22,7 @@ import TavernModal from "./modalTavern/TavernModal.jsx";
 import GoldMine from "../components/GoldMine.jsx";
 import TutorialPointer from "../components/TutorialPointer.jsx";
 import ForgeModal from '../screens/modalForge/ForgeModal';
+import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
@@ -34,6 +35,13 @@ import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stami
 
 // ===== ASSETS: FONDOS =====
 import bgMain from "../assets/backgrounds/fondo4.png";
+
+// ===== ASSETS: FONDOS MINES =====
+
+import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.png"
+import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-Iron.png"
+import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.png"
+
 
 // ===== ASSETS: ORES (comentado, en uso futuro) =====
 import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png";
@@ -108,6 +116,9 @@ function GameRoot() {
     const [tavernModalOpen, setTavernModalOpen] = useState(false);
     const [oreFloatingNumbers, setOreFloatingNumbers] = useState([]);
     const [forgeModalOpen, setForgeModalOpen] = useState(false);
+
+    const [selectedBiome, setSelectedBiome] = useState(null);
+    const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
 
     // ===== GAME STATE — carga desde localStorage si existe =====
     const [gameState, setGameState] = useState(() => {
@@ -299,6 +310,13 @@ function GameRoot() {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 10000) return (num / 1000).toFixed(1) + 'k';
         return num;
+    };
+
+    const getMinesBg = (biome) => {
+        if (biome === 'bronze') return bgMineBronze;
+        if (biome === 'iron') return bgMineIron;
+        if (biome === 'diamond') return bgMineDiamond;
+        return null;
     };
 
     // ===== RENDER =====
@@ -548,7 +566,7 @@ function GameRoot() {
                 {/* Minas — bloqueadas hasta pagar 2000 oro */}
                 <div className="modal-mine">
                     {gameState.minesMapUnlocked ? (
-                        <button onClick={() => setMinesModalOpen(true)} className="mines-map-btn">
+                        <button onClick={() => setBiomeSelectorOpen(true)} className="mines-map-btn">
                             <img src={mineModal} alt="Icon1" />
                         </button>
                     ) : (
@@ -596,18 +614,40 @@ function GameRoot() {
                 )}
             </div>
 
+            <BiomeSelectorModal
+                isOpen={biomeSelectorOpen}
+                onClose={() => setBiomeSelectorOpen(false)}
+                onSelectBiome={(biome) => {
+                    setSelectedBiome(biome);
+                    setBiomeSelectorOpen(false);
+                    setMinesModalOpen(true);
+                }}
+                currentGold={gameState.gold}
+                unlockedTypes={gameState.mines.unlockedTypes}
+                onUnlockBiome={(type) => handleUnlockMineType(type)}
+                unlockedBiomes={gameState.mines.unlockedBiomes}
+            />
+
             {/* MAPA DE MINAS */}
             <MinesMapModal
+                selectedBiome={selectedBiome}
                 isOpen={minesModalOpen}
                 onClose={() => setMinesModalOpen(false)}
                 unlockedTypes={gameState.mines.unlockedTypes}
                 bestScores={gameState.mines.bestScores}
                 minesConfig={MinesConfig}
                 onUnlockType={(type) => { handleUnlockMineType(type); }}
-                onEnterMine={(type) => { handleEnterMine(type); setMinesModalOpen(false); setIsMineScreenOpen(true); }}
+                onEnterMine={(type) => {
+                    handleEnterMine(type);
+                    setTimeout(() => {
+                        setMinesModalOpen(false);
+                        setIsMineScreenOpen(true);
+                    }, 50);
+                }}
                 onDiscardMine={handleDiscardMine}
                 currentGold={gameState.gold}
                 currentPickaxeMaterial={gameState.pickaxe.material}
+                bgImage={getMinesBg(selectedBiome)}
             />
 
             {/* PANTALLA DE MINA INTERIOR */}
@@ -661,7 +701,7 @@ function GameRoot() {
             />
 
         </div>
-    );
+    )
 }
 
 export default GameRoot;
