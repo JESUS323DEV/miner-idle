@@ -45,7 +45,7 @@ const MinesMapModal = ({
 
                 {/* HEADER */}
                 <div className="mines-modal-header">
-                    <h2>🗺️ {selectedBiome ? selectedBiome.toUpperCase() : 'MAPA DE MINAS'}</h2>
+                    <h2>MINA DE  {selectedBiome ? selectedBiome.toUpperCase() : 'MAPA DE MINAS'}</h2>
                     <button className="modal-close" onClick={onClose}><X /></button>
                 </div>
 
@@ -59,6 +59,7 @@ const MinesMapModal = ({
 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
+
                         return (
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
 
@@ -81,11 +82,7 @@ const MinesMapModal = ({
                                     <button className="btn-enter-mine" onClick={() => onEnterMine(type)}>
                                         ENTRAR ➡️
                                     </button>
-                                    {onDiscardMine && (
-                                        <button className="btn-discard-mine" onClick={() => onDiscardMine(type)}>
-                                            DESCARTAR
-                                        </button>
-                                    )}
+                                
                                 </div>
 
 
@@ -109,7 +106,6 @@ const MinesMapModal = ({
                             <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}>
                                 <div className="mine-card-header" >
                                     <span className="lock-icon">🔒</span>
-                                    <p className="mine-description">{config.name}</p>
 
                                     <span className={`mine-value ${canAfford ? 'can-afford' : 'cannot-afford'}`}>
                                         {config.unlockCost} 🪙
@@ -120,7 +116,6 @@ const MinesMapModal = ({
 
                                     {config.requiresStars && (
                                         <div className="mine-info-row">
-                                            <span>Requisito:</span>
                                             <span className={`mine-value ${meetsStarRequirement ? 'can-afford' : 'cannot-afford'}`}>
                                                 {config.requiresStars.stars}⭐ en {config.requiresStars.mineType}
                                             </span>
@@ -140,7 +135,9 @@ const MinesMapModal = ({
                                         {!meetsStarRequirement ? '🔒 ' :
                                             !canAfford ? '🔒' : '🔓 '}
                                     </button>
+
                                 </div>
+
                             </div>
                         );
                     })}
