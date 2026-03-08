@@ -146,7 +146,18 @@
     align-items: center;
     gap: 0.3rem;
     font-size: 0.8rem;
+
+}
+
+.info-tier {
+
+    display: flex;
+    gap: 0.5rem;
+}
+
+.info-tier img {
     
+    width: 40px;
 }
 
 .info-upgrade-pickaxe img {

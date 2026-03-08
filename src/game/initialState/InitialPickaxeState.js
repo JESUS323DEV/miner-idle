@@ -208,14 +208,14 @@ const InitialPickaxeState = {
 
     material: "stone",
     tier: 0,
-    durability: 20,
-    maxDurability: 20,
+    durability: 10,
+    maxDurability: 10,
     goldPerMine: 5,
     repairCost: 30,
     repairCostIncrease: 15,
     repairCount: 0,
-    tierUpgradeCost: 1000,
-    materialUpgradeCost: 1000,
+    tierUpgradeCost: 1500,
+    materialUpgradeCost: 5000,
 };
 
 export default InitialPickaxeState;

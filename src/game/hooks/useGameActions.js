@@ -216,6 +216,7 @@ export const useGameActions = (setGameState) => {
                     maxDurability: prevState.pickaxe.maxDurability + 5,
                     durability: prevState.pickaxe.maxDurability + 5,
                     repairCost: prevState.pickaxe.repairCost + 5,
+                    tierUpgradeCost: prevState.pickaxe.tierUpgradeCost + 500,
                 },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
