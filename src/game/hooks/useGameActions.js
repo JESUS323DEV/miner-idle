@@ -202,17 +202,25 @@ export const useGameActions = (setGameState) => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier >= 3) return prevState;
 
-            const isFree = !prevState.tutorial?.pickaxeUpgradeDone;
+            const isFree = false;
             const cost = isFree ? 0 : prevState.pickaxe.tierUpgradeCost;
+            const currentTier = prevState.pickaxe.tier;
+
+            // Coste de lingotes según tier actual
+            const ingotCost = prevState.pickaxe.tierIngotCosts?.[currentTier];
+            const ingotType = ingotCost?.type;
+            const ingotAmount = ingotCost?.amount || 0;
 
             if (!isFree && prevState.gold < cost) return prevState;
+            if (!isFree && ingotType && prevState[ingotType] < ingotAmount) return prevState;
 
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
+                [ingotType]: ingotType ? prevState[ingotType] - ingotAmount : prevState[ingotType],
                 pickaxe: {
                     ...prevState.pickaxe,
-                    tier: prevState.pickaxe.tier + 1,
+                    tier: currentTier + 1,
                     maxDurability: prevState.pickaxe.maxDurability + 5,
                     durability: prevState.pickaxe.maxDurability + 5,
                     repairCost: prevState.pickaxe.repairCost + 5,
@@ -228,7 +236,6 @@ export const useGameActions = (setGameState) => {
             };
         });
     };
-
     // Cambia material del pico (stone→bronze→metal→diamond) — requiere tier 3 + lingotes
     const handleUpgradePickaxeMaterial = () => {
         setGameState(prevState => {

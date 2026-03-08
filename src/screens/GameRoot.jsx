@@ -190,6 +190,9 @@ function GameRoot() {
     const canUpgradePickaxe = gameState.gold >= pickaxeUpgradeCost;
     const handlePickaxeUpgrade = isTierUpgrade ? handleUpgradePickaxeTier : handleUpgradePickaxeMaterial;
     const canRepairPickaxe = gameState.pickaxe.durability < gameState.pickaxe.maxDurability && gameState.gold >= gameState.pickaxe.repairCost;
+    const tierIngotCost = gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.tier];
+    const canAffordTierUpgrade = gameState.gold >= (gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0) &&
+        (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
     // Devuelve el material y cantidad requerida para upgrade de material
     const getMaterialRequired = () => {
@@ -505,7 +508,7 @@ function GameRoot() {
                         showGoldCost(gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0);
                         handlePickaxeUpgrade();
                     }}
-                    canAfford={gameState.gold >= (gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0)}
+                    canAfford={canAffordTierUpgrade}
                     tutorialMessage={!gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null}
                     buttonImage={btnTier}
                     iconImage={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
@@ -517,6 +520,7 @@ function GameRoot() {
                     canAffordMaterial={canAffordMaterialUpgrade}
                     materialButtonImage={PickAxeUp}
                     onShowGoldCost={showGoldCost}
+                    tierIngotCost={tierIngotCost}
                 />
             </div>
 

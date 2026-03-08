@@ -89,6 +89,7 @@ const PickaxeModal = ({
     materialButtonImage,// Imagen del botón de material upgrade
     tutorialMessage = null,     // Mensaje del tutorial con puntero animado
     onShowGoldCost = null,      // Función para mostrar número flotante de gasto
+    tierIngotCost = null,
 }) => {
     // No renderiza si el modal está cerrado
     if (!isOpen) return null;
@@ -129,7 +130,15 @@ const PickaxeModal = ({
                                 disabled={!canAfford}
                             >
                                 <img src={buttonImage} loading="lazy" alt="Upgrade" />
-                                <span className="info-tier">{formatNumber(cost)}<img src={iconGold} alt="Gold" /></span>
+                                <span className="info-tier">
+                                    {formatNumber(cost)}<img src={iconGold} alt="Gold" />
+                                    {tierIngotCost && (
+                                        <>
+                                            {' + '}{tierIngotCost.amount}
+                                            <img src={lingoteIcons[tierIngotCost.type === 'bronzeIngot' ? 'Lingotes Bronze' : tierIngotCost.type === 'ironIngot' ? 'Lingotes Hierro' : 'Lingotes Diamante']} alt="lingote" />
+                                        </>
+                                    )}
+                                </span>
                             </button>
                         ) : (
                             /* TIER = 3: muestra botón de cambiar material (requiere lingotes) */

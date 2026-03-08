@@ -216,6 +216,13 @@ const InitialPickaxeState = {
     repairCount: 0,
     tierUpgradeCost: 1500,
     materialUpgradeCost: 5000,
+
+    
+    tierIngotCosts: {
+        0: { type: "bronzeIngot", amount: 10 },  // tier 0→1: 10 lingotes bronze
+        1: { type: "ironIngot", amount: 20 },     // tier 1→2: 20 lingotes iron
+        2: { type: "diamondIngot", amount: 30 },  // tier 2→3: 30 lingotes diamond
+    },
 };
 
 export default InitialPickaxeState;

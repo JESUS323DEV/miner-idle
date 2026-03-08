@@ -500,7 +500,7 @@ const InitialGameState = {
 
     //===============
     forgeUnlocked: true,
-    bronzeIngot: 0,
+    bronzeIngot: 10,
     ironIngot: 0,
     diamondIngot: 0,
     //===================
