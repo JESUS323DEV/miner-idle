@@ -192,7 +192,7 @@ function GameRoot() {
     const canRepairPickaxe = gameState.pickaxe.durability < gameState.pickaxe.maxDurability && gameState.gold >= gameState.pickaxe.repairCost;
     const tierIngotCost = gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.material]?.[gameState.pickaxe.tier];
     const canAffordTierUpgrade = !gameState.tutorial?.pickaxeUpgradeDone ? true :
-        gameState.gold >= gameState.pickaxe.tierUpgradeCost &&
+        gameState.gold >= (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
         (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
     // Devuelve el material y cantidad requerida para upgrade de material
@@ -504,9 +504,9 @@ function GameRoot() {
                     isOpen={openModal === "pickaxe"}
                     onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`Tier ${gameState.pickaxe.tier}`}
-                    cost={gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0}
+                    cost={gameState.tutorial?.pickaxeUpgradeDone ? (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) : 0}
                     onUpgrade={() => {
-                        showGoldCost(gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0);
+                        showGoldCost(gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0);
                         handlePickaxeUpgrade();
                     }}
                     canAfford={canAffordTierUpgrade}
@@ -522,6 +522,7 @@ function GameRoot() {
                     materialButtonImage={PickAxeUp}
                     onShowGoldCost={showGoldCost}
                     tierIngotCost={tierIngotCost}
+                    materialIngotCost={gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.material]?.[2]}
                 />
             </div>
 

@@ -213,7 +213,15 @@ const InitialPickaxeState = {
     repairCost: 30,           // Coste actual de reparar
     repairCostIncrease: 15,   // Cuánto sube el coste de reparar cada vez
     repairCount: 0,           // Veces que has reparado
-    tierUpgradeCost: 1500,    // Coste actual de subir tier
+
+    // Coste actual de subir tier
+    tierUpgradeCosts: {
+        stone: 1500,
+        bronze: 2500,
+        metal: 4000,
+        diamond: 6000,
+    },
+    //=========================
     materialUpgradeCosts: {   // Coste de cambiar material — independiente por material
         stone: 5000,          // stone → bronze
         bronze: 20000,        // bronze → metal

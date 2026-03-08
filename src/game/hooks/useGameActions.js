@@ -203,7 +203,7 @@ export const useGameActions = (setGameState) => {
             if (prevState.pickaxe.tier >= 3) return prevState;
 
             const isFree = !prevState.tutorial?.pickaxeUpgradeDone;
-            const cost = isFree ? 0 : prevState.pickaxe.tierUpgradeCost;
+            const cost = isFree ? 0 : (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0);
             const currentTier = prevState.pickaxe.tier;
 
             // Coste de lingotes según tier actual
@@ -220,11 +220,14 @@ export const useGameActions = (setGameState) => {
                 [ingotType]: ingotType ? prevState[ingotType] - ingotAmount : prevState[ingotType],
                 pickaxe: {
                     ...prevState.pickaxe,
+                    tierUpgradeCosts: {
+                        ...prevState.pickaxe.tierUpgradeCosts,
+                        [prevState.pickaxe.material]: (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0) * 2
+                    },
                     tier: currentTier + 1,
                     maxDurability: prevState.pickaxe.maxDurability + 5,
                     durability: prevState.pickaxe.maxDurability + 5,
                     repairCost: prevState.pickaxe.repairCost + 5,
-                    tierUpgradeCost: prevState.pickaxe.tierUpgradeCost + 500,
                     miningPower: prevState.pickaxe.miningPower + prevState.pickaxe.miningPowerPerTier,
                 },
                 tutorial: prevState.tutorial ? {
