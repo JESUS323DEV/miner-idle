@@ -190,8 +190,9 @@ function GameRoot() {
     const canUpgradePickaxe = gameState.gold >= pickaxeUpgradeCost;
     const handlePickaxeUpgrade = isTierUpgrade ? handleUpgradePickaxeTier : handleUpgradePickaxeMaterial;
     const canRepairPickaxe = gameState.pickaxe.durability < gameState.pickaxe.maxDurability && gameState.gold >= gameState.pickaxe.repairCost;
-    const tierIngotCost = gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.tier];
-    const canAffordTierUpgrade = gameState.gold >= (gameState.tutorial?.pickaxeUpgradeDone ? gameState.pickaxe.tierUpgradeCost : 0) &&
+    const tierIngotCost = gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.material]?.[gameState.pickaxe.tier];
+    const canAffordTierUpgrade = !gameState.tutorial?.pickaxeUpgradeDone ? true :
+        gameState.gold >= gameState.pickaxe.tierUpgradeCost &&
         (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
     // Devuelve el material y cantidad requerida para upgrade de material

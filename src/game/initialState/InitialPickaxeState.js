@@ -205,7 +205,6 @@
 
 const InitialPickaxeState = {
 
-
     material: "stone",
     tier: 0,
     durability: 10,
@@ -217,11 +216,35 @@ const InitialPickaxeState = {
     tierUpgradeCost: 1500,
     materialUpgradeCost: 5000,
 
-    
+    //======================
+    miningPower: 1,              // Daño por click a las venas (base)
+    miningPowerPerTier: 0.5,     // Cuánto sube miningPower por tier
+    goldBonusPerTier: 0.1,       // % bonus de oro por tier (0.1 = 10%)
+    materialBonusPerTier: 0.1,   // % bonus de materiales en minas por tier (0.1 = 10%)
+
+
+    //======================
     tierIngotCosts: {
-        0: { type: "bronzeIngot", amount: 10 },  // tier 0→1: 10 lingotes bronze
-        1: { type: "ironIngot", amount: 20 },     // tier 1→2: 20 lingotes iron
-        2: { type: "diamondIngot", amount: 30 },  // tier 2→3: 30 lingotes diamond
+        stone: {
+            0: { type: "bronzeIngot", amount: 10 },
+            1: { type: "bronzeIngot", amount: 20 },
+            2: { type: "bronzeIngot", amount: 30 },
+        },
+        bronze: {
+            0: { type: "ironIngot", amount: 10 },
+            1: { type: "ironIngot", amount: 20 },
+            2: { type: "ironIngot", amount: 30 },
+        },
+        metal: {
+            0: { type: "diamondIngot", amount: 10 },
+            1: { type: "diamondIngot", amount: 20 },
+            2: { type: "diamondIngot", amount: 30 },
+        },
+        diamond: {
+            0: { type: "bronzeIngot", amount: 10 },
+            1: { type: "ironIngot", amount: 20 },
+            2: { type: "diamondIngot", amount: 30 },
+        },
     },
 };
 

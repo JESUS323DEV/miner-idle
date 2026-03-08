@@ -95,10 +95,10 @@ export const useGameActions = (setGameState) => {
             }
 
             console.log('💰 Oro total sumado:', prevState.goldPerMine + bonusGold);
-
+            const tierGoldBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.goldBonusPerTier || 0));
             return {
                 ...prevState,
-                gold: prevState.gold + prevState.goldPerMine + bonusGold,
+                gold: prevState.gold + Math.floor(prevState.goldPerMine * tierGoldBonus) + bonusGold,
                 stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
@@ -202,12 +202,12 @@ export const useGameActions = (setGameState) => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier >= 3) return prevState;
 
-            const isFree = false;
+            const isFree = !prevState.tutorial?.pickaxeUpgradeDone;
             const cost = isFree ? 0 : prevState.pickaxe.tierUpgradeCost;
             const currentTier = prevState.pickaxe.tier;
 
             // Coste de lingotes según tier actual
-            const ingotCost = prevState.pickaxe.tierIngotCosts?.[currentTier];
+            const ingotCost = prevState.pickaxe.tierIngotCosts?.[prevState.pickaxe.material]?.[currentTier];
             const ingotType = ingotCost?.type;
             const ingotAmount = ingotCost?.amount || 0;
 
@@ -225,6 +225,7 @@ export const useGameActions = (setGameState) => {
                     durability: prevState.pickaxe.maxDurability + 5,
                     repairCost: prevState.pickaxe.repairCost + 5,
                     tierUpgradeCost: prevState.pickaxe.tierUpgradeCost + 500,
+                    miningPower: prevState.pickaxe.miningPower + prevState.pickaxe.miningPowerPerTier,
                 },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
@@ -383,12 +384,19 @@ export const useGameActions = (setGameState) => {
             const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
             if (!yieldRange) return prevState;
 
-            const materialGained = Math.floor(
+            // Aplica miningPower al yield y al daño de la vena
+            const miningPower = prevState.pickaxe.miningPower || 1;
+            const baseGain = Math.floor(
                 Math.random() * (yieldRange.max - yieldRange.min + 1)
             ) + yieldRange.min;
+            const tierMaterialBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.materialBonusPerTier || 0));
+            const materialGained = Math.floor(baseGain * miningPower * tierMaterialBonus);
 
             const updatedVeins = [...prevState.mines.currentMine.veins];
-            updatedVeins[veinIndex] = { ...vein, remaining: vein.remaining - 1 };
+            updatedVeins[veinIndex] = {
+                ...vein,
+                remaining: Math.max(0, vein.remaining - Math.ceil(miningPower))
+            };
 
             return {
                 ...prevState,
@@ -412,7 +420,6 @@ export const useGameActions = (setGameState) => {
             };
         });
     };
-
     // Sale de mina → si completó cobra materiales + bonus estrellas, si no mantiene progreso
     const handleExitMine = () => {
         setGameState(prevState => {
