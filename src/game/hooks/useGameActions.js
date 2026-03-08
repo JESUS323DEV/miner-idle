@@ -252,14 +252,15 @@ export const useGameActions = (setGameState) => {
                 newMaterial = "diamond"; newGoldPerMine = 20; materialCost = 2; materialType = "diamondIngot";
             }
 
-            if (prevState.gold < prevState.pickaxe.materialUpgradeCost ||
-                prevState[materialType] < materialCost) {
+            const goldCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material] || 0;
+
+            if (prevState.gold < goldCost || prevState[materialType] < materialCost) {
                 return prevState;
             }
 
             return {
                 ...prevState,
-                gold: prevState.gold - prevState.pickaxe.materialUpgradeCost,
+                gold: prevState.gold - goldCost,
                 [materialType]: prevState[materialType] - materialCost,
                 goldPerMine: newGoldPerMine,
                 pickaxe: {

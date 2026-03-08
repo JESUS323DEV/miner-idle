@@ -207,14 +207,18 @@ const InitialPickaxeState = {
 
     material: "stone",
     tier: 0,
-    durability: 10,
-    maxDurability: 10,
-    goldPerMine: 5,
-    repairCost: 30,
-    repairCostIncrease: 15,
-    repairCount: 0,
-    tierUpgradeCost: 1500,
-    materialUpgradeCost: 5000,
+    durability: 10,           // Durabilidad actual del pico
+    maxDurability: 10,        // Durabilidad máxima
+    goldPerMine: 5,           // Oro por click en mina de oro
+    repairCost: 30,           // Coste actual de reparar
+    repairCostIncrease: 15,   // Cuánto sube el coste de reparar cada vez
+    repairCount: 0,           // Veces que has reparado
+    tierUpgradeCost: 1500,    // Coste actual de subir tier
+    materialUpgradeCosts: {   // Coste de cambiar material — independiente por material
+        stone: 5000,          // stone → bronze
+        bronze: 20000,        // bronze → metal
+        metal: 30000,         // metal → diamond
+    },
 
     //======================
     miningPower: 1,              // Daño por click a las venas (base)

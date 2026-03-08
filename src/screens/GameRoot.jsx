@@ -205,7 +205,7 @@ function GameRoot() {
 
     const materialReq = getMaterialRequired();
     const canAffordMaterialUpgrade = gameState.pickaxe.tier === 3 &&
-        gameState.gold >= gameState.pickaxe.materialUpgradeCost &&
+        gameState.gold >= (gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
         materialReq &&
         gameState[materialReq.type] >= materialReq.amount;
 
@@ -517,7 +517,7 @@ function GameRoot() {
                     pickaxeTier={gameState.pickaxe.tier}
                     pickaxeMaterial={gameState.pickaxe.material}
                     onUpgradeMaterial={handleUpgradePickaxeMaterial}
-                    materialCost={gameState.pickaxe.materialUpgradeCost}
+                    materialCost={gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material] || 0}
                     canAffordMaterial={canAffordMaterialUpgrade}
                     materialButtonImage={PickAxeUp}
                     onShowGoldCost={showGoldCost}
