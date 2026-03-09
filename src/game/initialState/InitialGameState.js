@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 1000000,
+    gold: 10000000,
     goldPerSecond: 0,
     goldPerMine: 5,
     passiveGoldBuffs: 0,
@@ -410,7 +410,7 @@ const InitialGameState = {
     staminaCostPerSecond: 1,            // Stamina que consume por segundo al minar
     maxStaminaLevel: 0,                 // Nivel actual de mejora de stamina máxima
     maxStaminaCost: 500,                // Coste inicial de mejorar stamina máxima
-    maxStaminaCostIncrease: 1000,       // Cuánto sube el coste cada mejora
+    maxStaminaCostIncrease: 1500,       // Cuánto sube el coste cada mejora
     maxStaminaBuffs: 0,                 // Máximo de buffs de stamina aplicables
     staminaBuffs: 0,                    // Buffs de stamina activos actualmente
     staminaBuffSnack: 0,                // Buff de stamina por snack activo
@@ -500,9 +500,9 @@ const InitialGameState = {
 
     //===============
     forgeUnlocked: true,
-    bronzeIngot: 100,
-    ironIngot: 100,
-    diamondIngot: 100,
+    bronzeIngot: 300,
+    ironIngot: 300,
+    diamondIngot: 300,
     //===================
     furnaces: {
         bronze: { unlocked: true, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },

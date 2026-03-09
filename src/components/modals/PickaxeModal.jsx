@@ -111,7 +111,7 @@ const PickaxeModal = ({
                     {/* ZONA DE UPGRADE */}
                     <div className="cont-upgrade-pickaxe">
 
-                        {pickaxeTier < 3 ? (
+                        {pickaxeTier < 5 ? (
                             <button
                                 className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
                                 onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
@@ -139,7 +139,7 @@ const PickaxeModal = ({
                         )}
 
                         {/* INFO UPGRADE MATERIAL — solo tier 3 */}
-                        {pickaxeTier >= 3 && (
+                        {pickaxeTier >= 5 && (
                             <div className="info-upgrade-pickaxe">
                                 <p>Pico {getNextMaterial(pickaxeMaterial)}</p>
                                 <span>

@@ -222,10 +222,10 @@ const InitialPickaxeState = {
         diamond: 6000,
     },
     //=========================
-    materialUpgradeCosts: {   // Coste de cambiar material — independiente por material
-        stone: 5000,          // stone → bronze
-        bronze: 20000,        // bronze → metal
-        metal: 30000,         // metal → diamond
+    materialUpgradeCosts: {
+        stone: { gold: 5000, ingot: { type: "bronzeIngot", amount: 100 } },
+        bronze: { gold: 20000, ingot: { type: "ironIngot", amount: 3 } },
+        metal: { gold: 30000, ingot: { type: "diamondIngot", amount: 2 } },
     },
 
     //======================
@@ -241,21 +241,33 @@ const InitialPickaxeState = {
             0: { type: "bronzeIngot", amount: 10 },
             1: { type: "bronzeIngot", amount: 20 },
             2: { type: "bronzeIngot", amount: 30 },
+
+            3: { type: "bronzeIngot", amount: 50 },
+            4: { type: "bronzeIngot", amount: 60 },
         },
         bronze: {
-            0: { type: "ironIngot", amount: 10 },
-            1: { type: "ironIngot", amount: 20 },
-            2: { type: "ironIngot", amount: 30 },
+            0: { type: "ironIngot", amount: 20 },
+            1: { type: "ironIngot", amount: 30 },
+            2: { type: "ironIngot", amount: 50 },
+
+            3: { type: "ironIngot", amount: 70 },
+            4: { type: "ironIngot", amount: 100 },
         },
         metal: {
-            0: { type: "diamondIngot", amount: 10 },
-            1: { type: "diamondIngot", amount: 20 },
-            2: { type: "diamondIngot", amount: 30 },
+            0: { type: "diamondIngot", amount: 30 },
+            1: { type: "diamondIngot", amount: 40 },
+            2: { type: "diamondIngot", amount: 60 },
+
+            3: { type: "diamondIngot", amount: 90 },
+            4: { type: "diamondIngot", amount: 150 },
         },
         diamond: {
             0: { type: "bronzeIngot", amount: 10 },
             1: { type: "ironIngot", amount: 20 },
+
             2: { type: "diamondIngot", amount: 30 },
+            3: { type: "diamondIngot", amount: 30 },
+            4: { type: "diamondIngot", amount: 30 },
         },
     },
 };

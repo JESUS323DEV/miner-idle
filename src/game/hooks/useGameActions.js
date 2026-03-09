@@ -200,7 +200,7 @@ export const useGameActions = (setGameState) => {
     // Sube tier del pico (0→1→2→3) → +5 maxDurabilidad por tier
     const handleUpgradePickaxeTier = () => {
         setGameState(prevState => {
-            if (prevState.pickaxe.tier >= 3) return prevState;
+            if (prevState.pickaxe.tier >= 5) return prevState;
 
             const isFree = !prevState.tutorial?.pickaxeUpgradeDone;
             const cost = isFree ? 0 : (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0);
@@ -240,31 +240,33 @@ export const useGameActions = (setGameState) => {
             };
         });
     };
+
     // Cambia material del pico (stone→bronze→metal→diamond) — requiere tier 3 + lingotes
     const handleUpgradePickaxeMaterial = () => {
         setGameState(prevState => {
-            if (prevState.pickaxe.tier !== 3) return prevState;
+            if (prevState.pickaxe.tier !== 5) return prevState;
 
-            let newMaterial, newGoldPerMine, materialCost, materialType;
+            let newMaterial, newGoldPerMine;
 
             if (prevState.pickaxe.material === "stone") {
-                newMaterial = "bronze"; newGoldPerMine = 8; materialCost = 5; materialType = "bronzeIngot";
+                newMaterial = "bronze"; newGoldPerMine = 8;
             } else if (prevState.pickaxe.material === "bronze") {
-                newMaterial = "metal"; newGoldPerMine = 12; materialCost = 3; materialType = "ironIngot";
+                newMaterial = "metal"; newGoldPerMine = 12;
             } else if (prevState.pickaxe.material === "metal") {
-                newMaterial = "diamond"; newGoldPerMine = 20; materialCost = 2; materialType = "diamondIngot";
+                newMaterial = "diamond"; newGoldPerMine = 20;
             }
 
-            const goldCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material] || 0;
+            const upgradeCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material];
+            const goldCost = upgradeCost?.gold || 0;
+            const ingotType = upgradeCost?.ingot?.type;
+            const ingotAmount = upgradeCost?.ingot?.amount || 0;
 
-            if (prevState.gold < goldCost || prevState[materialType] < materialCost) {
-                return prevState;
-            }
+            if (prevState.gold < goldCost || prevState[ingotType] < ingotAmount) return prevState;
 
             return {
                 ...prevState,
                 gold: prevState.gold - goldCost,
-                [materialType]: prevState[materialType] - materialCost,
+                [ingotType]: prevState[ingotType] - ingotAmount,
                 goldPerMine: newGoldPerMine,
                 pickaxe: {
                     ...prevState.pickaxe,

@@ -185,7 +185,7 @@ function GameRoot() {
 
     // ===== PICKAXE LOGIC =====
     // Determina si el upgrade es de tier o de material
-    const isTierUpgrade = gameState.pickaxe.tier < 3;
+    const isTierUpgrade = gameState.pickaxe.tier < 5;
     const pickaxeUpgradeCost = isTierUpgrade ? gameState.pickaxe.tierUpgradeCost : gameState.pickaxe.materialUpgradeCost;
     const canUpgradePickaxe = gameState.gold >= pickaxeUpgradeCost;
     const handlePickaxeUpgrade = isTierUpgrade ? handleUpgradePickaxeTier : handleUpgradePickaxeMaterial;
@@ -195,19 +195,11 @@ function GameRoot() {
         gameState.gold >= (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
         (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
-    // Devuelve el material y cantidad requerida para upgrade de material
-    const getMaterialRequired = () => {
-        if (gameState.pickaxe.material === "stone") return { type: "bronzeIngot", amount: 5 };
-        if (gameState.pickaxe.material === "bronze") return { type: "ironIngot", amount: 3 };
-        if (gameState.pickaxe.material === "metal") return { type: "diamondIngot", amount: 2 };
-        return null;
-    };
 
-    const materialReq = getMaterialRequired();
-    const canAffordMaterialUpgrade = gameState.pickaxe.tier === 3 &&
-        gameState.gold >= (gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
-        materialReq &&
-        gameState[materialReq.type] >= materialReq.amount;
+    const materialUpgradeCost = gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material];
+    const canAffordMaterialUpgrade = gameState.pickaxe.tier === 5 &&
+        gameState.gold >= (materialUpgradeCost?.gold || 0) &&
+        gameState[materialUpgradeCost?.ingot?.type] >= (materialUpgradeCost?.ingot?.amount || 0);
 
     // Devuelve imagen del pico según material y tier actual
     const getPickaxeIcon = (material, tier) => {
@@ -217,7 +209,9 @@ function GameRoot() {
             metal: [pickAxeIron, pickAxeIron1, pickAxeIron2, pickAxeIron3],
             diamond: [pickAxeDiamond, pickAxeDiamond1, pickAxeDiamond2, pickAxeDiamond3],
         };
-        return icons[material]?.[tier] || pickAxeStone;
+        // tier 0→0, 1→1, 2→1, 3→2, 4→2, 5→3
+        const assetMap = [0, 1, 1, 2, 2, 3];
+        return icons[material]?.[assetMap[tier]] || pickAxeStone;
     };
 
     // ===== HOOKS DE SISTEMA =====
@@ -517,12 +511,12 @@ function GameRoot() {
                     pickaxeTier={gameState.pickaxe.tier}
                     pickaxeMaterial={gameState.pickaxe.material}
                     onUpgradeMaterial={handleUpgradePickaxeMaterial}
-                    materialCost={gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material] || 0}
+                    materialCost={materialUpgradeCost?.gold || 0}
                     canAffordMaterial={canAffordMaterialUpgrade}
                     materialButtonImage={PickAxeUp}
                     onShowGoldCost={showGoldCost}
                     tierIngotCost={tierIngotCost}
-                    materialIngotCost={gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.material]?.[2]}
+                    materialIngotCost={materialUpgradeCost?.ingot}
                 />
             </div>
 

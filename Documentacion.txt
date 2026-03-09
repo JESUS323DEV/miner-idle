@@ -29,11 +29,12 @@ Componentes Principales:
 - /src/components/GoldMine.jsx - Mena de oro clickeable
 - /src/components/modals/UpgradeModal.jsx - Modal oro/segundo + stamina
 - /src/components/modals/PickaxeModal.jsx - Modal pico (separado)
+- /src/components/modals/BiomeSelectorModal.jsx - Selector de bioma de minas
 - /src/components/modals/ModalsMenu.jsx - Menú settings
 
 Pantallas/Modales:
 - /src/screens/modalMine/MineScreen.jsx - Pantalla interior mina
-- /src/screens/modalMine/MinesMapModal.jsx - Mapa de minas
+- /src/screens/modalMine/MinesMapModal.jsx - Mapa de minas por bioma
 - /src/screens/modalForge/ForgeModal.jsx - Forja
 - /src/screens/modalTavern/TavernModal.jsx - Taberna
 
@@ -41,6 +42,7 @@ Estilos:
 - /src/styles/gameRoot.css
 - /src/styles/modals/UpgradeModal.css - Oro + stamina
 - /src/styles/modals/PickaxeModal.css - Pico (separado)
+- /src/styles/modals/MinesMapModal.css - Minas
 
 
 💰 SISTEMA DE ORO
@@ -56,14 +58,22 @@ Costes que NO suben al usar:
   - Recarga stamina: Solo sube al mejorar maxStamina (+10)
   - Reparar pico: Solo sube al mejorar tier (+5) o material (+20)
 
+Bonus por tier de pico:
+  - goldBonusPerTier: 0.1 (10% más oro por tier)
+
 
 ⚡ SISTEMA DE STAMINA
 ================================================================================
 
 Valores:
-  stamina: 20
-  maxStamina: 20
+  stamina: 10
+  maxStamina: 10
+  maxStaminaLevel: 0
+  maxStaminaCost: 500
+  maxStaminaCostIncrease: 1000
   staminaRefillCost: 100
+  staminaRefillCostIncrease: 50
+  staminaRefillCount: 0
 
 Funciones:
   - handleRefillStamina - Recarga stamina al máximo
@@ -74,16 +84,31 @@ Funciones:
 ================================================================================
 
 Progresión Materiales:
-  stone (5 oro/click)
-    ↓ 5 lingotes bronze
-  bronze (8 oro/click)
-    ↓ 3 lingotes hierro
-  metal (12 oro/click)
-    ↓ 2 lingotes diamante
-  diamond (20 oro/click)
+  stone → bronze → metal → diamond
+  Al cambiar material → tier reset a 0
 
-Tier: 0-3 para cada material
-Al cambiar material → tier reset a 0
+Stats del pico:
+  miningPower: 1             — daño por click a venas (sube +0.5 por tier)
+  goldBonusPerTier: 0.1      — +10% oro por tier
+  materialBonusPerTier: 0.1  — +10% materiales en minas por tier
+
+Costes tier upgrade por material (independientes, se doblan cada tier):
+  stone:   1500
+  bronze:  2500
+  metal:   4000
+  diamond: 6000
+
+Costes lingotes por tier:
+  stone:   tier0→1: 10 bronzeIngot | tier1→2: 20 bronzeIngot | tier2→3: 30 bronzeIngot
+  bronze:  tier0→1: 10 ironIngot   | tier1→2: 20 ironIngot   | tier2→3: 30 ironIngot
+  metal:   tier0→1: 10 diamondIngot| tier1→2: 20 diamondIngot| tier2→3: 30 diamondIngot
+  diamond: tier0→1: 10 bronzeIngot | tier1→2: 20 ironIngot   | tier2→3: 30 diamondIngot
+
+Costes upgrade de material (oro + lingotes):
+  stone  → bronze:  5000 oro + 5 bronzeIngot
+  bronze → metal:   20000 oro + 3 ironIngot
+  metal  → diamond: 30000 oro + 2 diamondIngot
+
 Reparar: coste sube +5 por tier, +20 por material
 
 Assets por material y tier:
@@ -91,25 +116,41 @@ Assets por material y tier:
   Función getPickaxeIcon(material, tier) en GameRoot.jsx
 
 Funciones:
-  - handleUpgradePickaxeTier - Sube tier (0→1→2→3)
-  - handleUpgradePickaxeMaterial - Cambia material (requiere tier 3)
+  - handleUpgradePickaxeTier - Sube tier (0→1→2→3) cobra oro + lingotes
+  - handleUpgradePickaxeMaterial - Cambia material (requiere tier 3) cobra oro + lingotes
   - handleRepairPickaxe - Repara durabilidad
+
+Dónde ajustar:
+  - Costes tier → InitialPickaxeState.js (tierUpgradeCosts)
+  - Costes lingotes → InitialPickaxeState.js (tierIngotCosts)
+  - Costes material → InitialPickaxeState.js (materialUpgradeCosts)
+  - Stats → InitialPickaxeState.js (miningPower, goldBonusPerTier, materialBonusPerTier)
 
 
 🗺️ SISTEMA DE MINAS
 ================================================================================
 
-Estructura Niveles:
+Flujo de acceso:
+  Btn Mina → BiomeSelectorModal → MinesMapModal (filtrado por bioma) → MineScreen
+
+Biomas (se pagan UNA vez para desbloquear):
+  bronze:  1000 oro
+  iron:    4000 oro
+  diamond: 6000 oro
+
+Guardado en: gameState.mines.unlockedBiomes
+
+Estructura Niveles por bioma:
   LVL1 → 2⭐ desbloquea LVL2
   LVL2 → 3⭐ desbloquea LVL3
   LVL3 → Máximo nivel
 
 Tipos: Bronze, Iron, Diamond
 
-Yields (materiales por click):
-  stone: { min: 0, max: 1 }
-  bronze: { min: 1, max: 2 }
-  metal: { min: 2, max: 3 }
+Yields (materiales por click, afectados por miningPower y materialBonusPerTier):
+  stone:   { min: 0, max: 1 }
+  bronze:  { min: 1, max: 2 }
+  metal:   { min: 2, max: 3 }
   diamond: { min: 3, max: 5 }
 
 Sistema Estrellas:
@@ -123,6 +164,12 @@ Bonus Estrellas:
   1⭐ → +0% materiales
 
 Mecánica: NO cobras hasta terminar TODAS las venas
+
+Dónde ajustar:
+  - Yields → MinesConfig.js
+  - Thresholds estrellas → useGameActions.js (handleExitMine)
+  - Vida minas → MinesConfig.js (baseVeinsCount + baseVeinCapacity)
+  - Coste entrada mina → MinesConfig.js (unlockCost)
 
 
 🔥 SISTEMA DE COMBOS
@@ -165,6 +212,7 @@ Funciones:
     Lvl2: +2-3 oro/seg 120s
     Lvl3: +3-4 oro/seg 150s + 30% chance refill stamina o reparar pico
   - Bebida y Pastel: placeholders (próximamente)
+  - Stamina Snack y Repair Snack: placeholders en modal stamina (próximamente)
 
 Dónde ajustar:
   - snacksConfig.js → costes, efectos, duración
@@ -180,8 +228,8 @@ Dónde ajustar:
   - 3 niveles de mejora (reducen tiempo)
 
 Recetas:
-  bronze: 10 ore → 1 lingote
-  iron: 6 ore → 1 lingote
+  bronze:  10 ore → 1 lingote
+  iron:    6 ore → 1 lingote
   diamond: 2 ore → 1 lingote
 
 Dónde ajustar:
@@ -196,7 +244,7 @@ Dónde ajustar:
 
 Tasas de conversión:
   bronzeIngot: 10 → 1🪙
-  ironIngot: 6 → 1🪙
+  ironIngot:   6 → 1🪙
   diamondIngot: 2 → 1🪙
 
 
@@ -214,6 +262,8 @@ Tasas de conversión:
   - pickaxeUpgradeDone
   - completed
 
+  Visual: overlay oscuro + botón resaltado + TutorialPointer animado
+
 
 🐛 BUGS COMUNES
 ================================================================================
@@ -229,6 +279,14 @@ Minas lvl2/3 no suman:
 Thresholds imposibles:
   Causa: Vida mina cambió pero thresholds no
   Fix: Ajustar en handleExitMine
+
+Modal descuadrado en móvil:
+  Causa: top en .modal-overlay en vez de .mines-modal-content
+  Fix: Mover top al contenedor hijo
+
+Key duplicada en completedMines:
+  Causa: Date.now() puede repetirse
+  Fix: Añadir Math.random() al key
 
 
 🎯 WORKFLOW DE CAMBIOS
@@ -248,14 +306,16 @@ Después:
 📍 DÓNDE CAMBIAR COSAS COMUNES
 ================================================================================
 
-Yields minas → MinesConfig.js (yields)
+Yields minas        → MinesConfig.js (yields)
 Thresholds estrellas → useGameActions.js (handleExitMine)
-Coste upgrades → InitialGameState.js / InitialPickaxeState.js
-Tiempo reset combo → CombosConfig.js
-Vida minas → MinesConfig.js (baseVeinsCount + baseVeinCapacity)
-Tiempos forja → ForgeConfig.js
-Efectos snacks → snacksConfig.js
-Cooldown automine → AutomineConfig.js
+Coste upgrades      → InitialGameState.js / InitialPickaxeState.js
+Tiempo reset combo  → CombosConfig.js
+Vida minas          → MinesConfig.js (baseVeinsCount + baseVeinCapacity)
+Tiempos forja       → ForgeConfig.js
+Efectos snacks      → snacksConfig.js
+Cooldown automine   → AutomineConfig.js
+Costes pico         → InitialPickaxeState.js
+Biomas minas        → MinesConfig.js (unlockCost) + BiomeSelectorModal.jsx
 
 
 🚀 SISTEMAS PENDIENTES (FUTURO)
@@ -266,6 +326,8 @@ Cooldown automine → AutomineConfig.js
 - Snack stamina/pico conjunto
 - Eventos noche
 - Más secciones taberna
+- Sistema de recompensas por hitos de oro
+- Fortalecimiento post tier 3
 
 
 =============================IDEAS===================
@@ -277,3 +339,6 @@ Cooldown automine → AutomineConfig.js
 - TABERNA ✅
 - FORJA ✅
 - AUTOMINE ✅
+- SISTEMA DE BIOMAS MINAS ✅
+- COSTES LINGOTES POR TIER PICO ✅
+- MININGPOWER + BONUSES POR TIER ✅
