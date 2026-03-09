@@ -209,7 +209,7 @@ const InitialPickaxeState = {
     tier: 0,
     durability: 10,           // Durabilidad actual del pico
     maxDurability: 10,        // Durabilidad máxima
-    goldPerMine: 5,           // Oro por click en mina de oro
+    goldPerMine: 8,           // Oro por click en mina de oro
     repairCost: 30,           // Coste actual de reparar
     repairCostIncrease: 15,   // Cuánto sube el coste de reparar cada vez
     repairCount: 0,           // Veces que has reparado
@@ -224,8 +224,8 @@ const InitialPickaxeState = {
     //=========================
     materialUpgradeCosts: {
         stone: { gold: 5000, ingot: { type: "bronzeIngot", amount: 100 } },
-        bronze: { gold: 20000, ingot: { type: "ironIngot", amount: 3 } },
-        metal: { gold: 30000, ingot: { type: "diamondIngot", amount: 2 } },
+        bronze: { gold: 20000, ingot: { type: "ironIngot", amount: 150 } },
+        metal: { gold: 30000, ingot: { type: "diamondIngot", amount: 200 } },
     },
 
     //======================

@@ -392,7 +392,6 @@ const InitialGameState = {
     // ========== ORO ==========
     gold: 10000000,
     goldPerSecond: 0,
-    goldPerMine: 5,
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
     goldPerSecondLevel: 0,
@@ -500,9 +499,9 @@ const InitialGameState = {
 
     //===============
     forgeUnlocked: true,
-    bronzeIngot: 300,
-    ironIngot: 300,
-    diamondIngot: 300,
+    bronzeIngot: 500,
+    ironIngot: 500,
+    diamondIngot: 500,
     //===================
     furnaces: {
         bronze: { unlocked: true, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },

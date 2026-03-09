@@ -694,7 +694,7 @@ function GameRoot() {
             {/* MENA DE ORO — elemento principal clickeable */}
             <GoldMine
                 onMineClick={handleMineClick}
-                goldPerMine={gameState.goldPerMine}
+                goldPerMine={gameState.pickaxe.goldPerMine}
                 canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
                 currentCombo={gameState.comboCount}
                 comboMilestones={gameState.comboMilestones}

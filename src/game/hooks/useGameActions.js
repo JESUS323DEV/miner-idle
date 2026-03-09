@@ -98,7 +98,7 @@ export const useGameActions = (setGameState) => {
             const tierGoldBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.goldBonusPerTier || 0));
             return {
                 ...prevState,
-                gold: prevState.gold + Math.floor(prevState.goldPerMine * tierGoldBonus) + bonusGold,
+                gold: prevState.gold + Math.floor(prevState.pickaxe.goldPerMine * tierGoldBonus) + bonusGold,
                 stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
@@ -249,11 +249,11 @@ export const useGameActions = (setGameState) => {
             let newMaterial, newGoldPerMine;
 
             if (prevState.pickaxe.material === "stone") {
-                newMaterial = "bronze"; newGoldPerMine = 8;
+                newMaterial = "bronze"; newGoldPerMine = 10;
             } else if (prevState.pickaxe.material === "bronze") {
                 newMaterial = "metal"; newGoldPerMine = 12;
             } else if (prevState.pickaxe.material === "metal") {
-                newMaterial = "diamond"; newGoldPerMine = 20;
+                newMaterial = "diamond"; newGoldPerMine = 15;
             }
 
             const upgradeCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material];
