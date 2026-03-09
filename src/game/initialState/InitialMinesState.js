@@ -77,7 +77,8 @@ const initialMinesState = {
      */
     completedMines: [],
     
-    unlockedBiomes: [],
+    unlockedBiomes: ['bronze'],
+    bronzeFirstEntryDone: false,
     /**
      * totalMinesCompleted: Contador total de minas completadas
      * - Número simple para stats rápidos

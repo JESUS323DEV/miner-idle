@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 10000000,
+    gold: 2100,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
@@ -437,7 +437,7 @@ const InitialGameState = {
 
     // ========== OTROS ==========
     //=====moneda tavern
-    tavernCoins: 50,
+    tavernCoins: 10,
     thiefRisk: 0,
     hasTriggeredGoldThief: false,
     snacks: initialSnacksState,
@@ -499,15 +499,22 @@ const InitialGameState = {
 
     //===============
     forgeUnlocked: true,
-    bronzeIngot: 500,
-    ironIngot: 500,
-    diamondIngot: 500,
+    bronzeIngot: 10,
+    ironIngot: 0,
+    diamondIngot: 0,
     //===================
     furnaces: {
         bronze: { unlocked: true, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
         iron: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
         diamond: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
     },
+
+    //===============
+    totalGoldEarned: 0,
+    totalGoldSpent: 0,
+    totalClicks: 0,
+    totalRepairs: 0,
+    totalRefills: 0,
 };
 
 export default InitialGameState;

@@ -18,7 +18,6 @@ const MinesMapModal = ({
 }) => {
     if (!isOpen) return null;
 
-    // Filtra minas según bioma seleccionado
     const filteredUnlocked = unlockedTypes
         .filter(type => type !== 'gold')
         .filter(type => selectedBiome ? type === selectedBiome || type.startsWith(selectedBiome) : true);
@@ -35,17 +34,16 @@ const MinesMapModal = ({
     };
 
     const canAffordUnlock = (unlockCost) => currentGold >= unlockCost;
+    const canAffordEnter = (mineType) => currentGold >= minesConfig[mineType]?.unlockCost;
 
     return (
-        <div className="modal-overlay1" onClick={onClose} >
+        <div className="modal-overlay1" onClick={onClose}>
             <div className="mines-modal-content" onClick={(e) => e.stopPropagation()}
                 style={{ backgroundImage: bgImage ? `url(${bgImage})` : 'none' }}
-
             >
-
                 {/* HEADER */}
                 <div className="mines-modal-header">
-                    <h2>MINA DE  {selectedBiome ? selectedBiome.toUpperCase() : 'MAPA DE MINAS'}</h2>
+                    <h2>MINA DE {selectedBiome ? selectedBiome.toUpperCase() : 'MAPA DE MINAS'}</h2>
                     <button className="modal-close" onClick={onClose}><X /></button>
                 </div>
 
@@ -59,25 +57,25 @@ const MinesMapModal = ({
 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
+                        const canEnter = canAffordEnter(type);
 
                         return (
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
-
                                 <div className="mine-card-actions">
-                                    <button className="btn-enter-mine" onClick={() => onEnterMine(type)}>
-                                        entrar
+                                    <button
+                                        className={`btn-enter-mine ${!canEnter ? 'disabled' : ''}`}
+                                        onClick={() => canEnter && onEnterMine(type)}
+                                        disabled={!canEnter}
+                                    >
+                                        {canEnter ? 'Entrar' : `${config.unlockCost} 💰`}
                                     </button>
-
                                 </div>
-
-
                             </div>
                         );
                     })}
 
                     {/* MINAS BLOQUEADAS */}
                     {filteredLocked.map(type => {
-
                         const config = minesConfig[type];
                         const canAfford = canAffordUnlock(config.unlockCost);
                         const meetsStarRequirement = config.requiresStars
@@ -87,10 +85,10 @@ const MinesMapModal = ({
 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
+
                         return (
                             <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}>
                                 <div className="mine-card-body">
-
                                     {config.requiresStars && !meetsStarRequirement && (
                                         <div className="mine-info-row">
                                             <span className="cannot-afford1">
@@ -98,9 +96,7 @@ const MinesMapModal = ({
                                             </span>
                                         </div>
                                     )}
-
                                 </div>
-
                                 <div className="mine-card-actions">
                                     <button
                                         className={`btn-unlock-mine ${!canUnlock ? 'disabled' : ''}`}
@@ -110,12 +106,9 @@ const MinesMapModal = ({
                                         {config.unlockCost} 🪙
                                     </button>
                                 </div>
-
-
                             </div>
                         );
                     })}
-
 
                 </div>
             </div>

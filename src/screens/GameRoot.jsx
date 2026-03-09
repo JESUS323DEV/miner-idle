@@ -13,6 +13,7 @@ import { AutomineConfig } from "../game/AutomineConfig.js";
 import InitialGameState from "../game/initialState/InitialGameState.js";
 import InitialPickaxeState from "../game/initialState/InitialPickaxeState.js";
 import InitialLadyState from "../game/initialState/lady/InitialLadyState.js";
+import InitialRewardsState from '../game/initialState/InitialRewardsState.js';
 
 // ===== COMPONENTES =====
 import UpgradeModal from "../components/modals/UpgradeModal.jsx";
@@ -23,6 +24,8 @@ import GoldMine from "../components/GoldMine.jsx";
 import TutorialPointer from "../components/TutorialPointer.jsx";
 import ForgeModal from '../screens/modalForge/ForgeModal';
 import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
+
+import RewardsModal from "../screens/RewardsModal.jsx"
 
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
@@ -119,6 +122,7 @@ function GameRoot() {
 
     const [selectedBiome, setSelectedBiome] = useState(null);
     const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
+    const [rewardsOpen, setRewardsOpen] = useState(false);
 
     // ===== GAME STATE — carga desde localStorage si existe =====
     const [gameState, setGameState] = useState(() => {
@@ -129,6 +133,7 @@ function GameRoot() {
             lady: InitialLadyState,
             pickaxe: InitialPickaxeState,
             mines: InitialMinesState,
+            rewards: InitialRewardsState,
         };
     });
 
@@ -181,6 +186,7 @@ function GameRoot() {
         handleStartSmelt,
         handleCollectIngot,
         handleUpgradeFurnace,
+        handleClaimReward,
     } = useGameActions(setGameState);
 
     // ===== PICKAXE LOGIC =====
@@ -640,8 +646,13 @@ function GameRoot() {
                 onEnterMine={(type) => {
                     handleEnterMine(type);
                     setTimeout(() => {
-                        setMinesModalOpen(false);
-                        setIsMineScreenOpen(true);
+                        setGameState(prev => {
+                            if (prev.mines.currentMine?.mineType === type) {
+                                setMinesModalOpen(false);
+                                setIsMineScreenOpen(true);
+                            }
+                            return prev;
+                        });
                     }, 50);
                 }}
                 onDiscardMine={handleDiscardMine}
@@ -689,7 +700,19 @@ function GameRoot() {
             {/* SETTINGS */}
             <div>
                 <button onClick={() => setMenuOpenModal(prev => !prev)}><Settings /></button>
+
             </div>
+
+            <button onClick={() => setRewardsOpen(true)}>
+                🏆{gameState.rewards?.hasUnclaimed ? " 🔴" : ""}
+            </button>
+
+            <RewardsModal
+                isOpen={rewardsOpen}
+                onClose={() => setRewardsOpen(false)}
+                gameState={gameState}
+                onClaimReward={handleClaimReward}
+            />
 
             {/* MENA DE ORO — elemento principal clickeable */}
             <GoldMine

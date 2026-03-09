@@ -4,20 +4,47 @@ import { CombosConfig } from "../CombosConfig.js";
 import { AutomineConfig } from "../AutomineConfig.js";
 import { ForgeConfig } from '../config/ForgeConfig';
 
+// ========== HELPER: DETECTA HITOS Y MARCA hasUnclaimed ==========
+// Comprueba si el valor actual supera el siguiente hito no reclamado
+// y si es así marca hasUnclaimed: true para que el botón brille
+const checkMilestone = (milestoneConfig, currentValue) => {
+    const { claimed, step } = milestoneConfig;
+    const nextMilestoneIndex = claimed.length; // cuántos hitos llevamos
+    const nextMilestoneValue = step * (nextMilestoneIndex + 1);
+    return currentValue >= nextMilestoneValue;
+};
+
+// ========== HELPER: CALCULA RECOMPENSA DEL SIGUIENTE HITO ==========
+const getMilestoneReward = (milestoneConfig) => {
+    const { claimed, rewardBase, rewardIncrease } = milestoneConfig;
+    return rewardBase + (claimed.length * rewardIncrease);
+};
+
 export const useGameActions = (setGameState) => {
 
     // ========== ORO POR SEGUNDO ==========
     // Compra upgrade → +1 oro/seg, sube coste siguiente
+    // Detecta hito de goldPerSecond y stamina level
     const handleBuyGoldPerSecondUpgrade = () => {
         setGameState(prevState => {
             if (prevState.gold < prevState.goldPerSecondCost) return prevState;
 
+            const newGoldPerSecond = prevState.goldPerSecond + 1;
+            const newGoldSpent = prevState.totalGoldSpent + prevState.goldPerSecondCost;
+            const hasGoldPerSecondMilestone = checkMilestone(prevState.rewards.goldPerSecondMilestones, newGoldPerSecond);
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - prevState.goldPerSecondCost,
-                goldPerSecond: prevState.goldPerSecond + 1,
+                totalGoldSpent: newGoldSpent,
+                goldPerSecond: newGoldPerSecond,
                 goldPerSecondLevel: prevState.goldPerSecondLevel + 1,
                 goldPerSecondCost: prevState.goldPerSecondCost + prevState.goldPerSecondCostIncrease,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldPerSecondMilestone || hasGoldSpentMilestone,
+                },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
                     goldPerSecondBought: true,
@@ -30,6 +57,7 @@ export const useGameActions = (setGameState) => {
 
     // ========== MINADO MANUAL ==========
     // Click en mena de oro → suma oro, consume stamina/durabilidad, gestiona combos
+    // Detecta hitos de clicks, oro acumulado
     const handleMineClick = () => {
         setGameState(prevState => {
             const now = Date.now();
@@ -37,7 +65,6 @@ export const useGameActions = (setGameState) => {
                 ? now - prevState.lastClickTime
                 : 0;
 
-            // Calcula combo actual
             let newCombo;
             if (prevState.comboCount === 0) {
                 newCombo = 1;
@@ -49,17 +76,22 @@ export const useGameActions = (setGameState) => {
 
             const newMaxCombo = Math.max(newCombo, prevState.maxComboEver);
 
-            // Sin recursos → solo actualiza combo
             if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) {
+                const newClicks = prevState.totalClicks + 1;
+                const hasClickMilestone = checkMilestone(prevState.rewards.clickMilestones, newClicks);
                 return {
                     ...prevState,
                     comboCount: newCombo,
                     maxComboEver: newMaxCombo,
-                    lastClickTime: now
+                    lastClickTime: now,
+                    totalClicks: newClicks,
+                    rewards: {
+                        ...prevState.rewards,
+                        hasUnclaimed: prevState.rewards.hasUnclaimed || hasClickMilestone,
+                    }
                 };
             }
 
-            // Verifica si es hito de combo (20, 25, 30...)
             const isMultipleOf5 = newCombo >= CombosConfig.firstMilestone &&
                 newCombo % CombosConfig.milestoneInterval === 0;
             const isNewMilestone = isMultipleOf5 && !prevState.comboMilestones[newCombo];
@@ -70,35 +102,34 @@ export const useGameActions = (setGameState) => {
             if (isMultipleOf5 && prevState.comboMilestones[newCombo] !== undefined) {
                 if (isNewMilestone) {
                     bonusGold = newCombo * 4;
-                    updatedMilestones = {
-                        ...prevState.comboMilestones,
-                        [newCombo]: true
-                    };
+                    updatedMilestones = { ...prevState.comboMilestones, [newCombo]: true };
                 } else {
                     bonusGold = Math.floor(newCombo * 4 * 0.2);
                 }
             }
 
-            // Calcula bonus final según config
             if (isMultipleOf5 && prevState.comboMilestones[newCombo] !== undefined) {
                 if (isNewMilestone) {
                     bonusGold = newCombo * CombosConfig.bonusMultiplier;
-                    console.log('🔥 HITO ALCANZADO:', newCombo, '| Bonus:', bonusGold);
-                    updatedMilestones = {
-                        ...prevState.comboMilestones,
-                        [newCombo]: true
-                    };
+                    updatedMilestones = { ...prevState.comboMilestones, [newCombo]: true };
                 } else {
                     bonusGold = Math.floor(newCombo * CombosConfig.bonusMultiplier * CombosConfig.bonusRepeated);
-                    console.log('✅ Hito repetido:', newCombo, '| Bonus:', bonusGold);
                 }
             }
 
-            console.log('💰 Oro total sumado:', prevState.goldPerMine + bonusGold);
             const tierGoldBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.goldBonusPerTier || 0));
+            const goldGained = Math.floor(prevState.pickaxe.goldPerMine * tierGoldBonus) + bonusGold;
+            const newTotalClicks = prevState.totalClicks + 1;
+            const newTotalGoldEarned = prevState.totalGoldEarned + goldGained;
+
+            const hasClickMilestone = checkMilestone(prevState.rewards.clickMilestones, newTotalClicks);
+            const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
+
             return {
                 ...prevState,
-                gold: prevState.gold + Math.floor(prevState.pickaxe.goldPerMine * tierGoldBonus) + bonusGold,
+                gold: prevState.gold + goldGained,
+                totalClicks: newTotalClicks,
+                totalGoldEarned: newTotalGoldEarned,
                 stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
@@ -109,25 +140,36 @@ export const useGameActions = (setGameState) => {
                 lastClickTime: now,
                 comboMilestones: updatedMilestones,
                 lastComboBonus: bonusGold,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasClickMilestone || hasGoldMilestone,
+                }
             };
         });
     };
 
     // ========== MINADO AUTOMÁTICO ==========
-    // Usado por useAutoMining — igual que handleMineClick pero sin combos
+    // Igual que handleMineClick pero sin combos
+    // Detecta hito de oro acumulado
     const handleMine = () => {
         setGameState(prevState => {
-            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) {
-                return prevState;
-            }
+            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
+
+            const newTotalGoldEarned = prevState.totalGoldEarned + prevState.pickaxe.goldPerMine;
+            const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
             return {
                 ...prevState,
-                gold: prevState.gold + prevState.goldPerMine,
+                gold: prevState.gold + prevState.pickaxe.goldPerMine,
+                totalGoldEarned: newTotalGoldEarned,
                 stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
                     durability: prevState.pickaxe.durability - 1
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldMilestone,
                 }
             };
         });
@@ -135,21 +177,31 @@ export const useGameActions = (setGameState) => {
 
     // ========== STAMINA ==========
     // Upgrade → +5 stamina máxima, sube coste siguiente
+    // Detecta hito de stamina level y oro gastado
     const handleBuyMaxStaminaUpgrade = () => {
         setGameState(prevState => {
             const isFree = !prevState.tutorial?.staminaUpgradeDone;
             const cost = isFree ? 0 : prevState.maxStaminaCost;
-
             if (!isFree && prevState.gold < cost) return prevState;
+
+            const newStaminaLevel = prevState.maxStaminaLevel + 1;
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasStaminaMilestone = checkMilestone(prevState.rewards.staminaMilestones, newStaminaLevel);
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
                 maxStamina: prevState.maxStamina + 5,
                 stamina: prevState.maxStamina + 5,
-                maxStaminaLevel: prevState.maxStaminaLevel + 1,
+                maxStaminaLevel: newStaminaLevel,
                 maxStaminaCost: prevState.maxStaminaCost + prevState.maxStaminaCostIncrease,
                 staminaRefillCost: prevState.staminaRefillCost + 10,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasStaminaMilestone || hasGoldSpentMilestone,
+                },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
                     staminaUpgradeDone: true,
@@ -160,44 +212,63 @@ export const useGameActions = (setGameState) => {
     };
 
     // Recarga stamina al máximo pagando staminaRefillCost
+    // Detecta hito de recargas y oro gastado
     const handleRefillStamina = () => {
         setGameState(prevState => {
             if (prevState.stamina >= prevState.maxStamina) return prevState;
             if (prevState.gold < prevState.staminaRefillCost) return prevState;
 
-            const newGold = prevState.gold - prevState.staminaRefillCost;
-
-            console.log('🔍 Gold antes:', prevState.gold);
-            console.log('🔍 Coste:', prevState.staminaRefillCost);
-            console.log('🔍 Gold después:', newGold);
+            const newTotalRefills = prevState.totalRefills + 1;
+            const newGoldSpent = prevState.totalGoldSpent + prevState.staminaRefillCost;
+            const hasRefillMilestone = checkMilestone(prevState.rewards.refillMilestones, newTotalRefills);
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
-                gold: newGold,
+                gold: prevState.gold - prevState.staminaRefillCost,
+                totalGoldSpent: newGoldSpent,
+                totalRefills: newTotalRefills,
                 stamina: prevState.maxStamina,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasRefillMilestone || hasGoldSpentMilestone,
+                }
             };
         });
     };
 
     // ========== PICO ==========
     // Repara durabilidad al máximo pagando repairCost
+    // Detecta hito de reparaciones y oro gastado
     const handleRepairPickaxe = () => {
         setGameState(prevState => {
             if (prevState.pickaxe.durability >= prevState.pickaxe.maxDurability) return prevState;
             if (prevState.gold < prevState.pickaxe.repairCost) return prevState;
 
+            const newTotalRepairs = prevState.totalRepairs + 1;
+            const newGoldSpent = prevState.totalGoldSpent + prevState.pickaxe.repairCost;
+            const hasRepairMilestone = checkMilestone(prevState.rewards.repairMilestones, newTotalRepairs);
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - prevState.pickaxe.repairCost,
+                totalGoldSpent: newGoldSpent,
+                totalRepairs: newTotalRepairs,
                 pickaxe: {
                     ...prevState.pickaxe,
                     durability: prevState.pickaxe.maxDurability,
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasRepairMilestone || hasGoldSpentMilestone,
                 }
             };
         });
     };
 
-    // Sube tier del pico (0→1→2→3) → +5 maxDurabilidad por tier
+    // Sube tier del pico (0→1→2→3→4→5) → +5 maxDurabilidad, +miningPower
+    // Detecta hito de tier pico y oro gastado
     const handleUpgradePickaxeTier = () => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier >= 5) return prevState;
@@ -206,7 +277,6 @@ export const useGameActions = (setGameState) => {
             const cost = isFree ? 0 : (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0);
             const currentTier = prevState.pickaxe.tier;
 
-            // Coste de lingotes según tier actual
             const ingotCost = prevState.pickaxe.tierIngotCosts?.[prevState.pickaxe.material]?.[currentTier];
             const ingotType = ingotCost?.type;
             const ingotAmount = ingotCost?.amount || 0;
@@ -214,9 +284,15 @@ export const useGameActions = (setGameState) => {
             if (!isFree && prevState.gold < cost) return prevState;
             if (!isFree && ingotType && prevState[ingotType] < ingotAmount) return prevState;
 
+            const newTotalTiers = prevState.rewards.pickaxeMilestones.totalTiers + 1;
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasPickaxeMilestone = checkMilestone(prevState.rewards.pickaxeMilestones, newTotalTiers);
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
                 [ingotType]: ingotType ? prevState[ingotType] - ingotAmount : prevState[ingotType],
                 pickaxe: {
                     ...prevState.pickaxe,
@@ -230,6 +306,14 @@ export const useGameActions = (setGameState) => {
                     repairCost: prevState.pickaxe.repairCost + 5,
                     miningPower: prevState.pickaxe.miningPower + prevState.pickaxe.miningPowerPerTier,
                 },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasPickaxeMilestone || hasGoldSpentMilestone,
+                    pickaxeMilestones: {
+                        ...prevState.rewards.pickaxeMilestones,
+                        totalTiers: newTotalTiers,
+                    }
+                },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
                     pickaxeUpgradeDone: true,
@@ -241,13 +325,13 @@ export const useGameActions = (setGameState) => {
         });
     };
 
-    // Cambia material del pico (stone→bronze→metal→diamond) — requiere tier 3 + lingotes
+    // Cambia material del pico (stone→bronze→metal→diamond) — requiere tier 5 + lingotes
+    // Detecta hito de oro gastado
     const handleUpgradePickaxeMaterial = () => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier !== 5) return prevState;
 
             let newMaterial, newGoldPerMine;
-
             if (prevState.pickaxe.material === "stone") {
                 newMaterial = "bronze"; newGoldPerMine = 10;
             } else if (prevState.pickaxe.material === "bronze") {
@@ -263,9 +347,13 @@ export const useGameActions = (setGameState) => {
 
             if (prevState.gold < goldCost || prevState[ingotType] < ingotAmount) return prevState;
 
+            const newGoldSpent = prevState.totalGoldSpent + goldCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - goldCost,
+                totalGoldSpent: newGoldSpent,
                 [ingotType]: prevState[ingotType] - ingotAmount,
                 goldPerMine: newGoldPerMine,
                 pickaxe: {
@@ -274,54 +362,62 @@ export const useGameActions = (setGameState) => {
                     tier: 0,
                     goldPerMine: newGoldPerMine,
                     repairCost: prevState.pickaxe.repairCost + 20,
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
     };
 
     // ========== LADY (TODO) ==========
-    // Placeholder — dar comida a Lady activa buffs temporales
-    const handleFeedLady = () => {
-        // TODO: reducir hambre, aumentar mood, activar buffs, consumir inventario
-    };
+    const handleFeedLady = () => { };
 
     // ========== MINAS ==========
-    // Desbloquea tipo de mina pagando unlockCost
+    // Desbloquea bioma de mina pagando unlockCost — detecta hito oro gastado
     const handleUnlockMineType = (mineType) => {
         setGameState(prevState => {
             if (prevState.mines.unlockedTypes.includes(mineType)) return prevState;
-
             const cost = MinesConfig[mineType]?.unlockCost;
             const baseBiome = mineType.replace('_lvl2', '').replace('_lvl3', '');
             if (cost === undefined) return prevState;
             if (prevState.gold < cost) return prevState;
 
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
                 mines: {
                     ...prevState.mines,
                     unlockedTypes: [...prevState.mines.unlockedTypes, mineType],
                     unlockedBiomes: prevState.mines.unlockedBiomes?.includes(baseBiome)
                         ? prevState.mines.unlockedBiomes
                         : [...(prevState.mines.unlockedBiomes || []), baseBiome]
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
     };
 
-    // Entra a una mina → genera venas según MinesConfig
+    // Entra a una mina → genera venas según MinesConfig — detecta hito oro gastado
     const handleEnterMine = (mineType) => {
         setGameState(prevState => {
-            console.log('unlockedBiomes:', prevState.mines.unlockedBiomes);
-            console.log('gold:', prevState.gold);
-            console.log('unlockCost:', MinesConfig[mineType]?.unlockCost);
             const baseBiome = mineType.replace('_lvl2', '').replace('_lvl3', '');
             if (!prevState.mines.unlockedBiomes?.includes(baseBiome)) return prevState;
             if (prevState.mines.currentMine?.mineType === mineType) return prevState;
+            if (prevState.mines.currentMine !== null) return prevState;
 
             const config = MinesConfig[mineType];
-            if (prevState.gold < config.unlockCost) return prevState;
+            const isFirstBronzeEntry = !prevState.mines.bronzeFirstEntryDone && mineType === 'bronze';
+
+            if (!isFirstBronzeEntry && prevState.gold < config.unlockCost) return prevState;
 
             const numVeins = Math.floor(
                 Math.random() * (config.baseVeinsCount.max - config.baseVeinsCount.min + 1)
@@ -334,11 +430,17 @@ export const useGameActions = (setGameState) => {
                 return { id: i + 1, remaining: capacity, max: capacity };
             });
 
+            const goldCost = isFirstBronzeEntry ? 0 : config.unlockCost;
+            const newGoldSpent = prevState.totalGoldSpent + goldCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
-                gold: prevState.gold - config.unlockCost,
+                gold: prevState.gold - goldCost,
+                totalGoldSpent: newGoldSpent,
                 mines: {
                     ...prevState.mines,
+                    bronzeFirstEntryDone: true,
                     currentMine: {
                         mineType,
                         veins,
@@ -347,6 +449,10 @@ export const useGameActions = (setGameState) => {
                         enteredAt: Date.now(),
                         eventsTriggered: []
                     }
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
@@ -354,24 +460,19 @@ export const useGameActions = (setGameState) => {
 
     // Descarta mina del mapa — si estás dentro también limpia currentMine
     const handleDiscardMine = (mineType) => {
-        setGameState(prevState => {
-            return {
-                ...prevState,
-                mines: {
-                    ...prevState.mines,
-                    unlockedTypes: prevState.mines.unlockedTypes.filter(t => t !== mineType),
-                    currentMine: prevState.mines.currentMine?.mineType === mineType
-                        ? null
-                        : prevState.mines.currentMine
-                }
-            };
-        });
-
-        console.log(`Mina de ${mineType} descartada.`);
+        setGameState(prevState => ({
+            ...prevState,
+            mines: {
+                ...prevState.mines,
+                unlockedTypes: prevState.mines.unlockedTypes.filter(t => t !== mineType),
+                currentMine: prevState.mines.currentMine?.mineType === mineType
+                    ? null
+                    : prevState.mines.currentMine
+            }
+        }));
     };
 
-    // ========== MINADO EN MINAS ==========
-    // Click en vena → genera material aleatorio según yields del pico, consume stamina/durabilidad
+    // Click en vena → genera material, consume stamina/durabilidad
     const handleMineVein = (veinId) => {
         setGameState(prevState => {
             if (!prevState.mines.currentMine) return prevState;
@@ -390,11 +491,8 @@ export const useGameActions = (setGameState) => {
             const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
             if (!yieldRange) return prevState;
 
-            // Aplica miningPower al yield y al daño de la vena
             const miningPower = prevState.pickaxe.miningPower || 1;
-            const baseGain = Math.floor(
-                Math.random() * (yieldRange.max - yieldRange.min + 1)
-            ) + yieldRange.min;
+            const baseGain = Math.floor(Math.random() * (yieldRange.max - yieldRange.min + 1)) + yieldRange.min;
             const tierMaterialBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.materialBonusPerTier || 0));
             const materialGained = Math.floor(baseGain * miningPower * tierMaterialBonus);
 
@@ -407,10 +505,7 @@ export const useGameActions = (setGameState) => {
             return {
                 ...prevState,
                 stamina: prevState.stamina - 1,
-                pickaxe: {
-                    ...prevState.pickaxe,
-                    durability: prevState.pickaxe.durability - 1
-                },
+                pickaxe: { ...prevState.pickaxe, durability: prevState.pickaxe.durability - 1 },
                 mines: {
                     ...prevState.mines,
                     currentMine: {
@@ -426,7 +521,8 @@ export const useGameActions = (setGameState) => {
             };
         });
     };
-    // Sale de mina → si completó cobra materiales + bonus estrellas, si no mantiene progreso
+
+    // Sale de mina → cobra materiales + bonus estrellas si completó
     const handleExitMine = () => {
         setGameState(prevState => {
             if (!prevState.mines.currentMine) return prevState;
@@ -435,22 +531,13 @@ export const useGameActions = (setGameState) => {
             const mineType = currentMine.mineType;
             const baseMineType = mineType.replace('_lvl2', '').replace('_lvl3', '');
             const materialsGathered = currentMine.resourcesGathered[baseMineType];
-
-            console.log('🔍 DEBUG handleExitMine:');
-            console.log('mineType:', mineType);
-            console.log('baseMineType:', baseMineType);
-            console.log('resourcesGathered:', currentMine.resourcesGathered);
-            console.log('materialsGathered:', materialsGathered);
-
             const allVeinsEmpty = currentMine.veins.every(vein => vein.remaining === 0);
 
-            // Calcula estrellas y bonus si completó
             let speedBonus = 0;
             let starsEarned = 0;
 
             if (allVeinsEmpty) {
                 let perfectThreshold, goodThreshold;
-
                 if (mineType.includes('_lvl3')) {
                     perfectThreshold = 300; goodThreshold = 200;
                 } else if (mineType.includes('_lvl2')) {
@@ -471,23 +558,9 @@ export const useGameActions = (setGameState) => {
             const totalMaterials = materialsGathered + speedBonus;
             const currentBest = prevState.mines.bestScores?.[baseMineType] || 0;
 
-            // Verifica si desbloquea siguiente nivel
-            let shouldUnlockNext = false;
-            let nextLevelType = null;
-
-            if (!mineType.includes('_lvl')) {
-                shouldUnlockNext = starsEarned >= 2 && starsEarned > currentBest;
-                nextLevelType = `${baseMineType}_lvl2`;
-            } else if (mineType.includes('_lvl2')) {
-                shouldUnlockNext = starsEarned >= 3 && starsEarned > currentBest;
-                nextLevelType = `${baseMineType}_lvl3`;
-            }
-
             return {
                 ...prevState,
-                [baseMineType]: allVeinsEmpty
-                    ? prevState[baseMineType] + totalMaterials
-                    : prevState[baseMineType],
+                [baseMineType]: allVeinsEmpty ? prevState[baseMineType] + totalMaterials : prevState[baseMineType],
                 lastMineReward: allVeinsEmpty ? { type: baseMineType, amount: totalMaterials } : null,
                 mines: {
                     ...prevState.mines,
@@ -519,12 +592,9 @@ export const useGameActions = (setGameState) => {
                 }
             };
         });
-
-        console.log('Saliste de la mina.');
     };
 
     // ========== TUTORIAL ==========
-    // Avanza el tutorial al paso indicado
     const handleTutorialStep = (step) => {
         setGameState(prevState => ({
             ...prevState,
@@ -532,7 +602,6 @@ export const useGameActions = (setGameState) => {
         }));
     };
 
-    // Desbloquea una feature del tutorial (stamina, pickaxe, mines...)
     const handleUnlockTutorialFeature = (feature) => {
         setGameState(prevState => ({
             ...prevState,
@@ -540,7 +609,6 @@ export const useGameActions = (setGameState) => {
         }));
     };
 
-    // Marca el tutorial como completado
     const handleCompleteTutorial = () => {
         setGameState(prevState => ({
             ...prevState,
@@ -595,7 +663,6 @@ export const useGameActions = (setGameState) => {
             if (!snack.unlocked || snack.level === 0) return prevState;
             if (snack.active !== null) return prevState;
 
-            // Solo un snack activo a la vez
             const hasActiveSnack = Object.values(prevState.snacks).some(s => s.active !== null);
             if (hasActiveSnack) return prevState;
 
@@ -604,7 +671,6 @@ export const useGameActions = (setGameState) => {
 
             const effects = SnacksConfig[snackType].effects[`level${snack.level}`];
 
-            // Calcula bonus RNG o fijo
             let goldBonus;
             if (effects.goldPerSecond.min !== undefined) {
                 goldBonus = Math.floor(
@@ -614,7 +680,6 @@ export const useGameActions = (setGameState) => {
                 goldBonus = effects.goldPerSecond;
             }
 
-            // Bonus lvl3 — puede recargar stamina o reparar pico
             let bonusApplied = null;
             let newState = { ...prevState };
 
@@ -623,14 +688,11 @@ export const useGameActions = (setGameState) => {
                     Math.floor(Math.random() * effects.bonus.options.length)
                 ];
                 bonusApplied = randomBonus;
-                if (randomBonus === "refillStamina") {
-                    newState.stamina = newState.maxStamina;
-                } else if (randomBonus === "repairPickaxe") {
+                if (randomBonus === "refillStamina") newState.stamina = newState.maxStamina;
+                else if (randomBonus === "repairPickaxe") {
                     newState.pickaxe = { ...newState.pickaxe, durability: newState.pickaxe.maxDurability };
                 }
             }
-
-            console.log(`🍪 Galleta usada: +${goldBonus} oro/seg durante ${effects.duration}s`);
 
             return {
                 ...newState,
@@ -672,14 +734,23 @@ export const useGameActions = (setGameState) => {
         });
     };
 
-    // Convierte 1 moneda de taberna en 5000 oro
+    // Convierte 1 moneda de taberna en 5000 oro — detecta hito oro acumulado
     const handleConvertCoinsToGold = () => {
         setGameState(prevState => {
             if (prevState.tavernCoins < 1) return prevState;
+
+            const newTotalGoldEarned = prevState.totalGoldEarned + 5000;
+            const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
+
             return {
                 ...prevState,
                 tavernCoins: prevState.tavernCoins - 1,
-                gold: prevState.gold + 5000
+                gold: prevState.gold + 5000,
+                totalGoldEarned: newTotalGoldEarned,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldMilestone,
+                }
             };
         });
     };
@@ -689,7 +760,20 @@ export const useGameActions = (setGameState) => {
         setGameState(prevState => {
             if (prevState.gold < 1000) return prevState;
             if (prevState.tavernUnlocked) return prevState;
-            return { ...prevState, gold: prevState.gold - 1000, tavernUnlocked: true };
+
+            const newGoldSpent = prevState.totalGoldSpent + 1000;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - 1000,
+                totalGoldSpent: newGoldSpent,
+                tavernUnlocked: true,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
+            };
         });
     };
 
@@ -700,9 +784,13 @@ export const useGameActions = (setGameState) => {
             if (prevState.gold < AutomineConfig.unlockCost) return prevState;
             if (prevState.automine.unlocked) return prevState;
 
+            const newGoldSpent = prevState.totalGoldSpent + AutomineConfig.unlockCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - AutomineConfig.unlockCost,
+                totalGoldSpent: newGoldSpent,
                 automine: {
                     ...prevState.automine,
                     unlocked: true,
@@ -710,6 +798,10 @@ export const useGameActions = (setGameState) => {
                         { available: true, cooldownUntil: null },
                         { available: true, cooldownUntil: null }
                     ]
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
@@ -752,12 +844,20 @@ export const useGameActions = (setGameState) => {
             if (prevState.gold < cost) return prevState;
             if (prevState.furnaces[material].unlocked) return prevState;
 
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
                 furnaces: {
                     ...prevState.furnaces,
                     [material]: { ...prevState.furnaces[material], unlocked: true }
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
@@ -819,34 +919,112 @@ export const useGameActions = (setGameState) => {
             if (furnace.level >= 3) return prevState;
             if (prevState.gold < 500) return prevState;
 
+            const newGoldSpent = prevState.totalGoldSpent + 500;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
             return {
                 ...prevState,
                 gold: prevState.gold - 500,
+                totalGoldSpent: newGoldSpent,
                 furnaces: {
                     ...prevState.furnaces,
                     [material]: { ...furnace, level: furnace.level + 1 }
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
     };
 
     // ========== MAPA DE MINAS ==========
-    // Desbloquea el mapa de minas pagando 1000 oro
     const handleUnlockMinesMap = () => {
         setGameState(prevState => {
             if (prevState.gold < 1000) return prevState;
             if (prevState.minesMapUnlocked) return prevState;
-            return { ...prevState, gold: prevState.gold - 1000, minesMapUnlocked: true };
+
+            const newGoldSpent = prevState.totalGoldSpent + 1000;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - 1000,
+                totalGoldSpent: newGoldSpent,
+                minesMapUnlocked: true,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
+            };
+        });
+    };
+
+    // ========== RECOMPENSAS ==========
+    // Reclama el siguiente hito disponible de un tipo de recompensa
+    // Suma el oro de la recompensa y marca el hito como reclamado
+    const handleClaimReward = (milestoneKey) => {
+        setGameState(prevState => {
+            const milestone = prevState.rewards[milestoneKey];
+            if (!milestone) return prevState;
+
+            // Obtiene el valor actual según el tipo de hito
+            const currentValues = {
+                goldMilestones: prevState.totalGoldEarned,
+                goldSpentMilestones: prevState.totalGoldSpent,
+                goldPerSecondMilestones: prevState.goldPerSecond,
+                clickMilestones: prevState.totalClicks,
+                staminaMilestones: prevState.maxStaminaLevel,
+                pickaxeMilestones: prevState.rewards.pickaxeMilestones.totalTiers,
+                repairMilestones: prevState.totalRepairs,
+                refillMilestones: prevState.totalRefills,
+            };
+
+            const currentValue = currentValues[milestoneKey];
+            const nextMilestoneValue = milestone.step * (milestone.claimed.length + 1);
+
+            // Verifica que realmente se puede reclamar
+            if (currentValue < nextMilestoneValue) return prevState;
+
+            const reward = getMilestoneReward(milestone);
+            const newClaimed = [...milestone.claimed, nextMilestoneValue];
+
+            // Comprueba si quedan más hitos sin reclamar tras este
+            const allMilestones = {
+                ...prevState.rewards,
+                [milestoneKey]: { ...milestone, claimed: newClaimed }
+            };
+            const stillHasUnclaimed = Object.entries(allMilestones).some(([key, m]) => {
+                if (key === 'hasUnclaimed') return false;
+                if (key === 'pickaxeMilestones') {
+                    return checkMilestone(m, prevState.rewards.pickaxeMilestones.totalTiers);
+                }
+                return checkMilestone(m, currentValues[key]);
+            });
+
+            return {
+                ...prevState,
+                gold: prevState.gold + reward,
+               totalGoldEarned: prevState.totalGoldEarned,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: stillHasUnclaimed,
+                    [milestoneKey]: {
+                        ...milestone,
+                        claimed: newClaimed,
+                    }
+                }
+            };
         });
     };
 
     // ========== EXPORTS ==========
     return {
-        // Minado
+        // Minado manual y automático
         handleMine,
         handleMineClick,
 
-        // Oro
+        // Oro por segundo
         handleBuyGoldPerSecondUpgrade,
 
         // Stamina
@@ -896,5 +1074,8 @@ export const useGameActions = (setGameState) => {
 
         // Mapa
         handleUnlockMinesMap,
+
+        // Recompensas
+        handleClaimReward,
     };
 };
