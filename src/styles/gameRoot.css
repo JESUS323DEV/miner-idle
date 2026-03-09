@@ -126,7 +126,7 @@
     color: #f5d47a;
 
     min-width: 1.5rem;
-    
+
 }
 
 /* Botón menú hamburguesa */
@@ -543,5 +543,58 @@
     100% {
         opacity: 0;
         transform: translate(-50%, -50%) translateY(-3.75rem);
+    }
+}
+
+/*=============================================================================*/
+.hud-top-right {
+    position: fixed;
+    top: 15rem;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 0;
+}
+
+.btn-settings {
+    background: #2a2a4e;
+    border: 2px solid #555;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+}
+
+.btn-rewards {
+    background: #2a2a4e;
+    border: 2px solid #f0a500;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.btn-rewards-pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(240, 165, 0, 0);
+        transform: scale(1.15);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(240, 165, 0, 0);
+        transform: scale(1);
     }
 }

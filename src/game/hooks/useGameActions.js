@@ -1005,7 +1005,7 @@ export const useGameActions = (setGameState) => {
             return {
                 ...prevState,
                 gold: prevState.gold + reward,
-               totalGoldEarned: prevState.totalGoldEarned,
+                totalGoldEarned: prevState.totalGoldEarned,
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: stillHasUnclaimed,

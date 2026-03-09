@@ -3,7 +3,7 @@ const InitialRewardsState = {
     //ORO CONSEGUIDO HISTÓRICO
     goldMilestones: {
         claimed: [],          // hitos ya reclamados
-        step: 3000,           // cada cuánto oro aparece un hito nuevo
+        step: 1000,           // cada cuánto oro aparece un hito nuevo
         rewardBase: 1000,     // recompensa del primer hito
         rewardIncrease: 1000, // cuánto sube cada hito siguiente
     },

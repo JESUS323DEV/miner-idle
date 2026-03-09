@@ -698,14 +698,17 @@ function GameRoot() {
             />
 
             {/* SETTINGS */}
-            <div>
-                <button onClick={() => setMenuOpenModal(prev => !prev)}><Settings /></button>
-
+            <div className="hud-top-right">
+                <button className="btn-settings" onClick={() => setMenuOpenModal(prev => !prev)}>
+                    <Settings />
+                </button>
+                <button
+                    className={`btn-rewards ${gameState.rewards?.hasUnclaimed ? "btn-rewards-pulse" : ""}`}
+                    onClick={() => setRewardsOpen(true)}
+                >
+                    🏆
+                </button>
             </div>
-
-            <button onClick={() => setRewardsOpen(true)}>
-                🏆{gameState.rewards?.hasUnclaimed ? " 🔴" : ""}
-            </button>
 
             <RewardsModal
                 isOpen={rewardsOpen}

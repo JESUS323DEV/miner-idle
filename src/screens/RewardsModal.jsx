@@ -61,7 +61,7 @@ const RewardsModal = ({
     };
 
     const goldRewards = [
-        { key: "goldMilestones", icon: "💰", label: "Oro acumulado" },
+        { key: "goldMilestones", icon: "💰", label: "Oro minado" },
         { key: "goldSpentMilestones", icon: "💸", label: "Oro gastado" },
         { key: "goldPerSecondMilestones", icon: "⏱️", label: "Oro por segundo" },
         { key: "clickMilestones", icon: "⛏️", label: "Clicks totales" },
