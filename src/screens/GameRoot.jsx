@@ -194,6 +194,7 @@ function GameRoot() {
         handleRepairYacimiento,
         handleMineYacimiento,
         handlePlantMena,
+        handleConvertGoldToIngot,
 
     } = useGameActions(setGameState);
 
@@ -702,6 +703,8 @@ function GameRoot() {
                 tavernCoins={gameState.tavernCoins}
                 onConvert={handleConvertMaterial}
                 onConvertCoins={handleConvertCoinsToGold}
+                onConvertGoldToIngot={handleConvertGoldToIngot}
+                gold={gameState.gold}
             />
 
             {/* FORJA */}

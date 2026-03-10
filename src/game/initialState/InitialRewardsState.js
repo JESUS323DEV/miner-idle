@@ -13,15 +13,15 @@ const InitialRewardsState = {
         claimed: [],
         step: 5000,           // cada 5k oro gastado
         rewardBase: 1000,     // recompensa primer hito
-        rewardIncrease: 500, // sube 1k cada hito
+        rewardIncrease: 500, // sube cada hito
     },
 
     //ORO X SEGUNDO
     goldPerSecondMilestones: {
         claimed: [],
-        step: 3,              // primer hito en 3 oro/segundo
-        rewardBase: 1000,
-        rewardIncrease: 500,
+        step: 5,              // primer hito en 3 oro/segundo
+        rewardBase: 1000,     // recompensa primer hito
+        rewardIncrease: 100,  // sube cada hito
     },
 
 
@@ -30,15 +30,15 @@ const InitialRewardsState = {
         claimed: [],
         step: 100,            // primer hito en 100 clicks
         rewardBase: 1000,
-        rewardIncrease: 500,
+        rewardIncrease: 100,
     },
 
     //STAMINA HISTÓRICO
     staminaMilestones: {
         claimed: [],
-        step: 3,              // primer hito en lvl 3
+        step: 1,              // primer hito en lvl 3
         rewardBase: 1000,
-        rewardIncrease: 500,
+        rewardIncrease: 100,
     },
 
 
@@ -56,7 +56,7 @@ const InitialRewardsState = {
         claimed: [],
         step: 5,              // primer hito en 5 reparaciones
         rewardBase: 1000,
-        rewardIncrease: 500,
+        rewardIncrease: 100,
     },
 
     //REFILL STAMINA HISTÓRICO
@@ -64,7 +64,7 @@ const InitialRewardsState = {
         claimed: [],
         step: 5,              // primer hito en 5 recargas
         rewardBase: 1000,
-        rewardIncrease: 500,
+        rewardIncrease: 100,
     },
 
 

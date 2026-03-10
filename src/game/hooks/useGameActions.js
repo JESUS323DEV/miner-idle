@@ -734,6 +734,29 @@ export const useGameActions = (setGameState) => {
         });
     };
 
+    const handleConvertGoldToIngot = (ingotType) => {
+        setGameState(prevState => {
+            const costs = {
+                bronzeIngot: { gold: 10000, coins: 0 },
+                ironIngot: { gold: 20000, coins: 0 },
+                diamondIngot: { gold: 0, coins: 1 },
+            };
+
+            const cost = costs[ingotType];
+            if (!cost) return prevState;
+            if (prevState.gold < cost.gold) return prevState;
+            if (cost.coins > 0 && prevState.tavernCoins < cost.coins) return prevState;
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost.gold,
+                tavernCoins: prevState.tavernCoins - cost.coins,
+                [ingotType]: prevState[ingotType] + 1,
+                totalGoldSpent: prevState.totalGoldSpent + cost.gold,
+            };
+        });
+    };
+
     // Convierte 1 moneda de taberna en 5000 oro — detecta hito oro acumulado
     const handleConvertCoinsToGold = () => {
         setGameState(prevState => {
@@ -1219,6 +1242,7 @@ export const useGameActions = (setGameState) => {
         handleConvertMaterial,
         handleConvertCoinsToGold,
         handleUnlockTavern,
+        handleConvertGoldToIngot,
 
         // Automine
         handleUnlockAutomine,

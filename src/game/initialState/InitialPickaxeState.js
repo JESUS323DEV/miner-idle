@@ -207,8 +207,8 @@ const InitialPickaxeState = {
 
     material: "stone",
     tier: 0,
-    durability: 10,           // Durabilidad actual del pico
-    maxDurability: 10,        // Durabilidad máxima
+    durability: 15,           // Durabilidad actual del pico
+    maxDurability: 15,        // Durabilidad máxima
     goldPerMine: 8,           // Oro por click en mina de oro
     repairCost: 30,           // Coste actual de reparar
     repairCostIncrease: 15,   // Cuánto sube el coste de reparar cada vez
