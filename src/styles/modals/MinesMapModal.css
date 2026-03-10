@@ -1,27 +1,28 @@
 /* ========== CONTENEDOR DEL MODAL ========== */
 .modal-overlay1 {
     position: fixed;
-    top: 0;
+    top: 8.5rem;
+
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 75vh;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1;
 
 
+
 }
 
 .mines-modal-content {
     position: relative;
-    top: 8.5rem;
+    top: 0;
     width: 100%;
     height: 100%;
     color: white;
     z-index: 3;
 
-    border: 1px solid red;
 
     background-position: center;
     background-repeat: no-repeat;
@@ -225,4 +226,85 @@
     color: rgb(0, 0, 0);
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+/*============================================================================*/
+
+.yacimientos-section {
+    margin-top: 10rem;
+}
+
+.yacimientos-title {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.yacimientos-slots {
+    display: flex;
+    gap: 10px;
+}
+
+.yacimiento-slot {
+    flex: 1;
+    background: #2a2a4e;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 13px;
+}
+
+/**/
+.yacimiento-slot.locked {
+    opacity: 0.6;
+    border: 2px dashed #555;
+}
+
+.yacimiento-slot.empty {
+    border: 2px dashed #f0a500;
+}
+
+.yacimiento-slot.active {
+    border: 2px solid #4CAF50;
+}
+
+.yacimiento-slot.growing {
+    border: 2px solid #f0a500;
+}
+
+.btn-unlock-slot,
+.btn-plant-mena,
+.btn-mine-mena,
+.btn-repair-mena {
+    width: 100%;
+    padding: 6px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.btn-unlock-slot {
+    background: #f0a500;
+    color: black;
+}
+
+.btn-plant-mena {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-mine-mena {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-repair-mena {
+    background: #FF5722;
+    color: white;
 }

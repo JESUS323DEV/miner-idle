@@ -14,6 +14,7 @@ import InitialGameState from "../game/initialState/InitialGameState.js";
 import InitialPickaxeState from "../game/initialState/InitialPickaxeState.js";
 import InitialLadyState from "../game/initialState/lady/InitialLadyState.js";
 import InitialRewardsState from '../game/initialState/InitialRewardsState.js';
+import InitialYacimientosState from '../game/initialState/InitialYacimientosState.js';
 
 // ===== COMPONENTES =====
 import UpgradeModal from "../components/modals/UpgradeModal.jsx";
@@ -134,6 +135,7 @@ function GameRoot() {
             pickaxe: InitialPickaxeState,
             mines: InitialMinesState,
             rewards: InitialRewardsState,
+            yacimientos: InitialYacimientosState,
         };
     });
 
@@ -187,6 +189,12 @@ function GameRoot() {
         handleCollectIngot,
         handleUpgradeFurnace,
         handleClaimReward,
+
+         handleUnlockYacimientoSlot,
+        handleRepairYacimiento,
+        handleMineYacimiento,
+        handlePlantMena,
+        
     } = useGameActions(setGameState);
 
     // ===== PICKAXE LOGIC =====
@@ -659,6 +667,16 @@ function GameRoot() {
                 currentGold={gameState.gold}
                 currentPickaxeMaterial={gameState.pickaxe.material}
                 bgImage={getMinesBg(selectedBiome)}
+                yacimientos={gameState.yacimientos}
+                onPlantMena={handlePlantMena}
+                onMineYacimiento={handleMineYacimiento}
+                onRepairYacimiento={handleRepairYacimiento}
+                onUnlockYacimientoSlot={handleUnlockYacimientoSlot}
+                currentMaterials={{
+                    bronze: gameState.bronze,
+                    iron: gameState.iron,
+                    diamond: gameState.diamond,
+                }}
             />
 
             {/* PANTALLA DE MINA INTERIOR */}

@@ -1018,6 +1018,159 @@ export const useGameActions = (setGameState) => {
         });
     };
 
+
+    //====================================================================
+    // Planta una mena en un slot vacío — cobra recursos y arranca el timer de crecimiento
+    const handlePlantMena = (slotId, biome) => {
+        setGameState(prevState => {
+            const slot = prevState.yacimientos.slots.find(s => s.id === slotId);
+            if (!slot || !slot.unlocked || slot.mena !== null) return prevState;
+
+            const plantCosts = {
+                bronze: { type: "bronze", amount: 20 },
+                iron: { type: "iron", amount: 15 },
+                diamond: { type: "diamond", amount: 10 },
+            };
+
+            const cost = plantCosts[biome];
+            if (!cost) return prevState;
+            if (prevState[cost.type] < cost.amount) return prevState;
+
+            const newMena = {
+                type: biome,
+                level: 1,
+                durability: 100,
+                maxDurability: 100,
+                yieldMin: 1,
+                yieldMax: 3,
+                repairCost: 10,
+                plantCost: cost,
+                growthTime: 30,
+                plantedAt: Date.now(),
+                ready: false,
+            };
+
+            return {
+                ...prevState,
+                [cost.type]: prevState[cost.type] - cost.amount,
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    slots: prevState.yacimientos.slots.map(s =>
+                        s.id === slotId ? { ...s, mena: newMena } : s
+                    )
+                }
+            };
+        });
+    };
+
+    // Pica una mena plantada — genera material y reduce durabilidad
+    const handleMineYacimiento = (slotId) => {
+        setGameState(prevState => {
+            const slot = prevState.yacimientos.slots.find(s => s.id === slotId);
+            if (!slot || !slot.mena) return prevState;
+
+            const mena = slot.mena;
+
+            // Comprueba si ya está lista (growthTime pasado)
+            if (mena.repairingUntil && Date.now() < mena.repairingUntil) return prevState;
+            const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
+            if (!isReady) return prevState;
+
+            if (mena.durability <= 0) return prevState;
+            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
+
+            const materialGained = Math.floor(
+                Math.random() * (mena.yieldMax - mena.yieldMin + 1)
+            ) + mena.yieldMin;
+
+            const newDurability = mena.durability - 1;
+
+            return {
+                ...prevState,
+                [mena.type]: prevState[mena.type] + materialGained,
+                stamina: prevState.stamina - 1,
+                pickaxe: {
+                    ...prevState.pickaxe,
+                    durability: prevState.pickaxe.durability - 1
+                },
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    slots: prevState.yacimientos.slots.map(s =>
+                        s.id === slotId ? {
+                            ...s,
+                            mena: {
+                                ...mena,
+                                ready: true,
+                                durability: newDurability,
+                            }
+                        } : s
+                    )
+                }
+            };
+        });
+    };
+
+    // Repara la durabilidad de una mena — cobra materiales del mismo tipo
+    const handleRepairYacimiento = (slotId) => {
+        setGameState(prevState => {
+            const slot = prevState.yacimientos.slots.find(s => s.id === slotId);
+            if (!slot || !slot.mena) return prevState;
+
+            const mena = slot.mena;
+            if (mena.durability >= mena.maxDurability) return prevState;
+            if (prevState[mena.type] < mena.repairCost) return prevState;
+
+            return {
+                ...prevState,
+                [mena.type]: prevState[mena.type] - mena.repairCost,
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    slots: prevState.yacimientos.slots.map(s =>
+                        s.id === slotId ? {
+                            ...s,
+                            mena: {
+                                ...mena,
+                                durability: mena.maxDurability,
+                                repairingUntil: Date.now() + 30000,
+                            }
+                        } : s
+                    )
+                }
+            };
+        });
+    };
+
+    // Desbloquea un slot de yacimiento pagando oro
+    const handleUnlockYacimientoSlot = (slotId) => {
+        setGameState(prevState => {
+            const slot = prevState.yacimientos.slots.find(s => s.id === slotId);
+            if (!slot || slot.unlocked) return prevState;
+
+            const cost = prevState.yacimientos.unlockCosts[slotId];
+            if (!cost) return prevState;
+            if (prevState.gold < cost) return prevState;
+
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    slots: prevState.yacimientos.slots.map(s =>
+                        s.id === slotId ? { ...s, unlocked: true } : s
+                    )
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
+            };
+        });
+    };
+
     // ========== EXPORTS ==========
     return {
         // Minado manual y automático
@@ -1077,5 +1230,11 @@ export const useGameActions = (setGameState) => {
 
         // Recompensas
         handleClaimReward,
+
+        handleUnlockYacimientoSlot,
+        handleRepairYacimiento,
+        handleMineYacimiento,
+        handlePlantMena,
+
     };
 };

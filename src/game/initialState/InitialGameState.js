@@ -395,11 +395,11 @@ const InitialGameState = {
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
     goldPerSecondLevel: 0,
-    goldPerSecondCost: 100,
-    goldPerSecondCostIncrease: 150,
+    goldPerSecondCost: 500,
+    goldPerSecondCostIncrease: 1500,
 
     // ========== MATERIALES ==========
-    bronze: 0,
+    bronze: 50,
     iron: 0,
     diamond: 0,
 
@@ -409,12 +409,12 @@ const InitialGameState = {
     staminaCostPerSecond: 1,            // Stamina que consume por segundo al minar
     maxStaminaLevel: 0,                 // Nivel actual de mejora de stamina máxima
     maxStaminaCost: 500,                // Coste inicial de mejorar stamina máxima
-    maxStaminaCostIncrease: 1500,       // Cuánto sube el coste cada mejora
+    maxStaminaCostIncrease: 5000,       // Cuánto sube el coste cada mejora
     maxStaminaBuffs: 0,                 // Máximo de buffs de stamina aplicables
     staminaBuffs: 0,                    // Buffs de stamina activos actualmente
     staminaBuffSnack: 0,                // Buff de stamina por snack activo
-    staminaRefillCost: 100,             // Coste inicial de recargar stamina
-    staminaRefillCostIncrease: 50,      // Cuánto sube el coste de recarga cada mejora
+    staminaRefillCost: 150,             // Coste inicial de recargar stamina
+    staminaRefillCostIncrease: 1000,      // Cuánto sube el coste de recarga cada mejora
     staminaRefillCount: 0,              // Veces que has recargado stamina
 
     // ========== SNACKS ==========

@@ -16,7 +16,7 @@
     min-height: 90vh;
     display: flex;
     flex-direction: column;
-    z-index: 5;
+    z-index: 15;
 }
 
 /* Overlay oscuro sobre el fondo */
@@ -148,6 +148,7 @@
    ============================================================ */
 
 .game-info {
+    
     display: flex;
     justify-content: space-around;
     align-items: center;
