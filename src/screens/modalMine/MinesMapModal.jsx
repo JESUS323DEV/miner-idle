@@ -1,5 +1,21 @@
 import { useState, useEffect } from 'react';
 import '../../styles/modals/MinesMapModal.css';
+
+
+
+//ASSETS MENA BRONZE
+import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png"
+import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
+//ASSETS MENA IRON
+import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png"
+import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
+
+//ASSETS MENA DIAMOND
+import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
+import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+
+
+
 import { X } from 'lucide-react';
 
 const MinesMapModal = ({
@@ -23,6 +39,15 @@ const MinesMapModal = ({
     currentMaterials = {},
 }) => {
     if (!isOpen) return null;
+
+    const getMenaAsset = (slotId, type) => {
+        const assets = {
+            bronze: [menaBronze1, menaBronze2],
+            iron: [menaIron1, menaIron2],
+            diamond: [menaDiamond1, menaDiamond2],
+        };
+        return assets[type]?.[slotId - 1] || null;
+    };
 
     const filteredUnlocked = unlockedTypes
         .filter(type => type !== 'gold')
@@ -132,23 +157,26 @@ const MinesMapModal = ({
                     })}
 
                     {/* YACIMIENTOS */}
-                    {yacimientos && (
+                    {yacimientos && selectedBiome && (
                         <div className="yacimientos-section">
                             <h3 className="yacimientos-title">⛏️ Yacimientos</h3>
                             <div className="yacimientos-slots">
-                                {yacimientos.slots.map(slot => {
+                                {yacimientos[selectedBiome].slots.map(slot => {
                                     const mena = slot.mena;
                                     const ready = isMenaReady(mena);
                                     const timeLeft = getGrowthTimeLeft(mena);
+                                    const config = mena ? yacimientos[selectedBiome].slotConfig[slot.id] : null;
+
+                                   const unlockCost = yacimientos[selectedBiome].unlockCosts[slot.id];
 
                                     if (!slot.unlocked) return (
                                         <div key={slot.id} className="yacimiento-slot locked">
                                             <p>🔒</p>
-                                            <p>{yacimientos.unlockCosts[slot.id]} 💰</p>
+                                            <p>{unlockCost.gold} 💰 + {unlockCost.amount} {selectedBiome}</p>
                                             <button
                                                 className="btn-unlock-slot"
-                                                onClick={(e) => { e.stopPropagation(); onUnlockYacimientoSlot(slot.id); }}
-                                                disabled={currentGold < yacimientos.unlockCosts[slot.id]}
+                                                onClick={(e) => { e.stopPropagation(); onUnlockYacimientoSlot(slot.id, selectedBiome); }}
+                                                disabled={currentGold < unlockCost.gold || currentMaterials[selectedBiome] < unlockCost.amount}
                                             >
                                                 Desbloquear
                                             </button>
@@ -161,35 +189,37 @@ const MinesMapModal = ({
                                             <button
                                                 className="btn-plant-mena"
                                                 onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
-                                                disabled={!selectedBiome}
                                             >
-                                                Plantar
+                                                Plantar {yacimientos[selectedBiome].plantCost.amount} {selectedBiome}
                                             </button>
                                         </div>
                                     );
 
+
+
                                     return (
                                         <div key={slot.id} className={`yacimiento-slot active ${!ready ? 'growing' : ''}`}>
-                                            <p>{mena.type === 'bronze' ? '🟤' : mena.type === 'iron' ? '⚫' : '💎'}</p>
+                                            <img
+                                                src={getMenaAsset(slot.id, mena.type)}
+                                                alt={mena.type}
+                                                className={`mena-img ${ready && !isRepairing(mena) ? 'mena-clickable' : 'mena-disabled'}`}
+                                                onClick={(e) => {
+                                                    if (ready && !isRepairing(mena)) {
+                                                        e.stopPropagation();
+                                                        onMineYacimiento(slot.id, selectedBiome);
+                                                    }
+                                                }}
+                                            />
                                             <p>{mena.durability}/{mena.maxDurability} ❤️</p>
                                             {!ready && <p>⏱️ {timeLeft}s</p>}
-                                            {ready && (
-                                                <button
-                                                    className="btn-mine-mena"
-                                                    onClick={(e) => { e.stopPropagation(); onMineYacimiento(slot.id); }}
-                                                    disabled={isRepairing(mena)}
-                                                >
-                                                    ⛏️ Picar
-                                                </button>
-                                            )}
                                             {isRepairing(mena)
                                                 ? <p>🔧 {getRepairTimeLeft(mena)}s</p>
                                                 : <button
                                                     className="btn-repair-mena"
-                                                    onClick={(e) => { e.stopPropagation(); onRepairYacimiento(slot.id); }}
+                                                    onClick={(e) => { e.stopPropagation(); onRepairYacimiento(slot.id, selectedBiome); }}
                                                     disabled={mena.durability >= mena.maxDurability}
                                                 >
-                                                    🔧 {mena.repairCost} {mena.type}
+                                                    🔧 {config.repairCost} {selectedBiome}
                                                 </button>
                                             }
                                         </div>

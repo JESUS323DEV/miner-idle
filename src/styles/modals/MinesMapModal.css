@@ -78,19 +78,14 @@
 /* ========== CONTENIDO ========== */
 
 
-.no-mines {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    padding: 40px 20px;
-    font-size: 18px;
-}
 
 /* ========== TARJETAS DE MINAS ========== */
+/* ==========bronze========== */
 
 .mine-card-bronze.mine-card-lvl1 {
     position: fixed;
-    top: 17.5rem;
-    left: 0.7rem;
+    top: 14.5rem;
+    left: 1rem;
 
     transition: all 0.3s;
     width: 90px;
@@ -99,7 +94,7 @@
 
 .mine-card-bronze.mine-card-lvl2 {
     position: fixed;
-    top: 14rem;
+    top: 12rem;
     left: 8rem;
 
     border-radius: 10px;
@@ -112,7 +107,7 @@
 
 .mine-card-bronze.mine-card-lvl3 {
     position: fixed;
-    top: 14rem;
+    top: 12rem;
     left: 16rem;
 
     border-radius: 10px;
@@ -122,7 +117,77 @@
 
 }
 
+/* ========== iron ========== */
 
+
+.mine-card-iron.mine-card-lvl1 {
+    position: fixed;
+    top: 13.5rem;
+    left: 1rem;
+
+    transition: all 0.3s;
+    width: 90px;
+    margin: auto;
+
+}
+
+.mine-card-iron.mine-card-lvl2 {
+    position: fixed;
+    top: 11.5rem;
+    left: 8rem;
+
+    border-radius: 10px;
+    transition: all 0.3s;
+    width: 90px;
+
+    margin: auto;
+}
+
+.mine-card-iron.mine-card-lvl3 {
+    position: fixed;
+    top: 11.5rem;
+    left: 16rem;
+
+    border-radius: 10px;
+    transition: all 0.3s;
+    width: 90px;
+    margin: auto;
+}
+
+/* ========== diamante ========== */
+
+.mine-card-diamond.mine-card-lvl1 {
+    position: fixed;
+    top: 12.5rem;
+    left: 1rem;
+
+    transition: all 0.3s;
+    width: 90px;
+    margin: auto;
+}
+
+.mine-card-diamond.mine-card-lvl2 {
+    position: fixed;
+    top: 11rem;
+    left: 8rem;
+
+    border-radius: 10px;
+    transition: all 0.3s;
+    width: 90px;
+
+    margin: auto;
+}
+
+.mine-card-diamond.mine-card-lvl3 {
+    position: fixed;
+    top: 11rem;
+    left: 16rem;
+
+    border-radius: 10px;
+    transition: all 0.3s;
+    width: 90px;
+    margin: auto;
+}
 
 .mine-card.locked {
     opacity: 0.7;
@@ -143,7 +208,7 @@
 .mine-card-body {
 
     text-align: center;
-    background-color: rgba(254, 254, 254, 0.703);
+    background-color: rgb(254, 254, 254);
 
 }
 
@@ -222,7 +287,7 @@
 
 
 .btn-unlock-mine.disabled {
-    background: rgba(159, 158, 158, 0.784);
+    background: rgb(159, 158, 158);
     color: rgb(0, 0, 0);
     opacity: 0.7;
     cursor: not-allowed;
@@ -247,7 +312,7 @@
 
 .yacimiento-slot {
     flex: 1;
-    background: #2a2a4e;
+    background: #2a2a4e48;
     border-radius: 10px;
     padding: 12px;
     display: flex;
@@ -268,9 +333,6 @@
     border: 2px dashed #f0a500;
 }
 
-.yacimiento-slot.active {
-    border: 2px solid #4CAF50;
-}
 
 .yacimiento-slot.growing {
     border: 2px solid #f0a500;
@@ -299,12 +361,24 @@
     color: white;
 }
 
-.btn-mine-mena {
-    background: #2196F3;
-    color: white;
-}
+
 
 .btn-repair-mena {
     background: #FF5722;
     color: white;
+}
+
+
+.mena-clickable {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.mena-clickable:active {
+    transform: scale(0.9);
+}
+
+.mena-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

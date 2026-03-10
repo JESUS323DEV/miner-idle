@@ -190,11 +190,11 @@ function GameRoot() {
         handleUpgradeFurnace,
         handleClaimReward,
 
-         handleUnlockYacimientoSlot,
+        handleUnlockYacimientoSlot,
         handleRepairYacimiento,
         handleMineYacimiento,
         handlePlantMena,
-        
+
     } = useGameActions(setGameState);
 
     // ===== PICKAXE LOGIC =====

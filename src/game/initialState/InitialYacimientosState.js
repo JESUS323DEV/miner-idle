@@ -1,30 +1,65 @@
 const InitialYacimientosState = {
-    slots: [
-        { id: 1, unlocked: true, mena: null },
-        { id: 2, unlocked: false, mena: null },
-        { id: 3, unlocked: false, mena: null },
-    ],
 
-    // Coste de desbloquear slot 2 y 3
-    unlockCosts: {
-        2: 5000,
-        3: 15000,
+
+    bronze: {
+        plantCost: { amount: 20 },
+
+        unlockCosts: {
+            "1": { gold: 10000, amount: 30 },
+            "2": { gold: 35000, amount: 100 },
+        },
+        slots: [
+            { id: 1, unlocked: false, mena: null },
+            { id: 2, unlocked: false, mena: null },
+        ],
+        slotConfig: {
+            1: { maxDurability: 10, repairCost: 10, upgradeCost: 20, growthTime: 60, repairCooldown: 30 },
+            2: { maxDurability: 30, repairCost: 20, upgradeCost: 40, growthTime: 120, repairCooldown: 60 },
+        }
+    },
+
+    iron: {
+        plantCost: { amount: 20 },
+        unlockCosts: {
+            "1": { gold: 55000, amount: 30 },
+            "2": { gold: 85000, amount: 50 },
+        },
+        slots: [
+            { id: 1, unlocked: false, mena: null },
+            { id: 2, unlocked: false, mena: null },
+        ],
+        slotConfig: {
+            1: { maxDurability: 15, repairCost: 10, upgradeCost: 20, growthTime: 30, repairCooldown: 30 },
+            2: { maxDurability: 35, repairCost: 20, upgradeCost: 40, growthTime: 60, repairCooldown: 60 },
+        }
+    },
+
+    diamond: {
+        plantCost: { amount: 20 },
+        unlockCosts: {
+            "1": { gold: 100000, amount: 30 },
+            "2": { gold: 150000, amount: 50 },
+        },
+        slots: [
+            { id: 1, unlocked: false, mena: null },
+            { id: 2, unlocked: false, mena: null },
+        ],
+        slotConfig: {
+            1: { maxDurability: 20, repairCost: 10, upgradeCost: 20, growthTime: 30, repairCooldown: 30 },
+            2: { maxDurability: 40, repairCost: 20, upgradeCost: 40, growthTime: 60, repairCooldown: 60 },
+        }
     },
 };
 
 // ESTRUCTURA DE UNA MENA PLANTADA:
 // {
-//     type: "bronze",          — tipo de material
-//     level: 1,                — nivel de la mena (1/2/3)
-//     durability: 100,         — durabilidad actual
-//     maxDurability: 100,      — durabilidad máxima
-//     yieldMin: 1,             — material mínimo por picada
-//     yieldMax: 3,             — material máximo por picada
-//     repairCost: 10,          — coste en materiales para reparar
-//     plantCost: { bronze: 20 }, — coste para plantar
-//     growthTime: 30,          — segundos hasta que está lista para picar
-//     plantedAt: null,         — timestamp de cuando se plantó
-//     ready: false,            — si ya se puede picar
+//     type: "bronze",
+//     level: 1,
+//     durability: 50,        — viene de menaConfig[level].maxDurability
+//     maxDurability: 50,
+//     plantedAt: null,
+//     ready: false,
+//     repairingUntil: null,
 // }
 
 export default InitialYacimientosState;

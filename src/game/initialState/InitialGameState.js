@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 2100,
+    gold: 20000100,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
@@ -399,9 +399,9 @@ const InitialGameState = {
     goldPerSecondCostIncrease: 1500,
 
     // ========== MATERIALES ==========
-    bronze: 50,
-    iron: 0,
-    diamond: 0,
+    bronze: 1000,
+    iron: 1000,
+    diamond: 1000,
 
     // ========== STAMINA ==========
     stamina: 10,                        // Stamina actual
