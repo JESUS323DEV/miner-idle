@@ -159,7 +159,6 @@ const MinesMapModal = ({
                     {/* YACIMIENTOS */}
                     {yacimientos && selectedBiome && (
                         <div className="yacimientos-section">
-                            <h3 className="yacimientos-title">⛏️ Yacimientos</h3>
                             <div className="yacimientos-slots">
                                 {yacimientos[selectedBiome].slots.map(slot => {
                                     const mena = slot.mena;
@@ -167,19 +166,27 @@ const MinesMapModal = ({
                                     const timeLeft = getGrowthTimeLeft(mena);
                                     const config = mena ? yacimientos[selectedBiome].slotConfig[slot.id] : null;
 
-                                   const unlockCost = yacimientos[selectedBiome].unlockCosts[slot.id];
+                                    const unlockCost = yacimientos[selectedBiome].unlockCosts[slot.id];
 
                                     if (!slot.unlocked) return (
                                         <div key={slot.id} className="yacimiento-slot locked">
-                                            <p>🔒</p>
-                                            <p>{unlockCost.gold} 💰 + {unlockCost.amount} {selectedBiome}</p>
-                                            <button
-                                                className="btn-unlock-slot"
-                                                onClick={(e) => { e.stopPropagation(); onUnlockYacimientoSlot(slot.id, selectedBiome); }}
-                                                disabled={currentGold < unlockCost.gold || currentMaterials[selectedBiome] < unlockCost.amount}
-                                            >
-                                                Desbloquear
-                                            </button>
+                                            <div className="mena-locked-container">
+                                                <img
+                                                    src={getMenaAsset(slot.id, selectedBiome)}
+                                                    alt="locked"
+                                                    className="mena-img mena-no-durability"
+                                                />
+                                                <span
+                                                    className="mena-lock-icon"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onUnlockYacimientoSlot(slot.id, selectedBiome);
+                                                    }}
+                                                >
+                                                    🔒
+                                                </span>
+                                            </div>
+                                            <p className="mena-unlock-cost">{unlockCost.gold} 💰 · {unlockCost.amount} {selectedBiome}</p>
                                         </div>
                                     );
 
@@ -198,7 +205,8 @@ const MinesMapModal = ({
 
 
                                     return (
-                                        <div key={slot.id} className={`yacimiento-slot active ${!ready ? 'growing' : ''}`}>
+                                        <div key={slot.id} className="yacimiento-slot active">
+                                            <p className="mena-durability">{mena.durability}/{mena.maxDurability} ❤️</p>
                                             <img
                                                 src={getMenaAsset(slot.id, mena.type)}
                                                 alt={mena.type}
@@ -210,18 +218,23 @@ const MinesMapModal = ({
                                                     }
                                                 }}
                                             />
-                                            <p>{mena.durability}/{mena.maxDurability} ❤️</p>
-                                            {!ready && <p>⏱️ {timeLeft}s</p>}
-                                            {isRepairing(mena)
-                                                ? <p>🔧 {getRepairTimeLeft(mena)}s</p>
-                                                : <button
-                                                    className="btn-repair-mena"
-                                                    onClick={(e) => { e.stopPropagation(); onRepairYacimiento(slot.id, selectedBiome); }}
-                                                    disabled={mena.durability >= mena.maxDurability}
-                                                >
-                                                    🔧 {config.repairCost} {selectedBiome}
-                                                </button>
-                                            }
+                                            <div className="mena-bottom">
+                                                {!ready && <span>⏱️ {timeLeft}s</span>}
+                                                {isRepairing(mena)
+                                                    ? <span>🔧 {getRepairTimeLeft(mena)}s</span>
+                                                    : <span
+                                                        className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''}`}
+                                                        onClick={(e) => {
+                                                            if (mena.durability < mena.maxDurability) {
+                                                                e.stopPropagation();
+                                                                onRepairYacimiento(slot.id, selectedBiome);
+                                                            }
+                                                        }}
+                                                    >
+                                                        🔧 {config?.repairCost}
+                                                    </span>
+                                                }
+                                            </div>
                                         </div>
                                     );
                                 })}

@@ -296,7 +296,8 @@
 /*============================================================================*/
 
 .yacimientos-section {
-    margin-top: 10rem;
+    margin-top: 15rem;
+
 }
 
 .yacimientos-title {
@@ -312,7 +313,6 @@
 
 .yacimiento-slot {
     flex: 1;
-    background: #2a2a4e48;
     border-radius: 10px;
     padding: 12px;
     display: flex;
@@ -324,19 +324,7 @@
 }
 
 /**/
-.yacimiento-slot.locked {
-    opacity: 0.6;
-    border: 2px dashed #555;
-}
 
-.yacimiento-slot.empty {
-    border: 2px dashed #f0a500;
-}
-
-
-.yacimiento-slot.growing {
-    border: 2px solid #f0a500;
-}
 
 .btn-unlock-slot,
 .btn-plant-mena,
@@ -351,34 +339,30 @@
     font-size: 12px;
 }
 
-.btn-unlock-slot {
-    background: #f0a500;
-    color: black;
-}
 
-.btn-plant-mena {
-    background: #4CAF50;
-    color: white;
-}
-
-
-
-.btn-repair-mena {
-    background: #FF5722;
-    color: white;
-}
-
-
-.mena-clickable {
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-
-.mena-clickable:active {
-    transform: scale(0.9);
-}
 
 .mena-disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.mena-locked-container {
+    position: relative;
+    display: inline-block;
+}
+
+.mena-lock-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.mena-unlock-cost {
+    font-size: 11px;
+    color: #aaa;
+    margin: 0;
+    text-align: center;
 }
