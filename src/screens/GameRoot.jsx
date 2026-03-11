@@ -323,13 +323,19 @@ function GameRoot() {
         }, 1500);
     };
 
-    // Formatea números grandes (10k, 1.5M...)
+    // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
     const formatNumber = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 10000) return (num / 1000).toFixed(1) + 'k';
         return num;
     };
 
+    // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
+    const formatNumber2 = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        return num;
+    };
     const getMinesBg = (biome) => {
         if (biome === 'bronze') return bgMineBronze;
         if (biome === 'iron') return bgMineIron;
@@ -372,17 +378,17 @@ function GameRoot() {
 
                                 <div className="icon-menas">
                                     <img src={menaBronze} loading="lazy" alt="menaBronze" />
-                                    <span>{gameState.bronze}</span>
+                                    <span>{formatNumber2(gameState.bronze)}</span>
                                 </div>
 
                                 <div className="icon-menas">
                                     <img src={menaIron} loading="lazy" alt="menaIron" />
-                                    <span>{gameState.iron}</span>
+                                    <span>{formatNumber2(gameState.iron)}</span>
                                 </div>
 
                                 <div className="icon-menas">
                                     <img src={menaDiamond} loading="lazy" alt="menaDiamond" />
-                                    <span>{gameState.diamond}</span>
+                                    <span>{formatNumber2(gameState.diamond)}</span>
                                 </div>
 
                             </div>
@@ -393,7 +399,7 @@ function GameRoot() {
                         <div className="coinTavern-lingotes">
                             <div className="container-coinTavern">
                                 <img src={coinTavern} alt="Coin-Tavern" />
-                                <span>{gameState.tavernCoins}</span>
+                                <span>{formatNumber2(gameState.tavernCoins)}</span>
                             </div>
 
                             <div className="container-lingotes">
@@ -401,15 +407,15 @@ function GameRoot() {
                                 <div className="icon-lingotes">
                                     <img src={iconBronze} loading="lazy" alt="iconBronze" />
                                     <span>
-
-                                        {gameState.bronzeIngot}
+                                        {formatNumber2(gameState.bronzeIngot)}
                                     </span>
+
                                 </div>
 
                                 <div className="icon-lingotes">
                                     <img src={iconIron} loading="lazy" alt="iconIron" />
                                     <span>
-                                        {gameState.ironIngot}
+                                        {formatNumber2(gameState.ironIngot)}
 
                                     </span>
                                 </div>
@@ -418,7 +424,7 @@ function GameRoot() {
                                     <img src={iconDiamond} loading="lazy" alt="iconDiamond" />
                                     <span>
 
-                                        {gameState.diamondIngot}
+                                        {formatNumber2(gameState.diamondIngot)}
                                     </span>
                                 </div>
 
@@ -523,11 +529,15 @@ function GameRoot() {
                     onClose={() => { setOpenModal(null); setTutorialStep(null); }}
                     currentLevel={`Nivel ${gameState.maxStaminaLevel}`}
                     cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
+                    coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
                     onUpgrade={() => {
                         showGoldCost(gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0);
                         handleBuyMaxStaminaUpgrade();
                     }}
-                    canAfford={gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0)}
+                    canAfford={
+                        gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0) &&
+                        gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10))
+                    }
                     tutorialMessage={!gameState.tutorial?.staminaUpgradeDone ? " 👉" : null}
                     bgImage={bgStamina}
                     iconImage={upgradeStamina}

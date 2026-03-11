@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 1100000,
+    gold: 510,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
@@ -399,9 +399,9 @@ const InitialGameState = {
     goldPerSecondCostIncrease: 1500,
 
     // ========== MATERIALES ==========
-    bronze: 1000,
-    iron: 1000,
-    diamond: 1000,
+    bronze: 0,
+    iron: 0,
+    diamond: 0,
 
     // ========== STAMINA ==========
     stamina: 15,                        // Stamina actual
@@ -437,7 +437,7 @@ const InitialGameState = {
 
     // ========== OTROS ==========
     //=====moneda tavern
-    tavernCoins: 10,
+    tavernCoins: 1,
     thiefRisk: 0,
     hasTriggeredGoldThief: false,
     snacks: initialSnacksState,

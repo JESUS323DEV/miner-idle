@@ -164,6 +164,8 @@
 .container-coinTavern {
     background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
     border-radius: 8px;
+    max-width: 110px;
+    margin: auto;
     padding: 0.65rem 1rem;
     display: flex;
     align-items: center;
@@ -176,7 +178,7 @@
 .container-coinTavern span {
     font-weight: bold;
     color: #f5d47a;
-
+    font-size: 0.8rem;
     min-width: 1.5rem;
 
 }
@@ -406,6 +408,7 @@
     color: white;
     font-size: 0.7rem;
     white-space: nowrap;
+
 }
 
 .tavern-locked:disabled {
@@ -602,8 +605,7 @@
 /*=============================================================================*/
 .hud-top-right {
     position: fixed;
-    top: 15rem;
-    right: 10px;
+    top: 17rem;
     display: flex;
     flex-direction: column;
     gap: 8px;

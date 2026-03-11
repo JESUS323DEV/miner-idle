@@ -183,6 +183,8 @@ export const useGameActions = (setGameState) => {
         setGameState(prevState => {
             const isFree = !prevState.tutorial?.staminaUpgradeDone;
             const cost = isFree ? 0 : prevState.maxStaminaCost;
+            const coinCost = prevState.maxStaminaLevel < 10 ? 1 : 1 + (prevState.maxStaminaLevel - 10);
+            if (!isFree && prevState.tavernCoins < coinCost) return prevState;
             if (!isFree && prevState.gold < cost) return prevState;
 
             const newStaminaLevel = prevState.maxStaminaLevel + 1;
@@ -199,6 +201,7 @@ export const useGameActions = (setGameState) => {
                 maxStaminaLevel: newStaminaLevel,
                 maxStaminaCost: prevState.maxStaminaCost + prevState.maxStaminaCostIncrease,
                 staminaRefillCost: prevState.staminaRefillCost + 10,
+                tavernCoins: prevState.tavernCoins - (isFree ? 0 : coinCost),
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasStaminaMilestone || hasGoldSpentMilestone,
