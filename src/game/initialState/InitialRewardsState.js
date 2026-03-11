@@ -4,7 +4,7 @@ const InitialRewardsState = {
     goldMilestones: {
         claimed: [],
         firstStep: 1000,   // primer hito
-        step: 5000,        // a partir del 2do
+        step: 2000,        // a partir del 2do
         rewardBase: 1000,
         rewardIncrease: 1000,
     },
@@ -13,17 +13,17 @@ const InitialRewardsState = {
     goldSpentMilestones: {
 
         claimed: [],
-        firstStep: 5000,   // primer hito
-        step: 15000,           // cada X oro gastado
-        rewardBase: 1000,     // recompensa primer hito
-        rewardIncrease: 1000, // sube cada hito
+        firstStep: 2000,   // primer hito
+        step: 30000,           // cada X oro gastado
+        rewardBase: 2000,     // recompensa primer hito
+        rewardIncrease: 2000, // sube cada hito
     },
 
     //ORO X SEGUNDO
     goldPerSecondMilestones: {
         claimed: [],
         firstStep: 1,   // primer hito
-        step: 2,              // segundo hito
+        step: 1,              // segundo hito
         rewardBase: 1000,     // recompensa primer hito
         rewardIncrease: 1000,  // sube cada hito
     },
@@ -70,7 +70,7 @@ const InitialRewardsState = {
         firstStep: 1,   // primer hito
         step: 5,              // segundo hito
         rewardBase: 1000,
-        rewardIncrease: 300,
+        rewardIncrease: 1000,
     },
 
     //REFILL STAMINA HISTÓRICO
@@ -80,7 +80,7 @@ const InitialRewardsState = {
         firstStep: 1,   // primer hito
         step: 5,              // segundo hito
         rewardBase: 1000,
-        rewardIncrease: 300,
+        rewardIncrease: 1000,
     },
 
 

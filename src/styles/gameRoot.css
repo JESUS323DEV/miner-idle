@@ -15,6 +15,7 @@
     background-size: cover;
     min-height: 90vh;
     display: flex;
+
     flex-direction: column;
     z-index: 15;
 }
@@ -40,23 +41,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3rem;
     background-color: rgba(52, 52, 52, 0.381);
+
+    border: 1px solid red;
 
 }
 
 
 
 .cont-hud-gold {
-
-    display: flex;
-    align-items: center;
     background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
-
     border-radius: 8px;
-
-    padding: 0.5rem 1.5rem;
-
+    padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -71,17 +67,78 @@
     width: 50px;
 }
 
+.container-lingotes {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    gap: 0.4rem;
+
+
+}
+
+.icon-lingotes {
+    display: flex;
+    text-align: center;
+    gap: 0.1rem;
+    color: #f5d47a;
+    font-size: 0.6rem;
+}
+
+.container-lingotes img,
+.icon-menas img {
+    width: 18px;
+}
+
+.coinTavern-lingotes {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+}
+
+
+.cont-gold-mena {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cont-icon-menas {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-menas {
+
+    display: flex;
+    gap: 0.1rem;
+
+    text-align: center;
+    color: #f5d47a;
+    font-size: 0.6rem;
+
+
+}
+
 /* Número de oro principal */
 .gold-cont {
     background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
     border: 1px solid #ffe4a179;
 
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 0;
 
     min-width: 100%;
 
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     gap: 1.5rem;
 
@@ -92,6 +149,7 @@
 
 .cont-hud-gold p {
     min-width: 4rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #f5d47a;
     letter-spacing: 1px;
@@ -106,16 +164,11 @@
 
 .container-coinTavern {
     background: linear-gradient(to bottom, #1e2329 0%, #14181d 100%);
-
-
     border-radius: 8px;
-
-    padding: 0.5rem 1rem;
-
+    padding: 0.65rem 1rem;
     display: flex;
     align-items: center;
     gap: 6px;
-
     box-shadow:
         inset 0 1px 0 rgba(255, 215, 120, 0.15),
         0 0 6px rgba(199, 154, 43, 0.2);
@@ -148,7 +201,7 @@
    ============================================================ */
 
 .game-info {
-    
+
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -590,10 +643,12 @@
         box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.7);
         transform: scale(1);
     }
+
     50% {
         box-shadow: 0 0 0 10px rgba(240, 165, 0, 0);
         transform: scale(1.15);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(240, 165, 0, 0);
         transform: scale(1);

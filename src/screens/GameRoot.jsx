@@ -37,6 +37,14 @@ import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.png";
 import repair from "../assets/ui/icons-hud/hud-principal/repair.png";
 import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.png";
 
+import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.png"
+import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.png"
+import iconDiamond from "../assets/ui/icons-forge/lingotes/lingote-diamond.png"
+
+import menaBronze from "../assets/ui/icons-forge/menas-hud/bronzeHud.png"
+import menaIron from "../assets/ui/icons-forge/menas-hud/ironHud.png"
+import menaDiamond from "../assets/ui/icons-forge/menas-hud/diamondHud.png"
+
 // ===== ASSETS: FONDOS =====
 import bgMain from "../assets/backgrounds/fondo4.png";
 
@@ -48,9 +56,6 @@ import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.png"
 
 
 // ===== ASSETS: ORES (comentado, en uso futuro) =====
-import bronze1 from "../assets/ui/icons-hud/hud-ores/bronze1.png";
-import metal1 from "../assets/ui/icons-hud/hud-ores/metal1.png";
-import diamond1 from "../assets/ui/icons-hud/hud-ores/diamante1.png";
 
 // ===== ASSETS: PICKAXE — stone =====
 import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
@@ -352,21 +357,76 @@ function GameRoot() {
             <div className="gold-menu-display">
                 <div className="gold-display">
                     <div className="gold-cont" style={{ position: 'relative' }}>
-                        <div className="cont-hud-gold">
-                            <img src={cofre} alt="Cofre Oro" />
-                            <p>{formatNumber(gameState.gold)}</p>
+                        <div className="cont-gold-mena">
+                            <div className="cont-hud-gold">
+                                <img src={cofre} alt="Cofre Oro" />
+                                <p>{formatNumber(gameState.gold)}</p>
+                            </div>
+
+                            {/* Números flotantes de gasto de oro */}
+                            {goldFloatingNumbers.map(num => (
+                                <div key={num.id} className="floating-gold-cost">{num.value}</div>
+                            ))}
+
+                            <div className="cont-icon-menas">
+
+                                <div className="icon-menas">
+                                    <img src={menaBronze} loading="lazy" alt="menaBronze" />
+                                    <span>{gameState.bronze}</span>
+                                </div>
+
+                                <div className="icon-menas">
+                                    <img src={menaIron} loading="lazy" alt="menaIron" />
+                                    <span>{gameState.iron}</span>
+                                </div>
+
+                                <div className="icon-menas">
+                                    <img src={menaDiamond} loading="lazy" alt="menaDiamond" />
+                                    <span>{gameState.diamond}</span>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                        {/* Monedas de taberna-lingotes */}
+                        <div className="coinTavern-lingotes">
+                            <div className="container-coinTavern">
+                                <img src={coinTavern} alt="Coin-Tavern" />
+                                <span>{gameState.tavernCoins}</span>
+                            </div>
+
+                            <div className="container-lingotes">
+
+                                <div className="icon-lingotes">
+                                    <img src={iconBronze} loading="lazy" alt="iconBronze" />
+                                    <span>
+
+                                        {gameState.bronzeIngot}
+                                    </span>
+                                </div>
+
+                                <div className="icon-lingotes">
+                                    <img src={iconIron} loading="lazy" alt="iconIron" />
+                                    <span>
+                                        {gameState.ironIngot}
+
+                                    </span>
+                                </div>
+
+                                <div className="icon-lingotes">
+                                    <img src={iconDiamond} loading="lazy" alt="iconDiamond" />
+                                    <span>
+
+                                        {gameState.diamondIngot}
+                                    </span>
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        {/* Números flotantes de gasto de oro */}
-                        {goldFloatingNumbers.map(num => (
-                            <div key={num.id} className="floating-gold-cost">{num.value}</div>
-                        ))}
 
-                        {/* Monedas de taberna */}
-                        <div className="container-coinTavern">
-                            <img src={coinTavern} alt="Coin-Tavern" />
-                            <span>{gameState.tavernCoins}</span>
-                        </div>
 
 
                     </div>
