@@ -19,7 +19,16 @@ import forgeBronze3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-br
 import forgeIron3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-iron3.png"
 import forgeDiamond3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-diamond3.png"
 
+import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.png"
 
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+
+// Formatea números grandes (10k, 1.5M...)
+const formatNumber = (num) => {
+    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
+    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
+    return num;
+};
 
 const MATERIALS = ['bronze', 'iron', 'diamond'];
 const ICONS = { bronze: '🟫', iron: '⚙️', diamond: '💎' };
@@ -87,58 +96,57 @@ const ForgeModal = ({
 
                         return (
                             <div key={mat} className={`forge-furnace ${!furnace.unlocked ? 'locked' : ''}`}>
-
-
                                 <div className="forge-furnace-header">
-                                    <span className="forge-furnace-icon">🏭</span>
+                                    <span className="forge-furnace-icon"><img src={forgeAssets[mat][furnace.level]} alt={mat} className="forge-furnace-img" /></span>
                                     <span className="forge-furnace-name">{NAMES[mat]}</span>
                                     <span className="forge-furnace-level">Lvl {furnace.level}</span>
                                 </div>
 
-                                <div className="forge-furnace-info">
-                                    <span>{ICONS[mat]} {gameState[recipe.input]} / {recipe.inputAmount}</span>
-                                    <span>🔩 Lingotes: {gameState[ForgeConfig.furnaces[mat].recipes.output]}</span>
+                                <div className='cont-btn-action'>
+                                    {!furnace.unlocked ? (
+                                        <button
+                                            className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
+                                            onClick={() => onUnlockFurnace(mat)}
+                                            disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
+                                        >
+                                            <span className='icon-info-gold'>
+                                                🔒 {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
+                                                <img src={iconGold} loading='lazy' alt="Oro" />
+                                            </span>
+
+                                        </button>
+                                    ) : furnace.isActive ? (
+                                        <div className="forge-progress-container">
+                                            <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
+                                            <span className="forge-progress-text">{timers[mat]}s</span>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className={`forge-btn-action ${!hasEnough ? 'disabled' : ''}`}
+                                            onClick={() => onStartSmelt(mat)}
+                                            disabled={!hasEnough}
+                                        >
+                                            🔥 Fundir
+                                        </button>
+                                    )}
+
+                                    {furnace.unlocked && furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
+                                        <button
+                                            className={`forge-btn-upgrade ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
+                                            onClick={() => onUpgradeFurnace(mat)}
+                                            disabled={gameState.gold < upgradeCost}
+                                        >
+                                            <span className='icon-upgrade'>
+                                                <img src={buttonUpgrade} alt="Upgrade" />
+
+                                                <span className='icon-info-gold'>
+                                                    {formatNumber(upgradeCost)}
+                                                    <img src={iconGold} loading='lazy' alt="oro" />
+                                                </span>
+                                            </span>
+                                        </button>
+                                    )}
                                 </div>
-
-                                {!furnace.unlocked ? (
-                                    <button
-                                        className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
-                                        onClick={() => onUnlockFurnace(mat)}
-                                        disabled={gameState.gold < ForgeConfig.furnaces[mat].upgradeCost}
-                                    >
-                                        🔒 {ForgeConfig.furnaces[mat].unlockCost} oro
-                                    </button>
-
-                                ) : showCollect ? (
-                                    <button className="forge-btn-action collect" onClick={() => onCollectIngot(mat)}>
-                                        ✅ Recoger lingote
-                                    </button>
-                                ) : furnace.isActive ? (
-                                    <div className="forge-progress-container">
-                                        <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
-                                        <span className="forge-progress-text">{timers[mat]}s</span>
-                                    </div>
-                                ) : (
-                                    <button
-                                        className={`forge-btn-action ${!hasEnough ? 'disabled' : ''}`}
-                                        onClick={() => onStartSmelt(mat)}
-                                        disabled={!hasEnough}
-                                    >
-                                        🔥 Fundir
-                                    </button>
-                                )}
-
-                                {furnace.unlocked && furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
-                                    <button
-                                        className={`forge-btn-upgrade ${gameState.gold < 500 ? 'disabled' : ''}`}
-                                        onClick={() => onUpgradeFurnace(mat)}
-                                        disabled={gameState.gold < upgradeCost}
-                                    >
-                                        ⬆️ Mejorar Lvl {furnace.level + 1} ({upgradeCost} oro)
-                                    </button>
-                                )}
-
-
                             </div>
                         );
                     })}

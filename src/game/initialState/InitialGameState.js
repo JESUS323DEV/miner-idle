@@ -390,7 +390,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 1100,
+    gold: 1100000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,
     goldBuffSnack: 0,
@@ -399,9 +399,9 @@ const InitialGameState = {
     goldPerSecondCostIncrease: 1500,
 
     // ========== MATERIALES ==========
-    bronze: 0,
-    iron: 0,
-    diamond: 0,
+    bronze: 1000,
+    iron: 1000,
+    diamond: 1000,
 
     // ========== STAMINA ==========
     stamina: 15,                        // Stamina actual
@@ -504,7 +504,7 @@ const InitialGameState = {
     diamondIngot: 0,
     //===================
     furnaces: {
-        bronze: { unlocked: true, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
+        bronze: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
         iron: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
         diamond: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
     },
