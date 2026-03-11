@@ -29,7 +29,9 @@ const RewardsModal = ({
             refillMilestones: gameState.totalRefills,
         };
         const currentValue = currentValues[milestoneKey];
-        const nextMilestoneValue = milestone.step * (milestone.claimed.length + 1);
+        const nextMilestoneValue = milestone.claimed.length === 0
+            ? milestone.firstStep
+            : milestone.firstStep + milestone.step * milestone.claimed.length;
         return currentValue >= nextMilestoneValue;
     };
 
@@ -42,7 +44,9 @@ const RewardsModal = ({
     // Calcula el siguiente valor objetivo
     const getNextTarget = (milestoneKey) => {
         const milestone = rewards[milestoneKey];
-        return milestone.step * (milestone.claimed.length + 1);
+        return milestone.claimed.length === 0
+            ? milestone.firstStep
+            : milestone.firstStep + milestone.step * milestone.claimed.length;
     };
 
     // Valor actual de cada hito

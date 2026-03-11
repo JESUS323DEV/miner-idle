@@ -8,10 +8,11 @@ import { ForgeConfig } from '../config/ForgeConfig';
 // Comprueba si el valor actual supera el siguiente hito no reclamado
 // y si es así marca hasUnclaimed: true para que el botón brille
 const checkMilestone = (milestoneConfig, currentValue) => {
-    const { claimed, step } = milestoneConfig;
-    const nextMilestoneIndex = claimed.length; // cuántos hitos llevamos
-    const nextMilestoneValue = step * (nextMilestoneIndex + 1);
-    return currentValue >= nextMilestoneValue;
+    const { claimed, firstStep, step } = milestoneConfig;
+    const nextTarget = claimed.length === 0
+        ? firstStep
+        : firstStep + step * claimed.length;
+    return currentValue >= nextTarget;
 };
 
 // ========== HELPER: CALCULA RECOMPENSA DEL SIGUIENTE HITO ==========
@@ -1004,7 +1005,9 @@ export const useGameActions = (setGameState) => {
             };
 
             const currentValue = currentValues[milestoneKey];
-            const nextMilestoneValue = milestone.step * (milestone.claimed.length + 1);
+            const nextMilestoneValue = milestone.claimed.length === 0
+                ? milestone.firstStep
+                : milestone.firstStep + milestone.step * milestone.claimed.length;
 
             // Verifica que realmente se puede reclamar
             if (currentValue < nextMilestoneValue) return prevState;

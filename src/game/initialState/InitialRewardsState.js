@@ -2,69 +2,85 @@ const InitialRewardsState = {
 
     //ORO picado CONSEGUIDO HISTÓRICO
     goldMilestones: {
-        claimed: [],          // hitos ya reclamados
-        step: 1000,           // cada cuánto oro aparece un hito nuevo
-        rewardBase: 1000,     // recompensa del primer hito
-        rewardIncrease: 500, // cuánto sube cada hito siguiente
+        claimed: [],
+        firstStep: 1000,   // primer hito
+        step: 5000,        // a partir del 2do
+        rewardBase: 1000,
+        rewardIncrease: 1000,
     },
 
     //ORO GASTADO
     goldSpentMilestones: {
+
         claimed: [],
-        step: 5000,           // cada 5k oro gastado
+        firstStep: 5000,   // primer hito
+        step: 15000,           // cada X oro gastado
         rewardBase: 1000,     // recompensa primer hito
-        rewardIncrease: 500, // sube cada hito
+        rewardIncrease: 1000, // sube cada hito
     },
 
     //ORO X SEGUNDO
     goldPerSecondMilestones: {
         claimed: [],
-        step: 5,              // primer hito en 3 oro/segundo
+        firstStep: 1,   // primer hito
+        step: 2,              // segundo hito
         rewardBase: 1000,     // recompensa primer hito
-        rewardIncrease: 100,  // sube cada hito
+        rewardIncrease: 1000,  // sube cada hito
     },
+
 
 
     //CLICK HISTÓRICOS
     clickMilestones: {
         claimed: [],
-        step: 100,            // primer hito en 100 clicks
+        firstStep: 100,   // primer hito
+
+        step: 300,            //segundo hito 400 click
         rewardBase: 1000,
-        rewardIncrease: 100,
+        rewardIncrease: 1000,
     },
 
-    //STAMINA HISTÓRICO
+    //MEJORAR STAMINA HISTÓRICO
     staminaMilestones: {
+
         claimed: [],
-        step: 1,              // primer hito en lvl 3
+        firstStep: 1,   // primer hito
+
+        step: 1,
         rewardBase: 1000,
-        rewardIncrease: 100,
+        rewardIncrease: 1000,
     },
 
 
-    //PICO HISTÓRICO
+    //MEJORAR PICO HISTÓRICO
     pickaxeMilestones: {
         claimed: [],
+        firstStep: 1,   // primer hito
+
         step: 1,
         totalTiers: 0,
         rewardBase: 1000,
-        rewardIncrease: 500,
+        rewardIncrease: 1000,
     },
 
     //REPAIR HISTÓRICO
     repairMilestones: {
         claimed: [],
-        step: 5,              // primer hito en 5 reparaciones
+
+        firstStep: 1,   // primer hito
+        step: 5,              // segundo hito
         rewardBase: 1000,
-        rewardIncrease: 100,
+        rewardIncrease: 300,
     },
 
     //REFILL STAMINA HISTÓRICO
     refillMilestones: {
         claimed: [],
-        step: 5,              // primer hito en 5 recargas
+
+        firstStep: 1,   // primer hito
+        step: 5,              // segundo hito
         rewardBase: 1000,
-        rewardIncrease: 100,
+        rewardIncrease: 300,
     },
 
 
