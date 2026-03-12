@@ -1,11 +1,12 @@
+/* ===== OVERLAY Y CONTENIDO PRINCIPAL ===== */
 .tavern-overlay {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;
     width: 100%;
-    height: 90vh;
-    top: 0;
+    height: 80vh;
+    top: 5.5rem;
     z-index: 10;
 }
 
@@ -28,6 +29,7 @@
     z-index: -1;
 }
 
+/* ===== BOTÓN CERRAR ===== */
 .tavern-close {
     position: absolute;
     top: 10px;
@@ -44,16 +46,7 @@
     height: 30px;
 }
 
-.tavern-cambista {
-    background-color: rgb(0, 0, 0);
-    width: 100%;
-    min-height: 75vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 1rem;
-}
-
+/* ===== TÍTULOS Y TEXTOS ===== */
 .tavern-title {
     color: #FFD700;
     text-align: center;
@@ -68,14 +61,108 @@
 
 .tavern-subtitle {
     text-align: center;
+    font-size: 0.7rem;
     margin-bottom: 1.25rem;
     color: #FFF;
 }
 
+/* ===== MENÚ PRINCIPAL ===== */
+.tavern-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+    gap: 2rem;
+
+
+}
+
+.cont-btn-cambista img {
+
+width: 120px;
+margin: auto;
+}
+
+.tavern-menu-btn {
+    background: rgba(7, 7, 7, 0.756);
+    border: 1px solid #FFD700;
+    border-radius: 0.5rem;
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    width: 50%;
+}
+.tavern-menu-btn1 {
+    background: rgba(7, 7, 7, 0.756);
+    border: 1px solid #ff5900;
+    border-radius: 0.5rem;
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    width: 50%;
+}
+
+.tavern-menu-btn:hover {
+    background: rgba(255, 215, 0, 0.3);
+}
+
+/* ===== VISTA CAMBISTA ===== */
+.tavern-cambista {
+    position: fixed;
+    width: 100%;
+    top: 5.5rem;
+    left: 0;
+    height: 80vh;
+    padding: 1rem;
+    z-index: 1;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+
+
+.tavern-cambista::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, black, rgba(0, 0, 0, 0.471), rgba(0, 0, 0, 0.515), rgb(0, 0, 0), rgb(0, 0, 0));
+    z-index: -1;
+
+}
+
+
+
+.tavern-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    color: #AAA;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.tavern-back-btn:hover {
+    color: white;
+}
+
+/* ===== CONVERSIONES ===== */
 .tavern-conversions {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 0.9rem;
+
 }
 
 .tavern-conversion-row {
@@ -85,18 +172,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    border: 2px solid rgba(91, 41, 0, 0.766);
+    background-color: rgba(0, 0, 0, 0.567);
+
 }
 
 .tavern-conversion-info {
     color: #FFF;
 }
 
-.tavern-conversion-icon {
-    font-size: 1.5rem;
-}
-
 .tavern-conversion-text {
     margin-left: 0.6rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem;
+
 }
 
 .tavern-conversion-have {
@@ -105,6 +199,7 @@
     margin-top: 0.3rem;
 }
 
+/* ===== BOTONES CONVERTIR ===== */
 .tavern-convert-btn {
     padding: 0.6rem 1.25rem;
     background: #4CAF50;
@@ -121,40 +216,9 @@
     cursor: not-allowed;
 }
 
-.tavern-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    margin-top: 1.5rem;
-}
-
-.tavern-menu-btn {
-    padding: 1rem;
-    background: rgba(255, 215, 0, 0.15);
-    border: 2px solid #FFD700;
-    border-radius: 0.5rem;
-    color: #FFD700;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.tavern-menu-btn:hover {
-    background: rgba(255, 215, 0, 0.3);
-}
-
-.tavern-back-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    background: none;
-    border: none;
-    color: #AAA;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.tavern-back-btn:hover {
-    color: white;
+/* ===== ICONOS LINGOTES ===== */
+.tavern-ingot-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
 }

@@ -1,15 +1,37 @@
 import { useState } from 'react';
 import { X, ArrowLeft } from 'lucide-react';
 import '../../styles/modals/TavernModal.css';
+import { TavernConfig } from '../../game/config/TavernConfig';
 
-import bgTavern from "../../assets/backgrounds/bg-tavern/bg-tavern.png"
+import bgTavern from "../../assets/backgrounds/bg-tavern/bg-tavern1.png"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
+import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
+import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
+import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
+
+import bgGold from "../../assets/backgrounds/bg-tavern/bg-gold.png"
+import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.png"
+
+import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.png"
+import cambistaGold from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-Gold.png"
+
+const ingotAssets = {
+    bronzeIngot: ingotBronze,
+    ironIngot: ingotIron,
+    diamondIngot: ingotDiamond,
+};
+
+// Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
+const formatNumber2 = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num;
+};
 
 const TavernModal = ({
     isOpen,
     onClose,
-    bronze,
-    iron,
-    diamond,
     bronzeIngot,
     ironIngot,
     diamondIngot,
@@ -23,23 +45,7 @@ const TavernModal = ({
 
     if (!isOpen) return null;
 
-    const conversions = [
-        { material: 'bronzeIngot', amount: 10, coins: 1, icon: '🔶' },
-        { material: 'ironIngot', amount: 6, coins: 1, icon: '🔩' },
-        { material: 'diamondIngot', amount: 2, coins: 1, icon: '💠' },
-    ];
-
-    const goldConversions = [
-        { ingot: 'bronzeIngot', gold: 10000, coins: 0, icon: '🔶', label: 'Lingote Bronze' },
-        { ingot: 'ironIngot', gold: 20000, coins: 0, icon: '🔩', label: 'Lingote Iron' },
-        { ingot: 'diamondIngot', gold: 0, coins: 1, icon: '💠', label: 'Lingote Diamond' },
-    ];
-
-    const currentMaterials = {
-        bronzeIngot,
-        ironIngot,
-        diamondIngot,
-    };
+    const currentMaterials = { bronzeIngot, ironIngot, diamondIngot };
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${bgTavern})` }}>
@@ -50,13 +56,22 @@ const TavernModal = ({
                 {view === 'main' && (
                     <>
                         <h2 className="tavern-title">🏛️ TABERNA</h2>
-                        <div className="tavern-coins">Monedas: {tavernCoins} 🪙</div>
+
                         <div className="tavern-menu">
                             <button className="tavern-menu-btn" onClick={() => setView('cambista')}>
-                                💱 Cambista
+
+                                <span className='cont-btn-cambista'>
+                                    <img src={cambistaCoin} alt="Cambista Coin" />
+                                    <small>Cambista</small>
+                                </span>
                             </button>
-                            <button className="tavern-menu-btn" onClick={() => setView('cambista-oro')}>
-                                🪙 Cambista de Oro
+
+                            <button className="tavern-menu-btn1" onClick={() => setView('cambista-oro')}>
+                                <span className='cont-btn-cambista'>
+                                    <img src={cambistaGold} alt="Cambista Gold" />
+
+                                    <small>Cambista</small>
+                                </span>
                             </button>
                         </div>
                     </>
@@ -64,22 +79,24 @@ const TavernModal = ({
 
                 {/* CAMBISTA LINGOTES → MONEDAS */}
                 {view === 'cambista' && (
-                    <div className='tavern-cambista'>
+                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
                         <button className="tavern-back-btn" onClick={() => setView('main')}>
                             <ArrowLeft /> Volver
                         </button>
                         <h2 className="tavern-title">💱 Cambista</h2>
-                        <div className="tavern-coins">Monedas: {tavernCoins} 🪙</div>
                         <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
+
                         <div className="tavern-conversions">
-                            {conversions.map(conv => {
+                            {TavernConfig.conversions.map(conv => {
                                 const hasEnough = currentMaterials[conv.material] >= conv.amount;
                                 return (
                                     <div key={conv.material} className="tavern-conversion-row">
                                         <div className="tavern-conversion-info">
-                                            <span className="tavern-conversion-icon">{conv.icon}</span>
-                                            <span className="tavern-conversion-text">{conv.amount} → {conv.coins} 🪙</span>
-                                            <div className="tavern-conversion-have">Tienes: {currentMaterials[conv.material]}</div>
+                                            <span className="tavern-conversion-text">
+                                                <img src={ingotAssets[conv.material]} alt={conv.material} className="tavern-ingot-icon" />
+                                                {conv.amount} → {conv.coins}
+                                                <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
+                                            </span>
                                         </div>
                                         <button
                                             onClick={() => onConvert(conv.material)}
@@ -94,9 +111,9 @@ const TavernModal = ({
 
                             <div className="tavern-conversion-row">
                                 <div className="tavern-conversion-info">
-                                    <span className="tavern-conversion-icon">🪙</span>
-                                    <span className="tavern-conversion-text">1 🪙 → 5000 oro</span>
-                                    <div className="tavern-conversion-have">Tienes: {tavernCoins} 🪙</div>
+                                    <span className="tavern-conversion-text">
+                                        1 <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" /> → {formatNumber2(TavernConfig.coinToGold)} <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
+                                    </span>
                                 </div>
                                 <button
                                     onClick={onConvertCoins}
@@ -112,28 +129,29 @@ const TavernModal = ({
 
                 {/* CAMBISTA ORO → LINGOTES */}
                 {view === 'cambista-oro' && (
-                    <div className='tavern-cambista'>
+                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgGold})` }}>
                         <button className="tavern-back-btn" onClick={() => setView('main')}>
                             <ArrowLeft /> Volver
                         </button>
-                        <h2 className="tavern-title">🪙 Cambista de Oro</h2>
-                        <div className="tavern-coins">Oro: {gold} 💰 | Monedas: {tavernCoins} 🪙</div>
+                        <h2 className="tavern-title">Cambista de Oro</h2>
+
                         <p className="tavern-subtitle">Compra lingotes con oro o monedas</p>
                         <div className="tavern-conversions">
-                            {goldConversions.map(conv => {
+                            {TavernConfig.goldConversions.map(conv => {
                                 const canAfford = conv.coins > 0
                                     ? tavernCoins >= conv.coins
                                     : gold >= conv.gold;
-                                const costLabel = conv.coins > 0
-                                    ? `${conv.coins} 🪙`
-                                    : `${conv.gold.toLocaleString()} 💰`;
 
                                 return (
                                     <div key={conv.ingot} className="tavern-conversion-row">
                                         <div className="tavern-conversion-info">
-                                            <span className="tavern-conversion-icon">{conv.icon}</span>
-                                            <span className="tavern-conversion-text">{costLabel} → 1 {conv.label}</span>
-                                            <div className="tavern-conversion-have">Tienes: {currentMaterials[conv.ingot]}</div>
+
+                                            <span className="tavern-conversion-text">
+                                                {conv.coins > 0
+                                                    ? <>{conv.coins} <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" /></>
+                                                    : <>{formatNumber2(conv.gold)} <img src={iconGold} alt="oro" className="tavern-ingot-icon" /></>
+                                                } → 1 <img src={ingotAssets[conv.ingot]} alt={conv.ingot} className="tavern-ingot-icon" />
+                                            </span>
                                         </div>
                                         <button
                                             onClick={() => onConvertGoldToIngot(conv.ingot)}

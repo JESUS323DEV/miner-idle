@@ -8,9 +8,9 @@ const InitialRewardsState = {
 
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
-            { upTo: Infinity, base: 2000, increase: 100, max: 5000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 100, max: 5000 },
 
         ],
     },
@@ -23,9 +23,9 @@ const InitialRewardsState = {
         step: 10000,           // cada X oro gastado
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
-            { upTo: Infinity, base: 2000, increase: 100, max: 5000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 100, max: 1500 },
         ],
     },
 
@@ -40,8 +40,8 @@ const InitialRewardsState = {
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
             { upTo: 10, base: 1000, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
-            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+            { upTo: 15, base: 1000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 100, max: 1500 },
 
         ],
     },
@@ -56,10 +56,10 @@ const InitialRewardsState = {
 
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 3000 },
 
-            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 100, max: 1500 },
         ],
     },
 
@@ -72,10 +72,10 @@ const InitialRewardsState = {
         step: 1,
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 3000 },
 
-            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 100, max: 1500 },
         ],
     },
 
@@ -89,10 +89,10 @@ const InitialRewardsState = {
         totalTiers: 0,
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 2500 },
 
-            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 300, max: 1500 },
         ],
     },
 
@@ -104,10 +104,10 @@ const InitialRewardsState = {
         step: 5,              // segundo hito
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 2500 },
 
-            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 300, max: 1500 },
         ],
     },
 
@@ -119,10 +119,10 @@ const InitialRewardsState = {
         step: 5,              // segundo hito
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
-            { upTo: 10, base: 1500, increase: 100, max: 2000 },
-            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 1000, increase: 100, max: 2500 },
 
-            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+            { upTo: Infinity, base: 1000, increase: 300, max: 1500 },
         ],
     },
 
