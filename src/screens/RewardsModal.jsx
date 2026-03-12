@@ -38,7 +38,17 @@ const RewardsModal = ({
     // Calcula la recompensa del siguiente hito
     const getReward = (milestoneKey) => {
         const milestone = rewards[milestoneKey];
-        return milestone.rewardBase + (milestone.claimed.length * milestone.rewardIncrease);
+        const { claimed, tiers } = milestone;
+        const index = claimed.length;
+
+        if (tiers) {
+            const tier = tiers.find(t => index < t.upTo);
+            const prevUpTo = tiers[tiers.indexOf(tier) - 1]?.upTo || 0;
+            const posInTier = index - prevUpTo;
+            return Math.min(tier.base + posInTier * tier.increase, tier.max);
+        }
+
+        return milestone.rewardBase + (index * milestone.rewardIncrease);
     };
 
     // Calcula el siguiente valor objetivo

@@ -17,8 +17,17 @@ const checkMilestone = (milestoneConfig, currentValue) => {
 
 // ========== HELPER: CALCULA RECOMPENSA DEL SIGUIENTE HITO ==========
 const getMilestoneReward = (milestoneConfig) => {
-    const { claimed, rewardBase, rewardIncrease } = milestoneConfig;
-    return rewardBase + (claimed.length * rewardIncrease);
+    const { claimed, tiers, rewardBase, rewardIncrease } = milestoneConfig;
+    const index = claimed.length;
+
+    if (tiers) {
+        const tier = tiers.find(t => index < t.upTo);
+        const prevUpTo = tiers[tiers.indexOf(tier) - 1]?.upTo || 0;
+        const posInTier = index - prevUpTo;
+        return Math.min(tier.base + posInTier * tier.increase, tier.max);
+    }
+
+    return rewardBase + (index * rewardIncrease);
 };
 
 export const useGameActions = (setGameState) => {

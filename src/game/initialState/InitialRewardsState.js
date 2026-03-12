@@ -4,28 +4,46 @@ const InitialRewardsState = {
     goldMilestones: {
         claimed: [],
         firstStep: 1000,   // primer hito
-        step: 2000,        // a partir del 2do
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        step: 5000,        // a partir del 2do
+
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 2000, increase: 100, max: 5000 },
+
+        ],
     },
 
     //ORO GASTADO
     goldSpentMilestones: {
 
         claimed: [],
-        firstStep: 2000,   // primer hito
-        step: 30000,           // cada X oro gastado
-        rewardBase: 2000,     // recompensa primer hito
-        rewardIncrease: 2000, // sube cada hito
+        firstStep: 5000,   // primer hito
+        step: 10000,           // cada X oro gastado
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 2000, increase: 100, max: 5000 },
+        ],
     },
+
 
     //ORO X SEGUNDO
     goldPerSecondMilestones: {
         claimed: [],
+
         firstStep: 1,   // primer hito
         step: 1,              // segundo hito
-        rewardBase: 1000,     // recompensa primer hito
-        rewardIncrease: 1000,  // sube cada hito
+
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1000, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+
+        ],
     },
 
 
@@ -34,10 +52,15 @@ const InitialRewardsState = {
     clickMilestones: {
         claimed: [],
         firstStep: 100,   // primer hito
+        step: 500,            //segundo hito 400 click
 
-        step: 300,            //segundo hito 400 click
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+
+            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+        ],
     },
 
     //MEJORAR STAMINA HISTÓRICO
@@ -47,8 +70,13 @@ const InitialRewardsState = {
         firstStep: 1,   // primer hito
 
         step: 1,
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+
+            { upTo: Infinity, base: 2000, increase: 100, max: 3000 },
+        ],
     },
 
 
@@ -59,8 +87,13 @@ const InitialRewardsState = {
 
         step: 1,
         totalTiers: 0,
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+
+            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+        ],
     },
 
     //REPAIR HISTÓRICO
@@ -69,8 +102,13 @@ const InitialRewardsState = {
 
         firstStep: 1,   // primer hito
         step: 5,              // segundo hito
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+
+            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+        ],
     },
 
     //REFILL STAMINA HISTÓRICO
@@ -79,8 +117,13 @@ const InitialRewardsState = {
 
         firstStep: 1,   // primer hito
         step: 5,              // segundo hito
-        rewardBase: 1000,
-        rewardIncrease: 1000,
+        tiers: [
+            { upTo: 5, base: 1000, increase: 100, max: 1500 },
+            { upTo: 10, base: 1500, increase: 100, max: 2000 },
+            { upTo: 15, base: 2000, increase: 100, max: 3000 },
+
+            { upTo: Infinity, base: 2000, increase: 300, max: 3000 },
+        ],
     },
 
 
