@@ -14,7 +14,7 @@ import bgGold from "../../assets/backgrounds/bg-tavern/bg-gold.png"
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.png"
 
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.png"
-import cambistaGold from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-Gold.png"
+import cambistaGold from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-gold.png"
 
 const ingotAssets = {
     bronzeIngot: ingotBronze,
