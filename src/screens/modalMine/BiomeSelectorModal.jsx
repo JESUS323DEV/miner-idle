@@ -9,9 +9,10 @@ const BiomeSelectorModal = ({
     onUnlockBiome,
     currentGold,
     unlockedTypes,
+    onShowGoldCost,
     unlockedBiomes = [],
 }) => {
-    
+
     if (!isOpen) return null;
 
     const biomes = [
@@ -20,7 +21,7 @@ const BiomeSelectorModal = ({
         { type: "diamond", name: "Mina de Diamante", unlockCost: 50000, color: "#B9F2FF" },
     ];
 
-   const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);
+    const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);
 
     return (
         <div className="biome-selector-overlay" onClick={onClose}>
@@ -42,6 +43,7 @@ const BiomeSelectorModal = ({
                                         onSelectBiome(biome.type);
                                         onClose();
                                     } else if (canAfford) {
+                                        onShowGoldCost(biome.unlockCost);
                                         onUnlockBiome(biome.type);
                                         onSelectBiome(biome.type);
                                         onClose();

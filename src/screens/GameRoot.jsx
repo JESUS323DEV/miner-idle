@@ -160,6 +160,28 @@ function GameRoot() {
         }
     };
 
+    // ===== FLOATING NUMBERS — oro =====
+    // Muestra coste negativo al gastar oro
+    const showGoldCost = (cost) => {
+        const id = Date.now();
+        setGoldFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
+        setTimeout(() => {
+            setGoldFloatingNumbers(prev => prev.filter(n => n.id !== id));
+        }, 1500);
+    };
+
+    // ===== FLOATING NUMBERS — COIN TAVERN =====
+    // Muestra coste negativo al gastar COIN TAVERN
+    const [tavernFloatingNumbers, setTavernFloatingNumbers] = useState([]);
+
+    const showTavernCost = (cost) => {
+        const id = Date.now();
+        setTavernFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
+        setTimeout(() => {
+            setTavernFloatingNumbers(prev => prev.filter(n => n.id !== id));
+        }, 1500);
+    };
+
     // ===== ACTIONS — todas las funciones de lógica del juego =====
     const {
         handleFeedLady,
@@ -201,7 +223,7 @@ function GameRoot() {
         handlePlantMena,
         handleConvertGoldToIngot,
 
-    } = useGameActions(setGameState);
+    } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost);
 
     // ===== PICKAXE LOGIC =====
     // Determina si el upgrade es de tier o de material
@@ -302,26 +324,8 @@ function GameRoot() {
         }
     }, [gameState.tutorial?.staminaUpgradeDone, gameState.tutorial?.currentStep, gameState.tutorial?.pickaxeUnlocked]);
 
-    // ===== FLOATING NUMBERS — oro =====
-    // Muestra coste negativo al gastar oro
-    const showGoldCost = (cost) => {
-        const id = Date.now();
-        setGoldFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
-        setTimeout(() => {
-            setGoldFloatingNumbers(prev => prev.filter(n => n.id !== id));
-        }, 1500);
-    };
-    // ===== FLOATING NUMBERS — COIN TAVERN =====
-    // Muestra coste negativo al gastar COIN TAVERN
-    const [tavernFloatingNumbers, setTavernFloatingNumbers] = useState([]);
 
-    const showTavernCost = (cost) => {
-        const id = Date.now();
-        setTavernFloatingNumbers(prev => [...prev, { id, value: -cost, timestamp: Date.now() }]);
-        setTimeout(() => {
-            setTavernFloatingNumbers(prev => prev.filter(n => n.id !== id));
-        }, 1500);
-    };
+
 
     // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
     const formatNumber = (num) => {
@@ -470,7 +474,7 @@ function GameRoot() {
                     currentLevel={`x${gameState.goldPerSecondLevel}`}
                     cost={gameState.goldPerSecondCost}
                     onUpgrade={() => {
-                        showGoldCost(gameState.goldPerSecondCost);
+
                         handleBuyGoldPerSecondUpgrade();
                         if (gameState.tutorial?.currentStep === 0) setOpenModal(null);
                     }}
@@ -512,8 +516,7 @@ function GameRoot() {
                     {/* Botón recarga rápida sin abrir modal */}
                     <button
                         onClick={() => {
-                            const cost = gameState.staminaRefillCost;
-                            if (gameState.gold >= cost) { showGoldCost(cost); handleRefillStamina(); }
+                            handleRefillStamina();
                             setOpenModal(null);
                         }}
                         disabled={gameState.automine?.isActive || gameState.stamina >= gameState.maxStamina}
@@ -531,7 +534,7 @@ function GameRoot() {
                     cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
                     coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
                     onUpgrade={() => {
-                        showGoldCost(gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0);
+
                         handleBuyMaxStaminaUpgrade();
                     }}
                     canAfford={
@@ -567,8 +570,7 @@ function GameRoot() {
                     {/* Botón reparación rápida sin abrir modal */}
                     <button
                         onClick={() => {
-                            const cost = gameState.pickaxe.repairCost;
-                            if (gameState.gold >= cost) { showGoldCost(cost); handleRepairPickaxe(); }
+                            handleRepairPickaxe();
                             setOpenModal(null);
                         }}
                         disabled={gameState.automine?.isActive || gameState.pickaxe.durability >= gameState.pickaxe.maxDurability}
@@ -585,7 +587,6 @@ function GameRoot() {
                     currentLevel={`Tier ${gameState.pickaxe.tier}`}
                     cost={gameState.tutorial?.pickaxeUpgradeDone ? (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) : 0}
                     onUpgrade={() => {
-                        showGoldCost(gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0);
                         handlePickaxeUpgrade();
                     }}
                     canAfford={canAffordTierUpgrade}
@@ -711,6 +712,7 @@ function GameRoot() {
                 unlockedTypes={gameState.mines.unlockedTypes}
                 onUnlockBiome={(type) => handleUnlockMineType(type)}
                 unlockedBiomes={gameState.mines.unlockedBiomes}
+                onShowGoldCost={showGoldCost}
             />
 
             {/* MAPA DE MINAS */}

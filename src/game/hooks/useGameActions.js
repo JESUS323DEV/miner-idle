@@ -15,6 +15,8 @@ const checkMilestone = (milestoneConfig, currentValue) => {
     return currentValue >= nextTarget;
 };
 
+
+
 // ========== HELPER: CALCULA RECOMPENSA DEL SIGUIENTE HITO ==========
 const getMilestoneReward = (milestoneConfig) => {
     const { claimed, tiers, rewardBase, rewardIncrease } = milestoneConfig;
@@ -31,12 +33,13 @@ const getMilestoneReward = (milestoneConfig) => {
     return rewardBase + (index * rewardIncrease);
 };
 
-export const useGameActions = (setGameState) => {
+export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost) => {
 
     // ========== ORO POR SEGUNDO ==========
     // Compra upgrade → +1 oro/seg, sube coste siguiente
     // Detecta hito de goldPerSecond y stamina level
     const handleBuyGoldPerSecondUpgrade = () => {
+        showGoldCost(gameState.goldPerSecondCost);
         setGameState(prevState => {
             if (prevState.gold < prevState.goldPerSecondCost) return prevState;
 
@@ -190,6 +193,12 @@ export const useGameActions = (setGameState) => {
     // Upgrade → +5 stamina máxima, sube coste siguiente
     // Detecta hito de stamina level y oro gastado
     const handleBuyMaxStaminaUpgrade = () => {
+        const isFree = !gameState.tutorial?.staminaUpgradeDone;
+        const cost = isFree ? 0 : gameState.maxStaminaCost;
+        const coinCost = gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10);
+        if (!isFree && cost > 0) showGoldCost(cost);
+        if (!isFree && coinCost > 0) showTavernCost(coinCost);
+
         setGameState(prevState => {
             const isFree = !prevState.tutorial?.staminaUpgradeDone;
             const cost = isFree ? 0 : prevState.maxStaminaCost;
@@ -228,6 +237,7 @@ export const useGameActions = (setGameState) => {
     // Recarga stamina al máximo pagando staminaRefillCost
     // Detecta hito de recargas y oro gastado
     const handleRefillStamina = () => {
+        showGoldCost(gameState.staminaRefillCost);
         setGameState(prevState => {
             if (prevState.stamina >= prevState.maxStamina) return prevState;
             if (prevState.gold < prevState.staminaRefillCost) return prevState;
@@ -255,6 +265,7 @@ export const useGameActions = (setGameState) => {
     // Repara durabilidad al máximo pagando repairCost
     // Detecta hito de reparaciones y oro gastado
     const handleRepairPickaxe = () => {
+        showGoldCost(gameState.pickaxe.repairCost);
         setGameState(prevState => {
             if (prevState.pickaxe.durability >= prevState.pickaxe.maxDurability) return prevState;
             if (prevState.gold < prevState.pickaxe.repairCost) return prevState;
@@ -393,6 +404,8 @@ export const useGameActions = (setGameState) => {
     // ========== MINAS ==========
     // Desbloquea bioma de mina pagando unlockCost — detecta hito oro gastado
     const handleUnlockMineType = (mineType) => {
+        const cost = MinesConfig[mineType]?.unlockCost;
+        if (cost) showGoldCost(cost);
         setGameState(prevState => {
             if (prevState.mines.unlockedTypes.includes(mineType)) return prevState;
             const cost = MinesConfig[mineType]?.unlockCost;
@@ -751,6 +764,14 @@ export const useGameActions = (setGameState) => {
     };
 
     const handleConvertGoldToIngot = (ingotType) => {
+        const costs = {
+            bronzeIngot: { gold: 10000, coins: 0 },
+            ironIngot: { gold: 20000, coins: 0 },
+            diamondIngot: { gold: 0, coins: 1 },
+        };
+        const cost = costs[ingotType];
+        if (cost.gold > 0) showGoldCost(cost.gold);
+        if (cost.coins > 0) showTavernCost(cost.coins);
         setGameState(prevState => {
             const costs = {
                 bronzeIngot: { gold: 10000, coins: 0 },
@@ -775,6 +796,7 @@ export const useGameActions = (setGameState) => {
 
     // Convierte 1 moneda de taberna en 5000 oro — detecta hito oro acumulado
     const handleConvertCoinsToGold = () => {
+        showTavernCost(1);
         setGameState(prevState => {
             if (prevState.tavernCoins < 1) return prevState;
 
@@ -819,6 +841,7 @@ export const useGameActions = (setGameState) => {
     // ========== AUTOMINE ==========
     // Desbloquea automine permanentemente
     const handleUnlockAutomine = () => {
+        showGoldCost(AutomineConfig.unlockCost);
         setGameState(prevState => {
             if (prevState.gold < AutomineConfig.unlockCost) return prevState;
             if (prevState.automine.unlocked) return prevState;
@@ -878,6 +901,7 @@ export const useGameActions = (setGameState) => {
     // ========== FORJA ==========
     // Desbloquea horno pagando unlockCost
     const handleUnlockFurnace = (material) => {
+        showGoldCost(ForgeConfig.furnaces[material].unlockCost);
         setGameState(prevState => {
             const cost = ForgeConfig.furnaces[material].unlockCost;
             if (prevState.gold < cost) return prevState;
@@ -953,6 +977,8 @@ export const useGameActions = (setGameState) => {
 
     // Mejora nivel del horno (1→2→3) → reduce tiempo de fundición
     const handleUpgradeFurnace = (material) => {
+        const upgradeCost = ForgeConfig.furnaces[material].upgradeCosts[gameState.furnaces[material].level];
+        showGoldCost(upgradeCost);
         setGameState(prevState => {
             const furnace = prevState.furnaces[material];
             const upgradeCost = ForgeConfig.furnaces[material].upgradeCosts[furnace.level];
