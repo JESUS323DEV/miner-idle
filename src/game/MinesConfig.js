@@ -42,7 +42,7 @@ const MinesConfig = {
         color: "#CD7F32",  // Color para UI
 
         // DESBLOQUEO
-        unlockCost: 1000,  // Oro necesario para desbloquear este TIPO
+        unlockCost: 2000,  // Oro necesario para desbloquear este TIPO
 
         // RECURSOS DENTRO (BASE para instancias)
         baseVeinsCount: { min: 3, max: 3 },      // 5 menas por mina en lvl 1
@@ -80,7 +80,7 @@ const MinesConfig = {
         name: "Mina de Hierro",
         color: "#808080",
 
-        unlockCost: 4000,
+        unlockCost: 8000,
 
 
 
@@ -122,7 +122,7 @@ const MinesConfig = {
         name: "Mina de Diamante",
         color: "#B9F2FF",
 
-        unlockCost: 6000,
+        unlockCost: 12000,
 
 
         baseVeinsCount: { min: 2, max: 2 },  // Menos menas
@@ -174,7 +174,7 @@ const MinesConfig = {
         name: "Mina de Bronce II",
         color: "#CD7F32",
 
-        unlockCost: 4000,
+        unlockCost: 8000,
         requiresStars: { mineType: 'bronze', stars: 2 },  // ✅ Requiere 2 estrellas en bronze lvl1
         baseEntryCost: 0,
 
@@ -194,7 +194,7 @@ const MinesConfig = {
         type: "iron_lvl2",
         name: "Mina de Hierro II",
         color: "#808080",
-        unlockCost: 6000,
+        unlockCost: 12000,
         requiresStars: { mineType: 'iron', stars: 2 },
 
         baseVeinsCount: { min: 2, max: 4 },
@@ -211,7 +211,7 @@ const MinesConfig = {
         type: "diamond_lvl2",
         name: "Mina de Diamante II",
         color: "#B9F2FF",
-        unlockCost: 8000,
+        unlockCost: 16000,
         requiresStars: { mineType: 'diamond', stars: 2 },
 
         baseVeinsCount: { min: 2, max: 4 },
@@ -230,7 +230,7 @@ const MinesConfig = {
         type: "bronze_lvl3",
         name: "Mina de Bronce III",
         color: "#CD7F32",
-        unlockCost: 6000,
+        unlockCost: 12000,
         requiresStars: { mineType: 'bronze', stars: 3 },  // ✅ Requiere 3⭐ en lvl2
         baseVeinsCount: { min: 5, max: 5 },
         baseVeinCapacity: { min: 20, max: 20 },
@@ -247,7 +247,7 @@ const MinesConfig = {
         type: "iron_lvl3",
         name: "Mina de Hierro III",
         color: "#808080",
-        unlockCost: 8000,
+        unlockCost: 16000,
         requiresStars: { mineType: 'iron', stars: 3 },
         baseVeinsCount: { min: 5, max: 5 },
         baseVeinCapacity: { min: 20, max: 20 },
@@ -263,7 +263,7 @@ const MinesConfig = {
         type: "diamond_lvl3",
         name: "Mina de Diamante III",
         color: "#B9F2FF",
-        unlockCost: 10000,
+        unlockCost: 20000,
         requiresStars: { mineType: 'diamond', stars: 3 },
         baseVeinsCount: { min: 5, max: 5 },
         baseVeinCapacity: { min: 20, max: 20 },

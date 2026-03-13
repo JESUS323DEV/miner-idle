@@ -21,8 +21,8 @@ const InitialYacimientosState = {
     iron: {
         plantCost: { amount: 0 },
         unlockCosts: {
-            "1": { gold: 55000, amount: 30 },
-            "2": { gold: 85000, amount: 50 },
+            "1": { gold: 55000, amount: 10 },
+            "2": { gold: 85000, amount: 30 },
         },
         slots: [
             { id: 1, unlocked: false, mena: null },
@@ -37,8 +37,8 @@ const InitialYacimientosState = {
     diamond: {
         plantCost: { amount: 0 },
         unlockCosts: {
-            "1": { gold: 100000, amount: 30 },
-            "2": { gold: 150000, amount: 50 },
+            "1": { gold: 100000, amount: 10 },
+            "2": { gold: 150000, amount: 30 },
         },
         slots: [
             { id: 1, unlocked: false, mena: null },

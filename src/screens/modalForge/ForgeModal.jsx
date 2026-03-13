@@ -120,8 +120,7 @@ const ForgeModal = ({
                             <div key={mat} className={`forge-furnace ${!furnace.unlocked ? 'locked' : ''}`}>
                                 <div className="forge-furnace-header">
                                     <span className="forge-furnace-icon"><img src={forgeAssets[mat][furnace.level]} alt={mat} className="forge-furnace-img" /></span>
-                                    <span className="forge-furnace-name">{NAMES[mat]}</span>
-                                    <span className="forge-furnace-level">Lvl {furnace.level}</span>
+                                    <span className="forge-furnace-name">{NAMES[mat]} <small>Lvl {furnace.level}</small></span>
                                 </div>
 
 
@@ -133,6 +132,7 @@ const ForgeModal = ({
                                         <img src={ingotAssets[mat]} alt={mat} className="forge-recipe-icon" />
                                         <span>1</span>
                                     </div>
+
                                     {!furnace.unlocked ? (
                                         <button
                                             className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
@@ -170,7 +170,7 @@ const ForgeModal = ({
                                                 <img src={buttonUpgrade} alt="Upgrade" />
 
                                                 <span className='icon-info-gold'>
-                                                    {formatNumber(upgradeCost)}
+                                                    <small>{formatNumber(upgradeCost)}</small>
                                                     <img src={iconGold} loading='lazy' alt="oro" />
                                                 </span>
                                             </span>

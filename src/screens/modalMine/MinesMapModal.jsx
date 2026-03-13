@@ -48,8 +48,8 @@ const MinesMapModal = ({
     if (!isOpen) return null;
     // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
     const formatNumber2 = (num) => {
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
         return num;
     };
 
@@ -112,7 +112,6 @@ const MinesMapModal = ({
             >
                 {/* HEADER */}
                 <div className="mines-modal-header">
-                    <h2>MINA DE {selectedBiome ? selectedBiome.toUpperCase() : 'MAPA DE MINAS'}</h2>
                     <button className="modal-close" onClick={onClose}><X /></button>
                 </div>
 
@@ -170,7 +169,14 @@ const MinesMapModal = ({
                                         onClick={() => { if (canUnlock) onUnlockType(type); }}
                                         disabled={!canUnlock}
                                     >
-                                        {config.unlockCost} 🪙
+                                        <span className='info-mine'>
+                                            <small className='text-img-info'>
+                                                {formatNumber2(config.unlockCost)}
+                                                <img src={iconGold} alt="IconGold" />
+                                                🔒
+                                            </small>
+
+                                        </span>
                                     </button>
                                 </div>
                             </div>

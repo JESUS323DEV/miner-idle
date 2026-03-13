@@ -1,7 +1,7 @@
 /* ========== CONTENEDOR DEL MODAL ========== */
 .modal-overlay1 {
     position: fixed;
-    top: 8.5rem;
+    top: 9.1rem;
 
     left: 0;
     width: 100%;
@@ -37,7 +37,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.267);
+    background: linear-gradient(180deg, black, rgba(35, 35, 35, 0.373), rgba(6, 6, 6, 0.112), rgba(0, 0, 0, 0.534), black);
     z-index: -1;
 
 }
@@ -55,27 +55,9 @@
     padding-bottom: 10px;
 }
 
-.mines-modal-header h2 {
-    color: white;
-    margin: 0;
-    font-size: 24px;
-}
-
-/* ========== TABS ========== */
 
 
 
-.tab-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.tab-btn.active {
-    background: rgba(255, 215, 0, 0.3);
-    border-color: #FFD700;
-    color: #FFD700;
-}
-
-/* ========== CONTENIDO ========== */
 
 
 
@@ -84,18 +66,18 @@
 
 .mine-card-bronze.mine-card-lvl1 {
     position: fixed;
-    top: 14.5rem;
-    left: 1rem;
+    top: 15.5rem;
+    left: 1.5rem;
 
     transition: all 0.3s;
-    width: 90px;
+
     margin: auto;
 }
 
 .mine-card-bronze.mine-card-lvl2 {
     position: fixed;
-    top: 12rem;
-    left: 8rem;
+    top: 12.5rem;
+    left: 7.8rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -107,8 +89,8 @@
 
 .mine-card-bronze.mine-card-lvl3 {
     position: fixed;
-    top: 12rem;
-    left: 16rem;
+    top: 13.5rem;
+    left: 14.5rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -122,7 +104,7 @@
 
 .mine-card-iron.mine-card-lvl1 {
     position: fixed;
-    top: 13.5rem;
+    top: 14.5rem;
     left: 1rem;
 
     transition: all 0.3s;
@@ -134,7 +116,7 @@
 .mine-card-iron.mine-card-lvl2 {
     position: fixed;
     top: 11.5rem;
-    left: 8rem;
+    left: 7.5rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -145,8 +127,8 @@
 
 .mine-card-iron.mine-card-lvl3 {
     position: fixed;
-    top: 11.5rem;
-    left: 16rem;
+    top: 12rem;
+    left: 15rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -158,7 +140,7 @@
 
 .mine-card-diamond.mine-card-lvl1 {
     position: fixed;
-    top: 12.5rem;
+    top: 13.5rem;
     left: 1rem;
 
     transition: all 0.3s;
@@ -169,7 +151,7 @@
 .mine-card-diamond.mine-card-lvl2 {
     position: fixed;
     top: 11rem;
-    left: 8rem;
+    left: 7.5rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -180,8 +162,8 @@
 
 .mine-card-diamond.mine-card-lvl3 {
     position: fixed;
-    top: 11rem;
-    left: 16rem;
+    top: 12rem;
+    left: 14.5rem;
 
     border-radius: 10px;
     transition: all 0.3s;
@@ -189,41 +171,19 @@
     margin: auto;
 }
 
-.mine-card.locked {
-    opacity: 0.7;
-}
+
 
 /* ========== HEADER DE TARJETA ========== */
 
-.mine-card-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0.2rem;
-    background-color: rgb(112, 112, 112);
 
-}
 
 
 .mine-card-body {
 
     text-align: center;
-    background-color: rgb(254, 254, 254);
+    background-color: rgba(254, 254, 254, 0.379);
 
 }
-
-.mine-card-header h3 {
-    color: white;
-    margin: 0;
-    font-size: 20px;
-
-}
-
-.lock-icon {
-    font-size: 15px;
-}
-
-
 
 
 
@@ -253,44 +213,76 @@
 
 /* ========== BOTONES ========== */
 
-.mine-card-actions {
-    display: flex;
-    gap: 10px;
-}
+
 
 .btn-enter-mine,
 .btn-discard-mine,
 .btn-unlock-mine {
+
     font-size: 16px;
     font-weight: bold;
     border: none;
     width: 100px;
+    padding: 0.3rem 0;
+    border-radius: 0.3rem;
     margin: auto;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .btn-enter-mine {
-    background: #000000;
+    background: #00000094;
     color: white;
-    padding: 0.3rem 0;
+    box-shadow: 1px 1px 10px rgba(255, 255, 255, 0.479);
+
+    padding: 0.4rem 0;
+    width: 65px;
+    font-size: 0.8rem;
+
+
 }
 
 
 
 .btn-unlock-mine {
-    background: #fbfbfb;
-    color: #1a1a2e;
+    background: #29500027;
+    color: #ffffff;
+    box-shadow: 1px 1px 10px rgba(255, 255, 255, 0.479);
+    display: flex;
+    align-items: start;
+    justify-content: center;
 
 }
 
 
 
 .btn-unlock-mine.disabled {
-    background: rgb(159, 158, 158);
-    color: rgb(0, 0, 0);
-    opacity: 0.7;
+    background: rgba(87, 0, 0, 0.651);
+    color: rgb(255, 255, 255);
+    opacity: 0.6;
     cursor: not-allowed;
+}
+
+.info-mine img {
+
+    width: 25px;
+}
+
+.info-mine {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+
+}
+
+.text-img-info {
+
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 /*============================================================================*/
@@ -418,7 +410,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
- 
+
 }
 
 .mena-bottom {
@@ -429,7 +421,7 @@
     gap: 0.5rem;
 }
 
-.icon-info{
+.icon-info {
 
     width: 25px;
 }
