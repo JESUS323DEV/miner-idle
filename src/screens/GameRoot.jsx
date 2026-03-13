@@ -51,7 +51,7 @@ import bgMain from "../assets/backgrounds/fondo4.png";
 // ===== ASSETS: FONDOS MINES =====
 
 import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.png"
-import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-Iron.png"
+import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-iron.png"
 import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.png"
 
 
