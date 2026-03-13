@@ -16,8 +16,8 @@ const BiomeSelectorModal = ({
 
     const biomes = [
         { type: "bronze", name: "Mina de Bronce", unlockCost: 1000, color: "#CD7F32" },
-        { type: "iron", name: "Mina de Hierro", unlockCost: 4000, color: "#808080" },
-        { type: "diamond", name: "Mina de Diamante", unlockCost: 6000, color: "#B9F2FF" },
+        { type: "iron", name: "Mina de Hierro", unlockCost: 10000, color: "#808080" },
+        { type: "diamond", name: "Mina de Diamante", unlockCost: 50000, color: "#B9F2FF" },
     ];
 
    const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);

@@ -345,14 +345,16 @@ export const useGameActions = (setGameState) => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier !== 5) return prevState;
 
-            let newMaterial, newGoldPerMine;
+            let newMaterial;
             if (prevState.pickaxe.material === "stone") {
-                newMaterial = "bronze"; newGoldPerMine = 10;
+                newMaterial = "bronze";
             } else if (prevState.pickaxe.material === "bronze") {
-                newMaterial = "metal"; newGoldPerMine = 12;
+                newMaterial = "metal";
             } else if (prevState.pickaxe.material === "metal") {
-                newMaterial = "diamond"; newGoldPerMine = 15;
+                newMaterial = "diamond";
             }
+
+            const newGoldPerMine = prevState.pickaxe.goldPerMineByMaterial[newMaterial];
 
             const upgradeCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material];
             const goldCost = upgradeCost?.gold || 0;
