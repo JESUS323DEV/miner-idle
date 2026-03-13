@@ -606,6 +606,7 @@
 .hud-top-right {
     position: fixed;
     top: 17rem;
+    left: 1rem;
     display: flex;
     flex-direction: column;
     gap: 8px;

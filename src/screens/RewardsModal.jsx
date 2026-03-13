@@ -43,6 +43,7 @@ const RewardsModal = ({
 
         if (tiers) {
             const tier = tiers.find(t => index < t.upTo);
+            if (!tier) return tiers[tiers.length - 1].max; // fallback al último tier
             const prevUpTo = tiers[tiers.indexOf(tier) - 1]?.upTo || 0;
             const posInTier = index - prevUpTo;
             return Math.min(tier.base + posInTier * tier.increase, tier.max);

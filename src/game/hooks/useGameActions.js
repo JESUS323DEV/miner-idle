@@ -22,6 +22,7 @@ const getMilestoneReward = (milestoneConfig) => {
 
     if (tiers) {
         const tier = tiers.find(t => index < t.upTo);
+        if (!tier) return tiers[tiers.length - 1].max; // fallback al último tier
         const prevUpTo = tiers[tiers.indexOf(tier) - 1]?.upTo || 0;
         const posInTier = index - prevUpTo;
         return Math.min(tier.base + posInTier * tier.increase, tier.max);
@@ -443,7 +444,7 @@ export const useGameActions = (setGameState) => {
                 return { id: i + 1, remaining: capacity, max: capacity };
             });
 
-            const goldCost = isFirstBronzeEntry ? 0 : config.unlockCost;
+            const goldCost = 0;
             const newGoldSpent = prevState.totalGoldSpent + goldCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
@@ -952,15 +953,16 @@ export const useGameActions = (setGameState) => {
     const handleUpgradeFurnace = (material) => {
         setGameState(prevState => {
             const furnace = prevState.furnaces[material];
-            if (furnace.level >= 3) return prevState;
-            if (prevState.gold < 500) return prevState;
+            const upgradeCost = ForgeConfig.furnaces[material].upgradeCosts[furnace.level];
+            if (furnace.level >= ForgeConfig.furnaces[material].maxLevel) return prevState;
+            if (prevState.gold < upgradeCost) return prevState;
 
-            const newGoldSpent = prevState.totalGoldSpent + 500;
+            const newGoldSpent = prevState.totalGoldSpent + upgradeCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
-                gold: prevState.gold - 500,
+                gold: prevState.gold - upgradeCost,
                 totalGoldSpent: newGoldSpent,
                 furnaces: {
                     ...prevState.furnaces,
