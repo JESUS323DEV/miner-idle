@@ -23,6 +23,14 @@ import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.pn
 
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
+import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
+import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
+import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
+
+import menaBronze from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png"
+import menaIron from "../../assets/ui/icons-forge/menas-hud/ironHud.png"
+import menaDiamond from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
+
 // Formatea números grandes (10k, 1.5M...)
 const formatNumber = (num) => {
     if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
@@ -34,6 +42,20 @@ const MATERIALS = ['bronze', 'iron', 'diamond'];
 const ICONS = { bronze: '🟫', iron: '⚙️', diamond: '💎' };
 const NAMES = { bronze: 'Bronze', iron: 'Hierro', diamond: 'Diamante' };
 
+//mapeo assets iconos - info- hud 
+const ingotAssets = {
+    bronze: ingotBronze,
+    iron: ingotIron,
+    diamond: ingotDiamond,
+};
+
+const menaAssets = {
+    bronze: menaBronze,
+    iron: menaIron,
+    diamond: menaDiamond,
+};
+
+//mapeo assets forjas
 const forgeAssets = {
     bronze: { 1: forgeBronze, 2: forgeBronze2, 3: forgeBronze3 },
     iron: { 1: forgeIron, 2: forgeIron2, 3: forgeIron3 },
@@ -102,7 +124,15 @@ const ForgeModal = ({
                                     <span className="forge-furnace-level">Lvl {furnace.level}</span>
                                 </div>
 
+
                                 <div className='cont-btn-action'>
+                                    <div className="forge-recipe">
+                                        <img src={menaAssets[mat]} alt={mat} className="forge-recipe-icon" />
+                                        <span>{recipe.inputAmount}</span>
+                                        <span>→</span>
+                                        <img src={ingotAssets[mat]} alt={mat} className="forge-recipe-icon" />
+                                        <span>1</span>
+                                    </div>
                                     {!furnace.unlocked ? (
                                         <button
                                             className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}

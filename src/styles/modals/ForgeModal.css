@@ -149,8 +149,8 @@
 }
 
 .icon-upgrade img {
-    width: 100px;
-    height: 40px;
+    width: 80px;
+    height: 30px;
     margin-bottom: 0.5rem;
 
 }
@@ -167,6 +167,16 @@
 
 .icon-info-gold img {
 
-    width: 25px;
+    width: 20px;
     height: 15px;
+}
+
+.forge-recipe-icon {
+
+    width: 15px;
+}
+
+.forge-recipe {
+
+    display: flex;
 }

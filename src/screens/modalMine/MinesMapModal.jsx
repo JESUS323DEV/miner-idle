@@ -4,6 +4,7 @@ import '../../styles/modals/MinesMapModal.css';
 
 
 //ASSETS MENA BRONZE
+
 import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png"
 import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
 //ASSETS MENA IRON
@@ -13,6 +14,12 @@ import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
 //ASSETS MENA DIAMOND
 import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+
+import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png"
+import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png"
+import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
 
 
 
@@ -39,7 +46,14 @@ const MinesMapModal = ({
     currentMaterials = {},
 }) => {
     if (!isOpen) return null;
+    // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
+    const formatNumber2 = (num) => {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        return num;
+    };
 
+    //ASSETS MENAS DENTRO DE MINAS
     const getMenaAsset = (slotId, type) => {
         const assets = {
             bronze: [menaBronze1, menaBronze2],
@@ -47,6 +61,13 @@ const MinesMapModal = ({
             diamond: [menaDiamond1, menaDiamond2],
         };
         return assets[type]?.[slotId - 1] || null;
+    };
+
+    //ASSETS ICON MENAS INFO
+    const biomeHudAssets = {
+        bronze: bronzeHud,
+        iron: ironHud,
+        diamond: diamondHud,
     };
 
     const filteredUnlocked = unlockedTypes
@@ -186,18 +207,33 @@ const MinesMapModal = ({
                                                     🔒
                                                 </span>
                                             </div>
-                                            <p className="mena-unlock-cost">{unlockCost.gold} 💰 · {unlockCost.amount} {selectedBiome}</p>
+
+                                            <div className='yacimiento-info'>
+
+                                                <span className="mena-unlock-cost">
+                                                    {formatNumber2(unlockCost.gold)}
+                                                    <img src={iconGold} alt="iconGold" />
+                                                </span>
+
+                                                <span className='mena-unlock-cost'>
+                                                    {formatNumber2(unlockCost.amount)}
+                                                    <img src={biomeHudAssets[selectedBiome]} alt={selectedBiome} />
+                                                </span>
+
+
+                                            </div>
+
                                         </div>
                                     );
 
                                     if (!mena) return (
                                         <div key={slot.id} className="yacimiento-slot empty">
-                                            <p>🌱 Vacío</p>
+                                            <p>🪏 </p>
                                             <button
                                                 className="btn-plant-mena"
                                                 onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
                                             >
-                                                Plantar {yacimientos[selectedBiome].plantCost.amount} {selectedBiome}
+                                                Excavar
                                             </button>
                                         </div>
                                     );
@@ -206,7 +242,10 @@ const MinesMapModal = ({
 
                                     return (
                                         <div key={slot.id} className="yacimiento-slot active">
-                                            <p className="mena-durability">{mena.durability}/{mena.maxDurability} ❤️</p>
+                                            <span className="mena-durability">
+                                                <small>{mena.durability}/{mena.maxDurability}</small>
+                                                <img src={bronzeHud} alt="Bronze Hud" />
+                                            </span>
                                             <img
                                                 src={getMenaAsset(slot.id, mena.type)}
                                                 alt={mena.type}
@@ -221,7 +260,7 @@ const MinesMapModal = ({
                                             <div className="mena-bottom">
                                                 {!ready && <span>⏱️ {timeLeft}s</span>}
                                                 {isRepairing(mena)
-                                                    ? <span>🔧 {getRepairTimeLeft(mena)}s</span>
+                                                    ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
                                                     : <span
                                                         className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''}`}
                                                         onClick={(e) => {
@@ -231,9 +270,17 @@ const MinesMapModal = ({
                                                             }
                                                         }}
                                                     >
-                                                        🔧 {config?.repairCost}
+                                                        🪏
+
+                                                        <span className='info-yacimientos'>
+                                                            <img className='icon-info' src={iconGold} alt="icon-gold" />  {formatNumber2(config?.repairCost)}
+                                                        </span>
                                                     </span>
                                                 }
+
+
+
+
                                             </div>
                                         </div>
                                     );

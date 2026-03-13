@@ -1157,11 +1157,12 @@ export const useGameActions = (setGameState) => {
             if (mena.durability >= mena.maxDurability) return prevState;
 
             const config = prevState.yacimientos[biome].slotConfig[slotId];
-            if (prevState[biome] < config.repairCost) return prevState;
+            if (prevState.gold < config.repairCost) return prevState;
 
             return {
                 ...prevState,
-                [biome]: prevState[biome] - config.repairCost,
+                gold: prevState.gold - config.repairCost,
+                totalGoldSpent: prevState.totalGoldSpent + config.repairCost,
                 yacimientos: {
                     ...prevState.yacimientos,
                     [biome]: {
