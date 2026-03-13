@@ -58,7 +58,7 @@ const MinesMapModal = ({
         .filter(type => selectedBiome ? type === selectedBiome || type.startsWith(selectedBiome) : true);
 
     const canAffordUnlock = (unlockCost) => currentGold >= unlockCost;
-    const canAffordEnter = (mineType) => currentGold >= minesConfig[mineType]?.unlockCost;
+    const canAffordEnter = (mineType) => true;
 
     // Comprueba si la mena ya está lista para picar
     const isMenaReady = (mena) => {
