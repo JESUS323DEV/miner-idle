@@ -16,7 +16,65 @@ const MinesConfig = {
         unlockCost: 2000,
         entryCost: 2000,
 
-        baseVeinsCount: { min: 3, max: 3 },
+        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinCapacity: { min: 40, max: 40 },
+
+        //MATERIALES OBTENIDOS AL MINAR CADA MINA
+        yields: {
+            stone: { min: 1, max: 3 },
+            bronze: { min: 4, max: 6 },
+            metal: { min: 9, max: 12 },
+            diamond: { min: 10, max: 15 },
+        },
+
+        // ESTRELLAS — thresholds de materiales recogidos al completar
+        starThresholds: { perfect: 400, good: 250 },
+        // BONUS — multiplicador de materiales al completar con estrellas
+        starBonuses: { perfect: 0.5, good: 0.25 },
+
+        possibleEvents: ["bronze_merchant", "rich_vein", "cave_in", "beggar_miner"],
+        eventChance: 0.15,
+    },
+
+
+    // ===== BRONCE LVL 2 =====
+    bronze_lvl2: {
+        type: "bronze_lvl2",
+        name: "Mina de Bronce II",
+        color: "#CD7F32",
+
+        unlockCost: 8000,
+        entryCost: 6000,
+        requiresStars: { mineType: 'bronze', stars: 2 },
+
+        baseVeinsCount: { min: 3, max: 5 },
+        baseVeinCapacity: { min: 30, max: 30 },
+
+        yields: {
+            stone: { min: 0, max: 0 },
+            bronze: { min: 5, max: 8 },
+            metal: { min: 8, max: 10 },
+            diamond: { min: 12, max: 14 },
+        },
+        
+        // ESTRELLAS — thresholds de materiales recogidos al completar
+        starThresholds: { perfect: 600, good: 400 },
+        
+        // BONUS — multiplicador de materiales al completar con estrellas
+        starBonuses: { perfect: 0.5, good: 0.25 },
+    },
+
+    // ===== BRONCE LVL 3 =====
+    bronze_lvl3: {
+        type: "bronze_lvl3",
+        name: "Mina de Bronce III",
+        color: "#CD7F32",
+
+        unlockCost: 12000,
+        entryCost: 8000,
+        requiresStars: { mineType: 'bronze', stars: 3 },
+
+        baseVeinsCount: { min: 5, max: 5 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
@@ -26,14 +84,10 @@ const MinesConfig = {
             diamond: { min: 3, max: 5 },
         },
 
-        // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 300, good: 100 },
-        // BONUS — multiplicador de materiales al completar con estrellas
+        starThresholds: { perfect: 300, good: 200 },
         starBonuses: { perfect: 0.5, good: 0.25 },
-
-        possibleEvents: ["bronze_merchant", "rich_vein", "cave_in", "beggar_miner"],
-        eventChance: 0.15,
     },
+
 
     // ===== HIERRO LVL 1 =====
     iron: {
@@ -87,30 +141,6 @@ const MinesConfig = {
         eventChance: 0.30,
     },
 
-    // ===== BRONCE LVL 2 =====
-    bronze_lvl2: {
-        type: "bronze_lvl2",
-        name: "Mina de Bronce II",
-        color: "#CD7F32",
-
-        unlockCost: 8000,
-        entryCost: 6000,
-        requiresStars: { mineType: 'bronze', stars: 2 },
-
-        baseVeinsCount: { min: 4, max: 5 },
-        baseVeinCapacity: { min: 20, max: 20 },
-
-        yields: {
-            stone: { min: 0, max: 1 },
-            bronze: { min: 1, max: 2 },
-            metal: { min: 1, max: 3 },
-            diamond: { min: 3, max: 5 },
-        },
-
-        starThresholds: { perfect: 200, good: 150 },
-        starBonuses: { perfect: 0.5, good: 0.25 },
-    },
-
     // ===== HIERRO LVL 2 =====
     iron_lvl2: {
         type: "iron_lvl2",
@@ -159,29 +189,7 @@ const MinesConfig = {
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
-    // ===== BRONCE LVL 3 =====
-    bronze_lvl3: {
-        type: "bronze_lvl3",
-        name: "Mina de Bronce III",
-        color: "#CD7F32",
 
-        unlockCost: 12000,
-        entryCost: 8000,
-        requiresStars: { mineType: 'bronze', stars: 3 },
-
-        baseVeinsCount: { min: 5, max: 5 },
-        baseVeinCapacity: { min: 20, max: 20 },
-
-        yields: {
-            stone: { min: 0, max: 1 },
-            bronze: { min: 1, max: 2 },
-            metal: { min: 1, max: 3 },
-            diamond: { min: 3, max: 5 },
-        },
-
-        starThresholds: { perfect: 300, good: 200 },
-        starBonuses: { perfect: 0.5, good: 0.25 },
-    },
 
     // ===== HIERRO LVL 3 =====
     iron_lvl3: {

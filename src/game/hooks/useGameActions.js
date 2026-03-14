@@ -321,6 +321,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 [ingotType]: ingotType ? prevState[ingotType] - ingotAmount : prevState[ingotType],
                 pickaxe: {
                     ...prevState.pickaxe,
+                    miningPower: prevState.pickaxe.miningPower + prevState.pickaxe.miningPowerPerTier,
                     tierUpgradeCosts: {
                         ...prevState.pickaxe.tierUpgradeCosts,
                         [prevState.pickaxe.material]: (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0) * 2
@@ -329,7 +330,6 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                     maxDurability: prevState.pickaxe.maxDurability + 5,
                     durability: prevState.pickaxe.maxDurability + 5,
                     repairCost: prevState.pickaxe.repairCost + 5,
-                    miningPower: prevState.pickaxe.miningPower + prevState.pickaxe.miningPowerPerTier,
                 },
                 rewards: {
                     ...prevState.rewards,
@@ -521,13 +521,11 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
 
             const miningPower = prevState.pickaxe.miningPower || 1;
             const baseGain = Math.floor(Math.random() * (yieldRange.max - yieldRange.min + 1)) + yieldRange.min;
-            const tierMaterialBonus = 1 + (prevState.pickaxe.tier * (prevState.pickaxe.materialBonusPerTier || 0));
-            const materialGained = Math.floor(baseGain * miningPower * tierMaterialBonus);
-
+            const materialGained = baseGain;
             const updatedVeins = [...prevState.mines.currentMine.veins];
             updatedVeins[veinIndex] = {
                 ...vein,
-                remaining: Math.max(0, vein.remaining - 1)
+                remaining: Math.max(0, vein.remaining - Math.ceil(miningPower))
             };
 
             return {

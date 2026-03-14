@@ -222,14 +222,14 @@ const InitialPickaxeState = {
     repairCostIncrease: 15,   // Cuánto sube el coste de reparar cada vez
     repairCount: 0,           // Veces que has reparado
 
-    // Coste actual de subir tier
+    // Coste actual en oro al subir tier
     tierUpgradeCosts: {
         stone: 1500,
         bronze: 2500,
         metal: 4000,
         diamond: 6000,
     },
-    //=========================
+    //===========Coste actual en lingotes al hacer upgrade==============
     materialUpgradeCosts: {
         stone: { gold: 5000, ingot: { type: "bronzeIngot", amount: 100 } },
         bronze: { gold: 20000, ingot: { type: "ironIngot", amount: 150 } },
@@ -238,9 +238,9 @@ const InitialPickaxeState = {
 
     //======================
     miningPower: 1,              // Daño por click a las venas (base)
-    miningPowerPerTier: 0.5,     // Cuánto sube miningPower por tier
-    goldBonusPerTier: 0.1,       // % bonus de oro por tier (0.1 = 10%)
-    materialBonusPerTier: 0.1,   // % bonus de materiales en minas por tier (0.1 = 10%)
+    miningPowerPerTier: 0.20,     // Cuánto sube miningPower por tier
+    goldBonusPerTier: 0,       // % bonus de oro por tier (0.1 = 10%)
+    materialBonusPerTier: 0,   // % bonus de materiales en minas por tier (0.1 = 10%)
 
 
     //======================
