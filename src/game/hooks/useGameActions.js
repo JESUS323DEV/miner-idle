@@ -446,7 +446,6 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             const config = MinesConfig[mineType];
             const isFirstBronzeEntry = !prevState.mines.bronzeFirstEntryDone && mineType === 'bronze';
 
-            if (!isFirstBronzeEntry && prevState.gold < config.unlockCost) return prevState;
 
             const numVeins = Math.floor(
                 Math.random() * (config.baseVeinsCount.max - config.baseVeinsCount.min + 1)
@@ -528,7 +527,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             const updatedVeins = [...prevState.mines.currentMine.veins];
             updatedVeins[veinIndex] = {
                 ...vein,
-                remaining: Math.max(0, vein.remaining - Math.ceil(miningPower))
+                remaining: Math.max(0, vein.remaining - 1)
             };
 
             return {
@@ -566,19 +565,14 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             let starsEarned = 0;
 
             if (allVeinsEmpty) {
-                let perfectThreshold, goodThreshold;
-                if (mineType.includes('_lvl3')) {
-                    perfectThreshold = 300; goodThreshold = 200;
-                } else if (mineType.includes('_lvl2')) {
-                    perfectThreshold = 200; goodThreshold = 150;
-                } else {
-                    perfectThreshold = 100; goodThreshold = 50;
-                }
+                const { starThresholds, starBonuses } = MinesConfig[mineType] || MinesConfig[baseMineType];
 
-                if (materialsGathered >= perfectThreshold) {
-                    speedBonus = Math.floor(materialsGathered * 0.5); starsEarned = 3;
-                } else if (materialsGathered >= goodThreshold) {
-                    speedBonus = Math.floor(materialsGathered * 0.25); starsEarned = 2;
+                if (materialsGathered >= starThresholds.perfect) {
+                    speedBonus = Math.floor(materialsGathered * starBonuses.perfect);
+                    starsEarned = 3;
+                } else if (materialsGathered >= starThresholds.good) {
+                    speedBonus = Math.floor(materialsGathered * starBonuses.good);
+                    starsEarned = 2;
                 } else {
                     starsEarned = 1;
                 }

@@ -103,32 +103,18 @@ const MineScreen = ({
 
                 {/* MENSAJE SI COMPLETÓ TODAS */}
                 {allCompleted && (() => {
-                    const clicks = currentMine.clicksCount;
-                    const totalPoints = currentMine.veins.reduce((sum, vein) => sum + vein.max, 0);
                     const materialsGathered = currentMine.resourcesGathered[baseMineType];
-
-                    let perfectThreshold, goodThreshold;
-
-                    // ✅ DETECTA NIVEL POR NOMBRE
-                    if (currentMine.mineType.includes('_lvl3')) {
-                        perfectThreshold = 300;
-                        goodThreshold = 200;
-                    } else if (currentMine.mineType.includes('_lvl2')) {
-                        perfectThreshold = 200;
-                        goodThreshold = 150;
-                    } else {
-                        perfectThreshold = 100;
-                        goodThreshold = 50;
-                    }
+                    const config = MinesConfig[currentMine.mineType];
+                    const { starThresholds, starBonuses } = config;
 
                     let speedBonus = 0;
                     let rankText = '';
 
-                    if (materialsGathered >= perfectThreshold) {
-                        speedBonus = Math.floor(materialsGathered * 0.5);
+                    if (materialsGathered >= starThresholds.perfect) {
+                        speedBonus = Math.floor(materialsGathered * starBonuses.perfect);
                         rankText = '⭐⭐⭐';
-                    } else if (materialsGathered >= goodThreshold) {
-                        speedBonus = Math.floor(materialsGathered * 0.25);
+                    } else if (materialsGathered >= starThresholds.good) {
+                        speedBonus = Math.floor(materialsGathered * starBonuses.good);
                         rankText = '⭐⭐☆';
                     } else {
                         rankText = '⭐☆☆';
@@ -140,7 +126,7 @@ const MineScreen = ({
                         <div className="mine-completed">
                             <h3>🎉 ¡MINA COMPLETADA!</h3>
                             <p style={{ fontSize: '32px', margin: '10px 0' }}>{rankText}</p>
-                            <p>Clicks totales: {clicks}</p>
+                            <p>Clicks totales: {currentMine.clicksCount}</p>
                             <p>Materiales obtenidos: {materialsGathered} {getMineIcon(baseMineType)}</p>
                             {speedBonus > 0 && (
                                 <p style={{ color: '#4CAF50', fontWeight: 'bold' }}>
