@@ -14,7 +14,7 @@ const MinesConfig = {
         color: "#CD7F32",
 
         unlockCost: 2000,
-        entryCost: 2000,
+        // entryCost: 2000,
 
         baseVeinsCount: { min: 2, max: 2 },
         baseVeinCapacity: { min: 40, max: 40 },
@@ -23,12 +23,12 @@ const MinesConfig = {
         yields: {
             stone: { min: 1, max: 3 },
             bronze: { min: 4, max: 6 },
-            metal: { min: 9, max: 12 },
-            diamond: { min: 10, max: 15 },
+            metal: { min: 10, max: 15 },
+            diamond: { min: 15, max: 20 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 200, good: 100 },
+        starThresholds: { perfect: 350, good: 100 },
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
 
@@ -44,10 +44,10 @@ const MinesConfig = {
         color: "#CD7F32",
 
         unlockCost: 4000,
-        entryCost: 6000,
+        // entryCost: 4000,
         requiresStars: { mineType: 'bronze', stars: 2 },
 
-        baseVeinsCount: { min: 4, max: 5 },
+        baseVeinsCount: { min: 3, max: 5 },
         baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
@@ -71,21 +71,21 @@ const MinesConfig = {
         color: "#CD7F32",
 
         unlockCost: 8000,
-        entryCost: 8000,
+        // entryCost: 8000,
         requiresStars: { mineType: 'bronze_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 5, max: 6 },
+        baseVeinsCount: { min: 4, max: 6 },
         baseVeinCapacity: { min: 35, max: 35 },
 
         yields: {
             stone: { min: 0, max: 1 },
-            bronze: { min: 1, max: 2 },
+            bronze: { min: 5, max: 8 },
             metal: { min: 7, max: 10 },
             diamond: { min: 12, max: 15 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 300, good: 200 },
+        starThresholds: { perfect: 420, good: 350 },
 
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
@@ -98,147 +98,153 @@ const MinesConfig = {
         name: "Mina de Hierro",
         color: "#808080",
 
-        unlockCost: 8000,
-        entryCost: 4000,
+        unlockCost: 5000,
+        // entryCost: 15000,
 
         baseVeinsCount: { min: 3, max: 3 },
-        baseVeinCapacity: { min: 10, max: 10 },
+        baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
             stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 2 },
-            diamond: { min: 1, max: 4 },
+            bronze: { min: 0, max: 5 },
+            metal: { min: 5, max: 10 },
+            diamond: { min: 10, max: 12 },
         },
 
-        starThresholds: { perfect: 100, good: 50 },
+        starThresholds: { perfect: 220, good: 150 },
         starBonuses: { perfect: 0.5, good: 0.25 },
 
         possibleEvents: ["iron_blueprint", "lost_miner", "rich_vein", "cave_in", "tool_break"],
         eventChance: 0.20,
     },
 
-    // ===== DIAMANTE LVL 1 =====
+
+    // =========================================== HIERRO LVL 2 =====
+    iron_lvl2: {
+        type: "iron_lvl2",
+        name: "Mina de Hierro II",
+        color: "#808080",
+
+        unlockCost: 8000,
+        // entryCost: 8000,
+        requiresStars: { mineType: 'iron', stars: 2 },
+
+        baseVeinsCount: { min: 4, max: 5 },
+        baseVeinCapacity: { min: 20, max: 20 },
+
+        yields: {
+            stone: { min: 0, max: 0 },
+            bronze: { min: 0, max: 5 },
+            metal: { min: 8, max: 12 },
+            diamond: { min: 18, max: 20 },
+        },
+
+        starThresholds: { perfect: 450, good: 360 },
+        starBonuses: { perfect: 0.5, good: 0.25 },
+    },
+
+    // =========================================== HIERRO LVL 3 =====
+    iron_lvl3: {
+        type: "iron_lvl3",
+        name: "Mina de Hierro III",
+        color: "#808080",
+
+        unlockCost: 10000,
+        // entryCost: 10000,
+        requiresStars: { mineType: 'iron_lvl2', stars: 2 },
+
+        baseVeinsCount: { min: 4, max: 6 },
+        baseVeinCapacity: { min: 20, max: 20 },
+
+        yields: {
+            stone: { min: 0, max: 0 },
+            bronze: { min: 0, max: 5 },
+            metal: { min: 8, max: 12 },
+            diamond: { min: 20, max: 24 },
+        },
+
+        starThresholds: { perfect: 500, good: 400 },
+        starBonuses: { perfect: 0.5, good: 0.25 },
+    },
+
+    // =========================================== DIAMANTE LVL 1 =====
     diamond: {
         type: "diamond",
         name: "Mina de Diamante",
         color: "#B9F2FF",
 
-        unlockCost: 12000,
-        entryCost: 6000,
+        unlockCost: 10000,
+        //entryCost: 6000,
 
-        baseVeinsCount: { min: 2, max: 2 },
-        baseVeinCapacity: { min: 10, max: 10 },
+        baseVeinsCount: { min: 3, max: 3 },
+        baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
             stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 0 },
-            metal: { min: 0, max: 1 },
-            diamond: { min: 1, max: 3 },
+            bronze: { min: 0, max: 1 },
+            metal: { min: 0, max: 9 },
+            diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 100, good: 50 },
+        starThresholds: { perfect: 205, good: 120 },
         starBonuses: { perfect: 0.5, good: 0.25 },
 
         possibleEvents: ["guardian_creature", "cursed_mine", "blessed_vein", "treasure_map", "ancient_tool"],
         eventChance: 0.30,
     },
 
-    // ===== HIERRO LVL 2 =====
-    iron_lvl2: {
-        type: "iron_lvl2",
-        name: "Mina de Hierro II",
-        color: "#808080",
 
-        unlockCost: 12000,
-        entryCost: 8000,
-        requiresStars: { mineType: 'iron', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 4 },
-        baseVeinCapacity: { min: 20, max: 30 },
 
-        yields: {
-            stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 2 },
-            diamond: { min: 1, max: 4 },
-        },
-
-        starThresholds: { perfect: 200, good: 150 },
-        starBonuses: { perfect: 0.5, good: 0.25 },
-    },
-
-    // ===== DIAMANTE LVL 2 =====
+    // =========================================== DIAMANTE LVL 2 =====
     diamond_lvl2: {
         type: "diamond_lvl2",
         name: "Mina de Diamante II",
         color: "#B9F2FF",
 
-        unlockCost: 16000,
-        entryCost: 10000,
+        unlockCost: 12000,
+        //entryCost: 10000,
         requiresStars: { mineType: 'diamond', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 4 },
-        baseVeinCapacity: { min: 20, max: 30 },
-
-        yields: {
-            stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 0 },
-            metal: { min: 0, max: 1 },
-            diamond: { min: 1, max: 3 },
-        },
-
-        starThresholds: { perfect: 200, good: 150 },
-        starBonuses: { perfect: 0.5, good: 0.25 },
-    },
-
-
-
-    // ===== HIERRO LVL 3 =====
-    iron_lvl3: {
-        type: "iron_lvl3",
-        name: "Mina de Hierro III",
-        color: "#808080",
-
-        unlockCost: 16000,
-        entryCost: 10000,
-        requiresStars: { mineType: 'iron', stars: 3 },
-
-        baseVeinsCount: { min: 5, max: 5 },
+        baseVeinsCount: { min: 4, max: 5 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 2 },
-            diamond: { min: 1, max: 4 },
+            metal: { min: 0, max: 10 },
+            diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 300, good: 200 },
+        starThresholds: { perfect: 430, good: 350 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
-    // ===== DIAMANTE LVL 3 =====
+
+
+
+
+    // =========================================== DIAMANTE LVL 3 =====
     diamond_lvl3: {
         type: "diamond_lvl3",
         name: "Mina de Diamante III",
         color: "#B9F2FF",
 
-        unlockCost: 20000,
-        entryCost: 12000,
-        requiresStars: { mineType: 'diamond', stars: 3 },
+        unlockCost: 14000,
+        // entryCost: 12000,
+        requiresStars: { mineType: 'diamond_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 5, max: 5 },
+        baseVeinsCount: { min: 4, max: 6 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 0 },
-            metal: { min: 0, max: 1 },
-            diamond: { min: 1, max: 3 },
+            metal: { min: 0, max: 10 },
+            diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 300, good: 200 },
+        starThresholds: { perfect: 520, good: 420 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 };
