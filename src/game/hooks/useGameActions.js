@@ -393,7 +393,19 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
-                }
+                    coinRewards: {
+                        ...prevState.rewards.coinRewards,
+                        pickaxeBronze: newMaterial === 'bronze'
+                            ? { ...prevState.rewards.coinRewards.pickaxeBronze, unlocked: true }
+                            : prevState.rewards.coinRewards.pickaxeBronze,
+                        pickaxeMetal: newMaterial === 'metal'
+                            ? { ...prevState.rewards.coinRewards.pickaxeMetal, unlocked: true }
+                            : prevState.rewards.coinRewards.pickaxeMetal,
+                        pickaxeDiamond: newMaterial === 'diamond'
+                            ? { ...prevState.rewards.coinRewards.pickaxeDiamond, unlocked: true }
+                            : prevState.rewards.coinRewards.pickaxeDiamond,
+                    }
+                },
             };
         });
     };
@@ -430,7 +442,28 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
-                }
+                    coinRewards: {
+                        ...prevState.rewards.coinRewards,
+                        unlockBronzeLvl2: mineType === 'bronze_lvl2'
+                            ? { ...prevState.rewards.coinRewards.unlockBronzeLvl2, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockBronzeLvl2,
+                        unlockBronzeLvl3: mineType === 'bronze_lvl3'
+                            ? { ...prevState.rewards.coinRewards.unlockBronzeLvl3, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockBronzeLvl3,
+                        unlockIronLvl2: mineType === 'iron_lvl2'
+                            ? { ...prevState.rewards.coinRewards.unlockIronLvl2, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockIronLvl2,
+                        unlockIronLvl3: mineType === 'iron_lvl3'
+                            ? { ...prevState.rewards.coinRewards.unlockIronLvl3, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockIronLvl3,
+                        unlockDiamondLvl2: mineType === 'diamond_lvl2'
+                            ? { ...prevState.rewards.coinRewards.unlockDiamondLvl2, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockDiamondLvl2,
+                        unlockDiamondLvl3: mineType === 'diamond_lvl3'
+                            ? { ...prevState.rewards.coinRewards.unlockDiamondLvl3, unlocked: true }
+                            : prevState.rewards.coinRewards.unlockDiamondLvl3,
+                    }
+                },
             };
         });
     };
@@ -480,8 +513,19 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 },
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
-                }
+                    coinRewards: {
+                        ...prevState.rewards.coinRewards,
+                        firstBronzeMine: baseBiome === 'bronze' && !prevState.rewards.coinRewards.firstBronzeMine.unlocked
+                            ? { ...prevState.rewards.coinRewards.firstBronzeMine, unlocked: true }
+                            : prevState.rewards.coinRewards.firstBronzeMine,
+                        firstIronMine: baseBiome === 'iron' && !prevState.rewards.coinRewards.firstIronMine.unlocked
+                            ? { ...prevState.rewards.coinRewards.firstIronMine, unlocked: true }
+                            : prevState.rewards.coinRewards.firstIronMine,
+                        firstDiamondMine: baseBiome === 'diamond' && !prevState.rewards.coinRewards.firstDiamondMine.unlocked
+                            ? { ...prevState.rewards.coinRewards.firstDiamondMine, unlocked: true }
+                            : prevState.rewards.coinRewards.firstDiamondMine,
+                    }
+                },
             };
         });
     };
@@ -913,7 +957,16 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
-                }
+                    coinRewards: {
+                        ...prevState.rewards.coinRewards,
+                        forgeIron: material === 'iron'
+                            ? { ...prevState.rewards.coinRewards.forgeIron, unlocked: true }
+                            : prevState.rewards.coinRewards.forgeIron,
+                        forgeDiamond: material === 'diamond'
+                            ? { ...prevState.rewards.coinRewards.forgeDiamond, unlocked: true }
+                            : prevState.rewards.coinRewards.forgeDiamond,
+                    }
+                },
             };
         });
     };
@@ -1056,6 +1109,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             };
             const stillHasUnclaimed = Object.entries(allMilestones).some(([key, m]) => {
                 if (key === 'hasUnclaimed') return false;
+                if (key === 'coinRewards') return false;
                 if (key === 'pickaxeMilestones') {
                     return checkMilestone(m, prevState.rewards.pickaxeMilestones.totalTiers);
                 }
@@ -1078,6 +1132,60 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         });
     };
 
+
+    const handleClaimCoinReward = (key) => {
+        setGameState(prevState => {
+            const coinReward = prevState.rewards.coinRewards[key];
+            if (!coinReward) return prevState;
+
+            // ÚNICO — claimed es boolean
+            if (typeof coinReward.claimed === 'boolean') {
+                if (coinReward.claimed) return prevState;
+
+                return {
+                    ...prevState,
+                    tavernCoins: prevState.tavernCoins + coinReward.reward,
+                    rewards: {
+                        ...prevState.rewards,
+                        coinRewards: {
+                            ...prevState.rewards.coinRewards,
+                            [key]: { ...coinReward, claimed: true }
+                        }
+                    }
+                };
+            }
+
+            // PROGRESIVO — claimed es array
+            const currentValues = {
+                pickaxeTiers: prevState.rewards.pickaxeMilestones.totalTiers,
+                forgeUpgrades: (prevState.furnaces.bronze.level - 1) +
+                    (prevState.furnaces.iron.level - 1) +
+                    (prevState.furnaces.diamond.level - 1),
+            };
+
+            const currentValue = currentValues[key] || 0;
+            const nextTarget = coinReward.claimed.length === 0
+                ? coinReward.firstStep
+                : coinReward.firstStep + coinReward.step * coinReward.claimed.length;
+
+            if (currentValue < nextTarget) return prevState;
+
+            const reward = getMilestoneReward(coinReward);
+            const newClaimed = [...coinReward.claimed, nextTarget];
+
+            return {
+                ...prevState,
+                tavernCoins: prevState.tavernCoins + reward,
+                rewards: {
+                    ...prevState.rewards,
+                    coinRewards: {
+                        ...prevState.rewards.coinRewards,
+                        [key]: { ...coinReward, claimed: newClaimed }
+                    }
+                }
+            };
+        });
+    };
 
     //====================================================================
     // Planta una mena en un slot vacío — cobra recursos y arranca el timer de crecimiento
@@ -1298,6 +1406,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
 
         // Recompensas
         handleClaimReward,
+        handleClaimCoinReward,
 
         handleUnlockYacimientoSlot,
         handleRepairYacimiento,

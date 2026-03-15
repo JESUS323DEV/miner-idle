@@ -126,6 +126,63 @@ const InitialRewardsState = {
         ],
     },
 
+    coinRewards: {
+
+        // ===== ÚNICOS — se reclaman una vez =====
+
+        // MINAS — primera entrada
+        firstBronzeMine: { claimed: false, unlocked: false, reward: 1, label: 'Primera entrada mina bronce' },
+        firstIronMine: { claimed: false, unlocked: false, reward: 2, label: 'Primera entrada mina hierro' },
+        firstDiamondMine: { claimed: false, unlocked: false, reward: 3, label: 'Primera entrada mina diamante' },
+
+        // MINAS — desbloqueo lvl2
+        unlockBronzeLvl2: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Mina Bronce II' },
+        unlockIronLvl2: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Mina Hierro II' },
+        unlockDiamondLvl2: { claimed: false, unlocked: false, reward: 3, label: 'Desbloquear Mina Diamante II' },
+
+        // MINAS — desbloqueo lvl3
+        unlockBronzeLvl3: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Mina Bronce III' },
+        unlockIronLvl3: { claimed: false, unlocked: false, reward: 3, label: 'Desbloquear Mina Hierro III' },
+        unlockDiamondLvl3: { claimed: false, unlocked: false, reward: 5, label: 'Desbloquear Mina Diamante III' },
+
+        // PICO — cambio de material
+        pickaxeBronze: { claimed: false, unlocked: false, reward: 2, label: 'Pico de Bronce' },
+        pickaxeMetal: { claimed: false, unlocked: false, reward: 3, label: 'Pico de Metal' },
+        pickaxeDiamond: { claimed: false, unlocked: false, reward: 5, label: 'Pico de Diamante' },
+
+        // FORJA — desbloqueo
+        forgeIron: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Forja Hierro' },
+        forgeDiamond: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Forja Diamante' },
+
+        // ===== PROGRESIVOS — dan monedas por hito =====
+
+        // TIER DEL PICO
+        pickaxeTiers: {
+            claimed: [],
+            firstStep: 1,
+            step: 1,
+            label: 'Tiers de pico',
+            tiers: [
+                { upTo: 5, base: 1, increase: 0, max: 1 },
+                { upTo: 10, base: 1, increase: 0, max: 1 },
+                { upTo: 20, base: 2, increase: 0, max: 2 },
+                { upTo: Infinity, base: 3, increase: 0, max: 3 },
+            ],
+        },
+
+        // MEJORAS DE FORJA
+        forgeUpgrades: {
+            claimed: [],
+            firstStep: 1,
+            step: 1,
+            label: 'Mejoras de forja',
+            tiers: [
+                { upTo: 3, base: 1, increase: 0, max: 1 },
+                { upTo: 6, base: 1, increase: 0, max: 1 },
+                { upTo: Infinity, base: 2, increase: 0, max: 2 },
+            ],
+        },
+    },
 
     hasUnclaimed: false,      // si hay alguna sin reclamar (btn brilla)
 };

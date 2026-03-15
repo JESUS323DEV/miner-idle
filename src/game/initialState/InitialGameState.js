@@ -73,7 +73,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 10,
+    tavernCoins: 1,
     tavernUnlocked: false,
 
     // ========== MINAS ==========

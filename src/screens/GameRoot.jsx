@@ -216,6 +216,7 @@ function GameRoot() {
         handleCollectIngot,
         handleUpgradeFurnace,
         handleClaimReward,
+        handleClaimCoinReward,
 
         handleUnlockYacimientoSlot,
         handleRepairYacimiento,
@@ -808,6 +809,7 @@ function GameRoot() {
                 onClose={() => setRewardsOpen(false)}
                 gameState={gameState}
                 onClaimReward={handleClaimReward}
+                onClaimCoinReward={handleClaimCoinReward}
             />
 
             {/* MENA DE ORO — elemento principal clickeable */}
