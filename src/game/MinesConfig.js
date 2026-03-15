@@ -7,7 +7,7 @@ const MinesConfig = {
         description: "La mina principal, siempre disponible",
     },
 
-    // ===== BRONCE LVL 1 =====
+    //  ======================================BRONCE LVL 1 =====
     bronze: {
         type: "bronze",
         name: "Mina de Bronce",
@@ -28,7 +28,7 @@ const MinesConfig = {
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 400, good: 250 },
+        starThresholds: { perfect: 200, good: 100 },
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
 
@@ -37,17 +37,17 @@ const MinesConfig = {
     },
 
 
-    // ===== BRONCE LVL 2 =====
+    //  ======================================BRONCE LVL 2 =====
     bronze_lvl2: {
         type: "bronze_lvl2",
         name: "Mina de Bronce II",
         color: "#CD7F32",
 
-        unlockCost: 8000,
+        unlockCost: 4000,
         entryCost: 6000,
         requiresStars: { mineType: 'bronze', stars: 2 },
 
-        baseVeinsCount: { min: 3, max: 5 },
+        baseVeinsCount: { min: 4, max: 5 },
         baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
@@ -56,40 +56,43 @@ const MinesConfig = {
             metal: { min: 8, max: 10 },
             diamond: { min: 12, max: 14 },
         },
-        
+
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 600, good: 400 },
-        
+        starThresholds: { perfect: 450, good: 300 },
+
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
-    // ===== BRONCE LVL 3 =====
+    // ======================================BRONCE LVL 3 =====
     bronze_lvl3: {
         type: "bronze_lvl3",
         name: "Mina de Bronce III",
         color: "#CD7F32",
 
-        unlockCost: 12000,
+        unlockCost: 8000,
         entryCost: 8000,
-        requiresStars: { mineType: 'bronze', stars: 3 },
+        requiresStars: { mineType: 'bronze_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 5, max: 5 },
-        baseVeinCapacity: { min: 20, max: 20 },
+        baseVeinsCount: { min: 5, max: 6 },
+        baseVeinCapacity: { min: 35, max: 35 },
 
         yields: {
             stone: { min: 0, max: 1 },
             bronze: { min: 1, max: 2 },
-            metal: { min: 1, max: 3 },
-            diamond: { min: 3, max: 5 },
+            metal: { min: 7, max: 10 },
+            diamond: { min: 12, max: 15 },
         },
 
+        // ESTRELLAS — thresholds de materiales recogidos al completar
         starThresholds: { perfect: 300, good: 200 },
+
+        // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
 
-    // ===== HIERRO LVL 1 =====
+    // ====================================== HIERRO LVL 1 =====
     iron: {
         type: "iron",
         name: "Mina de Hierro",

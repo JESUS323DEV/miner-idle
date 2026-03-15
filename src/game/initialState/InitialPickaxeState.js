@@ -237,10 +237,19 @@ const InitialPickaxeState = {
     },
 
     //======================
-    miningPower: 1,              // Daño por click a las venas (base)
-    miningPowerPerTier: 0.20,     // Cuánto sube miningPower por tier
+    //miningPower: 1,              // Daño por click a las venas (base)
+    // miningPowerPerTier: 0,     // Cuánto sube miningPower por tier
+
+
     goldBonusPerTier: 0,       // % bonus de oro por tier (0.1 = 10%)
     materialBonusPerTier: 0,   // % bonus de materiales en minas por tier (0.1 = 10%)
+
+    miningPowerByMaterial: {
+        stone: 2,
+        bronze: 3,
+        metal: 3,
+        diamond: 4,
+    },
 
 
     //======================

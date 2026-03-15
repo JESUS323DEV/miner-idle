@@ -519,7 +519,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
             if (!yieldRange) return prevState;
 
-            const miningPower = prevState.pickaxe.miningPower || 1;
+            const miningPower = prevState.pickaxe.miningPowerByMaterial?.[prevState.pickaxe.material] || 1;
             const baseGain = Math.floor(Math.random() * (yieldRange.max - yieldRange.min + 1)) + yieldRange.min;
             const materialGained = baseGain;
             const updatedVeins = [...prevState.mines.currentMine.veins];
@@ -577,7 +577,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             }
 
             const totalMaterials = materialsGathered + speedBonus;
-            const currentBest = prevState.mines.bestScores?.[baseMineType] || 0;
+            const currentBest = prevState.mines.bestScores?.[mineType] || 0;
 
             return {
                 ...prevState,
@@ -588,7 +588,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                     currentMine: allVeinsEmpty ? null : currentMine,
                     bestScores: allVeinsEmpty && starsEarned > currentBest ? {
                         ...prevState.mines.bestScores,
-                        [baseMineType]: starsEarned
+                        [mineType]: starsEarned
                     } : prevState.mines.bestScores,
                     unlockedTypes: allVeinsEmpty
                         ? prevState.mines.unlockedTypes.filter(t => t !== mineType)
