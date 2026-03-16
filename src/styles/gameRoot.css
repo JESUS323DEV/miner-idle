@@ -656,3 +656,55 @@
         transform: scale(1);
     }
 }
+
+.gold-dog-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.gold-dog-assigned {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 180, 0, 0.2);
+    border: 1px solid rgba(0, 255, 0, 0.4);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: #aaffaa;
+}
+
+.btn-unassign-gold-dog {
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.gold-dog-empty {
+    display: flex;
+    align-items: center;
+}
+
+.gold-dog-select {
+    background: rgba(255, 140, 0, 0.15);
+    border: 1px dashed rgba(255, 165, 0, 0.6);
+    border-radius: 6px;
+    color: rgb(0, 0, 0);
+    font-size: 11px;
+    padding: 3px 6px;
+    cursor: pointer;
+}
+
+.gold-dog-select option {
+    background: #1a1a1a;
+    color: white;
+}
+
+.gold-dog-none {
+    font-size: 10px;
+    color: #000000;
+}

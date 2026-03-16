@@ -7,6 +7,7 @@ import { useAutoMining } from "../game/hooks/useAutoMining.js";
 import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
 import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
+import useDogsAutomine from '../game/hooks/useDogsAutomine.js';
 import { AutomineConfig } from "../game/AutomineConfig.js";
 import { InitialDogsState } from '../game/initialState/InitialDogsState.js';
 
@@ -230,6 +231,7 @@ function GameRoot() {
         handleUnassignDog,
         handleDogTick,
 
+
     } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost);
 
     // ===== PICKAXE LOGIC =====
@@ -268,7 +270,9 @@ function GameRoot() {
     useAutoMining(gameState, handleMine, setGameState); // Automina continua
     useSnackBuffs(gameState, setGameState);            // Aplica buffs activos
     useAutomine(gameState, handleMineClick, handleStopAutomine); // Automine manual
-    useAutomineCooldown(gameState, setGameState);      // Recupera cargas de automine
+    useAutomineCooldown(gameState, setGameState);    // Recupera cargas de automine
+    useDogsAutomine(gameState, handleDogTick);
+
 
     // Cargas disponibles de automine
     const availableCharges = gameState.automine?.charges?.filter(c => c.available).length || 0;
@@ -332,14 +336,9 @@ function GameRoot() {
     }, [gameState.tutorial?.staminaUpgradeDone, gameState.tutorial?.currentStep, gameState.tutorial?.pickaxeUnlocked]);
 
 
-    // Tick automático de perros mineros
-    useEffect(() => {
-        const interval = setInterval(() => {
-            handleDogTick();
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [gameState.dogs]);
-    
+
+
+
     // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
     const formatNumber = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -711,6 +710,51 @@ function GameRoot() {
                         <span className="automine-charge-count">{availableCharges}/2</span>
                     </button>
                 )}
+
+                {/* PERRO AUTOMINE ORO */}
+                <div className="gold-dog-slot">
+                    {gameState.dogs.goldDog ? (
+                        <div className="gold-dog-assigned">
+                            <span>🐕 {gameState.dogs.goldDog}</span>
+                            <button
+                                className="btn-unassign-gold-dog"
+                                onClick={() => setGameState(prev => ({
+                                    ...prev,
+                                    dogs: { ...prev.dogs, goldDog: null }
+                                }))}
+                            >
+                                ✖
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="gold-dog-empty">
+                            {Object.values(gameState.dogs)
+                                .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null)
+                                .length === 0 ? (
+                                <span className="gold-dog-none">Sin perros libres</span>
+                            ) : (
+                                <select
+                                    className="gold-dog-select"
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                        if (e.target.value) setGameState(prev => ({
+                                            ...prev,
+                                            dogs: { ...prev.dogs, goldDog: e.target.value }
+                                        }));
+                                    }}
+                                >
+                                    <option value="">🐕 Asignar</option>
+                                    {Object.values(gameState.dogs)
+                                        .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null)
+                                        .map(d => (
+                                            <option key={d.id} value={d.id}>🐕 {d.id}</option>
+                                        ))
+                                    }
+                                </select>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <BiomeSelectorModal

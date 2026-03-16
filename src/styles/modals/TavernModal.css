@@ -80,8 +80,8 @@
 
 .cont-btn-cambista img {
 
-width: 50px;
-margin: auto;
+    width: 50px;
+    margin: auto;
 }
 
 .tavern-menu-btn {
@@ -94,6 +94,7 @@ margin: auto;
     cursor: pointer;
     width: 50%;
 }
+
 .tavern-menu-btn1 {
     background: rgba(7, 7, 7, 0.756);
     border: 1px solid #ff5900;
@@ -163,6 +164,8 @@ margin: auto;
     align-items: center;
     gap: 0.9rem;
 
+    overflow-y: auto;
+
 }
 
 .tavern-conversion-row {
@@ -221,4 +224,147 @@ margin: auto;
     width: 24px;
     height: 24px;
     vertical-align: middle;
+}
+
+.dogs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 65vh;
+}
+
+.dog-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    border-radius: 10px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.dog-card.dog-hired {
+    border-color: rgba(0, 255, 0, 0.5);
+    background: rgba(0, 100, 0, 0.3);
+}
+
+.dog-card.dog-cant-afford {
+    opacity: 0.5;
+}
+
+.dog-emoji {
+    font-size: 2rem;
+}
+
+.dog-name {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.dog-cost {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #ffcc88;
+    font-size: 10px;
+}
+
+.dog-cost img {
+    width: 14px;
+}
+
+.dog-status {
+    color: #4caf50;
+    font-size: 1.2rem;
+}
+
+.dog-hire-btn {
+    margin-top: 4px;
+    width: 100%;
+    padding: 4px 0;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 140, 0, 0.4);
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dog-hire-btn:hover:not(.locked) {
+    background: rgba(255, 140, 0, 0.7);
+}
+
+.dog-hire-btn.locked {
+    background: rgba(100, 100, 100, 0.3);
+    cursor: not-allowed;
+}
+
+.dog-card-wrapper {
+    perspective: 600px;
+    height: 160px;
+    position: relative;
+}
+
+.dog-card-front,
+.dog-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transition: transform 0.5s ease;
+    border-radius: 10px;
+}
+
+.dog-card-front {
+    transform: rotateY(0deg);
+}
+
+.dog-card-back {
+    transform: rotateY(180deg);
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 165, 0, 0.5);
+    justify-content: center;
+}
+
+.dog-card-wrapper.flipped .dog-card-front {
+    transform: rotateY(-180deg);
+}
+
+.dog-card-wrapper.flipped .dog-card-back {
+    transform: rotateY(0deg);
+}
+
+.dog-info-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    color: white;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+
+.dog-info-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.dog-stat {
+    color: #ffcc88;
+    font-size: 10px;
+    text-align: center;
 }

@@ -45,6 +45,7 @@ const TavernModal = ({
     onHireDog,
 }) => {
     const [view, setView] = useState('main');
+    const [flippedDog, setFlippedDog] = useState(null);
 
     if (!isOpen) return null;
 
@@ -183,47 +184,64 @@ const TavernModal = ({
                             <ArrowLeft /> Volver
                         </button>
                         <h2 className="tavern-title">🐕 Perros Mineros</h2>
-                        <p className="tavern-subtitle">Contrata perros para automatizar tus yacimientos</p>
 
-                        <div className="tavern-conversions">
-                            {Object.values(dogs).map(dog => {
+                        <div className="dogs-grid">
+                            {Object.values(dogs).filter(d => d && typeof d === 'object').map(dog => {
                                 const config = DogsConfig[dog.id];
                                 const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
+                                const isFlipped = flippedDog === dog.id;
 
                                 return (
-                                    <div key={dog.id} className="tavern-conversion-row">
-                                        <div className="tavern-conversion-info">
-                                            <span className="tavern-conversion-text">
-                                                🐕 <strong>{config.name}</strong>
-                                            </span>
-                                            {!dog.hired && (
-                                                <span className="tavern-conversion-text">
-                                                    {formatNumber2(config.unlockCost.gold)}
-                                                    <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
-                                                    + {config.unlockCost.tavernCoins}
-                                                    <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
-                                                </span>
+                                    <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
+                                        {/* CARA DELANTERA */}
+                                        <div className={`dog-card dog-card-front ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
+                                            <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>i</button>
+                                            <div className="dog-emoji">🐕</div>
+                                            <div className="dog-name">{config.name}</div>
+                                            {dog.hired ? (
+                                                <div className="dog-status">✔</div>
+                                            ) : (
+                                                <>
+                                                    <div className="dog-cost">
+                                                        <span>{formatNumber2(config.unlockCost.gold)}</span>
+                                                        <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
+                                                    </div>
+                                                    <div className="dog-cost">
+                                                        <span>{config.unlockCost.tavernCoins}</span>
+                                                        <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
+                                                    </div>
+                                                    <button
+                                                        onClick={() => onHireDog(dog.id)}
+                                                        disabled={!canAfford}
+                                                        className={`dog-hire-btn ${!canAfford ? 'locked' : ''}`}
+                                                    >
+                                                        Contratar
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
-                                        {dog.hired
-                                            ? <span style={{ color: '#4caf50' }}>✔ Contratada</span>
-                                            : (
-                                                <button
-                                                    onClick={() => onHireDog(dog.id)}
-                                                    disabled={!canAfford}
-                                                    className={`tavern-convert-btn ${!canAfford ? 'locked' : ''}`}
-                                                >
-                                                    Contratar
-                                                </button>
-                                            )
-                                        }
+
+                                        {/* CARA TRASERA — STATS */}
+                                        <div className="dog-card dog-card-back">
+                                            <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
+                                            <div className="dog-name">{config.name}</div>
+                                            <div className="dog-stat">⛏️ Poder: {config.miningPower}</div>
+                                            <div className="dog-stat">⚡ Vel: {config.miningSpeed}s</div>
+                                            <div className="dog-stat">🟤 Bronze: x{config.biomeBonus.bronze}</div>
+                                            <div className="dog-stat">⚙️ Iron: x{config.biomeBonus.iron}</div>
+                                            <div className="dog-stat">💎 Diamond: x{config.biomeBonus.diamond}</div>
+                                            <div className="dog-stat">
+                                                {config.goldMineBonus.type === 'extraGold' && `🪙 +${config.goldMineBonus.value} oro`}
+                                                {config.goldMineBonus.type === 'freeHit' && `🎯 ${config.goldMineBonus.chance * 100}% golpe gratis`}
+                                                {config.goldMineBonus.type === 'doubleHit' && `✨ ${config.goldMineBonus.chance * 100}% doble oro`}
+                                            </div>
+                                        </div>
                                     </div>
                                 );
                             })}
                         </div>
                     </div>
                 )}
-
             </div>
         </div>
     );
