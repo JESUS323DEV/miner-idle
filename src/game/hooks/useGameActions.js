@@ -3,6 +3,7 @@ import { SnacksConfig } from "../initialState/snacksGold/snacksConfig.js";
 import { CombosConfig } from "../CombosConfig.js";
 import { AutomineConfig } from "../AutomineConfig.js";
 import { ForgeConfig } from '../config/ForgeConfig';
+import { DogsConfig } from '../config/DogsConfig';
 
 // ========== HELPER: DETECTA HITOS Y MARCA hasUnclaimed ==========
 // Comprueba si el valor actual supera el siguiente hito no reclamado
@@ -1346,6 +1347,161 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         });
     };
 
+    // ========== PERROS MINEROS ==========
+    // Contrata un perro pagando oro + monedas de taberna
+    const handleHireDog = (dogId) => {
+        setGameState(prevState => {
+            const dog = prevState.dogs[dogId];
+            if (!dog || dog.hired) return prevState;
+
+            const cost = DogsConfig[dogId].unlockCost;
+            if (prevState.gold < cost.gold) return prevState;
+            if (prevState.tavernCoins < cost.tavernCoins) return prevState;
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost.gold,
+                tavernCoins: prevState.tavernCoins - cost.tavernCoins,
+                dogs: {
+                    ...prevState.dogs,
+                    [dogId]: { ...dog, hired: true }
+                }
+            };
+        });
+    };
+
+    // Asigna un perro a un slot de yacimiento
+    const handleAssignDog = (dogId, biome, slotId) => {
+        setGameState(prevState => {
+            const dog = prevState.dogs[dogId];
+            if (!dog || !dog.hired) return prevState;
+            if (dog.assignedTo !== null) return prevState;
+
+            // Comprueba que el slot está desbloqueado y tiene mena
+            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
+            if (!slot || !slot.unlocked) return prevState;
+
+            // Comprueba que no hay otro perro ya asignado a ese slot
+            const slotTaken = Object.values(prevState.dogs).some(
+                d => d.assignedTo?.biome === biome && d.assignedTo?.slotId === slotId
+            );
+            if (slotTaken) return prevState;
+
+            return {
+                ...prevState,
+                dogs: {
+                    ...prevState.dogs,
+                    [dogId]: { ...dog, assignedTo: { biome, slotId } }
+                }
+            };
+        });
+    };
+
+    // Desasigna un perro de su slot actual
+    const handleUnassignDog = (dogId) => {
+        setGameState(prevState => {
+            const dog = prevState.dogs[dogId];
+            if (!dog || dog.assignedTo === null) return prevState;
+
+            return {
+                ...prevState,
+                dogs: {
+                    ...prevState.dogs,
+                    [dogId]: { ...dog, assignedTo: null }
+                }
+            };
+        });
+    };
+
+    // Tick automático de perros — llamar desde el game loop en GameRoot
+    const handleDogTick = () => {
+        setGameState(prevState => {
+            let newState = { ...prevState };
+            let newYacimientos = { ...prevState.yacimientos };
+
+            Object.values(prevState.dogs).forEach(dog => {
+                if (!dog.hired || !dog.assignedTo) return;
+
+                const { biome, slotId } = dog.assignedTo;
+                const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
+                if (!slot || !slot.mena) return;
+
+                const mena = slot.mena;
+                const config = prevState.yacimientos[biome].slotConfig[slotId];
+
+                // Si está en cooldown de reparación, espera
+                if (mena.repairingUntil && Date.now() < mena.repairingUntil) return;
+
+                // Si la mena no ha crecido todavía, espera
+                const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
+                if (!isReady) return;
+
+                // Si durabilidad 0 → intenta reparar automáticamente con oro
+                if (mena.durability <= 0) {
+                    if (newState.gold < config.repairCost) return; // sin oro, no hace nada
+                    newState = {
+                        ...newState,
+                        gold: newState.gold - config.repairCost,
+                        totalGoldSpent: newState.totalGoldSpent + config.repairCost,
+                    };
+                    newYacimientos = {
+                        ...newYacimientos,
+                        [biome]: {
+                            ...newYacimientos[biome],
+                            slots: newYacimientos[biome].slots.map(s =>
+                                s.id === slotId ? {
+                                    ...s,
+                                    mena: {
+                                        ...mena,
+                                        durability: mena.maxDurability,
+                                        repairingUntil: Date.now() + (config.repairCooldown * 1000),
+                                    }
+                                } : s
+                            )
+                        }
+                    };
+                    return;
+                }
+
+                // Mina: calcula materiales con biomeBonus del perro
+                const dogConfig = DogsConfig[dog.id];
+                const bonus = dogConfig.biomeBonus[biome] || 1.0;
+                const materialGained = Math.floor(dogConfig.miningPower * bonus);
+
+                // Usa ?? 0 para evitar NaN si el bioma no existe en el estado
+                const currentAmount = newState[biome] ?? 0;
+                newState = {
+                    ...newState,
+                    [biome]: currentAmount + materialGained,
+                };
+
+                // Reduce durabilidad de la mena en 1
+                newYacimientos = {
+                    ...newYacimientos,
+                    [biome]: {
+                        ...newYacimientos[biome],
+                        slots: newYacimientos[biome].slots.map(s =>
+                            s.id === slotId ? {
+                                ...s,
+                                mena: {
+                                    ...mena,
+                                    ready: true,
+                                    durability: mena.durability - 1,
+                                }
+                            } : s
+                        )
+                    }
+                };
+            });
+
+            // Nota: newDogs no se modifica en el tick, se devuelve el original
+            return {
+                ...newState,
+                yacimientos: newYacimientos,
+            };
+        });
+    };
+
     // ========== EXPORTS ==========
     return {
         // Minado manual y automático
@@ -1412,6 +1568,12 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         handleRepairYacimiento,
         handleMineYacimiento,
         handlePlantMena,
+
+        // Perros
+        handleHireDog,
+        handleAssignDog,
+        handleUnassignDog,
+        handleDogTick,
 
     };
 };

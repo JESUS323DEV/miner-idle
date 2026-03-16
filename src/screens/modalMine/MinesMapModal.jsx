@@ -44,8 +44,25 @@ const MinesMapModal = ({
     onRepairYacimiento,
     onUnlockYacimientoSlot,
     currentMaterials = {},
+    dogs = {},
+    onAssignDog,
+    onUnassignDog,
 }) => {
     if (!isOpen) return null;
+
+    const [dogMenuSlot, setDogMenuSlot] = useState(null); // slotId abierto
+
+    // Perro asignado a este slot
+    const getDogAssigned = (slotId) => {
+        return Object.values(dogs).find(
+            d => d.assignedTo?.biome === selectedBiome && d.assignedTo?.slotId === slotId
+        ) || null;
+    };
+
+    // Perros contratados y libres
+    const getAvailableDogs = () => {
+        return Object.values(dogs).filter(d => d.hired && d.assignedTo === null);
+    };
     // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
     const formatNumber2 = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -234,13 +251,61 @@ const MinesMapModal = ({
 
                                     if (!mena) return (
                                         <div key={slot.id} className="yacimiento-slot empty">
-                                            <p>🪏 </p>
+                                            <p>🪏</p>
                                             <button
                                                 className="btn-plant-mena"
                                                 onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
                                             >
                                                 Excavar
                                             </button>
+
+                                            {/* Botón asignar perro */}
+                                            {getDogAssigned(slot.id) ? (
+                                                <div className="dog-assigned">
+                                                    <span>🐕 {getDogAssigned(slot.id).id}</span>
+                                                    <button
+                                                        className="btn-unassign-dog"
+                                                        onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className="btn-assign-dog"
+                                                    onClick={(e) => { e.stopPropagation(); setDogMenuSlot(slot.id); }}
+                                                >
+                                                    🐕+
+                                                </button>
+                                            )}
+
+                                            {/* Mini menú de selección */}
+                                            {dogMenuSlot === slot.id && (
+                                                <div className="dog-menu">
+                                                    {getAvailableDogs().length === 0
+                                                        ? <span className="dog-menu-empty">Sin perros libres</span>
+                                                        : getAvailableDogs().map(dog => (
+                                                            <button
+                                                                key={dog.id}
+                                                                className="dog-menu-option"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onAssignDog(dog.id, selectedBiome, slot.id);
+                                                                    setDogMenuSlot(null);
+                                                                }}
+                                                            >
+                                                                🐕 {dog.id}
+                                                            </button>
+                                                        ))
+                                                    }
+                                                    <button
+                                                        className="dog-menu-cancel"
+                                                        onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     );
 
@@ -283,11 +348,58 @@ const MinesMapModal = ({
                                                         </span>
                                                     </span>
                                                 }
-
-
-
-
                                             </div>
+
+                                            {/* Perro asignado al slot activo */}
+                                            {getDogAssigned(slot.id) ? (
+                                                <div className="dog-assigned">
+                                                    <span>🐕 {getDogAssigned(slot.id).id}</span>
+                                                    <button
+                                                        className="btn-unassign-dog"
+                                                        onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className="btn-assign-dog"
+                                                    onClick={(e) => { e.stopPropagation(); setDogMenuSlot(slot.id === dogMenuSlot ? null : slot.id); }}
+                                                >
+                                                    🐕+
+                                                </button>
+                                            )}
+
+                                            {dogMenuSlot === slot.id && (
+                                                <div className="dog-menu">
+                                                    {getAvailableDogs().length === 0
+                                                        ? <span className="dog-menu-empty">Sin perros libres</span>
+                                                        : getAvailableDogs().map(dog => (
+                                                            <button
+                                                                key={dog.id}
+                                                                className="dog-menu-option"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onAssignDog(dog.id, selectedBiome, slot.id);
+                                                                    setDogMenuSlot(null);
+                                                                }}
+                                                            >
+                                                                🐕 {dog.id}
+                                                            </button>
+                                                        ))
+                                                    }
+                                                    <button
+                                                        className="dog-menu-cancel"
+                                                        onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            )}
+
+
+
+
                                         </div>
                                     );
                                 })}

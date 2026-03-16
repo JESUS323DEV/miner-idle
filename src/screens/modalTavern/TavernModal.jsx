@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, ArrowLeft } from 'lucide-react';
 import '../../styles/modals/TavernModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
+import { DogsConfig } from '../../game/config/DogsConfig';
 
 import bgTavern from "../../assets/backgrounds/bg-tavern/bg-tavern1.png"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
@@ -40,6 +41,8 @@ const TavernModal = ({
     onConvert,
     onConvertCoins,
     onConvertGoldToIngot,
+    dogs = {},
+    onHireDog,
 }) => {
     const [view, setView] = useState('main');
 
@@ -160,6 +163,60 @@ const TavernModal = ({
                                         >
                                             Comprar
                                         </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                <button className="tavern-menu-btn" onClick={() => setView('perros')}>
+                    <span className='cont-btn-cambista'>
+                        <span style={{ fontSize: '2rem' }}>🐕</span>
+                        <small>Perros</small>
+                    </span>
+                </button>
+
+                {view === 'perros' && (
+                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
+                        <button className="tavern-back-btn" onClick={() => setView('main')}>
+                            <ArrowLeft /> Volver
+                        </button>
+                        <h2 className="tavern-title">🐕 Perros Mineros</h2>
+                        <p className="tavern-subtitle">Contrata perros para automatizar tus yacimientos</p>
+
+                        <div className="tavern-conversions">
+                            {Object.values(dogs).map(dog => {
+                                const config = DogsConfig[dog.id];
+                                const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
+
+                                return (
+                                    <div key={dog.id} className="tavern-conversion-row">
+                                        <div className="tavern-conversion-info">
+                                            <span className="tavern-conversion-text">
+                                                🐕 <strong>{config.name}</strong>
+                                            </span>
+                                            {!dog.hired && (
+                                                <span className="tavern-conversion-text">
+                                                    {formatNumber2(config.unlockCost.gold)}
+                                                    <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
+                                                    + {config.unlockCost.tavernCoins}
+                                                    <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
+                                                </span>
+                                            )}
+                                        </div>
+                                        {dog.hired
+                                            ? <span style={{ color: '#4caf50' }}>✔ Contratada</span>
+                                            : (
+                                                <button
+                                                    onClick={() => onHireDog(dog.id)}
+                                                    disabled={!canAfford}
+                                                    className={`tavern-convert-btn ${!canAfford ? 'locked' : ''}`}
+                                                >
+                                                    Contratar
+                                                </button>
+                                            )
+                                        }
                                     </div>
                                 );
                             })}

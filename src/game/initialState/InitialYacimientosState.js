@@ -14,7 +14,7 @@ const InitialYacimientosState = {
         ],
         slotConfig: {
             1: { maxDurability: 20, repairCost: 1000, upgradeCost: 20, growthTime: 50, repairCooldown: 30 },
-            2: { maxDurability: 40, repairCost: 1500, upgradeCost: 40, growthTime: 110, repairCooldown: 60 },
+            2: { maxDurability: 40, repairCost: 1500, upgradeCost: 40, growthTime: 60, repairCooldown: 60 },
         }
     },
 

@@ -8,6 +8,7 @@ import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
 import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import { AutomineConfig } from "../game/AutomineConfig.js";
+import { InitialDogsState } from '../game/initialState/InitialDogsState.js';
 
 // ===== ESTADOS INICIALES =====
 import InitialGameState from "../game/initialState/InitialGameState.js";
@@ -141,6 +142,7 @@ function GameRoot() {
             mines: InitialMinesState,
             rewards: InitialRewardsState,
             yacimientos: InitialYacimientosState,
+            dogs: InitialDogsState,
         };
     });
 
@@ -223,6 +225,10 @@ function GameRoot() {
         handleMineYacimiento,
         handlePlantMena,
         handleConvertGoldToIngot,
+        handleHireDog,
+        handleAssignDog,
+        handleUnassignDog,
+        handleDogTick,
 
     } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost);
 
@@ -326,8 +332,14 @@ function GameRoot() {
     }, [gameState.tutorial?.staminaUpgradeDone, gameState.tutorial?.currentStep, gameState.tutorial?.pickaxeUnlocked]);
 
 
-
-
+    // Tick automático de perros mineros
+    useEffect(() => {
+        const interval = setInterval(() => {
+            handleDogTick();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [gameState.dogs]);
+    
     // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
     const formatNumber = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -751,6 +763,9 @@ function GameRoot() {
                     iron: gameState.iron,
                     diamond: gameState.diamond,
                 }}
+                dogs={gameState.dogs}
+                onAssignDog={handleAssignDog}
+                onUnassignDog={handleUnassignDog}
             />
 
             {/* PANTALLA DE MINA INTERIOR */}
@@ -778,6 +793,8 @@ function GameRoot() {
                 onConvertCoins={handleConvertCoinsToGold}
                 onConvertGoldToIngot={handleConvertGoldToIngot}
                 gold={gameState.gold}
+                dogs={gameState.dogs}
+                onHireDog={handleHireDog}
             />
 
             {/* FORJA */}
