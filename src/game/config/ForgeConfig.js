@@ -13,7 +13,7 @@ export const ForgeConfig = {
             upgradeCosts: { 1: 45000, 2: 70000, 3: 100000 },
             maxLevel: 3,
             recipes: { input: 'iron', inputAmount: 6, output: 'ironIngot' },
-            levels: { 1: 25, 2: 20, 3: 10 }
+            levels: { 1: 25, 2: 20, 3: 15 }
         },
         diamond: {
             unlockCost: 45000,

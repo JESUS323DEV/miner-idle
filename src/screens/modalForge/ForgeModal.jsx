@@ -76,7 +76,6 @@ const ForgeModal = ({
     onUnassignForgeDog,
 }) => {
 
-    console.log('forgeDogs:', forgeDogs); // 👈 aquí
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     useEffect(() => {
         const interval = setInterval(() => {

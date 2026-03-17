@@ -1033,6 +1033,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 const biomeExtra = dogConfig.forgeBonus.biomeBonus[material] || 0;
                 timeReduction += biomeExtra;
             }
+            console.log('forgeDog:', forgeDog, 'timeReduction:', timeReduction); // 👈 aquí
 
             const baseTime = ForgeConfig.furnaces[material].levels[furnace.level];
             const finalTime = Math.max(1, baseTime - timeReduction);
@@ -1052,6 +1053,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 }
             };
         });
+
     };
 
     // Recoge lingote al terminar — si hay material suficiente reinicia automáticamente
@@ -1107,8 +1109,25 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             if (furnace.level >= ForgeConfig.furnaces[material].maxLevel) return prevState;
             if (prevState.gold < upgradeCost) return prevState;
 
+            const newLevel = furnace.level + 1;
             const newGoldSpent = prevState.totalGoldSpent + upgradeCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            // Recalcula currentDuration con el nuevo level y el perro asignado
+            const forgeDog = Object.values(prevState.forgeDogs).find(
+                d => d && typeof d === 'object' && d.hired && d.assignedTo === material
+            );
+
+            let timeReduction = 0;
+            if (forgeDog) {
+                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                timeReduction = dogConfig.forgeBonus.timeReduction || 0;
+                const biomeExtra = dogConfig.forgeBonus.biomeBonus[material] || 0;
+                timeReduction += biomeExtra;
+            }
+
+            const baseTime = ForgeConfig.furnaces[material].levels[newLevel];
+            const newCurrentDuration = Math.max(1, baseTime - timeReduction);
 
             return {
                 ...prevState,
@@ -1116,7 +1135,11 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 totalGoldSpent: newGoldSpent,
                 furnaces: {
                     ...prevState.furnaces,
-                    [material]: { ...furnace, level: furnace.level + 1 }
+                    [material]: {
+                        ...furnace,
+                        level: newLevel,
+                        currentDuration: newCurrentDuration // 👈 aplica buff del perro ya
+                    }
                 },
                 rewards: {
                     ...prevState.rewards,
