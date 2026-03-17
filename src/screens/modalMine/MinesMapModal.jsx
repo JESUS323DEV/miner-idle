@@ -55,14 +55,15 @@ const MinesMapModal = ({
     // Perro asignado a este slot
     const getDogAssigned = (slotId) => {
         return Object.values(dogs).find(
-            d => d.assignedTo?.biome === selectedBiome && d.assignedTo?.slotId === slotId
+            d => d && typeof d === 'object' && d.assignedTo?.biome === selectedBiome && d.assignedTo?.slotId === slotId
         ) || null;
     };
 
     // Perros contratados y libres
     const getAvailableDogs = () => {
-        return Object.values(dogs).filter(d => d.hired && d.assignedTo === null);
+        return Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null);
     };
+
     // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
     const formatNumber2 = (num) => {
         if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';

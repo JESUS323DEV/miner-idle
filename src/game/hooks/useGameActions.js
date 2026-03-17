@@ -1270,6 +1270,12 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
 
     const handleMineYacimiento = (slotId, biome) => {
         setGameState(prevState => {
+            // Si hay un perro asignado a este slot, no permite minar manualmente
+            const dogAssigned = Object.values(prevState.dogs).some(
+                d => d && typeof d === 'object' && d.assignedTo?.biome === biome && d.assignedTo?.slotId === slotId
+            );
+            if (dogAssigned) return prevState;
+
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
             if (!slot || !slot.mena) return prevState;
 
@@ -1282,15 +1288,14 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             if (mena.durability <= 0) return prevState;
             if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
 
-            const miningPower = prevState.pickaxe.miningPower + (prevState.pickaxe.tier * prevState.pickaxe.miningPowerPerTier);
             const baseDrop = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
-            const materialGained = Math.floor(baseDrop + (prevState.pickaxe.tier * prevState.pickaxe.miningPowerPerTier));
-
-            const newDurability = mena.durability - 1;
+            const miningPowerPerTier = prevState.pickaxe.miningPowerPerTier ?? 0;
+            const materialGained = Math.floor(baseDrop + (prevState.pickaxe.tier * miningPowerPerTier));
+            const newDurability = Math.max(0, mena.durability - 1);
 
             return {
                 ...prevState,
-                [biome]: prevState[biome] + materialGained,
+                [biome]: (prevState[biome] ?? 0) + materialGained,
                 stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
@@ -1422,7 +1427,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
 
             // Comprueba que no hay otro perro ya asignado a ese slot
             const slotTaken = Object.values(prevState.dogs).some(
-                d => d.assignedTo?.biome === biome && d.assignedTo?.slotId === slotId
+                d => d && typeof d === 'object' && d.assignedTo?.biome === biome && d.assignedTo?.slotId === slotId
             );
             if (slotTaken) return prevState;
 
