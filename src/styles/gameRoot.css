@@ -578,16 +578,37 @@
 }
 
 
-.floating-gold-cost {
+.floating-gold-cost1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    color: #FF4444;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1rem;
     pointer-events: none;
+    font-weight: bold;
+
     animation: floatUpCost 1.5s ease-out forwards;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    color: #ff0000b8;
+    text-shadow:
+        -1px -1px 0 #000000,
+        1px -1px 0 #000000,
+        -1px 1px 0 #000000,
+        1px 1px 0 #000000;
+}
+
+.floating-gold-gain {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 1rem;
+
+    font-weight: bold;
+    animation: floatUpCost 1.5s ease-out forwards;
+    color: #ffd519;
+    text-shadow:
+        -1px -1px 0 #4A2800,
+        1px -1px 0 #4A2800,
+        -1px 1px 0 #4A2800,
+        1px 1px 0 #4A2800;
 }
 
 @keyframes floatUpCost {

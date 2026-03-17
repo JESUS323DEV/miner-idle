@@ -225,8 +225,8 @@ const InitialPickaxeState = {
     // Coste actual en oro al subir tier
     tierUpgradeCosts: {
         stone: 1500,
-        bronze: 2500,
-        metal: 4000,
+        bronze: 4000,
+        metal: 5000,
         diamond: 6000,
     },
     //===========Coste actual en lingotes al hacer upgrade==============

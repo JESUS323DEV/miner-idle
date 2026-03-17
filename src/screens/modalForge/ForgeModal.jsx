@@ -125,6 +125,43 @@ const ForgeModal = ({
                                 <div className="forge-furnace-header">
                                     <span className="forge-furnace-icon"><img src={forgeAssets[mat][furnace.level]} alt={mat} className="forge-furnace-img" /></span>
                                     <span className="forge-furnace-name">{NAMES[mat]} <small>Lvl {furnace.level}</small></span>
+
+                                    {/* Perro de forja asignado */}
+                                    {(() => {
+                                        const assignedDog = Object.values(forgeDogs).find(
+                                            d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
+                                        );
+                                        const availableDogs = Object.values(forgeDogs).filter(
+                                            d => d && typeof d === 'object' && d.hired && d.assignedTo === null
+                                        );
+
+                                        return assignedDog ? (
+                                            <div className="forge-dog-assigned">
+                                                <span>🐕 {ForgeDogsConfig[assignedDog.id].name}</span>
+                                                <button
+                                                    className="forge-dog-unassign"
+                                                    onClick={() => onUnassignForgeDog(assignedDog.id)}
+                                                >✖</button>
+                                            </div>
+                                        ) : (
+                                            availableDogs.length > 0 && (
+                                                <select
+                                                    className="forge-dog-select"
+                                                    defaultValue=""
+                                                    onChange={(e) => {
+                                                        if (e.target.value) onAssignForgeDog(e.target.value, mat);
+                                                    }}
+                                                >
+                                                    <option value="">🐕 Asignar</option>
+                                                    {availableDogs.map(d => (
+                                                        <option key={d.id} value={d.id}>
+                                                            🐕 {ForgeDogsConfig[d.id].name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            )
+                                        );
+                                    })()}
                                 </div>
 
 
@@ -182,42 +219,7 @@ const ForgeModal = ({
                                     )}
                                 </div>
 
-                                {/* Perro de forja asignado */}
-                                {(() => {
-                                    const assignedDog = Object.values(forgeDogs).find(
-                                        d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
-                                    );
-                                    const availableDogs = Object.values(forgeDogs).filter(
-                                        d => d && typeof d === 'object' && d.hired && d.assignedTo === null
-                                    );
 
-                                    return assignedDog ? (
-                                        <div className="forge-dog-assigned">
-                                            <span>🐕 {ForgeDogsConfig[assignedDog.id].name}</span>
-                                            <button
-                                                className="forge-dog-unassign"
-                                                onClick={() => onUnassignForgeDog(assignedDog.id)}
-                                            >✖</button>
-                                        </div>
-                                    ) : (
-                                        availableDogs.length > 0 && (
-                                            <select
-                                                className="forge-dog-select"
-                                                defaultValue=""
-                                                onChange={(e) => {
-                                                    if (e.target.value) onAssignForgeDog(e.target.value, mat);
-                                                }}
-                                            >
-                                                <option value="">🐕 Asignar</option>
-                                                {availableDogs.map(d => (
-                                                    <option key={d.id} value={d.id}>
-                                                        🐕 {ForgeDogsConfig[d.id].name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )
-                                    );
-                                })()}
                             </div>
                         );
                     })}

@@ -402,8 +402,7 @@ function GameRoot() {
                             {goldFloatingNumbers.map(num => (
                                 <div
                                     key={num.id}
-                                    className="floating-gold-cost"
-                                    style={{ color: num.value > 0 ? '#4caf50' : '#ff4444' }}
+                                    className={num.value > 0 ? 'floating-gold-gain' : 'floating-gold-cost1'}
                                 >
                                     {num.value > 0 ? `+${num.value}` : num.value}
                                 </div>

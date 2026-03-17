@@ -51,7 +51,7 @@ const MinesConfig = {
         baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
-            stone: { min: 0, max: 0 },
+            stone: { min: 0, max: 1 },
             bronze: { min: 5, max: 8 },
             metal: { min: 8, max: 10 },
             diamond: { min: 12, max: 14 },
@@ -105,7 +105,7 @@ const MinesConfig = {
         baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
-            stone: { min: 0, max: 0 },
+            stone: { min: 0, max: 1 },
             bronze: { min: 0, max: 5 },
             metal: { min: 5, max: 10 },
             diamond: { min: 10, max: 12 },
