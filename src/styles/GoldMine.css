@@ -12,21 +12,17 @@
     cursor: pointer;
     will-change: transform, filter;
     backface-visibility: hidden;
-    filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.5));
-
-    /* ✅ QUITA EL HIGHLIGHT AZUL EN MÓVIL */
+    filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.5));
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
-/* Solo se achica si NO tiene clase disabled */
 .gold-mine:not(.disabled):active {
     transform: scale(0.95);
 }
 
-/* Si está disabled, cursor de "no permitido" */
 .gold-mine.disabled {
     cursor: not-allowed;
 }
@@ -57,17 +53,13 @@
 .particle {
     position: absolute;
     width: 12px;
-    /* ✅ Más grande (antes 8px) */
     height: 12px;
     background: radial-gradient(circle, #FFEB3B, #FFA000);
-    /* ✅ Amarillo más brillante */
     border-radius: 50%;
     box-shadow: 0 0 8px #FFD700, 0 0 12px #FFA500;
-    /* ✅ Glow dorado */
     animation: particle-burst 0.8s ease-out forwards;
     pointer-events: none;
     z-index: 100;
-    /* ✅ Encima de todo */
 }
 
 @keyframes particle-burst {
@@ -82,14 +74,21 @@
     }
 }
 
-.floating-number {
+/*==================================FLOTANTES ORO=========================================*/
+.floating-number-gold {
     position: absolute;
     animation: float-up 1s ease-out forwards;
     pointer-events: none;
     font-size: 24px;
     font-weight: bold;
-    color: #040404;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    color: #ffe600;
+    text-shadow:
+        -1px -1px 0 #4A2800,
+        1px -1px 0 #4A2800,
+        -1px 1px 0 #4A2800,
+        1px 1px 0 #4A2800;
+
+    z-index: 50;
 }
 
 @keyframes float-up {
@@ -104,42 +103,56 @@
     }
 }
 
-/*============================================*/
+/*==================================COMBO=========================================*/
 .floating-combo {
     position: absolute;
-    color: #FF6B6B;
-    /* Rojo para combos */
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
     pointer-events: none;
-    animation: floatUp 1s ease-out forwards;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: float-up 1.5s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    z-index: 50;
+    white-space: nowrap;
 }
 
-/*============================================*/
+/*==================================BONUS HITO=========================================*/
+.floating-bonus-wrapper {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 60;
+    white-space: nowrap;
+}
 
 .floating-bonus-combo {
-    position: absolute;
-    color: #FF6B35;
-    font-size: 24px;
+    font-size: 15px;
     font-weight: bold;
-    pointer-events: none;
-    animation: floatUpBig 2s ease-out forwards;
+    animation: floatUpBig 4s ease-out forwards;
+    color: #FFE500;
     text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.8),
-        0 0 10px rgba(255, 107, 53, 0.8);
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
 }
 
 .floating-bonus-gold {
-    position: absolute;
-    color: #FFD700;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
-    pointer-events: none;
-    animation: floatUpBig 2s ease-out forwards;
+    animation: floatUpBig 6s ease-out forwards;
+    color: #7FFF00;
     text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.8),
-        0 0 15px rgba(255, 215, 0, 1);
+        -1px 1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
 }
 
 @keyframes floatUpBig {

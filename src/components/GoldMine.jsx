@@ -21,6 +21,7 @@ const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilest
 
 
     const [comboNumbers, setComboNumbers] = useState([]);
+
     const handleClick = (e) => {
         // Si no puede minar (sin stamina o durabilidad), no hace nada
         if (!canMine) return;
@@ -34,8 +35,9 @@ const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilest
 
         // Calcula la posición exacta del click dentro de la imagen
         const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;  // Posición X relativa a la imagen
-        const y = e.clientY - rect.top;   // Posición Y relativa a la imagen
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const safeX = Math.min(x, rect.width - 100);
 
         // Crea número flotante (+5, +8, etc.) en la posición del click
         const numId = Date.now();
@@ -89,8 +91,8 @@ const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilest
                 id: bonusId,
                 combo: displayCombo,
                 bonus: bonusGold,
-                x: x + 40,
-                y: y - 250
+                x: safeX,  
+                y: y - 60
             }]);
 
             setTimeout(() => {
@@ -102,7 +104,7 @@ const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilest
         setComboNumbers(prev => [...prev, {
             id: comboId,
             value: displayCombo,
-            x: x + 60,
+            x: safeX,  // 👈
             y: y - 90
         }]);
 
@@ -137,69 +139,48 @@ const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilest
                 onClick={handleClick}
             />
 
-            {/* NÚMEROS FLOTANTES (muestran +5, +8, etc. y suben flotando) */}
+            {/* NÚMEROS FLOTANTES DE ORO */}
             {floatingNumbers.map(num => (
                 <div
                     key={num.id}
-                    className="floating-number"
-                    style={{
-                        left: `${num.x}px`,   // Posición horizontal del número
-                        top: `${num.y}px`     // Posición vertical del número
-                    }}
+                    className="floating-number-gold"
+                    style={{ left: `${num.x}px`, top: `${num.y}px` }}
                 >
                     +{num.value}
                 </div>
             ))}
 
-            {/* NÚMEROS FLOTANTES DE COMBO */}
             {/* NÚMEROS COMBO */}
             {comboNumbers.map(combo => (
                 <div
                     key={combo.id}
                     className="floating-combo"
-                    style={{
-                        left: `${combo.x}px`,
-                        top: `${combo.y}px`
-                    }}
+                    style={{ left: `${Math.min(combo.x, 200)}px`, top: `${combo.y}px` }}
                 >
-                    x{combo.value}
+                    Combo x{combo.value}
                 </div>
             ))}
 
-            {/* ✅ BONUS HITOS */}
+            {/* BONUS HITOS */}
             {bonusNumbers.map(bonus => (
-                <div key={bonus.id} style={{ position: 'absolute' }}>
-                    <div
-                        className="floating-bonus-combo"
-                        style={{
-                            left: `${bonus.x}px`,
-                            top: `${bonus.y - 40}px`
-                        }}
-                    >
-                        🔥 COMBO {bonus.combo}!
-                    </div>
-                    <div
-                        className="floating-bonus-gold"
-                        style={{
-                            left: `${bonus.x}px`,
-                            top: `${bonus.y - 20}px`
-                        }}
-                    >
-                        +{bonus.bonus} ORO ✨
-                    </div>
+                <div key={bonus.id} className="floating-bonus-wrapper"
+                    style={{ left: `${Math.min(bonus.x, 180)}px`, top: `${bonus.y}px` }}
+                >
+                    <div className="floating-bonus-combo">🔥 COMBO {bonus.combo}!</div>
+                    <div className="floating-bonus-gold">+{bonus.bonus} ORO ✨</div>
                 </div>
             ))}
 
-            {/* PARTÍCULAS DORADAS (explotan desde el punto de click) */}
+            {/* PARTÍCULAS */}
             {particles.map(particle => (
                 <div
                     key={particle.id}
                     className="particle"
                     style={{
-                        left: `${particle.x}px`,              // Posición inicial X
-                        top: `${particle.y}px`,               // Posición inicial Y
-                        '--angle': `${particle.angle}deg`,    // Ángulo de vuelo (CSS variable)
-                        '--distance': `${particle.distance}px` // Distancia de vuelo (CSS variable)
+                        left: `${particle.x}px`,
+                        top: `${particle.y}px`,
+                        '--angle': `${particle.angle}deg`,
+                        '--distance': `${particle.distance}px`
                     }}
                 />
             ))}

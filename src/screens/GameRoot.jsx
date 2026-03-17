@@ -764,7 +764,7 @@ function GameRoot() {
                                 >
                                     <option value="">🐕 Asignar</option>
                                     {Object.values(gameState.dogs)
-                                        .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null)
+                                        .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null && gameState.dogs.goldDog !== d.id)
                                         .map(d => (
                                             <option key={d.id} value={d.id}>🐕 {d.id}</option>
                                         ))

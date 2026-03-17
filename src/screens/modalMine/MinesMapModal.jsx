@@ -61,7 +61,9 @@ const MinesMapModal = ({
 
     // Perros contratados y libres
     const getAvailableDogs = () => {
-        return Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired && d.assignedTo === null);
+        return Object.values(dogs).filter(
+            d => d && typeof d === 'object' && d.hired && d.assignedTo === null && dogs.goldDog !== d.id
+        );
     };
 
     // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
