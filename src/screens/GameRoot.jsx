@@ -10,6 +10,7 @@ import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import useDogsAutomine from '../game/hooks/useDogsAutomine.js';
 import { AutomineConfig } from "../game/AutomineConfig.js";
 import { InitialDogsState } from '../game/initialState/InitialDogsState.js';
+import { InitialForgeDogsState } from '../game/initialState/InitialForgeDogsState.js';
 
 // ===== ESTADOS INICIALES =====
 import InitialGameState from "../game/initialState/InitialGameState.js";
@@ -144,6 +145,7 @@ function GameRoot() {
             rewards: InitialRewardsState,
             yacimientos: InitialYacimientosState,
             dogs: InitialDogsState,
+            forgeDogs: InitialForgeDogsState,
         };
     });
 
@@ -230,6 +232,9 @@ function GameRoot() {
         handleAssignDog,
         handleUnassignDog,
         handleDogTick,
+        handleHireForgeDog,
+        handleAssignForgeDog,
+        handleUnassignForgeDog,
 
 
     } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost);
@@ -839,6 +844,8 @@ function GameRoot() {
                 gold={gameState.gold}
                 dogs={gameState.dogs}
                 onHireDog={handleHireDog}
+                forgeDogs={gameState.forgeDogs}
+                onHireForgeDog={handleHireForgeDog}
             />
 
             {/* FORJA */}
@@ -850,6 +857,9 @@ function GameRoot() {
                 onStartSmelt={handleStartSmelt}
                 onCollectIngot={handleCollectIngot}
                 onUpgradeFurnace={handleUpgradeFurnace}
+                forgeDogs={gameState.forgeDogs}
+                onAssignForgeDog={handleAssignForgeDog}
+                onUnassignForgeDog={handleUnassignForgeDog}
             />
 
             {/* SETTINGS */}

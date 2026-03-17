@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { ForgeConfig } from '../../game/config/ForgeConfig';
+import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import '../../styles/modals/ForgeModal.css';
 
 
@@ -70,7 +71,12 @@ const ForgeModal = ({
     onStartSmelt,
     onCollectIngot,
     onUpgradeFurnace,
+    forgeDogs = {},
+    onAssignForgeDog,
+    onUnassignForgeDog,
 }) => {
+
+       console.log('forgeDogs:', forgeDogs); // 👈 aquí
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
 
     useEffect(() => {
@@ -109,7 +115,7 @@ const ForgeModal = ({
                         const furnace = gameState.furnaces[mat];
                         const recipe = ForgeConfig.furnaces[mat].recipes;
                         const upgradeCost = ForgeConfig.furnaces[mat].upgradeCosts[furnace.level];
-                        const duration = ForgeConfig.furnaces[mat].levels[furnace.level] * 1000;
+                        const duration = (furnace.currentDuration ?? ForgeConfig.furnaces[mat].levels[furnace.level]) * 1000;
                         const elapsed = furnace.startTime ? Date.now() - furnace.startTime : 0;
                         const progress = furnace.isActive ? Math.min(100, (elapsed / duration) * 100) : 0;
                         const isDone = furnace.isActive && timers[mat] === 0;
@@ -177,6 +183,43 @@ const ForgeModal = ({
                                         </button>
                                     )}
                                 </div>
+
+                                {/* Perro de forja asignado */}
+                                {(() => {
+                                    const assignedDog = Object.values(forgeDogs).find(
+                                        d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
+                                    );
+                                    const availableDogs = Object.values(forgeDogs).filter(
+                                        d => d && typeof d === 'object' && d.hired && d.assignedTo === null
+                                    );
+
+                                    return assignedDog ? (
+                                        <div className="forge-dog-assigned">
+                                            <span>🐕 {ForgeDogsConfig[assignedDog.id].name}</span>
+                                            <button
+                                                className="forge-dog-unassign"
+                                                onClick={() => onUnassignForgeDog(assignedDog.id)}
+                                            >✖</button>
+                                        </div>
+                                    ) : (
+                                        availableDogs.length > 0 && (
+                                            <select
+                                                className="forge-dog-select"
+                                                defaultValue=""
+                                                onChange={(e) => {
+                                                    if (e.target.value) onAssignForgeDog(e.target.value, mat);
+                                                }}
+                                            >
+                                                <option value="">🐕 Asignar</option>
+                                                {availableDogs.map(d => (
+                                                    <option key={d.id} value={d.id}>
+                                                        🐕 {ForgeDogsConfig[d.id].name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        )
+                                    );
+                                })()}
                             </div>
                         );
                     })}

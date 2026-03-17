@@ -13,8 +13,8 @@ const InitialYacimientosState = {
             { id: 2, unlocked: false, mena: null },
         ],
         slotConfig: {
-            1: { maxDurability: 20, repairCost: 1000, upgradeCost: 20, growthTime: 50, repairCooldown: 30 },
-            2: { maxDurability: 40, repairCost: 1500, upgradeCost: 40, growthTime: 60, repairCooldown: 60 },
+            1: { maxDurability: 15, repairCost: 1000, upgradeCost: 20, growthTime: 50, repairCooldown: 30 },
+            2: { maxDurability: 30, repairCost: 1500, upgradeCost: 40, growthTime: 60, repairCooldown: 60 },
         }
     },
 
@@ -30,7 +30,7 @@ const InitialYacimientosState = {
         ],
         slotConfig: {
             1: { maxDurability: 15, repairCost: 1000, upgradeCost: 20, growthTime: 60, repairCooldown: 30 },
-            2: { maxDurability: 35, repairCost: 1500, upgradeCost: 40, growthTime: 120, repairCooldown: 60 },
+            2: { maxDurability: 30, repairCost: 1500, upgradeCost: 40, growthTime: 120, repairCooldown: 60 },
         }
     },
 
@@ -45,8 +45,8 @@ const InitialYacimientosState = {
             { id: 2, unlocked: false, mena: null },
         ],
         slotConfig: {
-            1: { maxDurability: 20, repairCost: 1000, upgradeCost: 20, growthTime: 80, repairCooldown: 30 },
-            2: { maxDurability: 40, repairCost: 1500, upgradeCost: 40, growthTime: 160, repairCooldown: 60 },
+            1: { maxDurability: 15, repairCost: 1000, upgradeCost: 20, growthTime: 80, repairCooldown: 30 },
+            2: { maxDurability: 30, repairCost: 1500, upgradeCost: 40, growthTime: 160, repairCooldown: 60 },
         }
     },
 };

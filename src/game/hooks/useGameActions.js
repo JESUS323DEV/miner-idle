@@ -4,6 +4,7 @@ import { CombosConfig } from "../CombosConfig.js";
 import { AutomineConfig } from "../AutomineConfig.js";
 import { ForgeConfig } from '../config/ForgeConfig';
 import { DogsConfig } from '../config/DogsConfig';
+import { ForgeDogsConfig } from '../config/ForgeDogsConfig';
 
 // ========== HELPER: DETECTA HITOS Y MARCA hasUnclaimed ==========
 // Comprueba si el valor actual supera el siguiente hito no reclamado
@@ -1020,12 +1021,34 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             if (furnace.isActive) return prevState;
             if (prevState[recipe.input] < recipe.inputAmount) return prevState;
 
+            // Bonus del perro de forja asignado a este horno
+            const forgeDog = Object.values(prevState.forgeDogs).find(
+                d => d && typeof d === 'object' && d.hired && d.assignedTo === material
+            );
+
+            let timeReduction = 0;
+            if (forgeDog) {
+                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                timeReduction = dogConfig.forgeBonus.timeReduction || 0;
+                const biomeExtra = dogConfig.forgeBonus.biomeBonus[material] || 0;
+                timeReduction += biomeExtra;
+            }
+
+            const baseTime = ForgeConfig.furnaces[material].levels[furnace.level];
+            const finalTime = Math.max(1, baseTime - timeReduction); // mínimo 1s
+
             return {
                 ...prevState,
                 [recipe.input]: prevState[recipe.input] - recipe.inputAmount,
                 furnaces: {
                     ...prevState.furnaces,
-                    [material]: { ...furnace, isActive: true, startTime: Date.now(), progress: 0 }
+                    [material]: {
+                        ...furnace,
+                        isActive: true,
+                        startTime: Date.now(),
+                        progress: 0,
+                        currentDuration: finalTime // 👈 duración ajustada
+                    }
                 }
             };
         });
@@ -1037,15 +1060,29 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             const furnace = prevState.furnaces[material];
             if (!furnace.isActive) return prevState;
 
-            const duration = ForgeConfig.furnaces[material].levels[furnace.level] * 1000;
+            const duration = (furnace.currentDuration ?? ForgeConfig.furnaces[material].levels[furnace.level]) * 1000;
             if (Date.now() - furnace.startTime < duration) return prevState;
 
             const recipe = ForgeConfig.furnaces[material].recipes;
             const hasMore = prevState[recipe.input] >= recipe.inputAmount;
 
+            // Bonus del perro de forja asignado a este horno
+            const forgeDog = Object.values(prevState.forgeDogs).find(
+                d => d && typeof d === 'object' && d.hired && d.assignedTo === material
+            );
+
+            let ingotsGained = 1;
+            if (forgeDog) {
+                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                const doubleChance = dogConfig.forgeBonus.doubleIngot || 0;
+                if (doubleChance > 0 && Math.random() < doubleChance) {
+                    ingotsGained = 2;
+                }
+            }
+
             return {
                 ...prevState,
-                [recipe.output]: prevState[recipe.output] + 1,
+                [recipe.output]: prevState[recipe.output] + ingotsGained,
                 [recipe.input]: hasMore ? prevState[recipe.input] - recipe.inputAmount : prevState[recipe.input],
                 furnaces: {
                     ...prevState.furnaces,
@@ -1271,7 +1308,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
     const handleMineYacimiento = (slotId, biome) => {
         setGameState(prevState => {
             // Si hay un perro asignado a este slot, no permite minar manualmente
-           
+
 
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
             if (!slot || !slot.mena) return prevState;
@@ -1532,6 +1569,69 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         });
     };
 
+    // ========== PERROS DE FORJA ==========
+    // Contrata un perro de forja pagando oro + monedas de taberna
+    const handleHireForgeDog = (dogId) => {
+        setGameState(prevState => {
+            const dog = prevState.forgeDogs[dogId];
+            if (!dog || dog.hired) return prevState;
+
+            const cost = ForgeDogsConfig[dogId].unlockCost;
+            if (prevState.gold < cost.gold) return prevState;
+            if (prevState.tavernCoins < cost.tavernCoins) return prevState;
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost.gold,
+                tavernCoins: prevState.tavernCoins - cost.tavernCoins,
+                forgeDogs: {
+                    ...prevState.forgeDogs,
+                    [dogId]: { ...dog, hired: true }
+                }
+            };
+        });
+    };
+
+    // Asigna un perro de forja a un horno
+    const handleAssignForgeDog = (dogId, material) => {
+        setGameState(prevState => {
+            const dog = prevState.forgeDogs[dogId];
+            if (!dog || !dog.hired) return prevState;
+            if (dog.assignedTo !== null) return prevState;
+
+            // Comprueba que no hay otro perro ya en ese horno
+            const slotTaken = Object.values(prevState.forgeDogs).some(
+                d => d && typeof d === 'object' && d.assignedTo === material
+            );
+            if (slotTaken) return prevState;
+
+            return {
+                ...prevState,
+                forgeDogs: {
+                    ...prevState.forgeDogs,
+                    [dogId]: { ...dog, assignedTo: material }
+                }
+            };
+        });
+    };
+
+    // Desasigna un perro de forja de su horno
+    const handleUnassignForgeDog = (dogId) => {
+        setGameState(prevState => {
+            const dog = prevState.forgeDogs[dogId];
+            if (!dog || dog.assignedTo === null) return prevState;
+
+            return {
+                ...prevState,
+                forgeDogs: {
+                    ...prevState.forgeDogs,
+                    [dogId]: { ...dog, assignedTo: null }
+                }
+            };
+        });
+    };
+
+
 
     // ========== EXPORTS ==========
     return {
@@ -1605,6 +1705,11 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         handleAssignDog,
         handleUnassignDog,
         handleDogTick,
+
+        // Perros de forja
+        handleHireForgeDog,
+        handleAssignForgeDog,
+        handleUnassignForgeDog,
 
 
 
