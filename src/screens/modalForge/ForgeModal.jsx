@@ -76,22 +76,21 @@ const ForgeModal = ({
     onUnassignForgeDog,
 }) => {
 
-       console.log('forgeDogs:', forgeDogs); // 👈 aquí
+    console.log('forgeDogs:', forgeDogs); // 👈 aquí
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
-
     useEffect(() => {
         const interval = setInterval(() => {
             const newTimers = {};
             MATERIALS.forEach(mat => {
                 const furnace = gameState.furnaces[mat];
                 if (furnace.isActive && furnace.startTime) {
-                    const duration = ForgeConfig.furnaces[mat].levels[furnace.level] * 1000;
+                    const duration = (furnace.currentDuration ?? ForgeConfig.furnaces[mat].levels[furnace.level]) * 1000;
                     const elapsed = Date.now() - furnace.startTime;
                     const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
                     newTimers[mat] = remaining;
 
                     if (remaining === 0) {
-                        onCollectIngot(mat);  // ← llama automáticamente
+                        onCollectIngot(mat);
                     }
                 } else {
                     newTimers[mat] = 0;
