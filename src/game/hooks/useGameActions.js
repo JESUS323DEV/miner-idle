@@ -35,7 +35,7 @@ const getMilestoneReward = (milestoneConfig) => {
     return rewardBase + (index * rewardIncrease);
 };
 
-export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost) => {
+export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost, showGoldGain) => {
 
     // ========== ORO POR SEGUNDO ==========
     // Compra upgrade → +1 oro/seg, sube coste siguiente
@@ -1201,6 +1201,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
 
             const reward = getMilestoneReward(milestone);
             const newClaimed = [...milestone.claimed, nextMilestoneValue];
+            showGoldGain(reward);
 
             // Comprueba si quedan más hitos sin reclamar tras este
             const allMilestones = {
@@ -1215,6 +1216,8 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
                 }
                 return checkMilestone(m, currentValues[key]);
             });
+
+
 
             return {
                 ...prevState,

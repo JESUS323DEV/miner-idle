@@ -175,6 +175,14 @@ function GameRoot() {
         }, 1500);
     };
 
+    // Muestra positivo al cobrar recompensas
+    const showGoldGain = (amount) => {
+        const id = Date.now();
+        setGoldFloatingNumbers(prev => [...prev, { id, value: +amount, timestamp: Date.now() }]);
+        setTimeout(() => {
+            setGoldFloatingNumbers(prev => prev.filter(n => n.id !== id));
+        }, 1500);
+    };
     // ===== FLOATING NUMBERS — COIN TAVERN =====
     // Muestra coste negativo al gastar COIN TAVERN
     const [tavernFloatingNumbers, setTavernFloatingNumbers] = useState([]);
@@ -237,7 +245,7 @@ function GameRoot() {
         handleUnassignForgeDog,
 
 
-    } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost);
+    } = useGameActions(gameState, setGameState, showGoldCost, showTavernCost, showGoldGain);
 
     // ===== PICKAXE LOGIC =====
     // Determina si el upgrade es de tier o de material
@@ -392,7 +400,13 @@ function GameRoot() {
 
                             {/* Números flotantes de gasto de oro */}
                             {goldFloatingNumbers.map(num => (
-                                <div key={num.id} className="floating-gold-cost">{num.value}</div>
+                                <div
+                                    key={num.id}
+                                    className="floating-gold-cost"
+                                    style={{ color: num.value > 0 ? '#4caf50' : '#ff4444' }}
+                                >
+                                    {num.value > 0 ? `+${num.value}` : num.value}
+                                </div>
                             ))}
 
                             <div className="cont-icon-menas">
@@ -890,6 +904,7 @@ function GameRoot() {
                 canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
                 currentCombo={gameState.comboCount}
                 comboMilestones={gameState.comboMilestones}
+                onShowGoldGain={showGoldGain}
             />
 
         </div>
