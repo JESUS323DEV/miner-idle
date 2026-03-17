@@ -1271,10 +1271,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
     const handleMineYacimiento = (slotId, biome) => {
         setGameState(prevState => {
             // Si hay un perro asignado a este slot, no permite minar manualmente
-            const dogAssigned = Object.values(prevState.dogs).some(
-                d => d && typeof d === 'object' && d.assignedTo?.biome === biome && d.assignedTo?.slotId === slotId
-            );
-            if (dogAssigned) return prevState;
+           
 
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
             if (!slot || !slot.mena) return prevState;
