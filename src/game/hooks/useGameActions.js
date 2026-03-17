@@ -1035,7 +1035,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             }
 
             const baseTime = ForgeConfig.furnaces[material].levels[furnace.level];
-            const finalTime = Math.max(1, baseTime - timeReduction); // mínimo 1s
+            const finalTime = Math.max(1, baseTime - timeReduction);
 
             return {
                 ...prevState,
@@ -1599,33 +1599,58 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
             if (!dog || !dog.hired) return prevState;
             if (dog.assignedTo !== null) return prevState;
 
-            // Comprueba que no hay otro perro ya en ese horno
             const slotTaken = Object.values(prevState.forgeDogs).some(
                 d => d && typeof d === 'object' && d.assignedTo === material
             );
             if (slotTaken) return prevState;
+
+            // Si el horno está activo, aplica la reducción inmediatamente
+            const furnace = prevState.furnaces[material];
+            const dogConfig = ForgeDogsConfig[dogId];
+            let newCurrentDuration = null;
+
+            if (furnace.isActive) {
+                const baseTime = ForgeConfig.furnaces[material].levels[furnace.level];
+                const timeReduction = (dogConfig.forgeBonus.timeReduction || 0) + (dogConfig.forgeBonus.biomeBonus[material] || 0);
+                newCurrentDuration = Math.max(1, baseTime - timeReduction);
+            }
 
             return {
                 ...prevState,
                 forgeDogs: {
                     ...prevState.forgeDogs,
                     [dogId]: { ...dog, assignedTo: material }
+                },
+                furnaces: {
+                    ...prevState.furnaces,
+                    [material]: {
+                        ...furnace,
+                        currentDuration: newCurrentDuration
+                    }
                 }
             };
         });
     };
-
     // Desasigna un perro de forja de su horno
     const handleUnassignForgeDog = (dogId) => {
         setGameState(prevState => {
             const dog = prevState.forgeDogs[dogId];
             if (!dog || dog.assignedTo === null) return prevState;
 
+            const material = dog.assignedTo;
+
             return {
                 ...prevState,
                 forgeDogs: {
                     ...prevState.forgeDogs,
                     [dogId]: { ...dog, assignedTo: null }
+                },
+                furnaces: {
+                    ...prevState.furnaces,
+                    [material]: {
+                        ...prevState.furnaces[material],
+                        currentDuration: null
+                    }
                 }
             };
         });
