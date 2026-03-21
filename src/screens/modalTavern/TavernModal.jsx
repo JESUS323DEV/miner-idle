@@ -12,7 +12,7 @@ import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png
 import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
 import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
 
-import bgGold from "../../assets/backgrounds/bg-tavern/bg-gold.png"
+import bgGold1 from "../../assets/backgrounds/bg-tavern/bg-gold.png"
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.png"
 
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.png"
@@ -140,7 +140,7 @@ const TavernModal = ({
 
                 {/* CAMBISTA ORO → LINGOTES */}
                 {view === 'cambista-oro' && (
-                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgGold})` }}>
+                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgGold1})` }}>
                         <button className="tavern-back-btn" onClick={() => setView('main')}>
                             <ArrowLeft /> Volver
                         </button>

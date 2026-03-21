@@ -2,6 +2,30 @@ import { useState } from 'react';
 import '../../styles/modals/MineScreen.css';
 import { X } from 'lucide-react';
 import MinesConfig from '../../game/MinesConfig.js';
+
+import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png"
+import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png"
+import bgInsideDiamond from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-diamond.png"
+
+import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze1.png"
+import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png"
+import menaBronze3 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
+
+import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron1.png"
+import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png"
+import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
+
+import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png"
+import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
+import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+
+
+const menaAssets = {
+    bronze: [menaBronze1, menaBronze2, menaBronze3],
+    iron: [menaIron1, menaIron2, menaIron3],
+    diamond: [menaDiamond1, menaDiamond2, menaDiamond3],
+};
+
 /**
  * COMPONENTE: MineScreen
  * 
@@ -22,12 +46,22 @@ const MineScreen = ({
     currentMine,
     onMineVein,
     pickaxeMaterial,
-    canMine
+    canMine,
+    bgImg,
 }) => {
     // Si no está abierto o no hay mina actual, no renderiza
     if (!isOpen || !currentMine) return null;
 
     const baseMineType = currentMine.mineType.replace('_lvl2', '').replace('_lvl3', '');
+    const level = currentMine.mineType.includes('_lvl3') ? 2 : currentMine.mineType.includes('_lvl2') ? 1 : 0;
+    const menaImg = menaAssets[baseMineType][level];
+
+
+    const bgImages = {
+        bronze: bgInsideBronze,
+        iron: bgInsideIron,
+        diamond: bgInsideDiamond,
+    };
 
     /**
      * HELPER: getMineIcon
@@ -55,18 +89,30 @@ const MineScreen = ({
         return colors[mineType] || '#888';
     };
 
+    const mineNames = {
+        bronze: 'Mina Bronze',
+        bronze_lvl2: 'Mina Bronze II',
+        bronze_lvl3: 'Mina Bronze III',
+        iron: 'Mina Hierro',
+        iron_lvl2: 'Mina Hierro II',
+        iron_lvl3: 'Mina Hierro III',
+        diamond: 'Mina Diamante',
+        diamond_lvl2: 'Mina Diamante II',
+        diamond_lvl3: 'Mina Diamante III',
+    };
+
     // Calcula total de venas restantes
     const totalRemaining = currentMine.veins.reduce((sum, vein) => sum + vein.remaining, 0);
     const allCompleted = totalRemaining === 0;
 
     return (
-        <div className="modal-overlay2" onClick={onClose}>
+        <div className="modal-overlay2" onClick={onClose} style={{ backgroundImage: `url(${bgImages[baseMineType]})` }}>
             <div className="mine-screen-content" onClick={(e) => e.stopPropagation()}>
 
                 {/* HEADER */}
                 <div className="mine-screen-header">
                     <div className="mine-title">
-                        <h2>{getMineIcon(currentMine.mineType)} {currentMine.mineType.toUpperCase()}</h2>
+                        <h2>{getMineIcon(baseMineType)} {mineNames[currentMine.mineType] || currentMine.mineType}</h2>
                     </div>
                     <button className="btn-exit-mine" onClick={onClose}>
                         <X />
@@ -97,6 +143,7 @@ const MineScreen = ({
                             canMine={canMine && vein.remaining > 0}
                             mineType={currentMine.mineType}
                             mineColor={getMineColor(currentMine.mineType)}
+                            menaImg={menaImg}
                         />
                     ))}
                 </div>
@@ -151,7 +198,7 @@ const MineScreen = ({
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, mineType, mineColor }) => {
+const Vein = ({ vein, onMineVein, canMine, mineType, mineColor, menaImg }) => {
     const [isShaking, setIsShaking] = useState(false);
     const [floatingNumbers, setFloatingNumbers] = useState([]);
     const [particles, setParticles] = useState([]);
@@ -215,12 +262,12 @@ const Vein = ({ vein, onMineVein, canMine, mineType, mineColor }) => {
         <div
             className={`vein ${isShaking ? 'shake' : ''} ${isDepleted ? 'depleted' : ''} ${!canMine ? 'disabled' : ''}`}
             onClick={handleClick}
-            style={{
-                borderColor: isDepleted ? '#555' : mineColor,
-                position: 'relative'
-            }}
         >
-            <div className="vein-icon">🪨</div>
+
+            <div className="vein-icon">
+                <img src={menaImg} alt="mena" className="vein-img" />
+            </div>
+
             <div className="vein-counter" style={{ color: isDepleted ? '#555' : mineColor }}>
                 {vein.remaining}/{vein.max}
             </div>

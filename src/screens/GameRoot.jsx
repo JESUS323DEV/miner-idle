@@ -30,7 +30,10 @@ import ForgeModal from '../screens/modalForge/ForgeModal';
 import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 import RewardsModal from "../screens/RewardsModal.jsx"
+import Preloader from '../components/Preloader';
 
+// En el return, al principio:
+<Preloader />
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
 import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png";
@@ -374,7 +377,9 @@ function GameRoot() {
 
     // ===== RENDER =====
     return (
+
         <div className="game-container" style={{ backgroundImage: `url(${bgMain})` }}>
+            <Preloader />
 
             {/* OVERLAY OSCURO DURANTE TUTORIAL */}
             {tutorialStep !== null && (
@@ -838,6 +843,7 @@ function GameRoot() {
                 onMineVein={handleMineVein}
                 pickaxeMaterial={gameState.pickaxe.material}
                 canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
+
             />
 
             {/* TABERNA */}

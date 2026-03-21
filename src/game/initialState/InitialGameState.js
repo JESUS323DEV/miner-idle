@@ -3,7 +3,7 @@ import initialSnacksState from "./snacksGold/initialSnacksState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 2100,
+    gold: 210000000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -17,9 +17,9 @@ const InitialGameState = {
     diamond: 5,
 
     // ========== LINGOTES ==========
-    bronzeIngot: 25,
-    ironIngot: 10,
-    diamondIngot: 5,
+    bronzeIngot: 11125,
+    ironIngot: 11110,
+    diamondIngot: 1115,
 
     // ========== STAMINA ==========
     stamina: 15,
@@ -73,7 +73,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 1,
+    tavernCoins: 10000,
     tavernUnlocked: false,
 
     // ========== MINAS ==========
