@@ -1,19 +1,19 @@
 /**
  * ARCHIVO: NightEvents.js
- * 
+ *
  * Contiene todos los eventos que pueden ocurrir durante la noche.
- * 
+ *
  * ESTRUCTURA DE UN EVENTO:
  * - id: Identificador único del evento
  * - name: Nombre del evento (se muestra como título)
  * - description: Texto descriptivo de lo que está pasando
  * - options: Función que devuelve array de opciones según el estado del juego
- * 
+ *
  * CÓMO FUNCIONAN LAS OPTIONS:
  * - Reciben gameState actual
  * - Devuelven array de objetos con {id, label, resolve}
  * - resolve() modifica el gameState y devuelve el nuevo estado
- * 
+ *
  * Las opciones pueden cambiar dinámicamente según:
  * - Stamina disponible
  * - Oro acumulado
@@ -30,11 +30,11 @@ export const NightEvents = [
 
         /**
          * OPTIONS: Opciones del evento del ladrón
-         * 
+         *
          * Si tienes stamina > 0:
          *   - Opción 1: Luchar (inicia combate)
          *   - Opción 2: Dejarlo ir (pierdes 200-700 oro)
-         * 
+         *
          * Si stamina === 0:
          *   - Opción única: Te roba automáticamente (pierdes 300-1100 oro)
          */
@@ -88,7 +88,7 @@ export const NightEvents = [
     }
 
     // ===== AÑADIR MÁS EVENTOS AQUÍ =====
-    // 
+    //
     // Ejemplo de nuevo evento:
     // {
     //     id: "wolf_attack",

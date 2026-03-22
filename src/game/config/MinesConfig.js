@@ -223,7 +223,6 @@ const MinesConfig = {
 
 
 
-
     // =========================================== DIAMANTE LVL 3 =====
     diamond_lvl3: {
         type: "diamond_lvl3",

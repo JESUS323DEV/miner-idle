@@ -1,4 +1,4 @@
-import { CombosConfig } from '../../CombosConfig.js';
+import { CombosConfig } from '../../config/CombosConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 

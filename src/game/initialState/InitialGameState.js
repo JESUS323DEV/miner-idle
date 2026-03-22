@@ -1,4 +1,4 @@
-import initialSnacksState from "./snacksGold/initialSnacksState.js";
+import initialSnacksState from "./snacks/initialSnacksState.js";
 
 const InitialGameState = {
 

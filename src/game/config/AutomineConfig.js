@@ -1,6 +1,6 @@
 /**
  * Configuración del sistema de automine.
- * 
+ *
  * Centraliza valores para fácil ajuste y balanceo.
  */
 

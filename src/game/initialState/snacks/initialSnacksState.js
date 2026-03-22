@@ -1,6 +1,6 @@
 /**
  * Estado inicial de los snacks de oro.
- * 
+ *
  * SISTEMA:
  * - Se compran/mejoran con monedas de taberna
  * - Dan buffs temporales de oro

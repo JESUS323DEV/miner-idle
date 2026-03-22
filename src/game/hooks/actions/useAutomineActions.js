@@ -1,4 +1,4 @@
-import { AutomineConfig } from '../../AutomineConfig.js';
+import { AutomineConfig } from '../../config/AutomineConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
 export const useAutomineActions = (gameState, setGameState, showGoldCost) => {

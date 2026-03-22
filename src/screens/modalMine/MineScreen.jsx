@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
-import MinesConfig from "../../game/MinesConfig.js";
+import MinesConfig from "../../game/config/MinesConfig.js";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";

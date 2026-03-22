@@ -1,4 +1,4 @@
-import MinesConfig from '../../MinesConfig.js';
+import MinesConfig from '../../config/MinesConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
 export const useMineActions = (gameState, setGameState, showGoldCost) => {

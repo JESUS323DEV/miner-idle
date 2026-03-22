@@ -1,4 +1,4 @@
-import { SnacksConfig } from '../../initialState/snacksGold/snacksConfig.js';
+import { SnacksConfig } from '../../config/snacksConfig.js';
 
 export const useSnackActions = (gameState, setGameState) => {
 

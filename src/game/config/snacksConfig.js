@@ -1,6 +1,6 @@
 /**
  * Configuración de todos los snacks.
- * 
+ *
  * Define costes, duraciones, efectos por nivel.
  */
 

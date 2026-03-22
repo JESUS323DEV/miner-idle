@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AutomineConfig } from '../AutomineConfig.js';
+import { AutomineConfig } from '../config/AutomineConfig.js';
 
 const useAutomine = (gameState, handleMineClick, handleStopAutomine) => {
     useEffect(() => {

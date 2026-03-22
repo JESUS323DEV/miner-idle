@@ -1,20 +1,20 @@
 /**
  * ARCHIVO: tavernEvents.js
- * 
+ *
  * Contiene todos los eventos que pueden ocurrir en la taberna.
- * 
+ *
  * DIFERENCIAS CON NIGHT EVENTS:
  * - Estos eventos solo ocurren durante el día (hora 9-20)
  * - Usan moneda de PLATA en vez de oro
  * - Pueden tener consecuencias que afecten a eventos nocturnos (thiefRisk)
- * 
+ *
  * ESTRUCTURA DE UN EVENTO:
  * - id: Identificador único del evento
  * - name: Nombre del evento (título)
  * - description: Texto descriptivo de la situación
  * - canTrigger: Función que determina si el evento puede aparecer (según hora, recursos, etc.)
  * - options: Array de opciones disponibles
- * 
+ *
  * ESTRUCTURA DE UNA OPCIÓN:
  * - id: Identificador de la opción
  * - label: Texto del botón
@@ -85,14 +85,14 @@ export const tavernEvents = [
     }
 
     // ===== AÑADIR MÁS EVENTOS DE TABERNA AQUÍ =====
-    // 
+    //
     // Ejemplos de eventos de taberna:
     // - Comprar información con plata
     // - Contratar mercenarios
     // - Intercambiar recursos (plata ↔ oro)
     // - Juegos de azar (dados, cartas)
     // - Rumores que desbloquean menas
-    // 
+    //
     // {
     //     id: "merchant_trade",
     //     name: "Comerciante viajero",
