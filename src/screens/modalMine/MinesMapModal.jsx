@@ -1,21 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../../styles/modals/MinesMapModal.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 
 
 
-//ASSETS MENA BRONZE
-
-import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png"
-import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
+//ASSETS MENA BRONZE (1=rota, 2=dañada, 3=entera)
+import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze1.png"
+import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png"
+import menaBronze3 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
 //ASSETS MENA IRON
-import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png"
-import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
-
+import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron1.png"
+import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png"
+import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
 //ASSETS MENA DIAMOND
-import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
-import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png"
+import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
+import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
 
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
@@ -33,6 +34,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         handleUnlockMineType: onUnlockType,
         handlePlantMena: onPlantMena,
         handleMineYacimiento: onMineYacimiento,
+        handleDogMineYacimiento: onDogMineYacimiento,
         handleRepairYacimiento: onRepairYacimiento,
         handleUnlockYacimientoSlot: onUnlockYacimientoSlot,
         handleAssignDog: onAssignDog,
@@ -68,14 +70,16 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         return num;
     };
 
-    //ASSETS MENAS DENTRO DE MINAS
-    const getMenaAsset = (slotId, type) => {
+    //ASSETS MENAS DENTRO DE MINAS — cambia según durabilidad
+    const getMenaAsset = (durability, maxDurability, type) => {
         const assets = {
-            bronze: [menaBronze1, menaBronze2],
-            iron: [menaIron1, menaIron2],
-            diamond: [menaDiamond1, menaDiamond2],
+            bronze: [menaBronze1, menaBronze2, menaBronze3],
+            iron: [menaIron1, menaIron2, menaIron3],
+            diamond: [menaDiamond1, menaDiamond2, menaDiamond3],
         };
-        return assets[type]?.[slotId - 1] || null;
+        const pct = durability / maxDurability;
+        const index = pct > 0.6 ? 2 : pct > 0.2 ? 1 : 0;
+        return assets[type]?.[index] || null;
     };
 
     //ASSETS ICON MENAS INFO
@@ -200,7 +204,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                         <div key={slot.id} className="yacimiento-slot locked">
                                             <div className="mena-locked-container">
                                                 <img
-                                                    src={getMenaAsset(slot.id, selectedBiome)}
+                                                    src={getMenaAsset(1, 1, selectedBiome)}
                                                     alt="locked"
                                                     className="mena-img mena-no-durability"
                                                 />
@@ -244,119 +248,36 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                                     Excavar
                                                 </button>
                                             </div>
-                                            <div
-                                                className="dog-slot-box"
-                                                onClick={(e) => { e.stopPropagation(); setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id); }}
-                                            >
-                                                {getDogAssigned(slot.id) ? (
-                                                    <>
-                                                        <span className="dog-slot-emoji">🐕</span>
-                                                        <button
-                                                            className="dog-slot-unassign"
-                                                            onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
-                                                        >✖</button>
-                                                    </>
-                                                ) : (
-                                                    <span className="dog-slot-plus">+</span>
-                                                )}
-                                                {dogMenuSlot === slot.id && (
-                                                    <div className="dog-menu">
-                                                        {getAvailableDogs().length === 0
-                                                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
-                                                            : getAvailableDogs().map(dog => (
-                                                                <button key={dog.id} className="dog-menu-option"
-                                                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); setDogMenuSlot(null); }}
-                                                                >🐕 {dog.id}</button>
-                                                            ))
-                                                        }
-                                                        <button className="dog-menu-cancel"
-                                                            onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
-                                                        >Cancelar</button>
-                                                    </div>
-                                                )}
-                                            </div>
 
                                         </div>
+
                                     );
 
-
-
                                     return (
-                                        <div key={slot.id} className="yacimiento-slot active">
-                                            <span className="mena-durability">
-                                                <small>{mena.durability}/{mena.maxDurability}</small>
-                                                <img src={biomeHudAssets[selectedBiome]} alt={selectedBiome} />
-                                            </span>
-                                            <img
-                                                src={getMenaAsset(slot.id, selectedBiome)}
-                                                alt={selectedBiome}
-                                                className={`mena-img ${ready && !isRepairing(mena) ? 'mena-clickable' : 'mena-disabled'}`}
-                                                onClick={(e) => {
-                                                    if (ready && !isRepairing(mena)) {
-                                                        e.stopPropagation();
-                                                        onMineYacimiento(slot.id, selectedBiome);
-                                                    }
-                                                }}
-                                            />
-                                            <div className="mena-bottom">
-                                                <div className="mena-bottom-info">
-                                                    {!ready && <span>⏱️ {timeLeft}s</span>}
-                                                    {isRepairing(mena)
-                                                        ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
-                                                        : <span
-                                                            className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''}`}
-                                                            onClick={(e) => {
-                                                                if (mena.durability < mena.maxDurability) {
-                                                                    e.stopPropagation();
-                                                                    onRepairYacimiento(slot.id, selectedBiome);
-                                                                }
-                                                            }}
-                                                        >
-                                                            🪏
-                                                            <span className='info-yacimientos'>
-                                                                <img className='icon-info' src={iconGold} alt="icon-gold" /> {formatNumber2(config?.repairCost)}
-                                                            </span>
-                                                        </span>
-                                                    }
-                                                </div>
-
-                                            </div>
-
-                                            {/*==================SLOT MASCOTA/AYUDANTE===========================f*/}
-
-                                            <div
-                                                className="dog-slot-box"
-                                                onClick={(e) => { e.stopPropagation(); setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id); }}
-                                            >
-                                                {getDogAssigned(slot.id) ? (
-                                                    <>
-                                                        <span className="dog-slot-emoji">🐕</span>
-                                                        <button
-                                                            className="dog-slot-unassign"
-                                                            onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
-                                                        >✖</button>
-                                                    </>
-                                                ) : (
-                                                    <span className="dog-slot-plus">+</span>
-                                                )}
-                                                {dogMenuSlot === slot.id && (
-                                                    <div className="dog-menu">
-                                                        {getAvailableDogs().length === 0
-                                                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
-                                                            : getAvailableDogs().map(dog => (
-                                                                <button key={dog.id} className="dog-menu-option"
-                                                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); setDogMenuSlot(null); }}
-                                                                >🐕 {dog.id}</button>
-                                                            ))
-                                                        }
-                                                        <button className="dog-menu-cancel"
-                                                            onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
-                                                        >Cancelar</button>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                        </div>
+                                        <YacimientoSlotActivo
+                                            key={slot.id}
+                                            slot={slot}
+                                            mena={mena}
+                                            ready={ready}
+                                            timeLeft={timeLeft}
+                                            config={config}
+                                            selectedBiome={selectedBiome}
+                                            dogAssigned={getDogAssigned(slot.id)}
+                                            dogMenuOpen={dogMenuSlot === slot.id}
+                                            availableDogs={getAvailableDogs()}
+                                            getMenaAsset={getMenaAsset}
+                                            biomeHudAssets={biomeHudAssets}
+                                            formatNumber2={formatNumber2}
+                                            isRepairing={isRepairing}
+                                            getRepairTimeLeft={getRepairTimeLeft}
+                                            iconGold={iconGold}
+                                            onMine={onMineYacimiento}
+                                            onDogMine={onDogMineYacimiento}
+                                            onRepair={onRepairYacimiento}
+                                            onAssignDog={onAssignDog}
+                                            onUnassignDog={onUnassignDog}
+                                            onToggleDogMenu={() => setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id)}
+                                        />
                                     );
                                 })}
                             </div>
@@ -365,6 +286,135 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
                 </div>
             </div>
+        </div>
+    );
+};
+
+
+const YacimientoSlotActivo = ({
+    slot, mena, ready, timeLeft, config, selectedBiome,
+    dogAssigned, dogMenuOpen, availableDogs,
+    getMenaAsset, biomeHudAssets, formatNumber2, isRepairing, getRepairTimeLeft, iconGold,
+    onMine, onDogMine, onRepair, onAssignDog, onUnassignDog, onToggleDogMenu,
+}) => {
+    const [isShaking, setIsShaking] = useState(false);
+    const [floatingNumbers, setFloatingNumbers] = useState([]);
+    const intervalRef = useRef(null);
+
+    const triggerHit = (amount, x, y) => {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 150);
+
+        const id = Date.now() + Math.random();
+        setFloatingNumbers(prev => [...prev, { id, amount, x, y }]);
+        setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== id)), 900);
+    };
+
+    const handleClick = (e) => {
+        if (!ready || isRepairing(mena) || mena.durability <= 0) return;
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+        onMine(slot.id, selectedBiome, (amount) => {
+            triggerHit(amount, e.clientX - rect.left, e.clientY - rect.top);
+        });
+    };
+
+    // Auto-click del perro
+    useEffect(() => {
+        if (!dogAssigned || !ready || isRepairing(mena) || mena.durability <= 0) {
+            clearInterval(intervalRef.current);
+            return;
+        }
+        const speed = dogAssigned.mineSpeed ?? 2000;
+        intervalRef.current = setInterval(() => {
+            const x = 50 + Math.random() * 40;
+            const y = 40 + Math.random() * 30;
+            const amount = dogAssigned?.mineAmount ?? 1;
+
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 150);
+
+            const id = Date.now() + Math.random();
+            setFloatingNumbers(prev => [...prev, { id, amount, x, y }]);
+            setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== id)), 900);
+
+            onDogMine(slot.id, selectedBiome, dogAssigned, null);
+        }, speed);
+        return () => clearInterval(intervalRef.current);
+    }, [dogAssigned, ready, mena.durability, mena.repairingUntil]); // eslint-disable-line
+
+    return (
+        <div className="yacimiento-slot active">
+            <div className="mena-click-area" onClick={handleClick}>
+                <div key={mena.durability / mena.maxDurability > 0.6 ? 2 : mena.durability / mena.maxDurability > 0.2 ? 1 : 0} className="mena-swap-wrapper">
+                    <img
+                        src={getMenaAsset(mena.durability, mena.maxDurability, selectedBiome)}
+                        alt={selectedBiome}
+                        className={`mena-img ${isShaking ? 'mena-shake' : ''} ${ready && !isRepairing(mena) && mena.durability > 0 ? 'mena-clickable' : 'mena-disabled'}`}
+                    />
+                </div>
+                {floatingNumbers.map(n => (
+                    <div key={n.id} className="mena-floating" style={{ left: n.x, top: n.y }}>
+                        +{n.amount} <img src={biomeHudAssets[selectedBiome]} alt={selectedBiome} className="mena-floating-icon" />
+                    </div>
+                ))}
+            </div>
+
+            <div className="mena-bottom">
+                <div className="mena-bottom-info">
+                    {!ready && <span>⏱️ {timeLeft}s</span>}
+                    {isRepairing(mena)
+                        ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
+                        : <span
+                            className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''} ${mena.durability <= 0 ? 'repair-urgent' : ''}`}
+                            onClick={(e) => {
+                                if (mena.durability < mena.maxDurability) {
+                                    e.stopPropagation();
+                                    onRepair(slot.id, selectedBiome);
+                                }
+                            }}
+                        >
+                            🪏
+                            <span className="info-yacimientos">
+                                <img className="icon-info" src={iconGold} alt="gold" /> {formatNumber2(config?.repairCost)}
+                            </span>
+                        </span>
+                    }
+                </div>
+
+            </div>
+            <div className="dog-slot-box" onClick={(e) => { e.stopPropagation(); onToggleDogMenu(); }}>
+                {dogAssigned ? (
+                    <>
+                        <span className="dog-slot-emoji">🐕</span>
+                        <button className="dog-slot-unassign"
+                            onClick={(e) => { e.stopPropagation(); onUnassignDog(dogAssigned.id); }}
+                        >✖</button>
+                    </>
+                ) : (
+                    <>
+                        <span className="dog-slot-hint">🐕</span>
+                        <span className="dog-slot-plus">+</span>
+                    </>
+                )}
+                {dogMenuOpen && (
+                    <div className="dog-menu">
+                        {availableDogs.length === 0
+                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
+                            : availableDogs.map(dog => (
+                                <button key={dog.id} className="dog-menu-option"
+                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); onToggleDogMenu(); }}
+                                >🐕 {dog.id}</button>
+                            ))
+                        }
+                        <button className="dog-menu-cancel"
+                            onClick={(e) => { e.stopPropagation(); onToggleDogMenu(); }}
+                        >Cancelar</button>
+                    </div>
+                )}
+            </div>
+
+            <span className="dog-slot-label">mascota</span>
         </div>
     );
 };

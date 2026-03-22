@@ -55,7 +55,7 @@ const MineScreen = ({ isOpen, onClose }) => {
     : currentMine.mineType.includes("_lvl2")
       ? 1
       : 0;
-      
+
   const menaImg = menaAssets[baseMineType][level];
 
   const bgImages = {
@@ -219,7 +219,7 @@ const MineScreen = ({ isOpen, onClose }) => {
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, mineType, mineColor, menaImg }) => {
+const Vein = ({ vein, onMineVein, canMine, mineType, menaImg }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [particles, setParticles] = useState([]);
@@ -295,7 +295,6 @@ const Vein = ({ vein, onMineVein, canMine, mineType, mineColor, menaImg }) => {
 
       <div
         className="vein-counter"
-        style={{ color: isDepleted ? "#555" : mineColor }}
       >
         {vein.remaining}/{vein.max}
       </div>

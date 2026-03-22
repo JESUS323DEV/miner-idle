@@ -21,6 +21,7 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+
 }
 
 .mines-modal-content::before {
@@ -33,6 +34,8 @@
     background: linear-gradient(180deg, black, rgba(35, 35, 35, 0.373), rgba(6, 6, 6, 0.112), rgba(0, 0, 0, 0.534), black);
     z-index: -1;
 }
+
+
 
 /* ========== HEADER ========== */
 
@@ -212,11 +215,57 @@
     filter: drop-shadow(0 0 2px rgba(255, 215, 64, 0.5));
 }
 
+/* ========== ANIMACIONES YACIMIENTO ========== */
+
+.mena-click-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+@keyframes mena-shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25%       { transform: translateX(-4px) rotate(-2deg); }
+    75%       { transform: translateX(4px) rotate(2deg); }
+}
+
+.mena-shake {
+    animation: mena-shake 0.15s ease-in-out;
+}
+
+.mena-floating {
+    position: absolute;
+    pointer-events: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    animation: mena-float-up 0.9s ease-out forwards;
+    z-index: 20;
+}
+
+.mena-floating-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+
+@keyframes mena-float-up {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    60%  { opacity: 1; transform: translateY(-28px) scale(1.1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+}
+
 /*============================================================================*/
 
-.yacimientos-section {
-    margin-top: 15rem;
-}
 
 .yacimientos-title {
     color: white;
@@ -227,7 +276,7 @@
 .yacimientos-slots {
     display: flex;
    
-    margin-top: 17rem !important;
+    margin-top: 15rem;
 
 }
 
@@ -245,10 +294,70 @@
 
 }
 
+@keyframes mena-swap-in {
+    0%   { filter: brightness(4) saturate(0); transform: scale(1.08); opacity: 0.5; }
+    40%  { filter: brightness(2) saturate(0.4); transform: scale(0.96); opacity: 0.85; }
+    100% { filter: brightness(1) saturate(1); transform: scale(1); opacity: 1; }
+}
+
+@keyframes mena-sparks {
+    0% {
+        opacity: 1;
+        box-shadow:
+            0 0 0 2px #ffd740,
+            0 0 0 2px #ff8c00,
+            0 0 0 2px #fff176,
+            0 0 0 2px #ff5000,
+            0 0 0 2px #ffe066,
+            0 0 0 2px #ffffff,
+            0 0 0 2px #ffb300,
+            0 0 0 2px #ff6f00,
+            0 0 0 2px #ffd740,
+            0 0 0 2px #ff8c00,
+            0 0 0 2px #fff9c4,
+            0 0 0 2px #ff3d00;
+    }
+    100% {
+        opacity: 0;
+        box-shadow:
+            -40px -40px 4px 1px rgba(255, 215, 64, 0),
+             40px -40px 4px 1px rgba(255, 140, 0, 0),
+            -40px  40px 4px 1px rgba(255, 241, 118, 0),
+             40px  40px 4px 1px rgba(255, 80, 0, 0),
+              0px -55px 4px 1px rgba(255, 224, 102, 0),
+              0px  55px 4px 1px rgba(255, 255, 255, 0),
+            -55px   0px 4px 1px rgba(255, 179, 0, 0),
+             55px   0px 4px 1px rgba(255, 111, 0, 0),
+            -25px -55px 4px 1px rgba(255, 215, 64, 0),
+             25px -55px 4px 1px rgba(255, 140, 0, 0),
+            -55px  25px 4px 1px rgba(255, 249, 196, 0),
+             55px  25px 4px 1px rgba(255, 61, 0, 0);
+    }
+}
+
 .mena-img {
     width: 100%;
     height: 90px;
     object-fit: contain;
+}
+
+.mena-swap-wrapper {
+    position: relative;
+    animation: mena-swap-in 0.4s ease-out;
+}
+
+.mena-swap-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 5;
+    animation: mena-sparks 0.45s ease-out forwards;
 }
 
 /* ========== RECUADRO MASCOTA ========== */
@@ -276,11 +385,27 @@
     background: rgba(255, 140, 0, 0.12);
 }
 
+.dog-slot-hint {
+    font-size: 0.95rem;
+    opacity: 0.35;
+    line-height: 1;
+    pointer-events: none;
+}
+
 .dog-slot-plus {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     color: rgba(255, 165, 0, 0.65);
     line-height: 1;
     font-weight: 300;
+    pointer-events: none;
+}
+
+.dog-slot-label {
+    font-size: 0.55rem;
+    color: rgba(255, 165, 0, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
     pointer-events: none;
 }
 
@@ -309,21 +434,6 @@
     padding: 0;
 }
 
-.mena-durability {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-}
-
-.mena-durability img {
-    width: 20px;
-}
-
-.mena-durability small {
-    margin-left: 2rem;
-}
 
 /**/
 
@@ -383,6 +493,16 @@
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+@keyframes repair-urgent-pulse {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 80, 80, 0.5)); transform: scale(1); }
+    50%       { filter: drop-shadow(0 0 8px rgba(255, 80, 80, 1)); transform: scale(1.15); }
+}
+
+.repair-urgent {
+    animation: repair-urgent-pulse 0.8s ease-in-out infinite;
+    cursor: pointer;
 }
 
 .mena-bottom {

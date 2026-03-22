@@ -33,6 +33,14 @@
 
 
 
+.mine-screen-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
 /* ========== HEADER ========== */
 
 .mine-screen-header {
@@ -96,13 +104,10 @@
 
 .veins-container {
     display: grid;
-    align-items: center;
     grid-template-columns: repeat(2, 1fr);
+    align-items: end;
     gap: 5px;
-    min-height: 380px;
-    
-
-    border: 1px solid blue;
+    padding-top: 30%;
 }
 
 /* Si hay 3 menas, la tercera ocupa 2 columnas (centrada abajo) */
@@ -122,9 +127,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    margin-top: 4rem;
-    height: 150px;
+    gap: 6px;
 
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -184,8 +187,9 @@
 /* ========== ICONO DE VENA ========== */
 
 .vein-icon img {
-    width: 180px;
-    height: 100px;
+    width: 130px;
+    height: 80px;
+    object-fit: contain;
 }
 
 /* ========== CONTADOR DE VENA ========== */

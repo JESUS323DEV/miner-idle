@@ -43,7 +43,7 @@ export const useYacimientoActions = (gameState, setGameState) => {
     };
 
     // ========== MINAR YACIMIENTO ==========
-    const handleMineYacimiento = (slotId, biome) => {
+    const handleMineYacimiento = (slotId, biome, onGain) => {
         setGameState(prevState => {
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
             if (!slot || !slot.mena) return prevState;
@@ -61,6 +61,8 @@ export const useYacimientoActions = (gameState, setGameState) => {
             const miningPowerPerTier = prevState.pickaxe.miningPowerPerTier ?? 0;
             const materialGained = Math.floor(baseDrop + (prevState.pickaxe.tier * miningPowerPerTier));
             const newDurability = Math.max(0, mena.durability - 1);
+
+            if (onGain) onGain(materialGained);
 
             return {
                 ...prevState,
@@ -162,9 +164,51 @@ export const useYacimientoActions = (gameState, setGameState) => {
         });
     };
 
+    // ========== MINAR YACIMIENTO (PERRO) ==========
+    // No consume stamina ni durabilidad del pico, usa stats propias del perro
+    const handleDogMineYacimiento = (slotId, biome, dog, onGain) => {
+        setGameState(prevState => {
+            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
+            if (!slot || !slot.mena) return prevState;
+
+            const mena = slot.mena;
+            if (mena.repairingUntil && Date.now() < mena.repairingUntil) return prevState;
+            const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
+            if (!isReady) return prevState;
+            if (mena.durability <= 0) return prevState;
+
+            const materialGained = dog?.mineAmount ?? 1;
+            const newDurability = Math.max(0, mena.durability - 1);
+
+            if (onGain) onGain(materialGained);
+
+            return {
+                ...prevState,
+                [biome]: (prevState[biome] ?? 0) + materialGained,
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    [biome]: {
+                        ...prevState.yacimientos[biome],
+                        slots: prevState.yacimientos[biome].slots.map(s =>
+                            s.id === slotId ? {
+                                ...s,
+                                mena: {
+                                    ...mena,
+                                    ready: true,
+                                    durability: newDurability,
+                                }
+                            } : s
+                        )
+                    }
+                }
+            };
+        });
+    };
+
     return {
         handlePlantMena,
         handleMineYacimiento,
+        handleDogMineYacimiento,
         handleRepairYacimiento,
         handleUnlockYacimientoSlot,
     };

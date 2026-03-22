@@ -16,7 +16,7 @@ const MinesConfig = {
         unlockCost: 2000,
         // entryCost: 2000,
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 3 },
         baseVeinCapacity: { min: 40, max: 40 },
 
         //MATERIALES OBTENIDOS AL MINAR CADA MINA
@@ -47,7 +47,7 @@ const MinesConfig = {
         // entryCost: 4000,
         requiresStars: { mineType: 'bronze', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 4 },
         baseVeinCapacity: { min: 70, max: 70 },
 
         yields: {
@@ -74,7 +74,7 @@ const MinesConfig = {
         // entryCost: 8000,
         requiresStars: { mineType: 'bronze_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 3, max: 4 },
         baseVeinCapacity: { min: 90, max: 90 },
 
         yields: {
@@ -101,7 +101,7 @@ const MinesConfig = {
         unlockCost: 5000,
         // entryCost: 15000,
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 3 },
         baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
@@ -129,7 +129,7 @@ const MinesConfig = {
         // entryCost: 8000,
         requiresStars: { mineType: 'iron', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 4 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
@@ -153,7 +153,7 @@ const MinesConfig = {
         // entryCost: 10000,
         requiresStars: { mineType: 'iron_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 3, max: 4 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
@@ -176,7 +176,7 @@ const MinesConfig = {
         unlockCost: 10000,
         //entryCost: 6000,
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 3 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
@@ -206,7 +206,7 @@ const MinesConfig = {
         //entryCost: 10000,
         requiresStars: { mineType: 'diamond', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 2, max: 4 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
@@ -233,7 +233,7 @@ const MinesConfig = {
         // entryCost: 12000,
         requiresStars: { mineType: 'diamond_lvl2', stars: 2 },
 
-        baseVeinsCount: { min: 2, max: 2 },
+        baseVeinsCount: { min: 3, max: 4 },
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
