@@ -10,17 +10,17 @@ import { useRewardsActions } from './actions/useRewardsActions.js';
 import { useYacimientoActions } from './actions/useYacimientoActions.js';
 import { useDogsActions } from './actions/useDogsActions.js';
 
-export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost, showGoldGain) => {
+export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost, showGoldGain, showTavernGain) => {
     return {
         ...useGoldActions(gameState, setGameState, showGoldCost, showTavernCost),
         ...usePickaxeActions(gameState, setGameState, showGoldCost),
         ...useMineActions(gameState, setGameState, showGoldCost),
         ...useTutorialActions(gameState, setGameState),
         ...useSnackActions(gameState, setGameState),
-        ...useTavernActions(gameState, setGameState, showGoldCost, showTavernCost),
+        ...useTavernActions(gameState, setGameState, showGoldCost, showTavernCost, showTavernGain),
         ...useAutomineActions(gameState, setGameState, showGoldCost),
         ...useForgeActions(gameState, setGameState, showGoldCost),
-        ...useRewardsActions(gameState, setGameState, showGoldGain),
+        ...useRewardsActions(gameState, setGameState, showGoldGain, showTavernGain),
         ...useYacimientoActions(gameState, setGameState),
         ...useDogsActions(gameState, setGameState),
 

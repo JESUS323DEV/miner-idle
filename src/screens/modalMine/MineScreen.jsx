@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
+import { useGameContext } from "../../game/context/GameContext.jsx";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
@@ -37,7 +38,11 @@ const menaAssets = {
  * @param {String} pickaxeMaterial - Material del pico actual
  * @param {Boolean} canMine - Si puede minar (stamina > 0 && durability > 0)
  */
-const MineScreen = ({ isOpen, onClose, currentMine, onMineVein, canMine }) => {
+const MineScreen = ({ isOpen, onClose }) => {
+  const { gameState, handleMineVein: onMineVein } = useGameContext();
+  const currentMine = gameState.mines.currentMine;
+  const canMine = gameState.stamina > 0 && gameState.pickaxe.durability > 0;
+
   // Si no está abierto o no hay mina actual, no renderiza
   if (!isOpen || !currentMine) return null;
 

@@ -1,6 +1,6 @@
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
-export const useTavernActions = (gameState, setGameState, showGoldCost, showTavernCost) => {
+export const useTavernActions = (gameState, setGameState, showGoldCost, showTavernCost, showTavernGain) => {
 
     // ========== CONVERTIR LINGOTES EN MONEDAS ==========
     const handleConvertMaterial = (materialType) => {
@@ -14,6 +14,7 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             if (!conversion) return prevState;
             if (prevState[materialType] < conversion.amount) return prevState;
 
+            showTavernGain(conversion.coins);
             return {
                 ...prevState,
                 [materialType]: prevState[materialType] - conversion.amount,

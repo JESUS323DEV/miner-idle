@@ -35,7 +35,7 @@ const InitialCombatState = {
      * 5. Vuelves a gameplay normal
      * 
      * USO EN GAMEROOT:
-     * - if (gameState.combat.isActive) → Renderiza <CombatScreen />
+     * - if (gameState.isInCombat) → Renderiza <CombatScreen />
      * - else → Renderiza gameplay normal
      */
     isActive: false,

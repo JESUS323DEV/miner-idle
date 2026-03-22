@@ -1,6 +1,6 @@
 import { checkMilestone, getMilestoneReward } from '../helpers/milestoneHelpers.js';
 
-export const useRewardsActions = (gameState, setGameState, showGoldGain) => {
+export const useRewardsActions = (gameState, setGameState, showGoldGain, showTavernGain) => {
 
     // ========== RECLAMAR HITO DE ORO ==========
     const handleClaimReward = (milestoneKey) => {
@@ -69,6 +69,7 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain) => {
             if (typeof coinReward.claimed === 'boolean') {
                 if (coinReward.claimed) return prevState;
 
+                showTavernGain(coinReward.reward);
                 return {
                     ...prevState,
                     tavernCoins: prevState.tavernCoins + coinReward.reward,
@@ -100,6 +101,7 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain) => {
             const reward = getMilestoneReward(coinReward);
             const newClaimed = [...coinReward.claimed, nextTarget];
 
+            showTavernGain(reward);
             return {
                 ...prevState,
                 tavernCoins: prevState.tavernCoins + reward,

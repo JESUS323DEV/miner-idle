@@ -1,17 +1,12 @@
 import { X } from "lucide-react";
 
 import "../../styles/modals/BiomeSelectorModal.css"
+import { useGameContext } from "../../game/context/GameContext.jsx";
 
-const BiomeSelectorModal = ({
-    isOpen,
-    onClose,
-    onSelectBiome,
-    onUnlockBiome,
-    currentGold,
-    unlockedTypes,
-    onShowGoldCost,
-    unlockedBiomes = [],
-}) => {
+const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
+    const { gameState, handleUnlockMineType: onUnlockBiome, showGoldCost: onShowGoldCost } = useGameContext();
+    const { gold: currentGold, mines } = gameState;
+    const { unlockedBiomes = [] } = mines;
 
     if (!isOpen) return null;
 

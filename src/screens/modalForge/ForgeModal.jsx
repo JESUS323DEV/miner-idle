@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { ForgeConfig } from '../../game/config/ForgeConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
+import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/ForgeModal.css';
 
 
@@ -63,18 +64,17 @@ const forgeAssets = {
     diamond: { 1: forgeDiamond, 2: forgeDiamond2, 3: forgeDiamond3 },
 };
 
-const ForgeModal = ({
-    isOpen,
-    onClose,
-    gameState,
-    onUnlockFurnace,
-    onStartSmelt,
-    onCollectIngot,
-    onUpgradeFurnace,
-    forgeDogs = {},
-    onAssignForgeDog,
-    onUnassignForgeDog,
-}) => {
+const ForgeModal = ({ isOpen, onClose }) => {
+    const {
+        gameState,
+        handleUnlockFurnace: onUnlockFurnace,
+        handleStartSmelt: onStartSmelt,
+        handleCollectIngot: onCollectIngot,
+        handleUpgradeFurnace: onUpgradeFurnace,
+        handleAssignForgeDog: onAssignForgeDog,
+        handleUnassignForgeDog: onUnassignForgeDog,
+    } = useGameContext();
+    const forgeDogs = gameState.forgeDogs ?? {};
 
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     useEffect(() => {
@@ -98,6 +98,7 @@ const ForgeModal = ({
             setTimers(newTimers);
         }, 500);
         return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.furnaces]);
 
     if (!isOpen) return null;
@@ -116,9 +117,7 @@ const ForgeModal = ({
                         const duration = (furnace.currentDuration ?? ForgeConfig.furnaces[mat].levels[furnace.level]) * 1000;
                         const elapsed = furnace.startTime ? Date.now() - furnace.startTime : 0;
                         const progress = furnace.isActive ? Math.min(100, (elapsed / duration) * 100) : 0;
-                        const isDone = furnace.isActive && timers[mat] === 0;
                         const hasEnough = gameState[recipe.input] >= recipe.inputAmount;
-                        const showCollect = isDone && !hasEnough;
 
                         return (
                             <div key={mat} className={`forge-furnace ${!furnace.unlocked ? 'locked' : ''}`}>

@@ -106,10 +106,10 @@ import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
 
 // ===== MINAS =====
-import MinesConfig from "../game/config/MinesConfig.js";
 import InitialMinesState from "../game/initialState/InitialMinesState.js";
 import MinesMapModal from "../screens/modalMine/MinesMapModal.jsx";
 import MineScreen from "../screens/modalMine/MineScreen.jsx";
+import { GameContext } from "../game/context/GameContext.jsx";
 
 // ===== CSS =====
 import "../styles/gameRoot.css";
@@ -209,6 +209,17 @@ function GameRoot() {
     }, 1500);
   };
 
+  const showTavernGain = (amount) => {
+    const id = Date.now();
+    setTavernFloatingNumbers((prev) => [
+      ...prev,
+      { id, value: +amount, timestamp: Date.now() },
+    ]);
+    setTimeout(() => {
+      setTavernFloatingNumbers((prev) => prev.filter((n) => n.id !== id));
+    }, 1500);
+  };
+
   // ===== ACTIONS — todas las funciones de lógica del juego =====
   const {
     handleBuyGoldPerSecondUpgrade,
@@ -260,7 +271,60 @@ function GameRoot() {
     showGoldCost,
     showTavernCost,
     showGoldGain,
+    showTavernGain,
   );
+
+  // ===== CONTEXT VALUE =====
+  const contextValue = {
+    gameState,
+    setGameState,
+    handleBuyGoldPerSecondUpgrade,
+    handleBuyMaxStaminaUpgrade,
+    handleRefillStamina,
+    handleUpgradePickaxeMaterial,
+    handleUpgradePickaxeTier,
+    handleRepairPickaxe,
+    handleMine,
+    handleMineClick,
+    handleUnlockMineType,
+    handleEnterMine,
+    handleDiscardMine,
+    handleMineVein,
+    handleExitMine,
+    handleUnlockTutorialFeature,
+    handleUnlockSnack,
+    handleUpgradeSnack,
+    handleUseSnack,
+    handleConvertMaterial,
+    handleUnlockAutomine,
+    handleActivateAutomine,
+    handleStopAutomine,
+    handleUnlockTavern,
+    handleUnlockMinesMap,
+    handleConvertCoinsToGold,
+    handleUnlockFurnace,
+    handleStartSmelt,
+    handleCollectIngot,
+    handleUpgradeFurnace,
+    handleClaimReward,
+    handleClaimCoinReward,
+    handleUnlockYacimientoSlot,
+    handleRepairYacimiento,
+    handleMineYacimiento,
+    handlePlantMena,
+    handleConvertGoldToIngot,
+    handleHireDog,
+    handleAssignDog,
+    handleUnassignDog,
+    handleDogTick,
+    handleHireForgeDog,
+    handleAssignForgeDog,
+    handleUnassignForgeDog,
+    showGoldCost,
+    showGoldGain,
+    showTavernCost,
+    showTavernGain,
+  };
 
   // ===== PICKAXE LOGIC =====
   // Determina si el upgrade es de tier o de material
@@ -406,6 +470,7 @@ function GameRoot() {
 
   // ===== RENDER =====
   return (
+    <GameContext.Provider value={contextValue}>
     <div
       className="game-container"
       style={{ backgroundImage: `url(${bgMain})` }}
@@ -473,8 +538,8 @@ function GameRoot() {
                 <img src={coinTavern} alt="Coin-Tavern" />
                 <span>{formatNumber2(gameState.tavernCoins)}</span>
                 {tavernFloatingNumbers.map((num) => (
-                  <div key={num.id} className="floating-gold-cost1" style={{ color: "#f0c040" }}>
-                    {num.value}
+                  <div key={num.id} className={num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"} style={{ color: num.value > 0 ? "#7eff7e" : "#f0c040" }}>
+                    {num.value > 0 ? `+${num.value}` : num.value}
                   </div>
                 ))}
               </div>
@@ -938,24 +1003,14 @@ function GameRoot() {
           setBiomeSelectorOpen(false);
           setMinesModalOpen(true);
         }}
-        currentGold={gameState.gold}
-        unlockedTypes={gameState.mines.unlockedTypes}
-        onUnlockBiome={(type) => handleUnlockMineType(type)}
-        unlockedBiomes={gameState.mines.unlockedBiomes}
-        onShowGoldCost={showGoldCost}
       />
 
       {/* MAPA DE MINAS */}
       <MinesMapModal
-        selectedBiome={selectedBiome}
         isOpen={minesModalOpen}
         onClose={() => setMinesModalOpen(false)}
-        unlockedTypes={gameState.mines.unlockedTypes}
-        bestScores={gameState.mines.bestScores}
-        minesConfig={MinesConfig}
-        onUnlockType={(type) => {
-          handleUnlockMineType(type);
-        }}
+        selectedBiome={selectedBiome}
+        bgImage={getMinesBg(selectedBiome)}
         onEnterMine={(type) => {
           handleEnterMine(type);
           setTimeout(() => {
@@ -968,23 +1023,6 @@ function GameRoot() {
             });
           }, 50);
         }}
-        onDiscardMine={handleDiscardMine}
-        currentGold={gameState.gold}
-        currentPickaxeMaterial={gameState.pickaxe.material}
-        bgImage={getMinesBg(selectedBiome)}
-        yacimientos={gameState.yacimientos}
-        onPlantMena={handlePlantMena}
-        onMineYacimiento={handleMineYacimiento}
-        onRepairYacimiento={handleRepairYacimiento}
-        onUnlockYacimientoSlot={handleUnlockYacimientoSlot}
-        currentMaterials={{
-          bronze: gameState.bronze,
-          iron: gameState.iron,
-          diamond: gameState.diamond,
-        }}
-        dogs={gameState.dogs}
-        onAssignDog={handleAssignDog}
-        onUnassignDog={handleUnassignDog}
       />
 
       {/* PANTALLA DE MINA INTERIOR */}
@@ -994,45 +1032,18 @@ function GameRoot() {
           handleExitMine();
           setIsMineScreenOpen(false);
         }}
-        currentMine={gameState.mines.currentMine}
-        onMineVein={handleMineVein}
-        pickaxeMaterial={gameState.pickaxe.material}
-        canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
       />
 
       {/* TABERNA */}
       <TavernModal
         isOpen={tavernModalOpen}
         onClose={() => setTavernModalOpen(false)}
-        bronzeIngot={gameState.bronzeIngot}
-        ironIngot={gameState.ironIngot}
-        diamondIngot={gameState.diamondIngot}
-        bronze={gameState.bronze}
-        iron={gameState.iron}
-        diamond={gameState.diamond}
-        tavernCoins={gameState.tavernCoins}
-        onConvert={handleConvertMaterial}
-        onConvertCoins={handleConvertCoinsToGold}
-        onConvertGoldToIngot={handleConvertGoldToIngot}
-        gold={gameState.gold}
-        dogs={gameState.dogs}
-        onHireDog={handleHireDog}
-        forgeDogs={gameState.forgeDogs}
-        onHireForgeDog={handleHireForgeDog}
       />
 
       {/* FORJA */}
       <ForgeModal
         isOpen={forgeModalOpen}
         onClose={() => setForgeModalOpen(false)}
-        gameState={gameState}
-        onUnlockFurnace={handleUnlockFurnace}
-        onStartSmelt={handleStartSmelt}
-        onCollectIngot={handleCollectIngot}
-        onUpgradeFurnace={handleUpgradeFurnace}
-        forgeDogs={gameState.forgeDogs}
-        onAssignForgeDog={handleAssignForgeDog}
-        onUnassignForgeDog={handleUnassignForgeDog}
       />
 
       {/* SETTINGS */}
@@ -1054,21 +1065,12 @@ function GameRoot() {
       <RewardsModal
         isOpen={rewardsOpen}
         onClose={() => setRewardsOpen(false)}
-        gameState={gameState}
-        onClaimReward={handleClaimReward}
-        onClaimCoinReward={handleClaimCoinReward}
       />
 
       {/* MENA DE ORO — elemento principal clickeable */}
-      <GoldMine
-        onMineClick={handleMineClick}
-        goldPerMine={gameState.pickaxe.goldPerMine}
-        canMine={gameState.stamina > 0 && gameState.pickaxe.durability > 0}
-        currentCombo={gameState.comboCount}
-        comboMilestones={gameState.comboMilestones}
-        onShowGoldGain={showGoldGain}
-      />
+      <GoldMine />
     </div>
+    </GameContext.Provider>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, ArrowLeft } from 'lucide-react';
+import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { DogsConfig } from '../../game/config/DogsConfig';
@@ -31,22 +32,17 @@ const formatNumber2 = (num) => {
     return num;
 };
 
-const TavernModal = ({
-    isOpen,
-    onClose,
-    bronzeIngot,
-    ironIngot,
-    diamondIngot,
-    tavernCoins,
-    gold,
-    onConvert,
-    onConvertCoins,
-    onConvertGoldToIngot,
-    dogs = {},
-    onHireDog,
-    forgeDogs = {},
-    onHireForgeDog,
-}) => {
+const TavernModal = ({ isOpen, onClose }) => {
+    const {
+        gameState,
+        handleConvertMaterial: onConvert,
+        handleConvertCoinsToGold: onConvertCoins,
+        handleConvertGoldToIngot: onConvertGoldToIngot,
+        handleHireDog: onHireDog,
+        handleHireForgeDog: onHireForgeDog,
+    } = useGameContext();
+    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, gold, dogs = {}, forgeDogs = {} } = gameState;
+
     const [view, setView] = useState('main');
     const [flippedDog, setFlippedDog] = useState(null);
     const [dogTab, setDogTab] = useState('mineros');

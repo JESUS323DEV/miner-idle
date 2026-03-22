@@ -2,11 +2,13 @@ import { useState, useRef } from 'react';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
 import menaGold from '../assets/scenes/mining/mena-gold5.png';
+import { useGameContext } from '../game/context/GameContext.jsx';
 
-
-
-
-const GoldMine = ({ onMineClick, goldPerMine, canMine, currentCombo, comboMilestones }) => {
+const GoldMine = () => {
+    const { gameState, handleMineClick: onMineClick } = useGameContext();
+    const { pickaxe, comboCount: currentCombo, comboMilestones, stamina } = gameState;
+    const goldPerMine = pickaxe.goldPerMine;
+    const canMine = stamina > 0 && pickaxe.durability > 0;
     const [bonusNumbers, setBonusNumbers] = useState([]);
     const lastClickTimeRef = useRef(null);
     // Estado para controlar la animación de shake de la mena

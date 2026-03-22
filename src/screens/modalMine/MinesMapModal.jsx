@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import '../../styles/modals/MinesMapModal.css';
+import MinesConfig from '../../game/config/MinesConfig.js';
+import { useGameContext } from '../../game/context/GameContext.jsx';
 
 
 
@@ -25,32 +27,25 @@ import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
 
 import { X } from 'lucide-react';
 
-const MinesMapModal = ({
-    isOpen,
-    onClose,
-    unlockedTypes,
-    minesConfig,
-    onUnlockType,
-    bestScores,
-    onEnterMine,
-    onDiscardMine,
-    currentGold,
-    currentPickaxeMaterial,
-    selectedBiome = null,
-    bgImage = null,
-    yacimientos = null,
-    onPlantMena,
-    onMineYacimiento,
-    onRepairYacimiento,
-    onUnlockYacimientoSlot,
-    currentMaterials = {},
-    dogs = {},
-    onAssignDog,
-    onUnassignDog,
-}) => {
-    if (!isOpen) return null;
+const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, onEnterMine }) => {
+    const {
+        gameState,
+        handleUnlockMineType: onUnlockType,
+        handlePlantMena: onPlantMena,
+        handleMineYacimiento: onMineYacimiento,
+        handleRepairYacimiento: onRepairYacimiento,
+        handleUnlockYacimientoSlot: onUnlockYacimientoSlot,
+        handleAssignDog: onAssignDog,
+        handleUnassignDog: onUnassignDog,
+    } = useGameContext();
+    const { gold: currentGold, mines, yacimientos, dogs = {} } = gameState;
+    const { unlockedTypes, bestScores } = mines;
+    const minesConfig = MinesConfig;
 
+    // ⚠️ useState SIEMPRE antes del early return (Rules of Hooks)
     const [dogMenuSlot, setDogMenuSlot] = useState(null); // slotId abierto
+
+    if (!isOpen) return null;
 
     // Perro asignado a este slot
     const getDogAssigned = (slotId) => {
@@ -99,7 +94,7 @@ const MinesMapModal = ({
         .filter(type => selectedBiome ? type === selectedBiome || type.startsWith(selectedBiome) : true);
 
     const canAffordUnlock = (unlockCost) => currentGold >= unlockCost;
-    const canAffordEnter = (mineType) => true;
+    const canAffordEnter = () => true;
 
     // Comprueba si la mena ya está lista para picar
     const isMenaReady = (mena) => {

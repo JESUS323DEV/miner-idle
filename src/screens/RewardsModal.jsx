@@ -1,14 +1,10 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import "../styles/modals/RewardsModal.css"
+import { useGameContext } from "../game/context/GameContext.jsx";
 
-const RewardsModal = ({
-    isOpen,
-    onClose,
-    gameState,
-    onClaimReward,
-    onClaimCoinReward,
-}) => {
+const RewardsModal = ({ isOpen, onClose }) => {
+    const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward } = useGameContext();
     const [activeTab, setActiveTab] = useState("gold");
 
     if (!isOpen) return null;

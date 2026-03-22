@@ -46,22 +46,12 @@ export const tavernEvents = [
                  * - Ganas o pierdes 50 de plata
                  */
                 resolve: (gameState) => {
-                    const win = Math.random() < 0.5;  // 50% de probabilidad
-                    const amount = 50;  // Cantidad apostada
-
-                    if (win) {
-                        // VICTORIA: Ganas plata
-                        return {
-                            ...gameState,
-                            silver: gameState.silver + amount
-                        };
-                    } else {
-                        // DERROTA: Pierdes plata (nunca negativo)
-                        return {
-                            ...gameState,
-                            silver: Math.max(0, gameState.silver - amount)
-                        };
-                    }
+                    // TODO: silver no implementado aún
+                    // const win = Math.random() < 0.5;
+                    // const amount = 50;
+                    // if (win) return { ...gameState, silver: gameState.silver + amount };
+                    // else return { ...gameState, silver: Math.max(0, gameState.silver - amount) };
+                    return gameState;
                 }
             },
             {

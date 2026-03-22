@@ -80,7 +80,6 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
 
             const goldCost = 0;
             const newGoldSpent = prevState.totalGoldSpent + goldCost;
-            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
