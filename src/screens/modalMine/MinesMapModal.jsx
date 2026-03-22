@@ -1,4 +1,4 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import '../../styles/modals/MinesMapModal.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -139,19 +139,16 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                         if (!config) return null;
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
-                        const canEnter = canAffordEnter(type);
+                        const canEnter = canAffordEnter();
 
                         return (
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
-                                <div className="mine-card-actions">
-                                    <button
-                                        className={`btn-enter-mine ${!canEnter ? 'disabled' : ''}`}
-                                        onClick={() => canEnter && onEnterMine(type)}
-                                        disabled={!canEnter}
-                                    >
-                                        {canEnter ? 'Entrar' : `${config.unlockCost} 💰`}
-                                    </button>
-                                </div>
+                                <button
+                                    className="btn-enter-mine"
+                                    onClick={() => canEnter && onEnterMine(type)}
+                                >
+                                    Entrar
+                                </button>
                             </div>
                         );
                     })}
@@ -169,31 +166,20 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
                         return (
                             <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}>
-                                <div className="mine-card-body">
-                                    {config.requiresStars && !meetsStarRequirement && (
-                                        <div className="mine-info-row">
-                                            <span className="cannot-afford1">
-                                                {config.requiresStars.stars}⭐ en {config.requiresStars.mineType}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mine-card-actions">
-                                    <button
-                                        className={`btn-unlock-mine ${!canUnlock ? 'disabled' : ''}`}
-                                        onClick={() => { if (canUnlock) onUnlockType(type); }}
-                                        disabled={!canUnlock}
-                                    >
-                                        <span className='info-mine'>
-                                            <small className='text-img-info'>
-                                                {formatNumber2(config.unlockCost)}
-                                                <img src={iconGold} alt="IconGold" />
-                                                🔒
-                                            </small>
-
-                                        </span>
-                                    </button>
-                                </div>
+                                {config.requiresStars && !meetsStarRequirement && (
+                                    <span className="mine-star-req">
+                                        {config.requiresStars.stars}⭐ {config.requiresStars.mineType}
+                                    </span>
+                                )}
+                                <button
+                                    className={`btn-unlock-mine ${!canUnlock ? 'disabled' : ''}`}
+                                    onClick={() => { if (canUnlock) onUnlockType(type); }}
+                                    disabled={!canUnlock}
+                                >
+                                    <img src={iconGold} alt="gold" className="btn-cost-icon" />
+                                    {formatNumber2(config.unlockCost)}
+                                    🔒
+                                </button>
                             </div>
                         );
                     })}
@@ -250,60 +236,46 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                     if (!mena) return (
                                         <div key={slot.id} className="yacimiento-slot empty">
                                             <p>🪏</p>
-                                            <button
-                                                className="btn-plant-mena"
-                                                onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
-                                            >
-                                                Excavar
-                                            </button>
-
-                                            {/* Botón asignar perro */}
-                                            {getDogAssigned(slot.id) ? (
-                                                <div className="dog-assigned">
-                                                    <span>🐕 {getDogAssigned(slot.id).id}</span>
-                                                    <button
-                                                        className="btn-unassign-dog"
-                                                        onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
-                                                    >
-                                                        ✖
-                                                    </button>
-                                                </div>
-                                            ) : (
+                                            <div className="mena-bottom">
                                                 <button
-                                                    className="btn-assign-dog"
-                                                    onClick={(e) => { e.stopPropagation(); setDogMenuSlot(slot.id); }}
+                                                    className="btn-plant-mena"
+                                                    onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
                                                 >
-                                                    🐕+
+                                                    Excavar
                                                 </button>
-                                            )}
+                                            </div>
+                                            <div
+                                                className="dog-slot-box"
+                                                onClick={(e) => { e.stopPropagation(); setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id); }}
+                                            >
+                                                {getDogAssigned(slot.id) ? (
+                                                    <>
+                                                        <span className="dog-slot-emoji">🐕</span>
+                                                        <button
+                                                            className="dog-slot-unassign"
+                                                            onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
+                                                        >✖</button>
+                                                    </>
+                                                ) : (
+                                                    <span className="dog-slot-plus">+</span>
+                                                )}
+                                                {dogMenuSlot === slot.id && (
+                                                    <div className="dog-menu">
+                                                        {getAvailableDogs().length === 0
+                                                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
+                                                            : getAvailableDogs().map(dog => (
+                                                                <button key={dog.id} className="dog-menu-option"
+                                                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); setDogMenuSlot(null); }}
+                                                                >🐕 {dog.id}</button>
+                                                            ))
+                                                        }
+                                                        <button className="dog-menu-cancel"
+                                                            onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
+                                                        >Cancelar</button>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                            {/* Mini menú de selección */}
-                                            {dogMenuSlot === slot.id && (
-                                                <div className="dog-menu">
-                                                    {getAvailableDogs().length === 0
-                                                        ? <span className="dog-menu-empty">Sin perros libres</span>
-                                                        : getAvailableDogs().map(dog => (
-                                                            <button
-                                                                key={dog.id}
-                                                                className="dog-menu-option"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onAssignDog(dog.id, selectedBiome, slot.id);
-                                                                    setDogMenuSlot(null);
-                                                                }}
-                                                            >
-                                                                🐕 {dog.id}
-                                                            </button>
-                                                        ))
-                                                    }
-                                                    <button
-                                                        className="dog-menu-cancel"
-                                                        onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
-                                                    >
-                                                        Cancelar
-                                                    </button>
-                                                </div>
-                                            )}
                                         </div>
                                     );
 
@@ -313,11 +285,11 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                         <div key={slot.id} className="yacimiento-slot active">
                                             <span className="mena-durability">
                                                 <small>{mena.durability}/{mena.maxDurability}</small>
-                                                <img src={bronzeHud} alt="Bronze Hud" />
+                                                <img src={biomeHudAssets[selectedBiome]} alt={selectedBiome} />
                                             </span>
                                             <img
-                                                src={getMenaAsset(slot.id, mena.type)}
-                                                alt={mena.type}
+                                                src={getMenaAsset(slot.id, selectedBiome)}
+                                                alt={selectedBiome}
                                                 className={`mena-img ${ready && !isRepairing(mena) ? 'mena-clickable' : 'mena-disabled'}`}
                                                 onClick={(e) => {
                                                     if (ready && !isRepairing(mena)) {
@@ -327,76 +299,62 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                                 }}
                                             />
                                             <div className="mena-bottom">
-                                                {!ready && <span>⏱️ {timeLeft}s</span>}
-                                                {isRepairing(mena)
-                                                    ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
-                                                    : <span
-                                                        className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''}`}
-                                                        onClick={(e) => {
-                                                            if (mena.durability < mena.maxDurability) {
-                                                                e.stopPropagation();
-                                                                onRepairYacimiento(slot.id, selectedBiome);
-                                                            }
-                                                        }}
-                                                    >
-                                                        🪏
-
-                                                        <span className='info-yacimientos'>
-                                                            <img className='icon-info' src={iconGold} alt="icon-gold" />  {formatNumber2(config?.repairCost)}
+                                                <div className="mena-bottom-info">
+                                                    {!ready && <span>⏱️ {timeLeft}s</span>}
+                                                    {isRepairing(mena)
+                                                        ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
+                                                        : <span
+                                                            className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''}`}
+                                                            onClick={(e) => {
+                                                                if (mena.durability < mena.maxDurability) {
+                                                                    e.stopPropagation();
+                                                                    onRepairYacimiento(slot.id, selectedBiome);
+                                                                }
+                                                            }}
+                                                        >
+                                                            🪏
+                                                            <span className='info-yacimientos'>
+                                                                <img className='icon-info' src={iconGold} alt="icon-gold" /> {formatNumber2(config?.repairCost)}
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                }
+                                                    }
+                                                </div>
+
                                             </div>
 
-                                            {/* Perro asignado al slot activo */}
-                                            {getDogAssigned(slot.id) ? (
-                                                <div className="dog-assigned">
-                                                    <span>🐕 {getDogAssigned(slot.id).id}</span>
-                                                    <button
-                                                        className="btn-unassign-dog"
-                                                        onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
-                                                    >
-                                                        ✖
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    className="btn-assign-dog"
-                                                    onClick={(e) => { e.stopPropagation(); setDogMenuSlot(slot.id === dogMenuSlot ? null : slot.id); }}
-                                                >
-                                                    🐕+
-                                                </button>
-                                            )}
+                                            {/*==================SLOT MASCOTA/AYUDANTE===========================f*/}
 
-                                            {dogMenuSlot === slot.id && (
-                                                <div className="dog-menu">
-                                                    {getAvailableDogs().length === 0
-                                                        ? <span className="dog-menu-empty">Sin perros libres</span>
-                                                        : getAvailableDogs().map(dog => (
-                                                            <button
-                                                                key={dog.id}
-                                                                className="dog-menu-option"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onAssignDog(dog.id, selectedBiome, slot.id);
-                                                                    setDogMenuSlot(null);
-                                                                }}
-                                                            >
-                                                                🐕 {dog.id}
-                                                            </button>
-                                                        ))
-                                                    }
-                                                    <button
-                                                        className="dog-menu-cancel"
-                                                        onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
-                                                    >
-                                                        Cancelar
-                                                    </button>
-                                                </div>
-                                            )}
-
-
-
+                                            <div
+                                                className="dog-slot-box"
+                                                onClick={(e) => { e.stopPropagation(); setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id); }}
+                                            >
+                                                {getDogAssigned(slot.id) ? (
+                                                    <>
+                                                        <span className="dog-slot-emoji">🐕</span>
+                                                        <button
+                                                            className="dog-slot-unassign"
+                                                            onClick={(e) => { e.stopPropagation(); onUnassignDog(getDogAssigned(slot.id).id); }}
+                                                        >✖</button>
+                                                    </>
+                                                ) : (
+                                                    <span className="dog-slot-plus">+</span>
+                                                )}
+                                                {dogMenuSlot === slot.id && (
+                                                    <div className="dog-menu">
+                                                        {getAvailableDogs().length === 0
+                                                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
+                                                            : getAvailableDogs().map(dog => (
+                                                                <button key={dog.id} className="dog-menu-option"
+                                                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); setDogMenuSlot(null); }}
+                                                                >🐕 {dog.id}</button>
+                                                            ))
+                                                        }
+                                                        <button className="dog-menu-cancel"
+                                                            onClick={(e) => { e.stopPropagation(); setDogMenuSlot(null); }}
+                                                        >Cancelar</button>
+                                                    </div>
+                                                )}
+                                            </div>
 
                                         </div>
                                     );
