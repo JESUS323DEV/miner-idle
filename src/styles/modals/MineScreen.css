@@ -102,6 +102,191 @@
     font-weight: bold;
 }
 
+/* ========== SNACK BAR ========== */
+
+.mine-snacks-bar {
+    display: flex;
+    gap: 2rem;
+    padding: 4px 0;
+    justify-content: center;
+}
+
+.mine-snack-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* EMOJI BUTTON */
+.mine-snack-emoji-btn {
+    position: relative;
+    font-size: 28px;
+    line-height: 1;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 200, 60, 0.25);
+    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #69f080;
+    font-weight: 800;
+}
+
+.mine-snack-emoji-btn:not(:disabled):hover {
+    border-color: rgba(255, 200, 60, 0.7);
+    background: rgba(255, 200, 60, 0.12);
+    transform: scale(1.08);
+}
+
+.mine-snack-emoji-btn:disabled {
+    cursor: default;
+}
+
+.snack-active .mine-snack-emoji-btn {
+    border-color: rgba(105, 240, 128, 0.7);
+    background: rgba(105, 240, 128, 0.12);
+    font-size: 13px;
+}
+
+.snack-locked .mine-snack-emoji-btn {
+    opacity: 0.4;
+    filter: grayscale(0.7);
+}
+
+.snack-blocked .mine-snack-emoji-btn {
+    opacity: 0.3;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+/* BADGE CARGAS */
+.snack-charges-badge {
+    position: absolute;
+    top: 0;
+    left: -4px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 200, 60, 0.5);
+    border-radius: 4px;
+    color: #ffd740;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 3px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.snack-timer {
+    font-size: 13px;
+    font-weight: 800;
+    color: #69f080;
+}
+
+/* "+" COMPRAR BUTTON */
+.snack-buy-btn {
+    position: absolute;
+    bottom: -20px;
+    background: rgba(0, 150, 0, 0.222);
+    border: 1px solid rgba(100, 255, 100, 0.5);
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding:0.1rem;
+}
+
+.snack-buy-btn:hover:not(:disabled) {
+    background: rgba(0, 200, 0, 0.9);
+    transform: scale(1.08);
+}
+
+.snack-buy-btn:disabled,
+.snack-buy-full {
+    background: rgba(60, 60, 60, 0.7);
+    border-color: rgba(120, 120, 120, 0.4);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.snack-buy-plus {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.snack-buy-price {
+    font-size: 9px;
+    font-weight: 700;
+    color: #ffd740;
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.snack-gold-icon {
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+}
+
+/* "i" INFO BUTTON */
+.snack-info-btn {
+    position: absolute;
+    top: 0;
+    right: -1rem;
+    transform: translateX(-50%);
+    background: transparent;
+    border: none;
+    color: rgb(9, 9, 9);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    z-index: 10;
+    background-color: rgb(255, 187, 0);
+    border-radius:50%;
+    width: 10px;
+    height: 10px;
+
+}
+
+/* POPUP INFO */
+.snack-info-popup {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 30, 0.95);
+    border: 1px solid rgba(100, 150, 255, 0.4);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 110px;
+    z-index: 50;
+    text-align: center;
+    pointer-events: none;
+    
+}
+
+.snack-info-name {
+    color: #aac8ff;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.snack-info-desc {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 10px;
+    line-height: 1.4;
+}
+
 /* ========== CONTENEDOR DE VENAS (3-4 MENAS MAX) ========== */
 
 .veins-container {
@@ -109,8 +294,7 @@
     grid-template-columns: repeat(2, 1fr);
     align-items: end;
     gap: 5px;
-    padding-top: 30%;
-    margin-top: 1.5rem;
+    padding-top: 5rem;
 
 
 }

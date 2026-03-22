@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
+import MineSnacksConfig from "../../game/config/MineSnacksConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
@@ -20,6 +21,7 @@ import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png";
 import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png";
 
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png";
 import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png";
 import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png";
 import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png";
@@ -49,14 +51,35 @@ const menaAssets = {
  * @param {Boolean} canMine - Si puede minar (stamina > 0 && durability > 0)
  */
 const MineScreen = ({ isOpen, onClose }) => {
-  const { gameState, handleMineVein: onMineVein } = useGameContext();
+  const {
+    gameState,
+    handleMineVein: onMineVein,
+    handleBuyMineSnack,
+    handleUseMineSnack,
+    handleDynamiteMine,
+  } = useGameContext();
+
   const currentMine = gameState.mines.currentMine;
+  const mineSnacks = gameState.mineSnacks;
+
   const canMine = gameState.stamina > 0 && gameState.pickaxe.durability > 0;
 
   const [showCompleted, setShowCompleted] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const [openInfo, setOpenInfo] = useState(null);
+  const [animTriggers, setAnimTriggers] = useState({});
+  const automineRef = useRef(null);
+  const snackLastUsed = useRef({});
 
   const totalRemainingEarly = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
 
+  // Ticker para countdowns
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(t);
+  }, []);
+
+  // Delay pantalla completada
   useEffect(() => {
     if (!isOpen || !currentMine) return;
     if (totalRemainingEarly === 0) {
@@ -66,6 +89,21 @@ const MineScreen = ({ isOpen, onClose }) => {
       setShowCompleted(false);
     }
   }, [totalRemainingEarly, isOpen, currentMine]);
+
+  // Automine interval
+  useEffect(() => {
+    clearInterval(automineRef.current);
+    if (!mineSnacks?.automine?.activeUntil || now > mineSnacks.automine.activeUntil) return;
+    automineRef.current = setInterval(() => {
+      if (!currentMine) return;
+      const available = currentMine.veins.filter(v => v.remaining > 0);
+      if (available.length === 0) return;
+      const vein = available[Math.floor(Math.random() * available.length)];
+      onMineVein(vein.id);
+      setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
+    }, 166);
+    return () => clearInterval(automineRef.current);
+  }, [mineSnacks?.automine?.activeUntil, now]); // eslint-disable-line
 
   // Si no está abierto o no hay mina actual, no renderiza
   if (!isOpen || !currentMine) return null;
@@ -162,6 +200,73 @@ const MineScreen = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+        {/* SNACK BAR */}
+        <div className="mine-snacks-bar">
+          {(() => {
+          const anySnackActive = Object.values(mineSnacks ?? {}).some(s => s.activeUntil && now < s.activeUntil);
+          return Object.values(MineSnacksConfig).map(cfg => {
+            const snack = mineSnacks?.[cfg.id] ?? { charges: 0 };
+            const activeUntil = snack.activeUntil ?? null;
+            const isActive = activeUntil && now < activeUntil;
+            const secsLeft = isActive ? Math.ceil((activeUntil - now) / 1000) : 0;
+            const hasCharges = snack.charges > 0;
+
+            return (
+              <div key={cfg.id} className={`mine-snack-item ${isActive ? 'snack-active' : ''} ${!hasCharges && !isActive ? 'snack-locked' : ''} ${anySnackActive && !isActive ? 'snack-blocked' : ''}`}>
+
+                {/* EMOJI = botón usar */}
+                <button
+                  className="mine-snack-emoji-btn"
+                  onClick={() => {
+                    const now2 = Date.now();
+                    if (!hasCharges || anySnackActive) return;
+                    if (now2 - (snackLastUsed.current[cfg.id] || 0) < 500) return;
+                    snackLastUsed.current[cfg.id] = now2;
+                    cfg.id === 'dynamite' ? handleDynamiteMine() : handleUseMineSnack(cfg.id);
+                  }}
+                  disabled={!hasCharges || anySnackActive}
+                >
+                  {isActive ? <span className="snack-timer">{secsLeft}s</span> : cfg.emoji}
+                  {/* BADGE de cargas */}
+                  {!isActive && hasCharges && (
+                    <span className="snack-charges-badge">x{snack.charges}</span>
+                  )}
+                </button>
+
+                {/* "+" = botón comprar */}
+                <button
+                  className={`snack-buy-btn ${snack.charges > 0 ? 'snack-buy-full' : ''}`}
+                  onClick={() => handleBuyMineSnack(cfg.id)}
+                  disabled={snack.charges > 0}
+                >
+                  <span className="snack-buy-plus">+</span>
+                  <span className="snack-buy-price">
+                    {cfg.costGold}<img src={iconGold} alt="gold" className="snack-gold-icon" />
+                  </span>
+                </button>
+
+                {/* "i" = botón info */}
+                <button
+                  className="snack-info-btn"
+                  onClick={(e) => { e.stopPropagation(); setOpenInfo(openInfo === cfg.id ? null : cfg.id); }}
+                >
+                  ℹ
+                </button>
+
+                {/* POPUP INFO */}
+                {openInfo === cfg.id && (
+                  <div className="snack-info-popup">
+                    <div className="snack-info-name">{cfg.name}</div>
+                    <div className="snack-info-desc">{cfg.description}</div>
+                  </div>
+                )}
+
+              </div>
+            );
+          });
+        })()}
+        </div>
+
         {/* VENAS (MENAS CLICKEABLES) */}
         <div className="veins-container">
           {currentMine.veins.map((vein) => (
@@ -174,6 +279,7 @@ const MineScreen = ({ isOpen, onClose }) => {
               mineColor={getMineColor(currentMine.mineType)}
               menaImg={menaImg}
               hudImg={hudAssets[baseMineType]}
+              animTrigger={animTriggers[vein.id] || 0}
             />
           ))}
         </div>
@@ -266,10 +372,26 @@ const MineScreen = ({ isOpen, onClose }) => {
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg }) => {
+const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg, animTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [particles, setParticles] = useState([]);
+  const veinRef = useRef(null);
+
+  // Automine animation trigger
+  useEffect(() => {
+    if (animTrigger === 0) return;
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 150);
+
+    const rect = veinRef.current?.getBoundingClientRect();
+    const x = rect ? rect.width / 2 : 40;
+    const y = rect ? rect.height / 2 : 40;
+
+    const numId = Date.now();
+    setFloatingNumbers(prev => [...prev, { id: numId, x, y }]);
+    setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 1000);
+  }, [animTrigger]);
 
   const handleClick = (e) => {
     if (!canMine) return;
@@ -314,6 +436,7 @@ const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg }) => {
 
   return (
     <div
+      ref={veinRef}
       className={`vein ${isShaking ? "shake" : ""} ${isDepleted ? "depleted" : ""} ${!canMine ? "disabled" : ""}`}
       onClick={handleClick}
     >

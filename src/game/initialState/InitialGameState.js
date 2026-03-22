@@ -40,6 +40,13 @@ const InitialGameState = {
     snackLevel: 0,
     snacks: initialSnacksState,
 
+    // ========== SNACKS DE MINA ==========
+    mineSnacks: {
+        automine:  { charges: 0, activeUntil: null },
+        dynamite:  { charges: 0 },
+        toughness: { charges: 0, activeUntil: null },
+    },
+
     // ========== MINADO ==========
     isMining: false,
 
