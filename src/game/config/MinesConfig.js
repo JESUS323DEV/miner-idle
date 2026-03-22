@@ -28,7 +28,7 @@ const MinesConfig = {
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 350, good: 100 },
+        starThresholds: { perfect: 350, good: 100, basic: 50 },
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
 
@@ -58,7 +58,7 @@ const MinesConfig = {
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 450, good: 300 },
+        starThresholds: { perfect: 450, good: 300, basic: 150 },
 
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
@@ -85,7 +85,7 @@ const MinesConfig = {
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
-        starThresholds: { perfect: 750, good: 550 },
+        starThresholds: { perfect: 750, good: 550, basic: 300 },
 
         // BONUS — multiplicador de materiales al completar con estrellas
         starBonuses: { perfect: 0.5, good: 0.25 },
@@ -111,7 +111,7 @@ const MinesConfig = {
             diamond: { min: 10, max: 12 },
         },
 
-        starThresholds: { perfect: 220, good: 150 },
+        starThresholds: { perfect: 220, good: 150, basic: 80 },
         starBonuses: { perfect: 0.5, good: 0.25 },
 
         possibleEvents: ["iron_blueprint", "lost_miner", "rich_vein", "cave_in", "tool_break"],
@@ -139,7 +139,7 @@ const MinesConfig = {
             diamond: { min: 18, max: 20 },
         },
 
-        starThresholds: { perfect: 450, good: 360 },
+        starThresholds: { perfect: 450, good: 360, basic: 200 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
@@ -163,7 +163,7 @@ const MinesConfig = {
             diamond: { min: 20, max: 24 },
         },
 
-        starThresholds: { perfect: 500, good: 400 },
+        starThresholds: { perfect: 500, good: 400, basic: 250 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
@@ -186,7 +186,7 @@ const MinesConfig = {
             diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 205, good: 120 },
+        starThresholds: { perfect: 205, good: 120, basic: 60 },
         starBonuses: { perfect: 0.5, good: 0.25 },
 
         possibleEvents: ["guardian_creature", "cursed_mine", "blessed_vein", "treasure_map", "ancient_tool"],
@@ -216,7 +216,7 @@ const MinesConfig = {
             diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 430, good: 350 },
+        starThresholds: { perfect: 430, good: 350, basic: 200 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 
@@ -243,7 +243,7 @@ const MinesConfig = {
             diamond: { min: 10, max: 18 },
         },
 
-        starThresholds: { perfect: 520, good: 420 },
+        starThresholds: { perfect: 520, good: 420, basic: 250 },
         starBonuses: { perfect: 0.5, good: 0.25 },
     },
 };

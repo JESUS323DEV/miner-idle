@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
@@ -19,6 +19,16 @@ import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png";
 import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png";
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png";
 import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png";
+
+import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png";
+import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png";
+import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png";
+
+const hudAssets = {
+  bronze: bronzeHud,
+  iron: ironHud,
+  diamond: diamondHud,
+};
 
 const menaAssets = {
   bronze: [menaBronze1, menaBronze2, menaBronze3],
@@ -42,6 +52,20 @@ const MineScreen = ({ isOpen, onClose }) => {
   const { gameState, handleMineVein: onMineVein } = useGameContext();
   const currentMine = gameState.mines.currentMine;
   const canMine = gameState.stamina > 0 && gameState.pickaxe.durability > 0;
+
+  const [showCompleted, setShowCompleted] = useState(false);
+
+  const totalRemainingEarly = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
+
+  useEffect(() => {
+    if (!isOpen || !currentMine) return;
+    if (totalRemainingEarly === 0) {
+      const t = setTimeout(() => setShowCompleted(true), 800);
+      return () => clearTimeout(t);
+    } else {
+      setShowCompleted(false);
+    }
+  }, [totalRemainingEarly, isOpen, currentMine]);
 
   // Si no está abierto o no hay mina actual, no renderiza
   if (!isOpen || !currentMine) return null;
@@ -103,11 +127,6 @@ const MineScreen = ({ isOpen, onClose }) => {
   };
 
   // Calcula total de venas restantes
-  const totalRemaining = currentMine.veins.reduce(
-    (sum, vein) => sum + vein.remaining,
-    0,
-  );
-  const allCompleted = totalRemaining === 0;
 
   return (
     <div
@@ -154,12 +173,13 @@ const MineScreen = ({ isOpen, onClose }) => {
               mineType={currentMine.mineType}
               mineColor={getMineColor(currentMine.mineType)}
               menaImg={menaImg}
+              hudImg={hudAssets[baseMineType]}
             />
           ))}
         </div>
 
         {/* MENSAJE SI COMPLETÓ TODAS */}
-        {allCompleted &&
+        {showCompleted &&
           (() => {
             const materialsGathered =
               currentMine.resourcesGathered[baseMineType];
@@ -167,43 +187,70 @@ const MineScreen = ({ isOpen, onClose }) => {
             const { starThresholds, starBonuses } = config;
 
             let speedBonus = 0;
-            let rankText = "";
 
             if (materialsGathered >= starThresholds.perfect) {
               speedBonus = Math.floor(materialsGathered * starBonuses.perfect);
-              rankText = "⭐⭐⭐";
             } else if (materialsGathered >= starThresholds.good) {
               speedBonus = Math.floor(materialsGathered * starBonuses.good);
-              rankText = "⭐⭐☆";
-            } else {
-              rankText = "⭐☆☆";
             }
 
             const total = materialsGathered + speedBonus;
 
+            const hudImg = hudAssets[baseMineType];
+            const stars = materialsGathered >= starThresholds.perfect ? 3
+              : materialsGathered >= starThresholds.good ? 2
+                : materialsGathered >= starThresholds.basic ? 1 : 0;
+
             return (
               <div className="mine-completed">
-                <h3>🎉 ¡MINA COMPLETADA!</h3>
-                <p style={{ fontSize: "32px", margin: "10px 0" }}>{rankText}</p>
-                <p>Clicks totales: {currentMine.clicksCount}</p>
-                <p>
-                  Materiales obtenidos: {materialsGathered}{" "}
-                  {getMineIcon(baseMineType)}
-                </p>
-                {speedBonus > 0 && (
-                  <p style={{ color: "#4CAF50", fontWeight: "bold" }}>
-                    Bonus: +{speedBonus} {getMineIcon(baseMineType)}
-                  </p>
-                )}
-                <p
-                  style={{
-                    fontSize: "28px",
-                    color: "#FFD700",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Total: {total} {getMineIcon(baseMineType)}
-                </p>
+                <h3>¡MINA COMPLETADA!</h3>
+
+                {/* ESTRELLAS CON UMBRALES */}
+                <div className="mc-stars-row">
+                  {[
+                    { threshold: starThresholds.basic },
+                    { threshold: starThresholds.good },
+                    { threshold: starThresholds.perfect },
+                  ].map((s, i) => (
+                    <div key={i} className={`mc-star-col ${i < stars ? "mc-star-reached" : "mc-star-locked"}`}>
+                      <span className="mc-star-icon">{i < stars ? "⭐" : "☆"}</span>
+                      <span className="mc-star-threshold">
+                        <span className="mc-threshold-val">
+                          {s.threshold} <img src={hudImg} alt="" className="mc-hud-icon" />
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* STATS */}
+                <div className="mc-stats">
+                  <div className="mc-stat-row">
+                    <span>Clicks</span>
+                    <span className="mc-stat-val">{currentMine.clicksCount}</span>
+                  </div>
+                  <div className="mc-stat-row">
+                    <span>Obtenido</span>
+                    <span className="mc-stat-val">
+                      {materialsGathered} <img src={hudImg} alt="" className="mc-hud-icon" />
+                    </span>
+                  </div>
+                  {speedBonus > 0 && (
+                    <div className="mc-stat-row mc-bonus">
+                      <span>Bonus</span>
+                      <span className="mc-stat-val">
+                        +{speedBonus} <img src={hudImg} alt="" className="mc-hud-icon" />
+                      </span>
+                    </div>
+                  )}
+                  <div className="mc-stat-row mc-total">
+                    <span>Total</span>
+                    <span className="mc-stat-val">
+                      {total} <img src={hudImg} alt="" className="mc-hud-icon" />
+                    </span>
+                  </div>
+                </div>
+
                 <button className="btn-exit-completed" onClick={onClose}>
                   SALIR Y RECLAMAR
                 </button>
@@ -219,20 +266,10 @@ const MineScreen = ({ isOpen, onClose }) => {
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, mineType, menaImg }) => {
+const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [particles, setParticles] = useState([]);
-
-  // Emoji según tipo de mina
-  const getMineEmoji = (type) => {
-    const emojis = {
-      bronze: "🟤",
-      iron: "⚙️",
-      diamond: "💎",
-    };
-    return emojis[type] || "🪨";
-  };
 
   const handleClick = (e) => {
     if (!canMine) return;
@@ -249,17 +286,8 @@ const Vein = ({ vein, onMineVein, canMine, mineType, menaImg }) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // ✅ Crea número flotante con emoji
     const numId = Date.now();
-    setFloatingNumbers((prev) => [
-      ...prev,
-      {
-        id: numId,
-        emoji: getMineEmoji(mineType),
-        x: x,
-        y: y,
-      },
-    ]);
+    setFloatingNumbers((prev) => [...prev, { id: numId, x, y }]);
 
     setTimeout(() => {
       setFloatingNumbers((prev) => prev.filter((n) => n.id !== numId));
@@ -309,7 +337,7 @@ const Vein = ({ vein, onMineVein, canMine, mineType, menaImg }) => {
             top: `${num.y}px`,
           }}
         >
-          {num.emoji}
+          + <img src={hudImg} alt="mat" className="mena-floating-icon" />
         </div>
       ))}
 

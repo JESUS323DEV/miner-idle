@@ -64,7 +64,7 @@
 
 .mine-card-bronze.mine-card-lvl2 {
     position: fixed;
-    top: 14rem;
+    top: 13rem;
     left: 8.5rem;
 }
 
@@ -275,9 +275,8 @@
 
 .yacimientos-slots {
     display: flex;
-   
+    align-items: flex-start;
     margin-top: 15rem;
-
 }
 
 .yacimiento-slot {

@@ -39,6 +39,7 @@
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
+
 }
 
 /* ========== HEADER ========== */
@@ -82,6 +83,7 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
     gap: 15px;
+    
 }
 
 .stat-item {
@@ -108,6 +110,9 @@
     align-items: end;
     gap: 5px;
     padding-top: 30%;
+    margin-top: 1.5rem;
+
+
 }
 
 /* Si hay 3 menas, la tercera ocupa 2 columnas (centrada abajo) */
@@ -207,53 +212,155 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.95);
-    padding: 30px;
-    border-radius: 10px;
-    border: 2px solid #FFD700;
+    width: 88%;
+    background: rgba(10, 6, 0, 0.82);
+    backdrop-filter: blur(8px);
+    padding: 22px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 200, 60, 0.35);
     text-align: center;
     z-index: 1000;
 }
 
 .mine-completed h3 {
-    color: #FFD700;
-    font-size: 24px;
-    margin-bottom: 15px;
+    color: #ffd740;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
 }
 
-.mine-completed p {
-    color: white;
-    font-size: 16px;
-    margin-bottom: 20px;
+/* ---- FILA DE ESTRELLAS ---- */
+
+.mc-stars-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 18px;
 }
+
+.mc-star-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.mc-star-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.mc-star-locked .mc-star-icon {
+    filter: grayscale(1) brightness(0.55);
+    color: white;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.mc-star-threshold {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.mc-star-reached .mc-star-threshold {
+    color: #ffd740;
+}
+
+.mc-threshold-val {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* ---- STATS ---- */
+
+.mc-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.mc-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.mc-stat-val {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    font-weight: 700;
+}
+
+.mc-bonus .mc-stat-val {
+    color: #69f080;
+}
+
+.mc-total {
+    background: rgba(255, 200, 60, 0.1);
+    border: 1px solid rgba(255, 200, 60, 0.25);
+}
+
+.mc-total .mc-stat-val {
+    color: #ffd740;
+    font-size: 16px;
+}
+
+.mc-hud-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+/* ---- BOTÓN ---- */
 
 .btn-exit-completed {
-    padding: 12px 30px;
-    background: #4CAF50;
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(145deg, #2a6e2a, #3d9e3d);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 .btn-exit-completed:hover {
-    background: #45a049;
-    transform: scale(1.05);
+    background: linear-gradient(145deg, #3d9e3d, #52c452);
+    transform: scale(1.02);
 }
 
 /* ========== NÚMEROS FLOTANTES ========== */
 
 .floating-number {
     position: absolute;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     pointer-events: none;
     animation: floatUp 1s ease-out forwards;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: white;
+}
+
+.floating-number img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
 }
 
 @keyframes floatUp {
