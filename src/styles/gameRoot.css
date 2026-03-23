@@ -634,6 +634,118 @@
     z-index: 0;
 }
 
+.global-dog-slots {
+    position: fixed;
+    top: 17rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 0;
+}
+
+.global-dog-slot {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 165, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.global-dog-slot:hover {
+    border-color: rgba(255, 165, 0, 0.85);
+    background: rgba(255, 140, 0, 0.1);
+}
+
+.global-dog-slot-plus {
+    font-size: 1.4rem;
+    color: rgba(255, 165, 0, 0.5);
+    line-height: 1;
+    font-weight: 300;
+}
+
+.global-dog-slot-emoji {
+    font-size: 1.5rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.global-dog-slot-unassign {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: rgba(180, 0, 0, 0.85);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.5rem;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.global-dog-slot {
+    position: relative;
+}
+
+.global-dog-menu {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 6px);
+    background: rgba(15, 10, 5, 0.95);
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    border-radius: 6px;
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 50;
+    min-width: 80px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.global-dog-menu-option {
+    background: rgba(255, 140, 0, 0.12);
+    border: 1px solid rgba(255, 140, 0, 0.25);
+    border-radius: 4px;
+    color: white;
+    font-size: 9px;
+    padding: 3px 6px;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.global-dog-menu-option:hover {
+    background: rgba(255, 140, 0, 0.3);
+}
+
+.global-dog-menu-empty {
+    color: #aaa;
+    font-size: 9px;
+    padding: 3px 4px;
+    white-space: nowrap;
+}
+
+.global-dog-menu-cancel {
+    background: rgba(255, 0, 0, 0.08);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    border-radius: 4px;
+    color: #ffaaaa;
+    font-size: 9px;
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
 .btn-settings {
     background: #2a2a4e;
     border: 2px solid #555;

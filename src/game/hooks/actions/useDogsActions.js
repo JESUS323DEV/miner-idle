@@ -75,9 +75,10 @@ export const useDogsActions = (gameState, setGameState) => {
 
             const dog = prevState.dogs[dogId];
             if (!dog || !dog.hired || !dog.assignedTo) return prevState;
+            if (dog.assignedTo.globalSlot !== undefined) return prevState; // slot global, sin tick de yacimiento
 
             const { biome, slotId } = dog.assignedTo;
-            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
+            const slot = prevState.yacimientos[biome]?.slots?.find(s => s.id === slotId);
             if (!slot || !slot.mena) return prevState;
 
             const mena = slot.mena;

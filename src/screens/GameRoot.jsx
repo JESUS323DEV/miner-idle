@@ -132,6 +132,7 @@ function GameRoot() {
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [now, setNow] = useState(0);
 
   // ===== GAME STATE — carga desde localStorage si existe =====
@@ -942,65 +943,6 @@ function GameRoot() {
           </button>
         )}
 
-        {/* PERRO AUTOMINE ORO */}
-        <div className="gold-dog-slot">
-          {gameState.dogs.goldDog ? (
-            <div className="gold-dog-assigned">
-              <span>🐕 {gameState.dogs.goldDog}</span>
-              <button
-                className="btn-unassign-gold-dog"
-                onClick={() =>
-                  setGameState((prev) => ({
-                    ...prev,
-                    dogs: { ...prev.dogs, goldDog: null },
-                  }))
-                }
-              >
-                ✖
-              </button>
-            </div>
-          ) : (
-            <div className="gold-dog-empty">
-              {Object.values(gameState.dogs).filter(
-                (d) =>
-                  d &&
-                  typeof d === "object" &&
-                  d.hired &&
-                  d.assignedTo === null,
-              ).length === 0 ? (
-                <span className="gold-dog-none">Sin perros libres</span>
-              ) : (
-                <select
-                  className="gold-dog-select"
-                  defaultValue=""
-                  onChange={(e) => {
-                    if (e.target.value)
-                      setGameState((prev) => ({
-                        ...prev,
-                        dogs: { ...prev.dogs, goldDog: e.target.value },
-                      }));
-                  }}
-                >
-                  <option value="">🐕 Asignar</option>
-                  {Object.values(gameState.dogs)
-                    .filter(
-                      (d) =>
-                        d &&
-                        typeof d === "object" &&
-                        d.hired &&
-                        d.assignedTo === null &&
-                        gameState.dogs.goldDog !== d.id,
-                    )
-                    .map((d) => (
-                      <option key={d.id} value={d.id}>
-                        🐕 {d.id}
-                      </option>
-                    ))}
-                </select>
-              )}
-            </div>
-          )}
-        </div>
       </div>
 
       <BiomeSelectorModal
@@ -1054,6 +996,63 @@ function GameRoot() {
         onClose={() => setForgeModalOpen(false)}
       />
 
+      {/* SLOTS PERROS GLOBALES */}
+      <div className="global-dog-slots">
+        {[0, 1, 2].map(i => {
+          const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
+          const assignedDog = assignedDogId ? gameState.dogs[assignedDogId] : null;
+          const availableDogs = Object.values(gameState.dogs).filter(
+            d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null
+          );
+          const isMenuOpen = globalDogMenuOpen === i;
+
+          return (
+            <div key={i} className="global-dog-slot" onClick={() => setGlobalDogMenuOpen(isMenuOpen ? null : i)}>
+              {assignedDog ? (
+                <>
+                  <span className="global-dog-slot-emoji">🐕</span>
+                  <button className="global-dog-slot-unassign" onClick={e => {
+                    e.stopPropagation();
+                    setGameState(prev => ({
+                      ...prev,
+                      dogs: {
+                        ...prev.dogs,
+                        globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
+                        [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                      }
+                    }));
+                  }}>✖</button>
+                </>
+              ) : (
+                <span className="global-dog-slot-plus">+</span>
+              )}
+              {isMenuOpen && (
+                <div className="global-dog-menu">
+                  {availableDogs.length === 0
+                    ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
+                    : availableDogs.map(dog => (
+                      <button key={dog.id} className="global-dog-menu-option" onClick={e => {
+                        e.stopPropagation();
+                        setGameState(prev => ({
+                          ...prev,
+                          dogs: {
+                            ...prev.dogs,
+                            globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
+                            [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
+                          }
+                        }));
+                        setGlobalDogMenuOpen(null);
+                      }}>🐕 {dog.id}</button>
+                    ))
+                  }
+                  <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); }}>✕</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {/* SETTINGS */}
       <div className="hud-top-right">
         <button
@@ -1063,7 +1062,11 @@ function GameRoot() {
           <Settings />
         </button>
         <button
-          className={`btn-rewards ${gameState.rewards?.hasUnclaimed ? "btn-rewards-pulse" : ""}`}
+          className={`btn-rewards ${
+            gameState.rewards?.hasUnclaimed ||
+            Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
+              ? "btn-rewards-pulse" : ""
+          }`}
           onClick={() => setRewardsOpen(true)}
         >
           🏆

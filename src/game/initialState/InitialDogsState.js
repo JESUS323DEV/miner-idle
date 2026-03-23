@@ -1,5 +1,7 @@
 
 export const InitialDogsState = {
+    globalSlots: [null, null, null], // [dogId, dogId, null] — slots globales de pasivas
+
     lady: {
         id: 'lady',
         hired: false,

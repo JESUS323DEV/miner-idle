@@ -201,7 +201,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                         {/* MINEROS */}
                         {dogTab === 'mineros' && (
                             <div className="dogs-grid">
-                                {Object.values(dogs).filter(d => d && typeof d === 'object').map(dog => {
+                                {Object.values(dogs).filter(d => d && typeof d === 'object' && !Array.isArray(d)).map(dog => {
                                     const config = DogsConfig[dog.id];
                                     const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
                                     const isFlipped = flippedDog === dog.id;

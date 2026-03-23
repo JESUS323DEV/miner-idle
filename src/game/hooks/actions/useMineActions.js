@@ -1,4 +1,5 @@
 import MinesConfig from '../../config/MinesConfig.js';
+import MineSnacksConfig from '../../config/MineSnacksConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
 export const useMineActions = (gameState, setGameState, showGoldCost) => {
@@ -131,18 +132,20 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
     };
 
     // ========== MINAR VENA ==========
-    const handleMineVein = (veinId) => {
+    const handleMineVein = (veinId, fromAutomine = false) => {
         setGameState(prevState => {
             if (!prevState.mines.currentMine) return prevState;
 
             const isToughnessActive = prevState.mineSnacks?.toughness?.activeUntil
                 && Date.now() < prevState.mineSnacks.toughness.activeUntil;
-            const toughnessProc = isToughnessActive && Math.random() < 0.3;
+            const toughnessProc = isToughnessActive && Math.random() < (MineSnacksConfig.toughness.procChance ?? 0.3);
 
             const isAutomineActive = prevState.mineSnacks?.automine?.activeUntil
                 && Date.now() < prevState.mineSnacks.automine.activeUntil;
 
-            if (!isAutomineActive && (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0)) return prevState;
+            const skipCost = toughnessProc || (isAutomineActive && fromAutomine);
+
+            if (!skipCost && (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0)) return prevState;
 
             const veinIndex = prevState.mines.currentMine.veins.findIndex(v => v.id === veinId);
             if (veinIndex === -1) return prevState;
@@ -168,8 +171,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
 
             return {
                 ...prevState,
-                stamina: (toughnessProc || isAutomineActive) ? prevState.stamina : prevState.stamina - 1,
-                pickaxe: (toughnessProc || isAutomineActive) ? prevState.pickaxe : { ...prevState.pickaxe, durability: prevState.pickaxe.durability - 1 },
+                stamina: skipCost ? prevState.stamina : prevState.stamina - 1,
+                pickaxe: skipCost ? prevState.pickaxe : { ...prevState.pickaxe, durability: prevState.pickaxe.durability - 1 },
                 mines: {
                     ...prevState.mines,
                     currentMine: {

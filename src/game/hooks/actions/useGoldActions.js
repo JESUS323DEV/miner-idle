@@ -95,21 +95,15 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             const hasClickMilestone = checkMilestone(prevState.rewards.clickMilestones, newTotalClicks);
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
-            const goldDogId = prevState.dogs?.goldDog;
             let dogBonusGold = 0;
             let dogFreeHit = false;
-
-            if (goldDogId) {
-                const dogBonus = DogsConfig[goldDogId]?.goldMineBonus;
-                if (dogBonus?.type === 'extraGold') {
-                    dogBonusGold = dogBonus.value;
-                } else if (dogBonus?.type === 'freeHit') {
-                    dogFreeHit = Math.random() < dogBonus.chance;
-                } else if (dogBonus?.type === 'doubleHit') {
-                    if (Math.random() < dogBonus.chance) {
-                        dogBonusGold = goldGained;
-                    }
-                }
+            for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
+                if (!dogId) continue;
+                const dogBonus = DogsConfig[dogId]?.goldMineBonus;
+                if (!dogBonus) continue;
+                if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
+                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) dogFreeHit = true; }
+                else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += goldGained; }
             }
 
             const totalGold = goldGained + dogBonusGold;
@@ -145,21 +139,15 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             const newTotalGoldEarned = prevState.totalGoldEarned + prevState.pickaxe.goldPerMine;
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
-            const goldDogId = prevState.dogs?.goldDog;
             let dogBonusGold = 0;
             let dogFreeHit = false;
-
-            if (goldDogId) {
-                const dogBonus = DogsConfig[goldDogId]?.goldMineBonus;
-                if (dogBonus?.type === 'extraGold') {
-                    dogBonusGold = dogBonus.value;
-                } else if (dogBonus?.type === 'freeHit') {
-                    dogFreeHit = Math.random() < dogBonus.chance;
-                } else if (dogBonus?.type === 'doubleHit') {
-                    if (Math.random() < dogBonus.chance) {
-                        dogBonusGold = prevState.pickaxe.goldPerMine;
-                    }
-                }
+            for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
+                if (!dogId) continue;
+                const dogBonus = DogsConfig[dogId]?.goldMineBonus;
+                if (!dogBonus) continue;
+                if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
+                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) dogFreeHit = true; }
+                else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += prevState.pickaxe.goldPerMine; }
             }
 
             const totalGold = prevState.pickaxe.goldPerMine + dogBonusGold;

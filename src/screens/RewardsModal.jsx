@@ -136,6 +136,10 @@ const RewardsModal = ({ isOpen, onClose }) => {
         { key: "forgeUpgrades", icon: "🏭", label: "Mejoras de forja" },
     ];
 
+    const hasUnclaimedCoins =
+        uniqueCoinRewardsList.some(({ key }) => coinRewards[key] && isUniqueCoinClaimable(key)) ||
+        progressiveCoinRewardsList.some(({ key }) => coinRewards[key] && isProgressiveCoinClaimable(key));
+
     return (
         <div className="modal-overlay1" onClick={onClose}>
             <div className="rewards-modal-content" onClick={e => e.stopPropagation()}>
@@ -151,7 +155,7 @@ const RewardsModal = ({ isOpen, onClose }) => {
                         💰 Oro
                     </button>
                     <button
-                        className={`rewards-tab ${activeTab === "coins" ? "active" : ""}`}
+                        className={`rewards-tab ${activeTab === "coins" ? "active" : ""} ${hasUnclaimedCoins && activeTab !== "coins" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("coins")}
                     >
                         🪙 Monedas

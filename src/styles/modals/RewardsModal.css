@@ -4,7 +4,9 @@
     left: 0;
     width: 100%;
     max-height: 550px;
-    background: #1a1a2e;
+    background: linear-gradient(to bottom, #14181d  0%,#1e2329 100%);
+
+    border-bottom: 1px solid rgba(180, 120, 40, 0.3);
     color: white;
     display: flex;
     flex-direction: column;
@@ -22,17 +24,29 @@
 .rewards-tab {
     flex: 1;
     padding: 10px;
-    border: none;
+    border: 1px solid rgba(180, 120, 40, 0.3);
     border-radius: 8px;
-    background: #2a2a4e;
-    color: white;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .rewards-tab.active {
-    background: #f0a500;
-    color: black;
+    background: #c47f00;
+    border-color: #f0a500;
+    color: #1a0e00;
+    font-weight: bold;
+}
+
+@keyframes tab-pulse {
+    0%, 100% { border-color: rgba(180, 120, 40, 0.3); box-shadow: none; }
+    50%       { border-color: #f0a500; box-shadow: 0 0 8px rgba(240, 165, 0, 0.5); }
+}
+
+.tab-pulse {
+    animation: tab-pulse 1.2s ease-in-out infinite;
 }
 
 .rewards-list {
@@ -45,17 +59,20 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #2a2a4e;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(180, 120, 40, 0.2);
     border-radius: 10px;
     padding: 12px;
 }
 
 .reward-card.claimable {
     border: 2px solid #f0a500;
+    background: rgba(240, 165, 0, 0.07);
+    box-shadow: 0 0 10px rgba(240, 165, 0, 0.15);
 }
 
 .reward-card.locked {
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .reward-icon {
@@ -69,11 +86,15 @@
 .reward-info p {
     margin: 2px 0;
     font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
 }
 
 .reward-label {
     font-weight: bold;
     font-size: 15px !important;
+    color: white !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .reward-right {
@@ -94,17 +115,24 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: all 0.15s;
 }
 
 .btn-claim {
+    background: #c47f00;
+    color: #1a0e00;
+    border: 1px solid #f0a500;
+}
+
+.btn-claim:hover {
     background: #f0a500;
-    color: black;
 }
 
 .btn-locked {
-    background: #444;
-    color: #888;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.25);
     cursor: not-allowed;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .rewards-placeholder {
@@ -113,7 +141,7 @@
     align-items: center;
     justify-content: center;
     height: 200px;
-    color: #888;
+    color: rgba(255, 255, 255, 0.4);
     font-size: 18px;
     gap: 10px;
 }

@@ -99,7 +99,7 @@ const MineScreen = ({ isOpen, onClose }) => {
       const available = currentMine.veins.filter(v => v.remaining > 0);
       if (available.length === 0) return;
       const vein = available[Math.floor(Math.random() * available.length)];
-      onMineVein(vein.id);
+      onMineVein(vein.id, true);
       setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
     }, 166);
     return () => clearInterval(automineRef.current);
@@ -216,7 +216,7 @@ const MineScreen = ({ isOpen, onClose }) => {
 
                 {/* EMOJI = botón usar */}
                 <button
-                  className="mine-snack-emoji-btn"
+                  className={`mine-snack-emoji-btn ${isActive && cfg.id === 'automine' ? 'snack-anim-spin' : ''} ${isActive && cfg.id === 'toughness' ? 'snack-anim-pulse' : ''}`}
                   onClick={() => {
                     const now2 = Date.now();
                     if (!hasCharges || anySnackActive) return;

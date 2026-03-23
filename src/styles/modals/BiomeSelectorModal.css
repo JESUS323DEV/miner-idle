@@ -1,42 +1,124 @@
 .biome-selector-overlay {
-
     position: fixed;
     top: 14rem;
     left: 50%;
     transform: translateX(-50%);
     width: 300px;
-
-    min-height: 250px;
-    background: rgba(0, 0, 0, 0.684);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: rgba(10, 8, 5, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.2rem 1rem 1rem 1rem;
+    padding-top: 2.2rem;
     z-index: 100;
+}
 
+.biome-selector-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .biome-selector-modal h2 {
-
-color: white;
-}
-.biome-selector-modal {
-
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    margin: 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.85;
 }
 
 .biome-list {
-
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
+/* CARD BASE */
 .biome-btn {
-
-    border: 1px solid;
-    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
 }
 
+/* Desbloqueado */
+.biome-unlocked {
+    border-color: var(--biome-color);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 10px var(--biome-glow);
+}
+
+.biome-unlocked:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 16px var(--biome-glow);
+}
+
+/* Se puede comprar */
+.biome-affordable {
+    border-color: rgba(255, 215, 0, 0.4);
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.biome-affordable:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+/* Bloqueado sin oro */
+.biome-locked {
+    opacity: 0.4;
+    filter: grayscale(0.6);
+    cursor: not-allowed;
+}
+
+.biome-emoji {
+    font-size: 1.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.biome-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.biome-name {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.biome-cost {
+    color: #ffd740;
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.biome-ready {
+    color: #69f080;
+    font-size: 0.72rem;
+    opacity: 0.8;
+}
+
+.modal-close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+}
+
+.modal-close:hover {
+    color: white;
+}

@@ -11,9 +11,9 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
     if (!isOpen) return null;
 
     const biomes = [
-        { type: "bronze", name: "Mina de Bronce", unlockCost: 1000, color: "#CD7F32" },
-        { type: "iron", name: "Mina de Hierro", unlockCost: 10000, color: "#808080" },
-        { type: "diamond", name: "Mina de Diamante", unlockCost: 50000, color: "#B9F2FF" },
+        { type: "bronze", name: "Bronce",   emoji: "🏜️", unlockCost: 1000,  color: "#CD7F32", glow: "rgba(205,127,50,0.5)" },
+        { type: "iron",   name: "Hierro",   emoji: "🏔️", unlockCost: 10000, color: "#9E9E9E", glow: "rgba(158,158,158,0.5)" },
+        { type: "diamond",name: "Diamante", emoji: "❄️", unlockCost: 50000, color: "#89DFFF", glow: "rgba(137,223,255,0.5)" },
     ];
 
     const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);
@@ -28,11 +28,12 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
                     {biomes.map(biome => {
                         const unlocked = isBiomeUnlocked(biome.type);
                         const canAfford = currentGold >= biome.unlockCost;
+                        const isLocked = !unlocked && !canAfford;
 
                         return (
                             <button
                                 key={biome.type}
-                                className={`biome-btn ${!unlocked && !canAfford ? "locked" : ""}`}
+                                className={`biome-btn ${unlocked ? "biome-unlocked" : canAfford ? "biome-affordable" : "biome-locked"}`}
                                 onClick={() => {
                                     if (unlocked) {
                                         onSelectBiome(biome.type);
@@ -44,11 +45,19 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
                                         onClose();
                                     }
                                 }}
-                                disabled={!unlocked && !canAfford}
-                                style={{ borderColor: biome.color, background: biome.color }}
+                                disabled={isLocked}
+                                style={{ "--biome-color": biome.color, "--biome-glow": biome.glow }}
                             >
-                                <p>{biome.name}</p>
-                                {!unlocked && <span>🔒 {biome.unlockCost} oro</span>}
+                                <span className="biome-emoji">{biome.emoji}</span>
+                                <div className="biome-info">
+                                    <span className="biome-name">{biome.name}</span>
+                                    {!unlocked && (
+                                        <span className="biome-cost">
+                                            {isLocked ? "🔒" : "🔓"} {biome.unlockCost.toLocaleString()} 🪙
+                                        </span>
+                                    )}
+                                    {unlocked && <span className="biome-ready">Disponible</span>}
+                                </div>
                             </button>
                         );
                     })}
