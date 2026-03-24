@@ -98,7 +98,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
             setTimers(newTimers);
         }, 500);
         return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.furnaces]);
 
     if (!isOpen) return null;
@@ -118,59 +118,40 @@ const ForgeModal = ({ isOpen, onClose }) => {
                         const elapsed = furnace.startTime ? Date.now() - furnace.startTime : 0;
                         const progress = furnace.isActive ? Math.min(100, (elapsed / duration) * 100) : 0;
                         const hasEnough = gameState[recipe.input] >= recipe.inputAmount;
+                        const stock = gameState[recipe.input] ?? 0;
+
+                        const assignedDog = Object.values(forgeDogs).find(
+                            d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
+                        );
+                        const availableDogs = Object.values(forgeDogs).filter(
+                            d => d && typeof d === 'object' && d.hired && d.assignedTo === null
+                        );
 
                         return (
-                            <div key={mat} className={`forge-furnace ${!furnace.unlocked ? 'locked' : ''}`}>
+                            <div key={mat} className={`forge-furnace forge-furnace-${mat} ${!furnace.unlocked ? 'locked' : ''}`}>
+
+                                {/* IZQUIERDA: imagen + nombre */}
                                 <div className="forge-furnace-header">
-                                    <span className="forge-furnace-icon"><img src={forgeAssets[mat][furnace.level]} alt={mat} className="forge-furnace-img" /></span>
-                                    <span className="forge-furnace-name">{NAMES[mat]} <small>Lvl {furnace.level}</small></span>
-
-                                    {/* Perro de forja asignado */}
-                                    {(() => {
-                                        const assignedDog = Object.values(forgeDogs).find(
-                                            d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
-                                        );
-                                        const availableDogs = Object.values(forgeDogs).filter(
-                                            d => d && typeof d === 'object' && d.hired && d.assignedTo === null
-                                        );
-
-                                        return assignedDog ? (
-                                            <div className="forge-dog-assigned">
-                                                <span>🐕 {ForgeDogsConfig[assignedDog.id].name}</span>
-                                                <button
-                                                    className="forge-dog-unassign"
-                                                    onClick={() => onUnassignForgeDog(assignedDog.id)}
-                                                >✖</button>
-                                            </div>
-                                        ) : (
-                                            availableDogs.length > 0 && (
-                                                <select
-                                                    className="forge-dog-select"
-                                                    defaultValue=""
-                                                    onChange={(e) => {
-                                                        if (e.target.value) onAssignForgeDog(e.target.value, mat);
-                                                    }}
-                                                >
-                                                    <option value="">🐕 Asignar</option>
-                                                    {availableDogs.map(d => (
-                                                        <option key={d.id} value={d.id}>
-                                                            🐕 {ForgeDogsConfig[d.id].name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            )
-                                        );
-                                    })()}
+                                    <span className="forge-furnace-icon">
+                                        <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
+                                    </span>
+                                    <span className="forge-furnace-name">
+                                        {NAMES[mat]} <small>Lvl {furnace.level}</small>
+                                    </span>
                                 </div>
 
-
-                                <div className='cont-btn-action'>
+                                {/* DERECHA: receta + botones */}
+                                <div className="cont-btn-action">
                                     <div className="forge-recipe">
+                                        <span className={`forge-recipe-stock ${hasEnough ? 'stock-ok' : 'stock-low'}`}>
+                                            ({formatNumber(stock)})
+                                        </span>
                                         <img src={menaAssets[mat]} alt={mat} className="forge-recipe-icon" />
                                         <span>{recipe.inputAmount}</span>
                                         <span>→</span>
                                         <img src={ingotAssets[mat]} alt={mat} className="forge-recipe-icon" />
                                         <span>1</span>
+
                                     </div>
 
                                     {!furnace.unlocked ? (
@@ -179,11 +160,10 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                             onClick={() => onUnlockFurnace(mat)}
                                             disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
                                         >
-                                            <span className='icon-info-gold'>
+                                            <span className="icon-info-gold">
                                                 🔒 {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
-                                                <img src={iconGold} loading='lazy' alt="Oro" />
+                                                <img src={iconGold} loading="lazy" alt="Oro" />
                                             </span>
-
                                         </button>
                                     ) : furnace.isActive ? (
                                         <div className="forge-progress-container">
@@ -206,19 +186,32 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                             onClick={() => onUpgradeFurnace(mat)}
                                             disabled={gameState.gold < upgradeCost}
                                         >
-                                            <span className='icon-upgrade'>
+                                            <span className="icon-upgrade">
                                                 <img src={buttonUpgrade} alt="Upgrade" />
-
-                                                <span className='icon-info-gold'>
+                                                <span className="icon-info-gold">
                                                     <small>{formatNumber(upgradeCost)}</small>
-                                                    <img src={iconGold} loading='lazy' alt="oro" />
+                                                    <img src={iconGold} loading="lazy" alt="oro" />
                                                 </span>
                                             </span>
                                         </button>
                                     )}
+
+                                    {furnace.unlocked && (
+                                        assignedDog ? (
+                                            <div className="forge-dog-assigned">
+                                                <span>🐕 {ForgeDogsConfig[assignedDog.id].name}</span>
+                                                <button className="forge-dog-unassign" onClick={() => onUnassignForgeDog(assignedDog.id)}>✖</button>
+                                            </div>
+                                        ) : availableDogs.length > 0 && (
+                                            <select className="forge-dog-select" defaultValue="" onChange={(e) => { if (e.target.value) onAssignForgeDog(e.target.value, mat); }}>
+                                                <option value="">🐕 Asignar</option>
+                                                {availableDogs.map(d => (
+                                                    <option key={d.id} value={d.id}>🐕 {ForgeDogsConfig[d.id].name}</option>
+                                                ))}
+                                            </select>
+                                        )
+                                    )}
                                 </div>
-
-
                             </div>
                         );
                     })}

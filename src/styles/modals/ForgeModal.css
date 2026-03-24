@@ -1,14 +1,16 @@
 .forge-overlay {
     position: absolute;
-    width: 100%;
-    height: 90vh;
     top: 5.7rem;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 5.7rem);
     z-index: 10;
     background: rgba(0, 0, 0, 0.959);
     display: flex;
     justify-content: center;
     align-items: flex-start;
     padding-top: 1rem;
+    overflow-y: auto;
 }
 
 .forge-content {
@@ -16,6 +18,7 @@
     width: 100%;
     padding: 2rem 1rem;
     color: white;
+    padding-bottom: 5rem;
 }
 
 .forge-close {
@@ -44,13 +47,14 @@
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid #7b2700;
     border-radius: 0.5rem;
-
     display: flex;
     justify-content: space-around;
     align-items: center;
-
-
 }
+
+.forge-furnace-bronze { border-color: rgba(180, 100, 20, 0.7); }
+.forge-furnace-iron   { border-color: rgba(150, 160, 180, 0.6); }
+.forge-furnace-diamond{ border-color: rgba(80, 180, 255, 0.5); }
 
 .forge-furnace.locked {
     border-color: #666;
@@ -63,22 +67,28 @@
     flex-direction: column;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
-
 }
 
 .cont-btn-action {
-
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     gap: 0.8rem;
     width: 65%;
-
 }
 
 .forge-furnace-icon img {
     width: 80px;
+}
+
+@keyframes forge-glow {
+    0%, 100% { filter: brightness(1) saturate(1); }
+    50%       { filter: brightness(1.45) saturate(1.4); }
+}
+
+.forge-furnace-img-active {
+    animation: forge-glow 1.5s ease-in-out infinite;
 }
 
 .forge-furnace-name {
@@ -87,17 +97,6 @@
 
 .forge-furnace-name small {
     font-size: 0.6rem;
-}
-
-.forge-furnace-level {
-    font-size: 0.8rem;
-    color: #AAA;
-}
-
-.forge-furnace-info {
-    margin-bottom: 0.8rem;
-    color: #CCC;
-    font-size: 0.9rem;
 }
 
 .forge-btn-action {
@@ -157,14 +156,7 @@
     margin-bottom: 0.5rem;
 }
 
-
-
-
-
-
-
 .icon-info-gold {
-
     display: flex;
     justify-content: center;
     align-items: start;
@@ -173,23 +165,29 @@
 }
 
 .icon-info-gold img {
-
     width: 20px;
     height: 15px;
 }
 
 .forge-recipe-icon {
-
     width: 15px;
 }
 
 .forge-recipe {
-
     display: flex;
     align-items: center;
+    gap: 4px;
     font-size: 0.8rem;
     padding-top: 1rem;
 }
+
+.forge-recipe-stock {
+    font-size: 0.5rem;
+    margin-left: 2px;
+}
+
+.stock-ok  { color: #7fff7f; }
+.stock-low { color: #ff8888; }
 
 .forge-dog-assigned {
     display: flex;
@@ -201,7 +199,7 @@
     padding: 3px 6px;
     font-size: 11px;
     color: #aaffaa;
-    margin-top: 4px;
+    width: 100%;
 }
 
 .forge-dog-unassign {
@@ -214,7 +212,6 @@
 
 .forge-dog-select {
     width: 100%;
-    margin-top: 4px;
     background: rgba(255, 140, 0, 0.15);
     border: 1px dashed rgba(255, 165, 0, 0.6);
     border-radius: 6px;

@@ -3,7 +3,7 @@ export const DogsConfig = {
         id: 'lady',
         name: 'Lady',
         unlockCost: { gold: 10000, tavernCoins: 1 },
-        miningPower: 3,
+        miningPower: 1,
         miningSpeed: 5,
         biomeBonus: {
             bronze: 1.5,

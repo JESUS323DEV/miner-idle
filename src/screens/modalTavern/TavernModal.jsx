@@ -23,15 +23,15 @@ import menaDiamond from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.png"
 import materiales from "../../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.png"
 
-import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png"
-import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png"
-import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png"
-import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png"
-import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png"
-import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png"
-import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
+import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.png"
+import tokyoIcon from "../../assets/ui/icons-pets/mineros/tokyo-icon.png"
+import tukaIcon from "../../assets/ui/icons-pets/mineros/tuka-icon.png"
+import munaIcon from "../../assets/ui/icons-pets/mineros/muna-icon.png"
+import gordoIcon from "../../assets/ui/icons-pets/mineros/gordo-icon.png"
+import druhIcon from "../../assets/ui/icons-pets/mineros/druh-icon.png"
+import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
 import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
-import zeusIcon   from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
+import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
@@ -242,8 +242,11 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                 <div className="dog-stat-divider">Pasiva oro</div>
                                                 <div className="dog-stat-passive">
                                                     {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
-                                                    {config.goldMineBonus.type === 'freeHit' && <>🎯 <b>{config.goldMineBonus.chance * 100}%</b> de que el golpe no consuma stamina ni pico</>}
-                                                    {config.goldMineBonus.type === 'doubleHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de doblar el<img src={iconGold} className="dog-stat-icon" /> minado </>}
+                                                    {config.goldMineBonus.type === 'freeHit' && <>🎯
+                                                        <b>{config.goldMineBonus.chance * 100}%</b> de que el golpe no consuma stamina ni pico</>}
+                                                        
+                                                    {config.goldMineBonus.type === 'doubleHit' && <><b>+{config.goldMineBonus.chance * 100}%</b> de doblar el
+                                                        <img src={iconGold} className="dog-stat-icon" /> minado </>}
                                                 </div>
                                             </div>
                                         </div>

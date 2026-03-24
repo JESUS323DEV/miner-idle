@@ -4,10 +4,12 @@
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;
-    width: 100%;
-    height: 80vh;
     top: 5.5rem;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 5.5rem);
     z-index: 10;
+    overflow-y: auto;
 }
 
 .tavern-content {
@@ -415,6 +417,7 @@
     padding: 10px;
     overflow-y: auto;
     max-height: 65vh;
+    padding-bottom: 5rem;
 }
 
 .dog-card {
@@ -425,6 +428,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     transition: all 0.2s;
 }
@@ -628,14 +632,13 @@
 .dog-stat-passive {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 2px;
     font-size: 9px;
     color: rgba(255, 255, 255, 0.7);
     text-align: left;
     width: 100%;
     line-height: 1.4;
 
-    border: 1px solid red;
 }
 
 .dog-stat-passive b {

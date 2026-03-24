@@ -335,17 +335,19 @@ const YacimientoSlotActivo = ({
         });
     };
 
-    // Auto-click del perro
+    // Auto-click del perro (solo animación — el estado lo maneja useDogsAutomine)
     useEffect(() => {
         if (!dogAssigned || !ready || isRepairing(mena) || mena.durability <= 0) {
             clearInterval(intervalRef.current);
             return;
         }
-        const speed = dogAssigned.mineSpeed ?? 2000;
+        const dogCfg = DogsConfig[dogAssigned.id];
+        const speed = (dogCfg?.miningSpeed ?? 2) * 1000;
+        const amount = Math.floor((dogCfg?.miningPower ?? 1) * (dogCfg?.biomeBonus?.[selectedBiome] ?? 1));
+
         intervalRef.current = setInterval(() => {
             const x = 50 + Math.random() * 40;
             const y = 40 + Math.random() * 30;
-            const amount = dogAssigned?.mineAmount ?? 1;
 
             setIsShaking(true);
             setTimeout(() => setIsShaking(false), 150);
@@ -353,8 +355,6 @@ const YacimientoSlotActivo = ({
             const id = Date.now() + Math.random();
             setFloatingNumbers(prev => [...prev, { id, amount, x, y }]);
             setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== id)), 900);
-
-            onDogMine(slot.id, selectedBiome, dogAssigned, null);
         }, speed);
         return () => clearInterval(intervalRef.current);
     }, [dogAssigned, ready, mena.durability, mena.repairingUntil]); // eslint-disable-line
@@ -362,6 +362,7 @@ const YacimientoSlotActivo = ({
     return (
         <div className="yacimiento-slot active">
             <div className="mena-click-area" onClick={handleClick}>
+                <div className="mena-durability-label">{mena.durability}/{mena.maxDurability}</div>
                 <div key={mena.durability / mena.maxDurability > 0.6 ? 2 : mena.durability / mena.maxDurability > 0.2 ? 1 : 0} className="mena-swap-wrapper">
                     <img
                         src={getMenaAsset(mena.durability, mena.maxDurability, selectedBiome)}
