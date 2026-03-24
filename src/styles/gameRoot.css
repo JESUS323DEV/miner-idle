@@ -634,9 +634,27 @@
     z-index: 0;
 }
 
+.global-dog-slot-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.global-dog-slot-name {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+    background-color: rgb(43, 43, 43);
+    padding: 2px;
+    border-radius: 5px;
+}
+
 .global-dog-slots {
     position: fixed;
-    top: 17rem;
+    top: 15rem;
     right: 1rem;
     display: flex;
     flex-direction: column;
@@ -645,9 +663,9 @@
 }
 
 .global-dog-slot {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    border-radius: 8px;
     border: 2px dashed rgba(255, 165, 0, 0.4);
     background: rgba(0, 0, 0, 0.45);
     display: flex;
@@ -655,6 +673,7 @@
     justify-content: center;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
+    padding: 4px;
 }
 
 .global-dog-slot:hover {
@@ -667,6 +686,14 @@
     color: rgba(255, 165, 0, 0.5);
     line-height: 1;
     font-weight: 300;
+}
+
+.global-dog-slot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    pointer-events: none;
 }
 
 .global-dog-slot-emoji {

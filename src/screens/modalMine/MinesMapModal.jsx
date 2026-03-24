@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import '../../styles/modals/MinesMapModal.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 
 
@@ -17,6 +18,21 @@ import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
 import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png"
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png"
 import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+
+import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png"
+import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png"
+import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png"
+import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png"
+import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png"
+import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png"
+import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
+import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
+import zeusIcon   from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
+const dogAssets = {
+    lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+    muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+    smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+};
 
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
@@ -386,7 +402,10 @@ const YacimientoSlotActivo = ({
             <div className="dog-slot-box" onClick={(e) => { e.stopPropagation(); onToggleDogMenu(); }}>
                 {dogAssigned ? (
                     <>
-                        <span className="dog-slot-emoji">🐕</span>
+                        {dogAssets[dogAssigned.id]
+                            ? <img src={dogAssets[dogAssigned.id]} className="dog-slot-img" alt={dogAssigned.id} />
+                            : <span className="dog-slot-emoji">🐕</span>
+                        }
                         <button className="dog-slot-unassign"
                             onClick={(e) => { e.stopPropagation(); onUnassignDog(dogAssigned.id); }}
                         >✖</button>
@@ -414,7 +433,9 @@ const YacimientoSlotActivo = ({
                 )}
             </div>
 
-            <span className="dog-slot-label">mascota</span>
+            <span className="dog-slot-label">
+                {dogAssigned ? (DogsConfig[dogAssigned.id]?.name ?? dogAssigned.id) : 'mascota'}
+            </span>
         </div>
     );
 };

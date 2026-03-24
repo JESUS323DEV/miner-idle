@@ -13,11 +13,31 @@ import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png
 import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
 import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
 
-import bgGold1 from "../../assets/backgrounds/bg-tavern/bg-gold.png"
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.png"
 
+import pickaxeStone from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png"
+import menaBronze from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
+import menaIron from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
+import menaDiamond from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.png"
-import cambistaGold from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-gold.png"
+import materiales from "../../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.png"
+
+import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png"
+import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png"
+import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png"
+import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png"
+import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png"
+import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png"
+import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
+import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
+import zeusIcon   from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
+
+const dogAssets = {
+    lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+    muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+    smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+};
 
 const ingotAssets = {
     bronzeIngot: ingotBronze,
@@ -37,7 +57,7 @@ const TavernModal = ({ isOpen, onClose }) => {
         gameState,
         handleConvertMaterial: onConvert,
         handleConvertCoinsToGold: onConvertCoins,
-        handleConvertGoldToIngot: onConvertGoldToIngot,
+
         handleHireDog: onHireDog,
         handleHireForgeDog: onHireForgeDog,
     } = useGameContext();
@@ -61,23 +81,25 @@ const TavernModal = ({ isOpen, onClose }) => {
                     <>
                         <h2 className="tavern-title">🏛️ TABERNA</h2>
                         <div className="tavern-menu">
-                            <button className="tavern-menu-btn" onClick={() => setView('cambista')}>
-                                <span className='cont-btn-cambista'>
-                                    <img src={cambistaCoin} alt="Cambista Coin" />
-                                    <small>Cambista</small>
-                                </span>
+
+                            <button className="tavern-menu-card" onClick={() => setView('cambista')}>
+                                <img src={cambistaCoin} className="tavern-card-icon" />
+                                <div className="tavern-card-info">
+                                    <span className="tavern-card-name">Cambista</span>
+                                    <span className="tavern-card-desc">
+                                        Convierte materiales <img src={materiales} className="tavern-card-inline-icon" /> en monedas <img src={coinTavern} className="tavern-card-inline-icon" />
+                                    </span>
+                                </div>
+                                <span className="tavern-card-arrow">›</span>
                             </button>
-                            <button className="tavern-menu-btn1" onClick={() => setView('cambista-oro')}>
-                                <span className='cont-btn-cambista'>
-                                    <img src={cambistaGold} alt="Cambista Gold" />
-                                    <small>Cambista</small>
-                                </span>
-                            </button>
-                            <button className="tavern-menu-btn" onClick={() => setView('ayudantes')}>
-                                <span className='cont-btn-cambista'>
-                                    <span style={{ fontSize: '2rem' }}>🐕</span>
-                                    <small>Ayudantes</small>
-                                </span>
+
+                            <button className="tavern-menu-card" onClick={() => setView('ayudantes')}>
+                                <span className="tavern-card-icon-emoji">🐕</span>
+                                <div className="tavern-card-info">
+                                    <span className="tavern-card-name">Ayudantes</span>
+                                    <span className="tavern-card-desc">Contrata y gestiona tus mascotas</span>
+                                </div>
+                                <span className="tavern-card-arrow">›</span>
                             </button>
 
                         </div>
@@ -95,85 +117,38 @@ const TavernModal = ({ isOpen, onClose }) => {
 
                         <div className="tavern-conversions">
                             {TavernConfig.conversions.map(conv => {
-                                const hasEnough = currentMaterials[conv.material] >= conv.amount;
+                                const stock = currentMaterials[conv.material] ?? 0;
+                                const hasEnough = stock >= conv.amount;
                                 return (
-                                    <div key={conv.material} className="tavern-conversion-row">
-                                        <div className="tavern-conversion-info">
-                                            <span className="tavern-conversion-text">
-                                                <img src={ingotAssets[conv.material]} alt={conv.material} className="tavern-ingot-icon" />
-                                                {conv.amount} → {conv.coins}
-                                                <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
-                                            </span>
+                                    <div key={conv.material} className={`tavern-conv-card ${!hasEnough ? 'conv-locked' : ''}`}>
+                                        <div className="conv-left">
+                                            <img src={ingotAssets[conv.material]} className="conv-icon" />
+                                            <div className="conv-details">
+                                                <span className="conv-ratio">{conv.amount} → {conv.coins} <img src={coinTavern} className="conv-small-icon" /></span>
+                                                <span className={`conv-stock ${hasEnough ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {formatNumber2(stock)}</span>
+                                            </div>
                                         </div>
-                                        <button
-                                            onClick={() => onConvert(conv.material)}
-                                            disabled={!hasEnough}
-                                            className={`tavern-convert-btn ${!hasEnough ? 'locked' : ''}`}
-                                        >
-                                            Convertir
-                                        </button>
+                                        <button onClick={() => onConvert(conv.material)} disabled={!hasEnough} className="conv-btn">→</button>
                                     </div>
                                 );
                             })}
-
-                            <div className="tavern-conversion-row">
-                                <div className="tavern-conversion-info">
-                                    <span className="tavern-conversion-text">
-                                        1 <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" /> → {formatNumber2(TavernConfig.coinToGold)} <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
-                                    </span>
+                            <div className={`tavern-conv-card ${tavernCoins < 1 ? 'conv-locked' : ''}`}>
+                                <div className="conv-left">
+                                    <img src={coinTavern} className="conv-icon" />
+                                    <div className="conv-details">
+                                        <span className="conv-ratio">1 <img src={coinTavern} className="conv-small-icon" /> → {formatNumber2(TavernConfig.coinToGold)} <img src={iconGold} className="conv-small-icon" /></span>
+                                        <span className={`conv-stock ${tavernCoins >= 1 ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {tavernCoins}</span>
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={onConvertCoins}
-                                    disabled={tavernCoins < 1}
-                                    className={`tavern-convert-btn ${tavernCoins < 1 ? 'locked' : ''}`}
-                                >
-                                    Convertir
-                                </button>
+                                <button onClick={onConvertCoins} disabled={tavernCoins < 1} className="conv-btn">→</button>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* CAMBISTA ORO → LINGOTES */}
-                {view === 'cambista-oro' && (
-                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgGold1})` }}>
-                        <button className="tavern-back-btn" onClick={() => setView('main')}>
-                            <ArrowLeft /> Volver
-                        </button>
-                        <h2 className="tavern-title">Cambista de Oro</h2>
 
-                        <p className="tavern-subtitle">Compra lingotes con oro o monedas</p>
-                        <div className="tavern-conversions">
-                            {TavernConfig.goldConversions.map(conv => {
-                                const canAfford = conv.coins > 0
-                                    ? tavernCoins >= conv.coins
-                                    : gold >= conv.gold;
 
-                                return (
-                                    <div key={conv.ingot} className="tavern-conversion-row">
-                                        <div className="tavern-conversion-info">
-
-                                            <span className="tavern-conversion-text">
-                                                {conv.coins > 0
-                                                    ? <>{conv.coins} <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" /></>
-                                                    : <>{formatNumber2(conv.gold)} <img src={iconGold} alt="oro" className="tavern-ingot-icon" /></>
-                                                } → 1 <img src={ingotAssets[conv.ingot]} alt={conv.ingot} className="tavern-ingot-icon" />
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => onConvertGoldToIngot(conv.ingot)}
-                                            disabled={!canAfford}
-                                            className={`tavern-convert-btn ${!canAfford ? 'locked' : ''}`}
-                                        >
-                                            Comprar
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-
+                {/*======================== AYUDANTES ==================================*/}
 
                 {view === 'ayudantes' && (
                     <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
@@ -209,18 +184,17 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     return (
                                         <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                             <div className={`dog-card dog-card-front ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
-                                                <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>i</button>
-                                                <div className="dog-emoji">🐕</div>
+                                                <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
+                                                <img src={dogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                 <div className="dog-name">{config.name}</div>
                                                 {dog.hired ? (
                                                     <div className="dog-status">✔</div>
                                                 ) : (
                                                     <>
-                                                        <div className="dog-cost">
+                                                        <div className="dog-cost-row">
                                                             <span>{formatNumber2(config.unlockCost.gold)}</span>
                                                             <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
-                                                        </div>
-                                                        <div className="dog-cost">
+                                                            <span className="dog-cost-sep">+</span>
                                                             <span>{config.unlockCost.tavernCoins}</span>
                                                             <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
                                                         </div>
@@ -237,15 +211,39 @@ const TavernModal = ({ isOpen, onClose }) => {
                                             <div className="dog-card dog-card-back">
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
                                                 <div className="dog-name">{config.name}</div>
-                                                <div className="dog-stat">⛏️ Poder: {config.miningPower}</div>
-                                                <div className="dog-stat">⚡ Vel: {config.miningSpeed}s</div>
-                                                <div className="dog-stat">🟤 Bronze: x{config.biomeBonus.bronze}</div>
-                                                <div className="dog-stat">⚙️ Iron: x{config.biomeBonus.iron}</div>
-                                                <div className="dog-stat">💎 Diamond: x{config.biomeBonus.diamond}</div>
-                                                <div className="dog-stat">
-                                                    {config.goldMineBonus.type === 'extraGold' && `🪙 +${config.goldMineBonus.value} oro`}
-                                                    {config.goldMineBonus.type === 'freeHit' && `🎯 ${config.goldMineBonus.chance * 100}% golpe gratis`}
-                                                    {config.goldMineBonus.type === 'doubleHit' && `✨ ${config.goldMineBonus.chance * 100}% doble oro`}
+
+                                                <div className="dog-stat-section">
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={pickaxeStone} className="dog-stat-icon" /> Poder minado</span>
+                                                        <span className="dog-stat-val">{config.miningPower}</span>
+                                                    </div>
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label">⏳ Vel. ataque</span>
+                                                        <span className="dog-stat-val">{config.miningSpeed}s</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="dog-stat-divider">Bonus bioma</div>
+                                                <div className="dog-stat-section">
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                        <span className={`dog-stat-val ${config.biomeBonus.bronze > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.bronze}</span>
+                                                    </div>
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                        <span className={`dog-stat-val ${config.biomeBonus.iron > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.iron}</span>
+                                                    </div>
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                        <span className={`dog-stat-val ${config.biomeBonus.diamond > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.diamond}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="dog-stat-divider">Pasiva oro</div>
+                                                <div className="dog-stat-passive">
+                                                    {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
+                                                    {config.goldMineBonus.type === 'freeHit' && <>🎯 <b>{config.goldMineBonus.chance * 100}%</b> de que el golpe no consuma stamina ni pico</>}
+                                                    {config.goldMineBonus.type === 'doubleHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de doblar el<img src={iconGold} className="dog-stat-icon" /> minado </>}
                                                 </div>
                                             </div>
                                         </div>
@@ -265,18 +263,17 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     return (
                                         <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                             <div className={`dog-card dog-card-front ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
-                                                <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>i</button>
-                                                <div className="dog-emoji">🔥</div>
+                                                <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
+                                                <div className="dog-portrait-emoji">🔥</div>
                                                 <div className="dog-name">{config.name}</div>
                                                 {dog.hired ? (
                                                     <div className="dog-status">✔</div>
                                                 ) : (
                                                     <>
-                                                        <div className="dog-cost">
+                                                        <div className="dog-cost-row">
                                                             <span>{formatNumber2(config.unlockCost.gold)}</span>
                                                             <img src={iconGold} alt="oro" className="tavern-ingot-icon" />
-                                                        </div>
-                                                        <div className="dog-cost">
+                                                            <span className="dog-cost-sep">+</span>
                                                             <span>{config.unlockCost.tavernCoins}</span>
                                                             <img src={coinTavern} alt="moneda" className="tavern-ingot-icon" />
                                                         </div>

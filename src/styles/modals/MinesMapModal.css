@@ -414,6 +414,14 @@
     pointer-events: none;
 }
 
+.dog-slot-img {
+    width: calc(100% - 8px);
+    height: calc(100% - 8px);
+    object-fit: contain;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
 .dog-slot-unassign {
     position: absolute;
     top: -6px;

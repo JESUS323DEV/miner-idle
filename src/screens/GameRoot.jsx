@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { DogsConfig } from "../game/config/DogsConfig.js";
 
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
@@ -104,6 +105,21 @@ import upgradeStamina from "../assets/ui/icons-hud/hud-modals/icon-lvl-stamina.p
 import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
+
+import ladyIcon   from "../assets/ui/icons-pets/mineros/lady-icon.png";
+import tokyoIcon  from "../assets/ui/icons-pets/mineros/tokyo-icon.png";
+import tukaIcon   from "../assets/ui/icons-pets/mineros/tuka-icon.png";
+import munaIcon   from "../assets/ui/icons-pets/mineros/muna-icon.png";
+import gordoIcon  from "../assets/ui/icons-pets/mineros/gordo-icon.png";
+import druhIcon   from "../assets/ui/icons-pets/mineros/druh-icon.png";
+import smokeIcon  from "../assets/ui/icons-pets/mineros/smoke-icon.png";
+import nupitoIcon from "../assets/ui/icons-pets/mineros/nupito-icon.png";
+import zeusIcon   from "../assets/ui/icons-pets/mineros/zeus-icon.png";
+const dogAssets = {
+    lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+    muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+    smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+};
 
 // ===== MINAS =====
 import InitialMinesState from "../game/initialState/InitialMinesState.js";
@@ -1007,46 +1023,54 @@ function GameRoot() {
           const isMenuOpen = globalDogMenuOpen === i;
 
           return (
-            <div key={i} className="global-dog-slot" onClick={() => setGlobalDogMenuOpen(isMenuOpen ? null : i)}>
-              {assignedDog ? (
-                <>
-                  <span className="global-dog-slot-emoji">🐕</span>
-                  <button className="global-dog-slot-unassign" onClick={e => {
-                    e.stopPropagation();
-                    setGameState(prev => ({
-                      ...prev,
-                      dogs: {
-                        ...prev.dogs,
-                        globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
-                        [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
-                      }
-                    }));
-                  }}>✖</button>
-                </>
-              ) : (
-                <span className="global-dog-slot-plus">+</span>
-              )}
-              {isMenuOpen && (
-                <div className="global-dog-menu">
-                  {availableDogs.length === 0
-                    ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
-                    : availableDogs.map(dog => (
-                      <button key={dog.id} className="global-dog-menu-option" onClick={e => {
-                        e.stopPropagation();
-                        setGameState(prev => ({
-                          ...prev,
-                          dogs: {
-                            ...prev.dogs,
-                            globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
-                            [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
-                          }
-                        }));
-                        setGlobalDogMenuOpen(null);
-                      }}>🐕 {dog.id}</button>
-                    ))
-                  }
-                  <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); }}>✕</button>
-                </div>
+            <div key={i} className="global-dog-slot-wrapper">
+              <div className="global-dog-slot" onClick={() => setGlobalDogMenuOpen(isMenuOpen ? null : i)}>
+                {assignedDog ? (
+                  <>
+                    {dogAssets[assignedDogId]
+                      ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
+                      : <span className="global-dog-slot-emoji">🐕</span>
+                    }
+                    <button className="global-dog-slot-unassign" onClick={e => {
+                      e.stopPropagation();
+                      setGameState(prev => ({
+                        ...prev,
+                        dogs: {
+                          ...prev.dogs,
+                          globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
+                          [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                        }
+                      }));
+                    }}>✖</button>
+                  </>
+                ) : (
+                  <span className="global-dog-slot-plus">+</span>
+                )}
+                {isMenuOpen && (
+                  <div className="global-dog-menu">
+                    {availableDogs.length === 0
+                      ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
+                      : availableDogs.map(dog => (
+                        <button key={dog.id} className="global-dog-menu-option" onClick={e => {
+                          e.stopPropagation();
+                          setGameState(prev => ({
+                            ...prev,
+                            dogs: {
+                              ...prev.dogs,
+                              globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
+                              [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
+                            }
+                          }));
+                          setGlobalDogMenuOpen(null);
+                        }}>🐕 {dog.id}</button>
+                      ))
+                    }
+                    <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); }}>✕</button>
+                  </div>
+                )}
+              </div>
+              {assignedDog && (
+                <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
               )}
             </div>
           );
