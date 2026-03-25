@@ -208,6 +208,8 @@
 .tavern-cambista {
     position: fixed;
     width: 100%;
+    max-height: 600px;
+    overflow-y: auto;
     top: 5.5rem;
     left: 0;
     height: 80vh;
@@ -761,4 +763,187 @@
     background: rgba(255,255,255,0.12);
     color: white;
     border-color: #888;
+}
+
+/* ESTRELLAS */
+.dog-stars-row {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    margin: 3px 0;
+}
+
+.dog-star {
+    font-size: 0.75rem;
+    color: #444;
+}
+
+.dog-star.dog-star-active {
+    color: #f5c842;
+    text-shadow: 0 0 4px rgba(245, 200, 66, 0.6);
+}
+
+.dog-frag-row {
+    font-size: 0.65rem;
+    color: #bbb;
+    text-align: center;
+    margin: 2px 0;
+}
+
+/* SOBRES */
+.packs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 8px;
+}
+
+.pack-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pack-card-basic    { border-color: rgba(76,168,255,0.4); }
+.pack-card-epic     { border-color: rgba(180,92,255,0.5); }
+.pack-card-legendary{ border-color: rgba(245,200,66,0.5); }
+
+.pack-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ffd966;
+}
+
+.pack-envelope {
+    font-size: 2rem;
+    text-align: center;
+}
+
+.pack-rates {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.pack-rate {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.rate-legendary { background: rgba(245,200,66,0.2); color: #f5c842; }
+.rate-epic      { background: rgba(180,92,255,0.2); color: #b45cff; }
+.rate-rare      { background: rgba(76,168,255,0.2); color: #4ca8ff; }
+
+.pack-pity {
+    display: flex;
+    gap: 8px;
+    font-size: 0.6rem;
+    color: #777;
+}
+
+.pack-open-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255,165,0,0.3);
+    border: 1px solid rgba(255,165,0,0.5);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.pack-open-btn.locked {
+    background: rgba(100,100,100,0.3);
+    border-color: #444;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* RESULTADO MINI */
+.pack-result-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: rgba(0,0,0,0.4);
+    margin: 0 8px 8px;
+}
+.pack-result-mini-legendary { border-color: #f5c842; background: rgba(245,200,66,0.1); }
+.pack-result-mini-epic      { border-color: #b45cff; background: rgba(180,92,255,0.1); }
+.pack-result-mini-rare      { border-color: #4ca8ff; background: rgba(76,168,255,0.1); }
+
+.pack-result-mini-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.pack-result-mini-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.pack-result-mini-name {
+    font-size: 0.8rem;
+    color: white;
+    font-weight: bold;
+}
+.pack-result-mini-frags {
+    font-size: 0.75rem;
+    color: #ffd966;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* RESULTADO SOBRE (legacy, se puede quitar) */
+.pack-result {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.5);
+}
+
+.pack-result-legendary { border-color: #f5c842; background: rgba(245,200,66,0.08); }
+.pack-result-epic      { border-color: #b45cff; background: rgba(180,92,255,0.08); }
+.pack-result-rare      { border-color: #4ca8ff; background: rgba(76,168,255,0.08); }
+
+.pack-result-title {
+    font-size: 0.75rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pack-result-portrait {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.pack-result-frags {
+    font-size: 0.8rem;
+    color: #ffd966;
+    font-weight: bold;
+}
+
+.pack-result-name {
+    font-size: 0.85rem;
+    color: white;
 }

@@ -1,6 +1,8 @@
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { ForgeConfig } from '../../config/ForgeConfig.js';
+import { PACK_TYPES, FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
+import { getDogStats } from '../../utils/getDogStats.js';
 
 export const useDogsActions = (gameState, setGameState) => {
 
@@ -115,7 +117,7 @@ export const useDogsActions = (gameState, setGameState) => {
                 return { ...newState, yacimientos: newYacimientos };
             }
 
-            const dogConfig = DogsConfig[dog.id];
+            const dogConfig = getDogStats(dog.id, dog.stars ?? 0, false);
             const bonus = dogConfig.biomeBonus[biome] || 1.0;
             const currentAmount = newState[biome] ?? 0;
             const materialGained = Math.floor(dogConfig.miningPower * bonus);
@@ -232,6 +234,103 @@ export const useDogsActions = (gameState, setGameState) => {
         });
     };
 
+    // ========== DESBLOQUEAR CON FRAGMENTOS ==========
+    const handleUnlockWithFragments = (dogId, isForge = false) => {
+        setGameState(prevState => {
+            const stateKey = isForge ? 'forgeDogs' : 'dogs';
+            const config = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
+            const dog = prevState[stateKey][dogId];
+            if (!dog || dog.hired) return prevState;
+            if ((dog.fragments ?? 0) < config.unlockFragments) return prevState;
+
+            return {
+                ...prevState,
+                [stateKey]: {
+                    ...prevState[stateKey],
+                    [dogId]: { ...dog, hired: true, stars: 1, fragments: dog.fragments - config.unlockFragments }
+                }
+            };
+        });
+    };
+
+    // ========== SUBIR ESTRELLA ==========
+    const handleUpgradeStar = (dogId, isForge = false) => {
+        setGameState(prevState => {
+            const stateKey = isForge ? 'forgeDogs' : 'dogs';
+            const config = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
+            const dog = prevState[stateKey][dogId];
+            if (!dog || !dog.hired) return prevState;
+            const stars = dog.stars ?? 1;
+            if (stars >= 5) return prevState;
+            const needed = config.starFragments[stars - 1]; // índice 0 = coste para pasar de 1→2
+            if ((dog.fragments ?? 0) < needed) return prevState;
+
+            return {
+                ...prevState,
+                [stateKey]: {
+                    ...prevState[stateKey],
+                    [dogId]: { ...dog, stars: stars + 1, fragments: dog.fragments - needed }
+                }
+            };
+        });
+    };
+
+    // ========== ABRIR SOBRE (GACHA) ==========
+    const handleOpenPack = (packId, isForge = false) => {
+        setGameState(prevState => {
+            const pack = PACK_TYPES[packId];
+            if (prevState.tavernCoins < pack.cost) return prevState;
+
+            // Pity counters: guardados en prevState.gachaPity
+            const pityKey = `${isForge ? 'forge' : 'miner'}_${packId}`;
+            const pity = prevState.gachaPity?.[pityKey] ?? { count: 0, epicCount: 0 };
+            let newCount = pity.count + 1;
+            let newEpicCount = pity.epicCount + 1;
+
+            // Determinar rareza
+            let rarity;
+            const packPity = pack.pity;
+            if (packPity.legendary && newCount >= packPity.legendary) {
+                rarity = 'legendary';
+            } else if (packPity.epic && newEpicCount >= packPity.epic) {
+                rarity = 'epic';
+            } else {
+                const roll = Math.random();
+                if (roll < pack.rates.legendary) rarity = 'legendary';
+                else if (roll < pack.rates.legendary + pack.rates.epic) rarity = 'epic';
+                else rarity = 'rare';
+            }
+
+            // Resetear pity según rareza
+            if (rarity === 'legendary') { newCount = 0; newEpicCount = 0; }
+            else if (rarity === 'epic') { newEpicCount = 0; }
+
+            // Elegir perro random de esa rareza
+            const stateKey = isForge ? 'forgeDogs' : 'dogs';
+            const configMap = isForge ? ForgeDogsConfig : DogsConfig;
+            const pool = Object.keys(configMap).filter(id => configMap[id].rarity === rarity);
+            if (pool.length === 0) { console.error('[Gacha] pool vacío para rareza:', rarity); return prevState; }
+
+            const pickedId = pool[Math.floor(Math.random() * pool.length)];
+            const fragsGained = FRAGMENTS_PER_RARITY[rarity];
+
+            const currentDog = prevState[stateKey]?.[pickedId];
+            if (!currentDog) { console.error('[Gacha] perro no encontrado:', pickedId, 'en', stateKey, prevState[stateKey]); return prevState; }
+            const updatedDog = { ...currentDog, fragments: (currentDog.fragments ?? 0) + fragsGained };
+
+            return {
+                ...prevState,
+                tavernCoins: prevState.tavernCoins - pack.cost,
+                [stateKey]: { ...prevState[stateKey], [pickedId]: updatedDog },
+                gachaPity: {
+                    ...prevState.gachaPity,
+                    [pityKey]: { count: newCount, epicCount: newEpicCount }
+                },
+                lastPackResult: { dogId: pickedId, rarity, fragments: fragsGained, isForge }
+            };
+        });
+    };
+
     return {
         handleHireDog,
         handleAssignDog,
@@ -240,5 +339,8 @@ export const useDogsActions = (gameState, setGameState) => {
         handleHireForgeDog,
         handleAssignForgeDog,
         handleUnassignForgeDog,
+        handleUnlockWithFragments,
+        handleUpgradeStar,
+        handleOpenPack,
     };
 };

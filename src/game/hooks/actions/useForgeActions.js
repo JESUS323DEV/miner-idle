@@ -1,6 +1,7 @@
 import { ForgeConfig } from '../../config/ForgeConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
+import { getDogStats } from '../../utils/getDogStats.js';
 
 export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
@@ -55,12 +56,11 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
             let timeReduction = 0;
             if (forgeDog) {
-                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                const dogConfig = getDogStats(forgeDog.id, forgeDog.stars ?? 0, true);
                 timeReduction = dogConfig.forgeBonus.timeReduction || 0;
                 const biomeExtra = dogConfig.forgeBonus.biomeBonus[material] || 0;
                 timeReduction += biomeExtra;
             }
-            console.log('forgeDog:', forgeDog, 'timeReduction:', timeReduction);
 
             const baseTime = ForgeConfig.furnaces[material].levels[furnace.level];
             const finalTime = Math.max(1, baseTime - timeReduction);
@@ -100,7 +100,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
             let ingotsGained = 1;
             if (forgeDog) {
-                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                const dogConfig = getDogStats(forgeDog.id, forgeDog.stars ?? 0, true);
                 const doubleChance = dogConfig.forgeBonus.doubleIngot || 0;
                 if (doubleChance > 0 && Math.random() < doubleChance) {
                     ingotsGained = 2;
@@ -144,7 +144,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
             let timeReduction = 0;
             if (forgeDog) {
-                const dogConfig = ForgeDogsConfig[forgeDog.id];
+                const dogConfig = getDogStats(forgeDog.id, forgeDog.stars ?? 0, true);
                 timeReduction = dogConfig.forgeBonus.timeReduction || 0;
                 const biomeExtra = dogConfig.forgeBonus.biomeBonus[material] || 0;
                 timeReduction += biomeExtra;

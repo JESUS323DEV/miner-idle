@@ -4,6 +4,9 @@ export const ForgeDogsConfig = {
         id: 'rocky',
         name: 'Rocky',
         unlockCost: { gold: 15000, tavernCoins: 2 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
             timeReduction: 2,
             doubleIngot: 0,
@@ -15,6 +18,9 @@ export const ForgeDogsConfig = {
         id: 'bruno',
         name: 'Bruno',
         unlockCost: { gold: 40000, tavernCoins: 4 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
             timeReduction: 1,
             doubleIngot: 0.10,
@@ -26,6 +32,9 @@ export const ForgeDogsConfig = {
         id: 'max',
         name: 'Max',
         unlockCost: { gold: 80000, tavernCoins: 6 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
             timeReduction: 1,
             doubleIngot: 0.15,
@@ -37,6 +46,9 @@ export const ForgeDogsConfig = {
         id: 'rex',
         name: 'Rex',
         unlockCost: { gold: 500000, tavernCoins: 15 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
             timeReduction: 3,
             doubleIngot: 0.05,
@@ -48,6 +60,9 @@ export const ForgeDogsConfig = {
         id: 'toby',
         name: 'Toby',
         unlockCost: { gold: 900000, tavernCoins: 22 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
             timeReduction: 2,
             doubleIngot: 0.20,
@@ -59,6 +74,9 @@ export const ForgeDogsConfig = {
         id: 'buddy',
         name: 'Buddy',
         unlockCost: { gold: 1500000, tavernCoins: 30 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
             timeReduction: 4,
             doubleIngot: 0.25,

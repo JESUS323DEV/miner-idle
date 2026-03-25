@@ -114,6 +114,10 @@ const InitialGameState = {
     totalRepairs: 0,
     totalRefills: 0,
 
+    // ========== GACHA ==========
+    gachaPity: {},
+    lastPackResult: null,
+
     // ========== TUTORIAL ==========
     tutorial: {
         completed: false,

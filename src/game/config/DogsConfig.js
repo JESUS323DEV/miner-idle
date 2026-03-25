@@ -15,6 +15,9 @@ export const DogsConfig = {
         id: 'tokio',
         name: 'Tokio',
         unlockCost: { gold: 2000000, tavernCoins: 80 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -35,6 +38,9 @@ export const DogsConfig = {
         id: 'tuka',
         name: 'Tuka',
         unlockCost: { gold: 2500000, tavernCoins: 100 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -48,12 +54,15 @@ export const DogsConfig = {
         }
     },
 
-    //LADY LEGENDARIA PARA MINA DE DIAMANTE 
+    //LADY LEGENDARIA PARA MINA DE DIAMANTE
     lady: {
         rarity: 'legendary',
         id: 'lady',
         name: 'Lady',
         unlockCost: { gold: 3000000, tavernCoins: 150 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -76,6 +85,9 @@ export const DogsConfig = {
         id: 'muna',
         name: 'Muna',
         unlockCost: { gold: 500000, tavernCoins: 20 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         miningPower: 3,
         miningSpeed: 4,
         biomeBonus: {
@@ -98,6 +110,9 @@ export const DogsConfig = {
         id: 'smoke',
         name: 'Smoke',
         unlockCost: { gold: 800000, tavernCoins: 30 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
@@ -118,6 +133,9 @@ export const DogsConfig = {
         id: 'nupito',
         name: 'Nupito',
         unlockCost: { gold: 1200000, tavernCoins: 45 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
@@ -140,6 +158,9 @@ export const DogsConfig = {
         id: 'druh',
         name: 'Druh',
         unlockCost: { gold: 50000, tavernCoins: 3 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [100, 200, 300, 400, 500],
         miningPower: 1,
         miningSpeed: 4,
         biomeBonus: {
@@ -160,6 +181,9 @@ export const DogsConfig = {
         id: 'gordo',
         name: 'Gordo',
         unlockCost: { gold: 100000, tavernCoins: 5 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [100, 200, 300, 400, 500],
         miningPower: 2,
         miningSpeed: 5,
         biomeBonus: {
@@ -181,6 +205,9 @@ export const DogsConfig = {
         id: 'zeus',
         name: 'Zeus',
         unlockCost: { gold: 200000, tavernCoins: 8 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [100, 200, 300, 400, 500],
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
