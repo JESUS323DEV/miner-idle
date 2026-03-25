@@ -3,6 +3,12 @@ import { useState } from "react";
 import "../styles/modals/RewardsModal.css"
 import { useGameContext } from "../game/context/GameContext.jsx";
 
+const fmt = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+    return num;
+};
+
 const RewardsModal = ({ isOpen, onClose }) => {
     const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward } = useGameContext();
     const [activeTab, setActiveTab] = useState("gold");
@@ -177,11 +183,11 @@ const RewardsModal = ({ isOpen, onClose }) => {
                                     <span className="reward-icon">{icon}</span>
                                     <div className="reward-info">
                                         <p className="reward-label">{label}</p>
-                                        <p className="reward-progress">{current} / {target}</p>
+                                        <p className="reward-progress">{fmt(current)} / {fmt(target)}</p>
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{reward} 💰</p>
+                                        <p className="reward-amount">+{fmt(reward)} 💰</p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimReward(key)}
@@ -215,7 +221,7 @@ const RewardsModal = ({ isOpen, onClose }) => {
                                         <p className="reward-claimed">{isClaimed ? "✅ Reclamado" : "🔒 Pendiente"}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{reward.reward} 🪙</p>
+                                        <p className="reward-amount">+{fmt(reward.reward)} 🪙</p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimCoinReward(key)}
@@ -244,7 +250,7 @@ const RewardsModal = ({ isOpen, onClose }) => {
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{reward} 🪙</p>
+                                        <p className="reward-amount">+{fmt(reward)} 🪙</p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimCoinReward(key)}

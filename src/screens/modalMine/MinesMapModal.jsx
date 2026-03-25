@@ -436,7 +436,7 @@ const YacimientoSlotActivo = ({
                         return (
                             <div className="dog-slot-back">
                                 <span>⛏ poder {cfg?.miningPower}</span>
-                                <span>1 pic/{cfg?.miningSpeed}s</span>
+                                <span>{parseFloat((1 / (cfg?.miningSpeed ?? 5)).toFixed(2))} pic/s</span>
                                 {bonus !== 1 && <span className="dsb-bonus">x{bonus} aquí</span>}
                             </div>
                         );

@@ -3,6 +3,12 @@ import { X } from "lucide-react";
 import "../../styles/modals/BiomeSelectorModal.css"
 import { useGameContext } from "../../game/context/GameContext.jsx";
 
+const fmt = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+    return num;
+};
+
 const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
     const { gameState, handleUnlockMineType: onUnlockBiome, showGoldCost: onShowGoldCost } = useGameContext();
     const { gold: currentGold, mines } = gameState;
@@ -53,7 +59,7 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
                                     <span className="biome-name">{biome.name}</span>
                                     {!unlocked && (
                                         <span className="biome-cost">
-                                            {isLocked ? "🔒" : "🔓"} {biome.unlockCost.toLocaleString()} 🪙
+                                            {isLocked ? "🔒" : "🔓"} {fmt(biome.unlockCost)} 🪙
                                         </span>
                                     )}
                                     {unlocked && <span className="biome-ready">Disponible</span>}

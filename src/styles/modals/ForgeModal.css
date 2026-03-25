@@ -38,6 +38,7 @@
 }
 
 .forge-furnaces {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -52,9 +53,17 @@
     align-items: center;
 }
 
-.forge-furnace-bronze { border-color: rgba(180, 100, 20, 0.7); }
-.forge-furnace-iron   { border-color: rgba(150, 160, 180, 0.6); }
-.forge-furnace-diamond{ border-color: rgba(80, 180, 255, 0.5); }
+.forge-furnace-bronze {
+    border-color: rgba(180, 100, 20, 0.7);
+}
+
+.forge-furnace-iron {
+    border-color: rgba(150, 160, 180, 0.6);
+}
+
+.forge-furnace-diamond {
+    border-color: rgba(80, 180, 255, 0.5);
+}
 
 .forge-furnace.locked {
     border-color: #666;
@@ -83,8 +92,15 @@
 }
 
 @keyframes forge-glow {
-    0%, 100% { filter: brightness(1) saturate(1); }
-    50%       { filter: brightness(1.45) saturate(1.4); }
+
+    0%,
+    100% {
+        filter: brightness(1) saturate(1);
+    }
+
+    50% {
+        filter: brightness(1.45) saturate(1.4);
+    }
 }
 
 .forge-furnace-img-active {
@@ -186,9 +202,146 @@
     margin-left: 2px;
 }
 
-.stock-ok  { color: #7fff7f; }
-.stock-low { color: #ff8888; }
+.stock-ok {
+    color: #7fff7f;
+}
 
+.stock-low {
+    color: #ff8888;
+}
+
+/* SLOT PERRO FORJA */
+.forge-dog-slot-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.forge-dog-slot {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #555;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.forge-dog-slot.dog-rarity-legendary {
+    border-color: #f5c842;
+}
+
+.forge-dog-slot.dog-rarity-epic {
+    border-color: #b45cff;
+}
+
+.forge-dog-slot.dog-rarity-rare {
+    border-color: #4ca8ff;
+}
+
+.forge-dog-slot-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.forge-dog-slot-plus {
+    font-size: 1.2rem;
+    color: #888;
+}
+
+.forge-dog-slot-unassign {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 9px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.forge-dog-slot-name {
+    font-size: 0.55rem;
+    color: #ccc;
+    text-align: center;
+    max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.forge-dog-menu {
+    position: absolute;
+    bottom: 0;
+    left: calc(100% + 8px);
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 20;
+    min-width: 100px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.forge-dog-menu-empty {
+    font-size: 0.6rem;
+    color: #888;
+    text-align: center;
+    padding: 4px;
+}
+
+.forge-dog-menu-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.forge-dog-menu-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.forge-dog-menu-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.forge-dog-menu-cancel {
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 0.7rem;
+    align-self: center;
+    padding: 2px 6px;
+}
+
+/* LEGACY — se mantiene por si algo lo usa */
 .forge-dog-assigned {
     display: flex;
     align-items: center;

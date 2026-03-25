@@ -228,7 +228,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                     </div>
                                                     <div className="dog-stat-row">
                                                         <span className="dog-stat-label">⏳ Vel. ataque</span>
-                                                        <span className="dog-stat-val">{config.miningSpeed}s</span>
+                                                        <span className="dog-stat-val">{parseFloat((1 / config.miningSpeed).toFixed(2))} pic/s</span>
                                                     </div>
                                                 </div>
 

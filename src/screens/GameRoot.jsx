@@ -476,8 +476,8 @@ function GameRoot() {
 
   // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
   const formatNumber = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 10000) return (num / 1000).toFixed(1) + "k";
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + "k";
     return num;
   };
 
@@ -593,10 +593,7 @@ function GameRoot() {
         <ModalsMenu
           isOpen={menuOpenModal}
           onClose={() => setMenuOpenModal(false)}
-          button1={() => {
-            handleNewGame();
-          }}
-          textButton={"newGame"}
+          onNewGame={handleNewGame}
         />
       </div>
 
@@ -1101,7 +1098,7 @@ function GameRoot() {
                         }}>🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
                       ))
                     }
-                    <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); }}>✕</button>
+                    <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); setFlippedSlot(null); }}>✕</button>
                   </div>
                 )}
               </div>

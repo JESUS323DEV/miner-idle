@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
+
+const fmt = (num) => {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+  return num;
+};
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
 import MineSnacksConfig from "../../game/config/MineSnacksConfig.js";
@@ -241,7 +247,7 @@ const MineScreen = ({ isOpen, onClose }) => {
                 >
                   <span className="snack-buy-plus">+</span>
                   <span className="snack-buy-price">
-                    {cfg.costGold}<img src={iconGold} alt="gold" className="snack-gold-icon" />
+                    {fmt(cfg.costGold)}<img src={iconGold} alt="gold" className="snack-gold-icon" />
                   </span>
                 </button>
 
@@ -322,7 +328,7 @@ const MineScreen = ({ isOpen, onClose }) => {
                       <span className="mc-star-icon">{i < stars ? "⭐" : "☆"}</span>
                       <span className="mc-star-threshold">
                         <span className="mc-threshold-val">
-                          {s.threshold} <img src={hudImg} alt="" className="mc-hud-icon" />
+                          {fmt(s.threshold)} <img src={hudImg} alt="" className="mc-hud-icon" />
                         </span>
                       </span>
                     </div>
@@ -333,26 +339,26 @@ const MineScreen = ({ isOpen, onClose }) => {
                 <div className="mc-stats">
                   <div className="mc-stat-row">
                     <span>Clicks</span>
-                    <span className="mc-stat-val">{currentMine.clicksCount}</span>
+                    <span className="mc-stat-val">{fmt(currentMine.clicksCount)}</span>
                   </div>
                   <div className="mc-stat-row">
                     <span>Obtenido</span>
                     <span className="mc-stat-val">
-                      {materialsGathered} <img src={hudImg} alt="" className="mc-hud-icon" />
+                      {fmt(materialsGathered)} <img src={hudImg} alt="" className="mc-hud-icon" />
                     </span>
                   </div>
                   {speedBonus > 0 && (
                     <div className="mc-stat-row mc-bonus">
                       <span>Bonus</span>
                       <span className="mc-stat-val">
-                        +{speedBonus} <img src={hudImg} alt="" className="mc-hud-icon" />
+                        +{fmt(speedBonus)} <img src={hudImg} alt="" className="mc-hud-icon" />
                       </span>
                     </div>
                   )}
                   <div className="mc-stat-row mc-total">
                     <span>Total</span>
                     <span className="mc-stat-val">
-                      {total} <img src={hudImg} alt="" className="mc-hud-icon" />
+                      {fmt(total)} <img src={hudImg} alt="" className="mc-hud-icon" />
                     </span>
                   </div>
                 </div>

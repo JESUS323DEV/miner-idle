@@ -1,11 +1,12 @@
 .gold-mine-container {
     position: absolute;
-    top: 29rem;
-    left: 6rem;
+    top: 31rem;
+    left: 5rem;
+
 }
 
 .gold-mine {
-    width: 230px;
+    width: 220px;
     height: auto;
     display: block;
     transform-origin: center bottom;
