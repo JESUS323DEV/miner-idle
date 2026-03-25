@@ -75,6 +75,7 @@ const TavernModal = ({ isOpen, onClose }) => {
     const [view, setView] = useState('main');
     const [flippedDog, setFlippedDog] = useState(null);
     const [dogTab, setDogTab] = useState('mineros');
+    const [rarityFilter, setRarityFilter] = useState(null);
 
     if (!isOpen) return null;
 
@@ -182,10 +183,30 @@ const TavernModal = ({ isOpen, onClose }) => {
                             </button>
                         </div>
 
+                        {/* FILTRO RAREZA */}
+                        <div className="rarity-filter-bar">
+                            {[null, 'legendary', 'epic', 'rare'].map(r => (
+                                <button
+                                    key={r ?? 'all'}
+                                    className={`rarity-filter-btn${r ? ` rarity-filter-${r}` : ''}${rarityFilter === r ? ' rarity-filter-active' : ''}`}
+                                    onClick={() => setRarityFilter(r)}
+                                >
+                                    {r === null ? 'Todas' : r === 'legendary' ? 'Legendaria' : r === 'epic' ? 'Épica' : 'Rara'}
+                                </button>
+                            ))}
+                        </div>
+
                         {/* MINEROS */}
                         {dogTab === 'mineros' && (
                             <div className="dogs-grid">
-                                {Object.values(dogs).filter(d => d && typeof d === 'object' && !Array.isArray(d)).map(dog => {
+                                {Object.values(dogs)
+                                    .filter(d => d && typeof d === 'object' && !Array.isArray(d))
+                                    .filter(d => !rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter)
+                                    .sort((a, b) => {
+                                        const order = { legendary: 0, epic: 1, rare: 2 };
+                                        return (order[DogsConfig[a.id]?.rarity] ?? 3) - (order[DogsConfig[b.id]?.rarity] ?? 3);
+                                    })
+                                    .map(dog => {
                                     const config = DogsConfig[dog.id];
                                     const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
                                     const isFlipped = flippedDog === dog.id;
@@ -267,7 +288,14 @@ const TavernModal = ({ isOpen, onClose }) => {
                         {/* FORJA */}
                         {dogTab === 'forja' && (
                             <div className="dogs-grid">
-                                {Object.values(forgeDogs).filter(d => d && typeof d === 'object').map(dog => {
+                                {Object.values(forgeDogs)
+                                    .filter(d => d && typeof d === 'object')
+                                    .filter(d => !rarityFilter || ForgeDogsConfig[d.id]?.rarity === rarityFilter)
+                                    .sort((a, b) => {
+                                        const order = { legendary: 0, epic: 1, rare: 2 };
+                                        return (order[ForgeDogsConfig[a.id]?.rarity] ?? 3) - (order[ForgeDogsConfig[b.id]?.rarity] ?? 3);
+                                    })
+                                    .map(dog => {
                                     const config = ForgeDogsConfig[dog.id];
                                     const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
                                     const isFlipped = flippedDog === dog.id;

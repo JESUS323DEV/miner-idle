@@ -728,3 +728,37 @@
     background: rgba(255, 140, 0, 0.4);
     border-color: orange;
 }
+
+/* FILTRO RAREZA */
+.rarity-filter-bar {
+    display: flex;
+    gap: 5px;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+.rarity-filter-btn {
+    flex: 1;
+    padding: 4px 6px;
+    border-radius: 20px;
+    border: 1px solid #444;
+    background: rgba(255,255,255,0.05);
+    color: #aaa;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.rarity-filter-btn.rarity-filter-legendary { border-color: #f5c842; color: #f5c842; }
+.rarity-filter-btn.rarity-filter-epic      { border-color: #b45cff; color: #b45cff; }
+.rarity-filter-btn.rarity-filter-rare      { border-color: #4ca8ff; color: #4ca8ff; }
+
+.rarity-filter-btn.rarity-filter-active,
+.rarity-filter-btn.rarity-filter-legendary.rarity-filter-active { background: rgba(245,200,66,0.2); }
+.rarity-filter-btn.rarity-filter-epic.rarity-filter-active      { background: rgba(180,92,255,0.2); }
+.rarity-filter-btn.rarity-filter-rare.rarity-filter-active      { background: rgba(76,168,255,0.2); }
+.rarity-filter-btn:not([class*="rarity-filter-legendary"]):not([class*="rarity-filter-epic"]):not([class*="rarity-filter-rare"]).rarity-filter-active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border-color: #888;
+}

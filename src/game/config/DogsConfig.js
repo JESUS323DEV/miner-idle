@@ -14,7 +14,7 @@ export const DogsConfig = {
         rarity: 'legendary',
         id: 'tokio',
         name: 'Tokio',
-        unlockCost: { gold: 2000000, tavernCoins: 35 },
+        unlockCost: { gold: 2000000, tavernCoins: 80 },
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -34,7 +34,7 @@ export const DogsConfig = {
         rarity: 'legendary',
         id: 'tuka',
         name: 'Tuka',
-        unlockCost: { gold: 2500000, tavernCoins: 45 },
+        unlockCost: { gold: 2500000, tavernCoins: 100 },
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -53,7 +53,7 @@ export const DogsConfig = {
         rarity: 'legendary',
         id: 'lady',
         name: 'Lady',
-        unlockCost: { gold: 3000000, tavernCoins: 50 },
+        unlockCost: { gold: 3000000, tavernCoins: 150 },
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -75,7 +75,7 @@ export const DogsConfig = {
         rarity: 'epic',
         id: 'muna',
         name: 'Muna',
-        unlockCost: { gold: 500000, tavernCoins: 12 },
+        unlockCost: { gold: 500000, tavernCoins: 20 },
         miningPower: 3,
         miningSpeed: 4,
         biomeBonus: {
@@ -97,7 +97,7 @@ export const DogsConfig = {
         rarity: 'epic',
         id: 'smoke',
         name: 'Smoke',
-        unlockCost: { gold: 800000, tavernCoins: 18 },
+        unlockCost: { gold: 800000, tavernCoins: 30 },
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
@@ -117,7 +117,7 @@ export const DogsConfig = {
         rarity: 'epic',
         id: 'nupito',
         name: 'Nupito',
-        unlockCost: { gold: 1200000, tavernCoins: 25 },
+        unlockCost: { gold: 1200000, tavernCoins: 45 },
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
