@@ -315,6 +315,7 @@ const YacimientoSlotActivo = ({
 }) => {
     const [isShaking, setIsShaking] = useState(false);
     const [floatingNumbers, setFloatingNumbers] = useState([]);
+    const [slotFlipped, setSlotFlipped] = useState(false);
     const intervalRef = useRef(null);
 
     const triggerHit = (amount, x, y) => {
@@ -400,23 +401,49 @@ const YacimientoSlotActivo = ({
                 </div>
 
             </div>
-            <div className="dog-slot-box" onClick={(e) => { e.stopPropagation(); onToggleDogMenu(); }}>
-                {dogAssigned ? (
-                    <>
-                        {dogAssets[dogAssigned.id]
-                            ? <img src={dogAssets[dogAssigned.id]} className="dog-slot-img" alt={dogAssigned.id} />
-                            : <span className="dog-slot-emoji">🐕</span>
-                        }
-                        <button className="dog-slot-unassign"
-                            onClick={(e) => { e.stopPropagation(); onUnassignDog(dogAssigned.id); }}
-                        >✖</button>
-                    </>
-                ) : (
-                    <>
-                        <span className="dog-slot-hint">🐕</span>
-                        <span className="dog-slot-plus">+</span>
-                    </>
-                )}
+            <div
+                className={`dog-slot-box${dogAssigned ? ` dog-rarity-${DogsConfig[dogAssigned.id]?.rarity}` : ''}`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (dogAssigned) { setSlotFlipped(f => !f); }
+                    onToggleDogMenu();
+                }}
+            >
+                <div className={`dog-slot-flip${slotFlipped && dogAssigned ? ' flipped' : ''}`}>
+                    {/* FRENTE: portrait */}
+                    <div className="dog-slot-front">
+                        {dogAssigned ? (
+                            <>
+                                {dogAssets[dogAssigned.id]
+                                    ? <img src={dogAssets[dogAssigned.id]} className="dog-slot-img" alt={dogAssigned.id} />
+                                    : <span className="dog-slot-emoji">🐕</span>
+                                }
+                                <button className="dog-slot-unassign"
+                                    onClick={(e) => { e.stopPropagation(); setSlotFlipped(false); onUnassignDog(dogAssigned.id); }}
+                                >✖</button>
+                            </>
+                        ) : (
+                            <>
+                                <span className="dog-slot-hint">🐕</span>
+                                <span className="dog-slot-plus">+</span>
+                            </>
+                        )}
+                    </div>
+                    {/* REVERSO: stats de mina */}
+                    {dogAssigned && (() => {
+                        const cfg = DogsConfig[dogAssigned.id];
+                        const bonus = cfg?.biomeBonus?.[selectedBiome] ?? 1;
+                        return (
+                            <div className="dog-slot-back">
+                                <span>⛏ poder {cfg?.miningPower}</span>
+                                <span>1 pic/{cfg?.miningSpeed}s</span>
+                                {bonus !== 1 && <span className="dsb-bonus">x{bonus} aquí</span>}
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                {/* Menú asignar / cambiar */}
                 {dogMenuOpen && (
                     <div className="dog-menu">
                         {availableDogs.length === 0
@@ -424,7 +451,7 @@ const YacimientoSlotActivo = ({
                             : availableDogs.map(dog => (
                                 <button key={dog.id} className="dog-menu-option"
                                     onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); onToggleDogMenu(); }}
-                                >🐕 {dog.id}</button>
+                                >🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
                             ))
                         }
                         <button className="dog-menu-cancel"

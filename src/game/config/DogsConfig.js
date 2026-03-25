@@ -1,5 +1,13 @@
+export const RARITY_COLORS = {
+    legendary: '#f5c842',
+    epic:      '#b45cff',
+    rare:      '#4ca8ff',
+    common:    '#aaaaaa',
+};
+
 export const DogsConfig = {
     lady: {
+        rarity: 'legendary',
         id: 'lady',
         name: 'Lady',
         unlockCost: { gold: 10000, tavernCoins: 1 },
@@ -16,6 +24,7 @@ export const DogsConfig = {
         }
     },
     tokio: {
+        rarity: 'legendary',
         id: 'tokio',
         name: 'Tokio',
         unlockCost: { gold: 50000, tavernCoins: 3 },
@@ -32,6 +41,7 @@ export const DogsConfig = {
         }
     },
     tuka: {
+        rarity: 'legendary',
         id: 'tuka',
         name: 'Tuka',
         unlockCost: { gold: 150000, tavernCoins: 5 },
@@ -49,6 +59,7 @@ export const DogsConfig = {
     },
 
     muna: {
+        rarity: 'epic',
         id: 'muna',
         name: 'Muna',
         unlockCost: { gold: 300000, tavernCoins: 8 },
@@ -65,6 +76,7 @@ export const DogsConfig = {
         }
     },
     gordo: {
+        rarity: 'rare',
         id: 'gordo',
         name: 'Gordo',
         unlockCost: { gold: 500000, tavernCoins: 12 },
@@ -81,6 +93,7 @@ export const DogsConfig = {
         }
     },
     druh: {
+        rarity: 'rare',
         id: 'druh',
         name: 'Druh',
         unlockCost: { gold: 800000, tavernCoins: 18 },
@@ -97,6 +110,7 @@ export const DogsConfig = {
         }
     },
     smoke: {
+        rarity: 'epic',
         id: 'smoke',
         name: 'Smoke',
         unlockCost: { gold: 1200000, tavernCoins: 25 },
@@ -114,6 +128,7 @@ export const DogsConfig = {
     },
 
     nupito: {
+        rarity: 'epic',
         id: 'nupito',
         name: 'Nupito',
         unlockCost: { gold: 2000000, tavernCoins: 35 },
@@ -131,6 +146,7 @@ export const DogsConfig = {
     },
     
     zeus: {
+        rarity: 'rare',
         id: 'zeus',
         name: 'Zeus',
         unlockCost: { gold: 3500000, tavernCoins: 50 },

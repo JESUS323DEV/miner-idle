@@ -180,11 +180,11 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     const config = DogsConfig[dog.id];
                                     const canAfford = gold >= config.unlockCost.gold && tavernCoins >= config.unlockCost.tavernCoins;
                                     const isFlipped = flippedDog === dog.id;
-
                                     return (
                                         <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
-                                            <div className={`dog-card dog-card-front ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
+                                            <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
+                                                <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
                                                 <img src={dogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                 <div className="dog-name">{config.name}</div>
                                                 {dog.hired ? (
@@ -208,7 +208,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                     </>
                                                 )}
                                             </div>
-                                            <div className="dog-card dog-card-back">
+                                            <div className={`dog-card dog-card-back dog-card-back-${dog.id}`}>
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
                                                 <div className="dog-name">{config.name}</div>
 

@@ -439,7 +439,7 @@
 }
 
 .dog-card.dog-cant-afford {
-    opacity: 0.5;
+    opacity: 0.9;
 }
 
 .dog-portrait-emoji {
@@ -457,6 +457,28 @@
     border-radius: 8px 8px 0 0;
     margin: -10px -6px 4px -6px;
     width: calc(100% + 12px);
+}
+
+/* Rareza — bordes card front */
+.dog-card-front.dog-rarity-legendary { border-color: #f5c842; }
+.dog-card-front.dog-rarity-epic      { border-color: #b45cff; }
+.dog-card-front.dog-rarity-rare      { border-color: #4ca8ff; }
+.dog-card-front.dog-rarity-common    { border-color: #aaaaaa; }
+
+/* Rareza — color badge */
+.dog-rarity-badge.dog-rarity-legendary { color: #f5c842; }
+.dog-rarity-badge.dog-rarity-epic      { color: #b45cff; }
+.dog-rarity-badge.dog-rarity-rare      { color: #4ca8ff; }
+.dog-rarity-badge.dog-rarity-common    { color: #aaaaaa; }
+
+
+.dog-rarity-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+    margin-bottom: 2px;
 }
 
 .dog-name {
@@ -534,6 +556,44 @@
     background: rgba(0, 0, 0, 0.85);
     border: 1px solid rgba(255, 165, 0, 0.5);
     justify-content: center;
+}
+
+/* Fondos card back por perro — van después de .dog-card-back para no ser pisados */
+.dog-card-back.dog-card-back-lady {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/lady-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.dog-card-back.dog-card-back-tokio {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/tokyo-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.dog-card-back.dog-card-back-tuka {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/tuka-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.dog-card-back.dog-card-back-muna {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/muna-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.dog-card-back.dog-card-back-gordo {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/gordo-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.dog-card-back.dog-card-back-druh {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+                url('../../assets/backgrounds/bg-tavern/bg-back-cards/druh-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
 }
 
 .dog-card-wrapper.flipped .dog-card-front {

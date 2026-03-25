@@ -149,6 +149,7 @@ function GameRoot() {
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
+  const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
 
   // ===== GAME STATE — carga desde localStorage si existe =====
@@ -1021,31 +1022,66 @@ function GameRoot() {
             d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null
           );
           const isMenuOpen = globalDogMenuOpen === i;
+          const isFlipped = flippedSlot === i;
 
+          const renderPassiveBack = () => {
+            const bonus = DogsConfig[assignedDogId]?.goldMineBonus;
+            if (!bonus) return null;
+            if (bonus.type === 'extraGold')  return <><span>+{bonus.value} oro</span><span>por picada</span></>;
+            if (bonus.type === 'freeHit')    return <><span>{bonus.chance * 100}%</span><span>golpe</span><span>sin coste</span></>;
+            if (bonus.type === 'doubleHit')  return <><span>{bonus.chance * 100}%</span><span>de doblar</span><span>el oro</span></>;
+            return null;
+          };
+
+          const assignedRarity = assignedDogId ? DogsConfig[assignedDogId]?.rarity : null;
           return (
             <div key={i} className="global-dog-slot-wrapper">
-              <div className="global-dog-slot" onClick={() => setGlobalDogMenuOpen(isMenuOpen ? null : i)}>
-                {assignedDog ? (
-                  <>
-                    {dogAssets[assignedDogId]
-                      ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
-                      : <span className="global-dog-slot-emoji">🐕</span>
-                    }
-                    <button className="global-dog-slot-unassign" onClick={e => {
-                      e.stopPropagation();
-                      setGameState(prev => ({
-                        ...prev,
-                        dogs: {
-                          ...prev.dogs,
-                          globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
-                          [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+              <div
+                className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
+                onClick={() => {
+                  if (assignedDog) {
+                    setFlippedSlot(isFlipped ? null : i);
+                    setGlobalDogMenuOpen(isMenuOpen ? null : i);
+                  } else {
+                    setGlobalDogMenuOpen(isMenuOpen ? null : i);
+                  }
+                }}
+              >
+                <div className={`global-slot-flip${isFlipped ? ' flipped' : ''}`}>
+                  {/* FRENTE: portrait */}
+                  <div className="global-slot-front">
+                    {assignedDog ? (
+                      <>
+                        {dogAssets[assignedDogId]
+                          ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
+                          : <span className="global-dog-slot-emoji">🐕</span>
                         }
-                      }));
-                    }}>✖</button>
-                  </>
-                ) : (
-                  <span className="global-dog-slot-plus">+</span>
-                )}
+                        <button className="global-dog-slot-unassign" onClick={e => {
+                          e.stopPropagation();
+                          setFlippedSlot(null);
+                          setGameState(prev => ({
+                            ...prev,
+                            dogs: {
+                              ...prev.dogs,
+                              globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
+                              [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                            }
+                          }));
+                        }}>✖</button>
+                      </>
+                    ) : (
+                      <span className="global-dog-slot-plus">+</span>
+                    )}
+                  </div>
+                  {/* REVERSO: pasiva */}
+                  {assignedDog && (
+                    <div className="global-slot-back">
+                      {renderPassiveBack()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Menú asignar / cambiar */}
                 {isMenuOpen && (
                   <div className="global-dog-menu">
                     {availableDogs.length === 0
@@ -1062,7 +1098,7 @@ function GameRoot() {
                             }
                           }));
                           setGlobalDogMenuOpen(null);
-                        }}>🐕 {dog.id}</button>
+                        }}>🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
                       ))
                     }
                     <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); }}>✕</button>
