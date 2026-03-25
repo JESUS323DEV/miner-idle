@@ -33,10 +33,19 @@ import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
 import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
 import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
 
+import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.png"
+import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png"
+import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png"
+
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
     smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+};
+
+const forgeDogAssets = {
+    rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
+    rex: forgeIcon1,   toby: forgeIcon2, buddy: forgeIcon3,
 };
 
 const ingotAssets = {
@@ -265,9 +274,10 @@ const TavernModal = ({ isOpen, onClose }) => {
 
                                     return (
                                         <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
-                                            <div className={`dog-card dog-card-front ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
+                                            <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canAfford && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
-                                                <div className="dog-portrait-emoji">🔥</div>
+                                                <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
+                                                <img src={forgeDogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                 <div className="dog-name">{config.name}</div>
                                                 {dog.hired ? (
                                                     <div className="dog-status">✔</div>
@@ -293,13 +303,35 @@ const TavernModal = ({ isOpen, onClose }) => {
                                             <div className="dog-card dog-card-back">
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
                                                 <div className="dog-name">{config.name}</div>
-                                                <div className="dog-stat">⏱️ -{config.forgeBonus.timeReduction}s base</div>
-                                                {config.forgeBonus.doubleIngot > 0 && (
-                                                    <div className="dog-stat">✨ {config.forgeBonus.doubleIngot * 100}% doble lingote</div>
-                                                )}
-                                                <div className="dog-stat">🟤 Bronze: -{config.forgeBonus.biomeBonus.bronze}s</div>
-                                                <div className="dog-stat">⚙️ Iron: -{config.forgeBonus.biomeBonus.iron}s</div>
-                                                <div className="dog-stat">💎 Diamond: -{config.forgeBonus.biomeBonus.diamond}s</div>
+
+                                                <div className="dog-stat-section">
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label">⏱️ Reducción base</span>
+                                                        <span className="dog-stat-val">-{config.forgeBonus.timeReduction}s</span>
+                                                    </div>
+                                                    {config.forgeBonus.doubleIngot > 0 && (
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label">✨ Doble lingote</span>
+                                                            <span className="dog-stat-val dog-stat-bonus">{config.forgeBonus.doubleIngot * 100}%</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="dog-stat-divider">Bonus bioma</div>
+                                                <div className="dog-stat-section">
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={ingotBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                        <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.bronze > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.bronze}s</span>
+                                                    </div>
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={ingotIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                        <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.iron > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.iron}s</span>
+                                                    </div>
+                                                    <div className="dog-stat-row">
+                                                        <span className="dog-stat-label"><img src={ingotDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                        <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.diamond > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.diamond}s</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     );

@@ -1,5 +1,6 @@
 export const ForgeDogsConfig = {
     rocky: {
+        rarity: 'epic',
         id: 'rocky',
         name: 'Rocky',
         unlockCost: { gold: 15000, tavernCoins: 2 },
@@ -10,6 +11,7 @@ export const ForgeDogsConfig = {
         }
     },
     bruno: {
+        rarity: 'epic',
         id: 'bruno',
         name: 'Bruno',
         unlockCost: { gold: 40000, tavernCoins: 4 },
@@ -20,6 +22,7 @@ export const ForgeDogsConfig = {
         }
     },
     max: {
+        rarity: 'epic',
         id: 'max',
         name: 'Max',
         unlockCost: { gold: 80000, tavernCoins: 6 },
@@ -30,6 +33,7 @@ export const ForgeDogsConfig = {
         }
     },
     rex: {
+        rarity: 'legendary',
         id: 'rex',
         name: 'Rex',
         unlockCost: { gold: 500000, tavernCoins: 15 },
@@ -40,6 +44,7 @@ export const ForgeDogsConfig = {
         }
     },
     toby: {
+        rarity: 'legendary',
         id: 'toby',
         name: 'Toby',
         unlockCost: { gold: 900000, tavernCoins: 22 },
@@ -50,6 +55,7 @@ export const ForgeDogsConfig = {
         }
     },
     buddy: {
+        rarity: 'legendary',
         id: 'buddy',
         name: 'Buddy',
         unlockCost: { gold: 1500000, tavernCoins: 30 },
