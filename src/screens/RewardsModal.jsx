@@ -133,6 +133,7 @@ const RewardsModal = ({ isOpen, onClose }) => {
         { key: "pickaxeBronze", icon: "🪓", label: "Pico de Bronce" },
         { key: "pickaxeMetal", icon: "🪓", label: "Pico de Metal" },
         { key: "pickaxeDiamond", icon: "🪓", label: "Pico de Diamante" },
+        { key: "forgeBronze", icon: "🏭", label: "Desbloquear Forja Bronce" },
         { key: "forgeIron", icon: "🏭", label: "Desbloquear Forja Hierro" },
         { key: "forgeDiamond", icon: "🏭", label: "Desbloquear Forja Diamante" },
     ];

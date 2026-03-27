@@ -230,7 +230,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     const config = DogsConfig[dog.id];
                                     const canUnlock = (dog.fragments ?? 0) >= config.unlockFragments;
                                     const stars = dog.stars ?? 0;
-                                    const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars - 1] : null;
+                                    const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars] : null;
                                     const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext;
                                     const isFlipped = flippedDog === dog.id;
                                     return (
@@ -268,7 +268,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                     </div>
                                                     <div className="dog-stat-row">
                                                         <span className="dog-stat-label">⏳ Vel. ataque</span>
-                                                        <span className="dog-stat-val">{parseFloat((1 / config.miningSpeed).toFixed(2))} pic/s</span>
+                                                        <span className="dog-stat-val">{(() => { const pps = 1 / config.miningSpeed; return pps >= 1 ? `${parseFloat(pps.toFixed(2))} pic/s` : `1 pic/${config.miningSpeed}s`; })()}</span>
                                                     </div>
                                                 </div>
 
@@ -318,7 +318,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     const config = ForgeDogsConfig[dog.id];
                                     const canUnlockF = (dog.fragments ?? 0) >= config.unlockFragments;
                                     const starsF = dog.stars ?? 0;
-                                    const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF - 1] : null;
+                                    const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF] : null;
                                     const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF;
                                     const isFlipped = flippedDog === dog.id;
 

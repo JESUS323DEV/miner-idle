@@ -151,6 +151,7 @@ const InitialRewardsState = {
         pickaxeDiamond: { claimed: false, unlocked: false, reward: 5, label: 'Pico de Diamante' },
 
         // FORJA — desbloqueo
+        forgeBronze: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Forja Bronce' },
         forgeIron: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Forja Hierro' },
         forgeDiamond: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Forja Diamante' },
 

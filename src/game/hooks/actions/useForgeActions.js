@@ -29,6 +29,9 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                     coinRewards: {
                         ...prevState.rewards.coinRewards,
+                        forgeBronze: material === 'bronze'
+                            ? { ...prevState.rewards.coinRewards.forgeBronze, unlocked: true }
+                            : prevState.rewards.coinRewards.forgeBronze,
                         forgeIron: material === 'iron'
                             ? { ...prevState.rewards.coinRewards.forgeIron, unlocked: true }
                             : prevState.rewards.coinRewards.forgeIron,

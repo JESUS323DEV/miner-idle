@@ -247,7 +247,7 @@ export const useDogsActions = (gameState, setGameState) => {
                 ...prevState,
                 [stateKey]: {
                     ...prevState[stateKey],
-                    [dogId]: { ...dog, hired: true, stars: 1, fragments: dog.fragments - config.unlockFragments }
+                    [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments }
                 }
             };
         });
@@ -260,9 +260,9 @@ export const useDogsActions = (gameState, setGameState) => {
             const config = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
             const dog = prevState[stateKey][dogId];
             if (!dog || !dog.hired) return prevState;
-            const stars = dog.stars ?? 1;
+            const stars = dog.stars ?? 0;
             if (stars >= 5) return prevState;
-            const needed = config.starFragments[stars - 1]; // índice 0 = coste para pasar de 1→2
+            const needed = config.starFragments[stars]; // índice 0 = coste para 0→1, índice 1 = 1→2, etc.
             if ((dog.fragments ?? 0) < needed) return prevState;
 
             return {
