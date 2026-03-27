@@ -243,7 +243,7 @@ const MineScreen = ({ isOpen, onClose }) => {
                 <button
                   className={`snack-buy-btn ${snack.charges > 0 || isActive ? 'snack-buy-full' : ''}`}
                   onClick={() => handleBuyMineSnack(cfg.id)}
-                  disabled={snack.charges > 0 || isActive}
+                  disabled={snack.charges > 0 || isActive || gameState.gold < cfg.costGold}
                 >
                   <span className="snack-buy-plus">+</span>
                   <span className="snack-buy-price">

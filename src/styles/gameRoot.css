@@ -222,6 +222,10 @@
 
 }
 
+.stamina-display img {
+    width: 23px;
+}
+
 .locked-tutorial {
     opacity: 0.5;
     cursor: not-allowed;
@@ -229,17 +233,31 @@
     position: relative;
 }
 
-.stamina-display img {
-    width: 23px;
-}
+
 
 /* Alineación interna de cada sección del HUD */
 .stamina-display button,
 .pickaxe-display button {
     display: flex;
-    align-items: end;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.208);
+    padding: 3px 5px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
 
+.stamina-display button:hover:not(:disabled),
+.pickaxe-display button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+}
 
+.stamina-display button:disabled,
+.pickaxe-display button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 
@@ -291,13 +309,16 @@
    ============================================================ */
 
 /* Oro/segundo - Stamina - Pico */
-.openDisplay1,
+
 .openDisplay2,
 .openDisplay3 {
-    width: 25px;
+    width: 30px;
 }
 
+.openDisplay1 {
 
+    width: 25px;
+}
 
 
 
@@ -340,21 +361,27 @@
    ============================================================ */
 
 .cont-screens {
-
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 0.5rem;
-
+    gap: 8px;
+    margin-top: 0.75rem;
 }
 
 /* !img botones modales*/
 .modal-mine img,
 .modal-tavern img,
 .modal-forge img {
-    width: 150px;
-    height: 60px;
+    width: 120px;
+    height: 52px;
+    transition: transform 0.15s, filter 0.15s;
+}
 
+.modal-mine button:not(:disabled):hover img,
+.modal-tavern button:not(:disabled):hover img,
+.modal-forge button:not(:disabled):hover img {
+    transform: scale(1.06);
+    filter: brightness(1.15);
 }
 
 .mines-map-locked img {
@@ -362,8 +389,7 @@
 }
 
 .modal-mine button {
-
-    padding: 0.4rem;
+    padding: 0;
 }
 
 .mines-map-locked {
@@ -392,7 +418,7 @@
 
 .tavern-btn {
     position: relative;
-    padding: 0.4rem;
+    padding: 0;
 }
 
 .tavern-locked img {
@@ -428,8 +454,7 @@
 
 /*================FORJA==========================*/
 .forge-btn {
-
-    padding: 0.45rem;
+    padding: 0;
 }
 
 
@@ -905,10 +930,21 @@
 }
 
 /* Rareza — borde global slots */
-.global-dog-slot.dog-rarity-legendary { border-color: #f5c842; }
-.global-dog-slot.dog-rarity-epic      { border-color: #b45cff; }
-.global-dog-slot.dog-rarity-rare      { border-color: #4ca8ff; }
-.global-dog-slot.dog-rarity-common    { border-color: #aaaaaa; }
+.global-dog-slot.dog-rarity-legendary {
+    border-color: #f5c842;
+}
+
+.global-dog-slot.dog-rarity-epic {
+    border-color: #b45cff;
+}
+
+.global-dog-slot.dog-rarity-rare {
+    border-color: #4ca8ff;
+}
+
+.global-dog-slot.dog-rarity-common {
+    border-color: #aaaaaa;
+}
 
 .gold-dog-none {
     font-size: 10px;

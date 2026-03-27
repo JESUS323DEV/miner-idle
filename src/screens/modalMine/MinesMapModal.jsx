@@ -165,7 +165,8 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
                                 <button
                                     className="btn-enter-mine"
-                                    onClick={() => canEnter && onEnterMine(type)}
+                                    onClick={() => onEnterMine(type)}
+                                    disabled={!canEnter}
                                 >
                                     Entrar
                                 </button>
@@ -224,15 +225,16 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                                     alt="locked"
                                                     className="mena-img mena-no-durability"
                                                 />
-                                                <span
+                                                <button
                                                     className="mena-lock-icon"
+                                                    disabled={currentGold < unlockCost.gold || gameState[selectedBiome] < unlockCost.amount}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         onUnlockYacimientoSlot(slot.id, selectedBiome);
                                                     }}
                                                 >
                                                     🔒
-                                                </span>
+                                                </button>
                                             </div>
 
                                             <div className='yacimiento-info'>
@@ -260,6 +262,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                                 <button
                                                     className="btn-plant-mena"
                                                     onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
+                                                    disabled={gameState[selectedBiome] < yacimientos[selectedBiome].plantCost.amount}
                                                 >
                                                     Excavar
                                                 </button>

@@ -8,8 +8,8 @@ const InitialGameState = {
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
     goldPerSecondLevel: 0,       // Nivel actual del upgrade oro/segundo
-    goldPerSecondCost: 500,      // Coste actual del upgrade
-    goldPerSecondCostIncrease: 1500, // Cuánto sube el coste por nivel
+    goldPerSecondCost: 1000,      // Coste actual del upgrade
+    goldPerSecondCostIncrease: 500, // Cuánto sube el coste por nivel
 
     // ========== MATERIALES ==========
     bronze: 25,
@@ -125,7 +125,8 @@ const InitialGameState = {
         staminaUnlocked: false,
         pickaxeUnlocked: false,
         minesUnlocked: false,
-        goldPerSecondBought: false
+        goldPerSecondBought: false,
+        pickaxeUpgradeDone: false,
     },
 };
 

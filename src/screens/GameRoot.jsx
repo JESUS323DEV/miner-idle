@@ -106,19 +106,19 @@ import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
 
-import ladyIcon   from "../assets/ui/icons-pets/mineros/lady-icon.png";
-import tokyoIcon  from "../assets/ui/icons-pets/mineros/tokyo-icon.png";
-import tukaIcon   from "../assets/ui/icons-pets/mineros/tuka-icon.png";
-import munaIcon   from "../assets/ui/icons-pets/mineros/muna-icon.png";
-import gordoIcon  from "../assets/ui/icons-pets/mineros/gordo-icon.png";
-import druhIcon   from "../assets/ui/icons-pets/mineros/druh-icon.png";
-import smokeIcon  from "../assets/ui/icons-pets/mineros/smoke-icon.png";
+import ladyIcon from "../assets/ui/icons-pets/mineros/lady-icon.png";
+import tokyoIcon from "../assets/ui/icons-pets/mineros/tokyo-icon.png";
+import tukaIcon from "../assets/ui/icons-pets/mineros/tuka-icon.png";
+import munaIcon from "../assets/ui/icons-pets/mineros/muna-icon.png";
+import gordoIcon from "../assets/ui/icons-pets/mineros/gordo-icon.png";
+import druhIcon from "../assets/ui/icons-pets/mineros/druh-icon.png";
+import smokeIcon from "../assets/ui/icons-pets/mineros/smoke-icon.png";
 import nupitoIcon from "../assets/ui/icons-pets/mineros/nupito-icon.png";
-import zeusIcon   from "../assets/ui/icons-pets/mineros/zeus-icon.png";
+import zeusIcon from "../assets/ui/icons-pets/mineros/zeus-icon.png";
 const dogAssets = {
-    lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
-    muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
-    smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+  lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+  muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+  smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
 };
 
 // ===== MINAS =====
@@ -503,345 +503,345 @@ function GameRoot() {
   // ===== RENDER =====
   return (
     <GameContext.Provider value={contextValue}>
-    <div
-      className="game-container"
-      style={{ backgroundImage: `url(${bgMain})` }}
-    >
-      <Preloader />
+      <div
+        className="game-container"
+        style={{ backgroundImage: `url(${bgMain})` }}
+      >
+        <Preloader />
 
-      {/* OVERLAY OSCURO DURANTE TUTORIAL */}
-      {tutorialStep !== null && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0, 0, 0, 0.85)",
-            zIndex: 500,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+        {/* OVERLAY OSCURO DURANTE TUTORIAL */}
+        {tutorialStep !== null && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.85)",
+              zIndex: 500,
+              pointerEvents: "none",
+            }}
+          />
+        )}
 
-      {/* HEADER — oro + monedas taberna + menú */}
-      <div className="gold-menu-display">
-        <div className="gold-display">
-          <div className="gold-cont" style={{ position: "relative" }}>
-            <div className="cont-gold-mena">
-              <div className="cont-hud-gold">
-                <img src={cofre} alt="Cofre Oro" />
-                <p>{formatNumber(gameState.gold)}</p>
-              </div>
-
-              {/* Números flotantes de gasto de oro */}
-              {goldFloatingNumbers.map((num) => (
-                <div
-                  key={num.id}
-                  className={
-                    num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"
-                  }
-                >
-                  {num.value > 0 ? `+${num.value}` : num.value}
-                </div>
-              ))}
-
-              <div className="cont-icon-menas">
-                <div className="icon-menas">
-                  <img src={menaBronze} loading="lazy" alt="menaBronze" />
-                  <span>{formatNumber2(gameState.bronze)}</span>
+        {/* HEADER — oro + monedas taberna + menú */}
+        <div className="gold-menu-display">
+          <div className="gold-display">
+            <div className="gold-cont" style={{ position: "relative" }}>
+              <div className="cont-gold-mena">
+                <div className="cont-hud-gold">
+                  <img src={cofre} alt="Cofre Oro" />
+                  <p>{formatNumber(gameState.gold)}</p>
                 </div>
 
-                <div className="icon-menas">
-                  <img src={menaIron} loading="lazy" alt="menaIron" />
-                  <span>{formatNumber2(gameState.iron)}</span>
-                </div>
-
-                <div className="icon-menas">
-                  <img src={menaDiamond} loading="lazy" alt="menaDiamond" />
-                  <span>{formatNumber2(gameState.diamond)}</span>
-                </div>
-              </div>
-            </div>
-            {/* Monedas de taberna-lingotes */}
-            <div className="coinTavern-lingotes">
-              <div className="container-coinTavern" style={{ position: "relative" }}>
-                <img src={coinTavern} alt="Coin-Tavern" />
-                <span>{formatNumber2(gameState.tavernCoins)}</span>
-                {tavernFloatingNumbers.map((num) => (
-                  <div key={num.id} className={num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"} style={{ color: num.value > 0 ? "#7eff7e" : "#f0c040" }}>
+                {/* Números flotantes de gasto de oro */}
+                {goldFloatingNumbers.map((num) => (
+                  <div
+                    key={num.id}
+                    className={
+                      num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"
+                    }
+                  >
                     {num.value > 0 ? `+${num.value}` : num.value}
                   </div>
                 ))}
+
+                <div className="cont-icon-menas">
+                  <div className="icon-menas">
+                    <img src={menaBronze} loading="lazy" alt="menaBronze" />
+                    <span>{formatNumber2(gameState.bronze)}</span>
+                  </div>
+
+                  <div className="icon-menas">
+                    <img src={menaIron} loading="lazy" alt="menaIron" />
+                    <span>{formatNumber2(gameState.iron)}</span>
+                  </div>
+
+                  <div className="icon-menas">
+                    <img src={menaDiamond} loading="lazy" alt="menaDiamond" />
+                    <span>{formatNumber2(gameState.diamond)}</span>
+                  </div>
+                </div>
               </div>
-
-              <div className="container-lingotes">
-                <div className="icon-lingotes">
-                  <img src={iconBronze} loading="lazy" alt="iconBronze" />
-                  <span>{formatNumber2(gameState.bronzeIngot)}</span>
+              {/* Monedas de taberna-lingotes */}
+              <div className="coinTavern-lingotes">
+                <div className="container-coinTavern" style={{ position: "relative" }}>
+                  <img src={coinTavern} alt="Coin-Tavern" />
+                  <span>{formatNumber2(gameState.tavernCoins)}</span>
+                  {tavernFloatingNumbers.map((num) => (
+                    <div key={num.id} className={num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"} style={{ color: num.value > 0 ? "#7eff7e" : "#f0c040" }}>
+                      {num.value > 0 ? `+${num.value}` : num.value}
+                    </div>
+                  ))}
                 </div>
 
-                <div className="icon-lingotes">
-                  <img src={iconIron} loading="lazy" alt="iconIron" />
-                  <span>{formatNumber2(gameState.ironIngot)}</span>
-                </div>
+                <div className="container-lingotes">
+                  <div className="icon-lingotes">
+                    <img src={iconBronze} loading="lazy" alt="iconBronze" />
+                    <span>{formatNumber2(gameState.bronzeIngot)}</span>
+                  </div>
 
-                <div className="icon-lingotes">
-                  <img src={iconDiamond} loading="lazy" alt="iconDiamond" />
-                  <span>{formatNumber2(gameState.diamondIngot)}</span>
+                  <div className="icon-lingotes">
+                    <img src={iconIron} loading="lazy" alt="iconIron" />
+                    <span>{formatNumber2(gameState.ironIngot)}</span>
+                  </div>
+
+                  <div className="icon-lingotes">
+                    <img src={iconDiamond} loading="lazy" alt="iconDiamond" />
+                    <span>{formatNumber2(gameState.diamondIngot)}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <ModalsMenu
+            isOpen={menuOpenModal}
+            onClose={() => setMenuOpenModal(false)}
+            onNewGame={handleNewGame}
+          />
         </div>
 
-        <ModalsMenu
-          isOpen={menuOpenModal}
-          onClose={() => setMenuOpenModal(false)}
-          onNewGame={handleNewGame}
-        />
-      </div>
+        {/* HUD — oro/seg, stamina, pico */}
+        <div className="game-info">
+          {/* ORO/SEGUNDO */}
+          <div className="gold-per-sec">
+            <img className="img-goldSec" src={gold1} alt="Oro" />
+            <p>+{gameState.goldPerSecond}</p>
+            <button
+              onClick={() => {
+                setTutorialStep(null);
+                setOpenModal("goldPerSecond");
+              }}
+              className={`openDisplay1 ${tutorialStep === 0 ? "tutorial-highlight" : ""}`}
+              style={{ position: "relative" }}
+            >
+              <img src={goldOpen} alt="icon goldOpen" />
+              {tutorialStep === 0 && <TutorialPointer step={0} />}
+            </button>
+          </div>
 
-      {/* HUD — oro/seg, stamina, pico */}
-      <div className="game-info">
-        {/* ORO/SEGUNDO */}
-        <div className="gold-per-sec">
-          <img className="img-goldSec" src={gold1} alt="Oro" />
-          <p>+{gameState.goldPerSecond}</p>
-          <button
-            onClick={() => {
-              setTutorialStep(null);
-              setOpenModal("goldPerSecond");
+          {/* Modal oro/segundo + snacks */}
+          <UpgradeModal
+            isOpen={openModal === "goldPerSecond"}
+            onClose={() => setOpenModal(null)}
+            currentLevel={`x${gameState.goldPerSecondLevel}`}
+            cost={gameState.goldPerSecondCost}
+            onUpgrade={() => {
+              handleBuyGoldPerSecondUpgrade();
+              if (gameState.tutorial?.currentStep === 0) setOpenModal(null);
             }}
-            className={`openDisplay1 ${tutorialStep === 0 ? "tutorial-highlight" : ""}`}
-            style={{ position: "relative" }}
-          >
-            <img src={goldOpen} alt="icon goldOpen" />
-            {tutorialStep === 0 && <TutorialPointer step={0} />}
-          </button>
-        </div>
-
-        {/* Modal oro/segundo + snacks */}
-        <UpgradeModal
-          isOpen={openModal === "goldPerSecond"}
-          onClose={() => setOpenModal(null)}
-          currentLevel={`x${gameState.goldPerSecondLevel}`}
-          cost={gameState.goldPerSecondCost}
-          onUpgrade={() => {
-            handleBuyGoldPerSecondUpgrade();
-            if (gameState.tutorial?.currentStep === 0) setOpenModal(null);
-          }}
-          canAfford={gameState.gold >= gameState.goldPerSecondCost}
-          tutorialStep0Active={
-            gameState.tutorial?.currentStep === 0 &&
-            !gameState.tutorial?.goldPerSecondBought
-          }
-          tutorialMessage={
-            gameState.tutorial?.currentStep === 0 &&
+            canAfford={gameState.gold >= gameState.goldPerSecondCost}
+            tutorialStep0Active={
+              gameState.tutorial?.currentStep === 0 &&
               !gameState.tutorial?.goldPerSecondBought
-              ? " 👉"
-              : null
-          }
-          bgImage={bgGold}
-          iconImage={iconGold}
-          buttonImage={buttonUpgrade}
-          showSnacks={true}
-          snacksData={gameState.snacks}
-          tavernCoins={gameState.tavernCoins}
-          onUnlockSnack={handleUnlockSnack}
-          onUpgradeSnack={handleUpgradeSnack}
-          onUseSnack={handleUseSnack}
-          title={"Oro por segundo"}
-        />
-
-        {/* STAMINA */}
-        <div className="stamina-display">
-          {/* Botón abrir modal — bloqueado hasta tutorial paso 1 */}
-          <button
-            onClick={() => {
-              setTutorialStep(null);
-              setOpenModal("maxStamina");
-            }}
-            disabled={
-              !gameState.tutorial?.staminaUnlocked &&
-              !gameState.tutorial?.completed
             }
-            className={`${gameState.stamina <= 5 ? "low-resource" : ""} ${tutorialStep === 1 ? "tutorial-highlight" : ""}`}
-            style={{
-              position: "relative",
-              opacity:
-                !gameState.tutorial?.staminaUnlocked &&
-                  !gameState.tutorial?.completed
-                  ? 0.5
-                  : 1,
-              cursor:
-                !gameState.tutorial?.staminaUnlocked &&
-                  !gameState.tutorial?.completed
-                  ? "not-allowed"
-                  : "pointer",
-              filter:
-                !gameState.tutorial?.staminaUnlocked &&
-                  !gameState.tutorial?.completed
-                  ? "grayscale(100%)"
-                  : "none",
-            }}
-          >
-            <img src={stamina1} loading="lazy" alt="Stamina" />
-            {tutorialStep === 1 && <TutorialPointer step={1} />}
-          </button>
+            tutorialMessage={
+              gameState.tutorial?.currentStep === 0 &&
+                !gameState.tutorial?.goldPerSecondBought
+                ? " 👉"
+                : null
+            }
+            bgImage={bgGold}
+            iconImage={iconGold}
+            buttonImage={buttonUpgrade}
+            showSnacks={true}
+            snacksData={gameState.snacks}
+            tavernCoins={gameState.tavernCoins}
+            onUnlockSnack={handleUnlockSnack}
+            onUpgradeSnack={handleUpgradeSnack}
+            onUseSnack={handleUseSnack}
+            title={"Oro por segundo"}
+          />
 
-          <p>
-            {gameState.stamina}/{gameState.maxStamina}
-          </p>
+          {/* STAMINA */}
+          <div className="stamina-display">
+            {/* Botón abrir modal — bloqueado hasta tutorial paso 1 */}
+            <button
+              onClick={() => {
+                setTutorialStep(null);
+                setOpenModal("maxStamina");
+              }}
+              disabled={
+                !gameState.tutorial?.staminaUnlocked &&
+                !gameState.tutorial?.completed
+              }
+              className={`${gameState.stamina <= 5 ? "low-resource" : ""} ${tutorialStep === 1 ? "tutorial-highlight" : ""}`}
+              style={{
+                position: "relative",
+                opacity:
+                  !gameState.tutorial?.staminaUnlocked &&
+                    !gameState.tutorial?.completed
+                    ? 0.5
+                    : 1,
+                cursor:
+                  !gameState.tutorial?.staminaUnlocked &&
+                    !gameState.tutorial?.completed
+                    ? "not-allowed"
+                    : "pointer",
+                filter:
+                  !gameState.tutorial?.staminaUnlocked &&
+                    !gameState.tutorial?.completed
+                    ? "grayscale(100%)"
+                    : "none",
+              }}
+            >
+              <img src={stamina1} loading="lazy" alt="Stamina" />
+              {tutorialStep === 1 && <TutorialPointer step={1} />}
+            </button>
 
-          {/* Botón recarga rápida sin abrir modal */}
-          <button
-            onClick={() => {
-              handleRefillStamina();
+            <p>
+              {gameState.stamina}/{gameState.maxStamina}
+            </p>
+
+            {/* Botón recarga rápida sin abrir modal */}
+            <button
+              onClick={() => {
+                handleRefillStamina();
+                setOpenModal(null);
+              }}
+              disabled={
+                gameState.automine?.isActive ||
+                gameState.stamina >= gameState.maxStamina
+              }
+              className={`openDisplay2 ${gameState.stamina <= 5 ? "low-resource-green" : ""}`}
+            >
+              <img src={refillStaminaIcon} alt="Refill-Stamina" />
+            </button>
+          </div>
+
+          {/* Modal stamina */}
+          <UpgradeModal
+            isOpen={openModal === "maxStamina"}
+            onClose={() => {
               setOpenModal(null);
-            }}
-            disabled={
-              gameState.automine?.isActive ||
-              gameState.stamina >= gameState.maxStamina
-            }
-            className={`openDisplay2 ${gameState.stamina <= 5 ? "low-resource-green" : ""}`}
-          >
-            <img src={refillStaminaIcon} alt="Refill-Stamina" />
-          </button>
-        </div>
-
-        {/* Modal stamina */}
-        <UpgradeModal
-          isOpen={openModal === "maxStamina"}
-          onClose={() => {
-            setOpenModal(null);
-            setTutorialStep(null);
-          }}
-          currentLevel={`Nivel ${gameState.maxStaminaLevel}`}
-          cost={
-            gameState.tutorial?.staminaUpgradeDone
-              ? gameState.maxStaminaCost
-              : 0
-          }
-          coinCost={
-            gameState.maxStaminaLevel < 10
-              ? 1
-              : 1 + (gameState.maxStaminaLevel - 10)
-          }
-          onUpgrade={() => {
-            handleBuyMaxStaminaUpgrade();
-          }}
-          canAfford={
-            gameState.gold >=
-            (gameState.tutorial?.staminaUpgradeDone
-              ? gameState.maxStaminaCost
-              : 0) &&
-            gameState.tavernCoins >=
-            (gameState.maxStaminaLevel < 10
-              ? 1
-              : 1 + (gameState.maxStaminaLevel - 10))
-          }
-          tutorialMessage={
-            !gameState.tutorial?.staminaUpgradeDone ? " 👉" : null
-          }
-          bgImage={bgStamina}
-          iconImage={upgradeStamina}
-          buttonImage={buttonUpgrade}
-          showStaminaSnacks={true}
-          title={"Energía Max."}
-        />
-
-        {/* PICO */}
-        <div className="pickaxe-display">
-          {/* Botón abrir modal — bloqueado hasta tutorial paso 2 */}
-          <button
-            onClick={() => {
               setTutorialStep(null);
-              setOpenModal("pickaxe");
             }}
-            disabled={
-              !gameState.tutorial?.pickaxeUnlocked &&
-              !gameState.tutorial?.completed
+            currentLevel={`Nivel ${gameState.maxStaminaLevel}`}
+            cost={
+              gameState.tutorial?.staminaUpgradeDone
+                ? gameState.maxStaminaCost
+                : 0
             }
-            className={`
+            coinCost={
+              gameState.maxStaminaLevel < 10
+                ? 1
+                : 1 + (gameState.maxStaminaLevel - 10)
+            }
+            onUpgrade={() => {
+              handleBuyMaxStaminaUpgrade();
+            }}
+            canAfford={
+              gameState.gold >=
+              (gameState.tutorial?.staminaUpgradeDone
+                ? gameState.maxStaminaCost
+                : 0) &&
+              gameState.tavernCoins >=
+              (gameState.maxStaminaLevel < 10
+                ? 1
+                : 1 + (gameState.maxStaminaLevel - 10))
+            }
+            tutorialMessage={
+              !gameState.tutorial?.staminaUpgradeDone ? " 👉" : null
+            }
+            bgImage={bgStamina}
+            iconImage={upgradeStamina}
+            buttonImage={buttonUpgrade}
+            showStaminaSnacks={true}
+            title={"Energía Max."}
+          />
+
+          {/* PICO */}
+          <div className="pickaxe-display">
+            {/* Botón abrir modal — bloqueado hasta tutorial paso 2 */}
+            <button
+              onClick={() => {
+                setTutorialStep(null);
+                setOpenModal("pickaxe");
+              }}
+              disabled={
+                !gameState.tutorial?.pickaxeUnlocked &&
+                !gameState.tutorial?.completed
+              }
+              className={`
                             ${gameState.pickaxe.durability <= 5 ? "low-resource" : ""}
                             ${tutorialStep === 2 ? "tutorial-highlight" : ""}
                             ${!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed ? "locked-tutorial" : ""}
                         `.trim()}
-          >
-            <img
-              src={getPickaxeIcon(
-                gameState.pickaxe.material,
-                gameState.pickaxe.tier,
-              )}
-              loading="lazy"
-              alt="Pickaxe"
-            />
-            {tutorialStep === 2 && <TutorialPointer step={2} />}
-          </button>
+            >
+              <img
+                src={getPickaxeIcon(
+                  gameState.pickaxe.material,
+                  gameState.pickaxe.tier,
+                )}
+                loading="lazy"
+                alt="Pickaxe"
+              />
+              {tutorialStep === 2 && <TutorialPointer step={2} />}
+            </button>
 
-          <p>
-            {gameState.pickaxe.durability}/{gameState.pickaxe.maxDurability}
-          </p>
+            <p>
+              {gameState.pickaxe.durability}/{gameState.pickaxe.maxDurability}
+            </p>
 
-          {/* Botón reparación rápida sin abrir modal */}
-          <button
-            onClick={() => {
-              handleRepairPickaxe();
+            {/* Botón reparación rápida sin abrir modal */}
+            <button
+              onClick={() => {
+                handleRepairPickaxe();
+                setOpenModal(null);
+              }}
+              disabled={
+                gameState.automine?.isActive ||
+                gameState.pickaxe.durability >= gameState.pickaxe.maxDurability
+              }
+              className={`openDisplay3 ${gameState.pickaxe.durability <= 5 ? "low-resource-green" : ""}`}
+            >
+              <img src={repair} alt="repair" />
+            </button>
+          </div>
+
+          {/* Modal pico */}
+          <PickaxeModal
+            isOpen={openModal === "pickaxe"}
+            onClose={() => {
               setOpenModal(null);
+              setTutorialStep(null);
             }}
-            disabled={
-              gameState.automine?.isActive ||
-              gameState.pickaxe.durability >= gameState.pickaxe.maxDurability
+            currentLevel={`Tier ${gameState.pickaxe.tier}`}
+            cost={
+              gameState.tutorial?.pickaxeUpgradeDone
+                ? gameState.pickaxe.tierUpgradeCosts?.[
+                gameState.pickaxe.material
+                ] || 0
+                : 0
             }
-            className={`openDisplay3 ${gameState.pickaxe.durability <= 5 ? "low-resource-green" : ""}`}
-          >
-            <img src={repair} alt="repair" />
-          </button>
+            onUpgrade={() => {
+              handlePickaxeUpgrade();
+            }}
+            canAfford={canAffordTierUpgrade}
+            tutorialMessage={
+              !gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null
+            }
+            buttonImage={btnTier}
+            iconImage={getPickaxeIcon(
+              gameState.pickaxe.material,
+              gameState.pickaxe.tier,
+            )}
+            bgImage={bgPickaxe}
+            pickaxeTier={gameState.pickaxe.tier}
+            pickaxeMaterial={gameState.pickaxe.material}
+            onUpgradeMaterial={handleUpgradePickaxeMaterial}
+            materialCost={materialUpgradeCost?.gold || 0}
+            canAffordMaterial={canAffordMaterialUpgrade}
+            materialButtonImage={PickAxeUp}
+            onShowGoldCost={showGoldCost}
+            tierIngotCost={tierIngotCost}
+            materialIngotCost={materialUpgradeCost?.ingot}
+          />
         </div>
 
-        {/* Modal pico */}
-        <PickaxeModal
-          isOpen={openModal === "pickaxe"}
-          onClose={() => {
-            setOpenModal(null);
-            setTutorialStep(null);
-          }}
-          currentLevel={`Tier ${gameState.pickaxe.tier}`}
-          cost={
-            gameState.tutorial?.pickaxeUpgradeDone
-              ? gameState.pickaxe.tierUpgradeCosts?.[
-              gameState.pickaxe.material
-              ] || 0
-              : 0
-          }
-          onUpgrade={() => {
-            handlePickaxeUpgrade();
-          }}
-          canAfford={canAffordTierUpgrade}
-          tutorialMessage={
-            !gameState.tutorial?.pickaxeUpgradeDone ? " 👉" : null
-          }
-          buttonImage={btnTier}
-          iconImage={getPickaxeIcon(
-            gameState.pickaxe.material,
-            gameState.pickaxe.tier,
-          )}
-          bgImage={bgPickaxe}
-          pickaxeTier={gameState.pickaxe.tier}
-          pickaxeMaterial={gameState.pickaxe.material}
-          onUpgradeMaterial={handleUpgradePickaxeMaterial}
-          materialCost={materialUpgradeCost?.gold || 0}
-          canAffordMaterial={canAffordMaterialUpgrade}
-          materialButtonImage={PickAxeUp}
-          onShowGoldCost={showGoldCost}
-          tierIngotCost={tierIngotCost}
-          materialIngotCost={materialUpgradeCost?.ingot}
-        />
-      </div>
-
-      {/* ORES HUD — comentado, pendiente de activar
+        {/* ORES HUD — comentado, pendiente de activar
             <div className="cont-hud-ores">
                 <div className="cont-ore" style={{ position: 'relative' }}>
                     <p>{gameState.bronze}</p>
@@ -867,283 +867,282 @@ function GameRoot() {
             </div>
             */}
 
-      {/* BOTONES PANTALLAS — Taberna, Minas, Forja */}
-      <div className="cont-screens">
-        {/* Taberna — bloqueada hasta pagar 1000 oro */}
-        <div className="modal-tavern">
-          {gameState.tavernUnlocked ? (
-            <button
-              onClick={() => setTavernModalOpen(true)}
-              className="tavern-btn"
-            >
-              <img src={iconTavern} alt="Icono-Taberna" />
-            </button>
-          ) : (
-            <button
-              onClick={handleUnlockTavern}
-              disabled={gameState.gold < 1000}
-              className="tavern-btn tavern-locked"
-            >
-              <img src={iconTavern} alt="Icono-Taberna" />
-              <span>🔒 1000 oro</span>
-            </button>
-          )}
-        </div>
-
-        {/* Minas — bloqueadas hasta pagar 2000 oro */}
-        <div className="modal-mine">
-          {gameState.minesMapUnlocked ? (
-            <button
-              onClick={() => setBiomeSelectorOpen(true)}
-              className="mines-map-btn"
-            >
-              <img src={mineModal} alt="Icon1" />
-            </button>
-          ) : (
-            <button
-              onClick={handleUnlockMinesMap}
-              disabled={gameState.gold < 1000}
-              className="mines-map-btn mines-map-locked"
-            >
-              <img src={mineModal} alt="Icon1" />
-              <span>🔒 2000 oro</span>
-            </button>
-          )}
-        </div>
-
-        {/* Forja — siempre disponible */}
-        <div className="modal-forge">
-          <button onClick={() => setForgeModalOpen(true)} className="forge-btn">
-            <img src={iconForge} alt="Icon-Forge" />
-          </button>
-        </div>
-      </div>
-
-      {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
-      <div className="automine-container">
-        {!gameState.automine?.unlocked ? (
-          // Bloqueado — muestra coste de desbloqueo
-          <button
-            onClick={handleUnlockAutomine}
-            disabled={gameState.gold < AutomineConfig.unlockCost}
-            className="automine-button unlock"
-          >
-            <img src={activeMine} alt="Pico" />
-            <span>🔒 {AutomineConfig.unlockCost} oro</span>
-          </button>
-        ) : (
-          // Activo — muestra cargas disponibles y progreso de cooldown
-          <button
-            onClick={
-              gameState.automine.isActive
-                ? handleStopAutomine
-                : handleActivateAutomine
-            }
-            disabled={
-              !gameState.automine.isActive &&
-              (availableCharges <= 0 ||
-                gameState.stamina <= 0 ||
-                gameState.pickaxe.durability <= 0)
-            }
-            className={`automine-button-pico charges-${availableCharges}`}
-            style={{
-              "--progress1": chargeTimers[0]
-                ? `${Math.round((1 - chargeTimers[0] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
-                : "0deg",
-              "--progress2": chargeTimers[1]
-                ? `${Math.round((1 - chargeTimers[1] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
-                : "0deg",
-            }}
-          >
-            <img
-              src={gameState.automine.isActive ? stopMine : activeMine}
-              alt="Pico"
-            />
-            <span className="automine-charge-count">{availableCharges}/2</span>
-          </button>
-        )}
-
-      </div>
-
-      <BiomeSelectorModal
-        isOpen={biomeSelectorOpen}
-        onClose={() => setBiomeSelectorOpen(false)}
-        onSelectBiome={(biome) => {
-          setSelectedBiome(biome);
-          setBiomeSelectorOpen(false);
-          setMinesModalOpen(true);
-        }}
-      />
-
-      {/* MAPA DE MINAS */}
-      <MinesMapModal
-        isOpen={minesModalOpen}
-        onClose={() => setMinesModalOpen(false)}
-        selectedBiome={selectedBiome}
-        bgImage={getMinesBg(selectedBiome)}
-        onEnterMine={(type) => {
-          handleEnterMine(type);
-          setTimeout(() => {
-            setGameState((prev) => {
-              if (prev.mines.currentMine?.mineType === type) {
-                setMinesModalOpen(false);
-                setIsMineScreenOpen(true);
-              }
-              return prev;
-            });
-          }, 50);
-        }}
-      />
-
-      {/* PANTALLA DE MINA INTERIOR */}
-      <MineScreen
-        isOpen={isMineScreenOpen}
-        onClose={() => {
-          handleExitMine();
-          setIsMineScreenOpen(false);
-        }}
-      />
-
-      {/* TABERNA */}
-      <TavernModal
-        isOpen={tavernModalOpen}
-        onClose={() => setTavernModalOpen(false)}
-      />
-
-      {/* FORJA */}
-      <ForgeModal
-        isOpen={forgeModalOpen}
-        onClose={() => setForgeModalOpen(false)}
-      />
-
-      {/* SLOTS PERROS GLOBALES */}
-      <div className="global-dog-slots">
-        {[0, 1, 2].map(i => {
-          const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
-          const assignedDog = assignedDogId ? gameState.dogs[assignedDogId] : null;
-          const availableDogs = Object.values(gameState.dogs).filter(
-            d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null
-          );
-          const isMenuOpen = globalDogMenuOpen === i;
-          const isFlipped = flippedSlot === i;
-
-          const renderPassiveBack = () => {
-            const bonus = DogsConfig[assignedDogId]?.goldMineBonus;
-            if (!bonus) return null;
-            if (bonus.type === 'extraGold')  return <><span>+{bonus.value} oro</span><span>por picada</span></>;
-            if (bonus.type === 'freeHit')    return <><span>{bonus.chance * 100}%</span><span>golpe</span><span>sin coste</span></>;
-            if (bonus.type === 'doubleHit')  return <><span>{bonus.chance * 100}%</span><span>de doblar</span><span>el oro</span></>;
-            return null;
-          };
-
-          const assignedRarity = assignedDogId ? DogsConfig[assignedDogId]?.rarity : null;
-          return (
-            <div key={i} className="global-dog-slot-wrapper">
-              <div
-                className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
-                onClick={() => {
-                  if (assignedDog) {
-                    setFlippedSlot(isFlipped ? null : i);
-                    setGlobalDogMenuOpen(isMenuOpen ? null : i);
-                  } else {
-                    setGlobalDogMenuOpen(isMenuOpen ? null : i);
-                  }
-                }}
+        {/* BOTONES PANTALLAS — Taberna, Minas, Forja */}
+        <div className="cont-screens">
+          {/* Taberna — bloqueada hasta pagar 1000 oro */}
+          <div className="modal-tavern">
+            {gameState.tavernUnlocked ? (
+              <button
+                onClick={() => setTavernModalOpen(true)}
+                className="tavern-btn"
               >
-                <div className={`global-slot-flip${isFlipped ? ' flipped' : ''}`}>
-                  {/* FRENTE: portrait */}
-                  <div className="global-slot-front">
-                    {assignedDog ? (
-                      <>
-                        {dogAssets[assignedDogId]
-                          ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
-                          : <span className="global-dog-slot-emoji">🐕</span>
-                        }
-                        <button className="global-dog-slot-unassign" onClick={e => {
-                          e.stopPropagation();
-                          setFlippedSlot(null);
-                          setGameState(prev => ({
-                            ...prev,
-                            dogs: {
-                              ...prev.dogs,
-                              globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
-                              [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
-                            }
-                          }));
-                        }}>✖</button>
-                      </>
-                    ) : (
-                      <span className="global-dog-slot-plus">+</span>
+                <img src={iconTavern} alt="Icono-Taberna" />
+              </button>
+            ) : (
+              <button
+                onClick={handleUnlockTavern}
+                disabled={gameState.gold < 1000}
+                className="tavern-btn tavern-locked"
+              >
+                <img src={iconTavern} alt="Icono-Taberna" />
+                <span>🔒 1000 oro</span>
+              </button>
+            )}
+          </div>
+
+          {/* Minas — bloqueadas hasta pagar 2000 oro */}
+          <div className="modal-mine">
+            {gameState.minesMapUnlocked ? (
+              <button
+                onClick={() => setBiomeSelectorOpen(true)}
+                className="mines-map-btn"
+              >
+                <img src={mineModal} alt="Icon1" />
+              </button>
+            ) : (
+              <button
+                onClick={handleUnlockMinesMap}
+                disabled={gameState.gold < 2000}
+                className="mines-map-btn mines-map-locked"
+              >
+                <img src={mineModal} alt="Icon1" />
+                <span>🔒 2000 oro</span>
+              </button>
+            )}
+          </div>
+
+          {/* Forja — siempre disponible */}
+          <div className="modal-forge">
+            <button onClick={() => setForgeModalOpen(true)} className="forge-btn">
+              <img src={iconForge} alt="Icon-Forge" />
+            </button>
+          </div>
+        </div>
+
+        {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
+        <div className="automine-container">
+          {!gameState.automine?.unlocked ? (
+            // Bloqueado — muestra coste de desbloqueo
+            <button
+              onClick={handleUnlockAutomine}
+              disabled={gameState.gold < AutomineConfig.unlockCost}
+              className="automine-button unlock"
+            >
+              <img src={activeMine} alt="Pico" />
+              <span>🔒 {AutomineConfig.unlockCost} oro</span>
+            </button>
+          ) : (
+            // Activo — muestra cargas disponibles y progreso de cooldown
+            <button
+              onClick={
+                gameState.automine.isActive
+                  ? handleStopAutomine
+                  : handleActivateAutomine
+              }
+              disabled={
+                !gameState.automine.isActive &&
+                (availableCharges <= 0 ||
+                  gameState.stamina <= 0 ||
+                  gameState.pickaxe.durability <= 0)
+              }
+              className={`automine-button-pico charges-${availableCharges}`}
+              style={{
+                "--progress1": chargeTimers[0]
+                  ? `${Math.round((1 - chargeTimers[0] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
+                  : "0deg",
+                "--progress2": chargeTimers[1]
+                  ? `${Math.round((1 - chargeTimers[1] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
+                  : "0deg",
+              }}
+            >
+              <img
+                src={gameState.automine.isActive ? stopMine : activeMine}
+                alt="Pico"
+              />
+              <span className="automine-charge-count">{availableCharges}/2</span>
+            </button>
+          )}
+
+        </div>
+
+        <BiomeSelectorModal
+          isOpen={biomeSelectorOpen}
+          onClose={() => setBiomeSelectorOpen(false)}
+          onSelectBiome={(biome) => {
+            setSelectedBiome(biome);
+            setBiomeSelectorOpen(false);
+            setMinesModalOpen(true);
+          }}
+        />
+
+        {/* MAPA DE MINAS */}
+        <MinesMapModal
+          isOpen={minesModalOpen}
+          onClose={() => setMinesModalOpen(false)}
+          selectedBiome={selectedBiome}
+          bgImage={getMinesBg(selectedBiome)}
+          onEnterMine={(type) => {
+            handleEnterMine(type);
+            setTimeout(() => {
+              setGameState((prev) => {
+                if (prev.mines.currentMine?.mineType === type) {
+                  setMinesModalOpen(false);
+                  setIsMineScreenOpen(true);
+                }
+                return prev;
+              });
+            }, 50);
+          }}
+        />
+
+        {/* PANTALLA DE MINA INTERIOR */}
+        <MineScreen
+          isOpen={isMineScreenOpen}
+          onClose={() => {
+            handleExitMine();
+            setIsMineScreenOpen(false);
+          }}
+        />
+
+        {/* TABERNA */}
+        <TavernModal
+          isOpen={tavernModalOpen}
+          onClose={() => setTavernModalOpen(false)}
+        />
+
+        {/* FORJA */}
+        <ForgeModal
+          isOpen={forgeModalOpen}
+          onClose={() => setForgeModalOpen(false)}
+        />
+
+        {/* SLOTS PERROS GLOBALES */}
+        <div className="global-dog-slots">
+          {[0, 1, 2].map(i => {
+            const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
+            const assignedDog = assignedDogId ? gameState.dogs[assignedDogId] : null;
+            const availableDogs = Object.values(gameState.dogs).filter(
+              d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null
+            );
+            const isMenuOpen = globalDogMenuOpen === i;
+            const isFlipped = flippedSlot === i;
+
+            const renderPassiveBack = () => {
+              const bonus = DogsConfig[assignedDogId]?.goldMineBonus;
+              if (!bonus) return null;
+              if (bonus.type === 'extraGold') return <><span>+{bonus.value} oro</span><span>por picada</span></>;
+              if (bonus.type === 'freeHit') return <><span>{bonus.chance * 100}%</span><span>golpe</span><span>sin coste</span></>;
+              if (bonus.type === 'doubleHit') return <><span>{bonus.chance * 100}%</span><span>de doblar</span><span>el oro</span></>;
+              return null;
+            };
+
+            const assignedRarity = assignedDogId ? DogsConfig[assignedDogId]?.rarity : null;
+            return (
+              <div key={i} className="global-dog-slot-wrapper">
+                <div
+                  className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
+                  onClick={() => {
+                    if (assignedDog) {
+                      setFlippedSlot(isFlipped ? null : i);
+                      setGlobalDogMenuOpen(isMenuOpen ? null : i);
+                    } else {
+                      setGlobalDogMenuOpen(isMenuOpen ? null : i);
+                    }
+                  }}
+                >
+                  <div className={`global-slot-flip${isFlipped ? ' flipped' : ''}`}>
+                    {/* FRENTE: portrait */}
+                    <div className="global-slot-front">
+                      {assignedDog ? (
+                        <>
+                          {dogAssets[assignedDogId]
+                            ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
+                            : <span className="global-dog-slot-emoji">🐕</span>
+                          }
+                          <button className="global-dog-slot-unassign" onClick={e => {
+                            e.stopPropagation();
+                            setFlippedSlot(null);
+                            setGameState(prev => ({
+                              ...prev,
+                              dogs: {
+                                ...prev.dogs,
+                                globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
+                                [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                              }
+                            }));
+                          }}>✖</button>
+                        </>
+                      ) : (
+                        <span className="global-dog-slot-plus">+</span>
+                      )}
+                    </div>
+                    {/* REVERSO: pasiva */}
+                    {assignedDog && (
+                      <div className="global-slot-back">
+                        {renderPassiveBack()}
+                      </div>
                     )}
                   </div>
-                  {/* REVERSO: pasiva */}
-                  {assignedDog && (
-                    <div className="global-slot-back">
-                      {renderPassiveBack()}
+
+                  {/* Menú asignar / cambiar */}
+                  {isMenuOpen && (
+                    <div className="global-dog-menu">
+                      {availableDogs.length === 0
+                        ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
+                        : availableDogs.map(dog => (
+                          <button key={dog.id} className="global-dog-menu-option" onClick={e => {
+                            e.stopPropagation();
+                            setGameState(prev => ({
+                              ...prev,
+                              dogs: {
+                                ...prev.dogs,
+                                globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
+                                [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
+                              }
+                            }));
+                            setGlobalDogMenuOpen(null);
+                          }}>🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
+                        ))
+                      }
+                      <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); setFlippedSlot(null); }}>✕</button>
                     </div>
                   )}
                 </div>
-
-                {/* Menú asignar / cambiar */}
-                {isMenuOpen && (
-                  <div className="global-dog-menu">
-                    {availableDogs.length === 0
-                      ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
-                      : availableDogs.map(dog => (
-                        <button key={dog.id} className="global-dog-menu-option" onClick={e => {
-                          e.stopPropagation();
-                          setGameState(prev => ({
-                            ...prev,
-                            dogs: {
-                              ...prev.dogs,
-                              globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
-                              [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
-                            }
-                          }));
-                          setGlobalDogMenuOpen(null);
-                        }}>🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
-                      ))
-                    }
-                    <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); setFlippedSlot(null); }}>✕</button>
-                  </div>
+                {assignedDog && (
+                  <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
                 )}
               </div>
-              {assignedDog && (
-                <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        {/* SETTINGS */}
+        <div className="hud-top-right">
+          <button
+            className="btn-settings"
+            onClick={() => setMenuOpenModal((prev) => !prev)}
+          >
+            <Settings />
+          </button>
+          <button
+            className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
+                Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
+                ? "btn-rewards-pulse" : ""
+              }`}
+            onClick={() => setRewardsOpen(true)}
+          >
+            🏆
+          </button>
+        </div>
+
+        <RewardsModal
+          isOpen={rewardsOpen}
+          onClose={() => setRewardsOpen(false)}
+        />
+
+        {/* MENA DE ORO — elemento principal clickeable */}
+        <GoldMine />
       </div>
-
-      {/* SETTINGS */}
-      <div className="hud-top-right">
-        <button
-          className="btn-settings"
-          onClick={() => setMenuOpenModal((prev) => !prev)}
-        >
-          <Settings />
-        </button>
-        <button
-          className={`btn-rewards ${
-            gameState.rewards?.hasUnclaimed ||
-            Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
-              ? "btn-rewards-pulse" : ""
-          }`}
-          onClick={() => setRewardsOpen(true)}
-        >
-          🏆
-        </button>
-      </div>
-
-      <RewardsModal
-        isOpen={rewardsOpen}
-        onClose={() => setRewardsOpen(false)}
-      />
-
-      {/* MENA DE ORO — elemento principal clickeable */}
-      <GoldMine />
-    </div>
     </GameContext.Provider>
   );
 }
