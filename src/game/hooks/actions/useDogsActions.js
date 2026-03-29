@@ -243,8 +243,14 @@ export const useDogsActions = (gameState, setGameState) => {
             if (!dog || dog.hired) return prevState;
             if ((dog.fragments ?? 0) < config.unlockFragments) return prevState;
 
+            const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
+            if (prevState.gold < goldCost) return prevState;
+            if (prevState.tavernCoins < coinCost) return prevState;
+
             return {
                 ...prevState,
+                gold: prevState.gold - goldCost,
+                tavernCoins: prevState.tavernCoins - coinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
                     [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments }
@@ -254,6 +260,8 @@ export const useDogsActions = (gameState, setGameState) => {
     };
 
     // ========== SUBIR ESTRELLA ==========
+    const STAR_COIN_COST = { legendary: 3, epic: 2, rare: 1 };
+
     const handleUpgradeStar = (dogId, isForge = false) => {
         setGameState(prevState => {
             const stateKey = isForge ? 'forgeDogs' : 'dogs';
@@ -262,11 +270,14 @@ export const useDogsActions = (gameState, setGameState) => {
             if (!dog || !dog.hired) return prevState;
             const stars = dog.stars ?? 0;
             if (stars >= 5) return prevState;
-            const needed = config.starFragments[stars]; // índice 0 = coste para 0→1, índice 1 = 1→2, etc.
+            const needed = config.starFragments[stars];
             if ((dog.fragments ?? 0) < needed) return prevState;
+            const coinCost = STAR_COIN_COST[config.rarity] ?? 0;
+            if (prevState.tavernCoins < coinCost) return prevState;
 
             return {
                 ...prevState,
+                tavernCoins: prevState.tavernCoins - coinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
                     [dogId]: { ...dog, stars: stars + 1, fragments: dog.fragments - needed }

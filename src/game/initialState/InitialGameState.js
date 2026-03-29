@@ -1,9 +1,10 @@
 import initialSnacksState from "./snacks/initialSnacksState.js";
+import InitialRaidState from "./InitialRaidState.js";
 
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 10000,
+    gold: 1000000000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -80,7 +81,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 1,
+    tavernCoins: 100000,
     tavernUnlocked: false,
 
     // ========== MINAS ==========
@@ -117,6 +118,9 @@ const InitialGameState = {
     // ========== GACHA ==========
     gachaPity: {},
     lastPackResult: null,
+
+    // ========== RAIDS ==========
+    raid: InitialRaidState,
 
     // ========== TUTORIAL ==========
     tutorial: {

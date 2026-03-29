@@ -10,6 +10,7 @@ import { useRewardsActions } from './actions/useRewardsActions.js';
 import { useYacimientoActions } from './actions/useYacimientoActions.js';
 import { useDogsActions } from './actions/useDogsActions.js';
 import { useMineSnackActions } from './actions/useMineSnackActions.js';
+import { useRaidActions } from './actions/useRaidActions.js';
 
 export const useGameActions = (gameState, setGameState, showGoldCost, showTavernCost, showGoldGain, showTavernGain) => {
     return {
@@ -25,6 +26,7 @@ export const useGameActions = (gameState, setGameState, showGoldCost, showTavern
         ...useYacimientoActions(gameState, setGameState),
         ...useDogsActions(gameState, setGameState),
         ...useMineSnackActions(gameState, setGameState),
+        ...useRaidActions(gameState, setGameState),
 
         // Lady (pendiente de implementar)
         handleFeedLady: () => { },

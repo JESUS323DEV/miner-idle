@@ -10,8 +10,9 @@ import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png";
 import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png";
 
 const forgeDogAssets = {
+    pip: forgeIcon1,   koda: forgeIcon2,  milo: forgeIcon3,
     rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1,   toby: forgeIcon2, buddy: forgeIcon3,
+    rex: forgeIcon1,   toby: forgeIcon2,  buddy: forgeIcon3,
 };
 
 

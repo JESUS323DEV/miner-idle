@@ -31,6 +31,7 @@ import ForgeModal from "../screens/modalForge/ForgeModal";
 import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 import RewardsModal from "../screens/RewardsModal.jsx";
+import RaidScreen from "../screens/modalRaid/RaidScreen.jsx";
 import Preloader from "../components/Preloader";
 
 // En el return, al principio:
@@ -148,6 +149,7 @@ function GameRoot() {
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [raidOpen, setRaidOpen] = useState(false);
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
@@ -270,6 +272,7 @@ function GameRoot() {
     handleUpgradeFurnace,
     handleClaimReward,
     handleClaimCoinReward,
+    handleClaimFragmentReward,
 
     handleUnlockYacimientoSlot,
     handleRepairYacimiento,
@@ -290,6 +293,9 @@ function GameRoot() {
     handleBuyMineSnack,
     handleUseMineSnack,
     handleDynamiteMine,
+    handleSendPassiveRaid,
+    handleClaimPassiveRaid,
+    handleCancelPassiveRaid,
   } = useGameActions(
     gameState,
     setGameState,
@@ -333,6 +339,7 @@ function GameRoot() {
     handleUpgradeFurnace,
     handleClaimReward,
     handleClaimCoinReward,
+    handleClaimFragmentReward,
     handleUnlockYacimientoSlot,
     handleRepairYacimiento,
     handleMineYacimiento,
@@ -352,6 +359,9 @@ function GameRoot() {
     handleBuyMineSnack,
     handleUseMineSnack,
     handleDynamiteMine,
+    handleSendPassiveRaid,
+    handleClaimPassiveRaid,
+    handleCancelPassiveRaid,
     showGoldCost,
     showGoldGain,
     showTavernCost,
@@ -564,6 +574,7 @@ function GameRoot() {
                   </div>
                 </div>
               </div>
+
               {/* Monedas de taberna-lingotes */}
               <div className="coinTavern-lingotes">
                 <div className="container-coinTavern" style={{ position: "relative" }}>
@@ -913,9 +924,17 @@ function GameRoot() {
 
           {/* Forja — siempre disponible */}
           <div className="modal-forge">
-            <button onClick={() => setForgeModalOpen(true)} className="forge-btn">
-              <img src={iconForge} alt="Icon-Forge" />
-            </button>
+            {(() => {
+              const forgeReady =
+                (gameState.furnaces.bronze.unlocked && !gameState.furnaces.bronze.isActive && gameState.bronze >= 10) ||
+                (gameState.furnaces.iron.unlocked && !gameState.furnaces.iron.isActive && gameState.iron >= 6) ||
+                (gameState.furnaces.diamond.unlocked && !gameState.furnaces.diamond.isActive && gameState.diamond >= 2);
+              return (
+                <button onClick={() => setForgeModalOpen(true)} className={`forge-btn ${forgeReady ? 'forge-btn-ready' : ''}`}>
+                  <img src={iconForge} alt="Icon-Forge" />
+                </button>
+              );
+            })()}
           </div>
         </div>
 
@@ -1118,26 +1137,40 @@ function GameRoot() {
 
         {/* SETTINGS */}
         <div className="hud-top-right">
+
+          <button
+            className={`btn-raid ${gameState.raid?.passiveRaid && Date.now() >= gameState.raid.passiveRaid.returnAt ? 'btn-raid-ready' : ''}`}
+            onClick={() => setRaidOpen(true)}
+          >
+            ⚔️
+          </button>
+          <button
+            className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
+              Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
+              ? "btn-rewards-pulse" : ""
+              }`}
+            onClick={() => setRewardsOpen(true)}
+          >
+            🏆
+          </button>
+
           <button
             className="btn-settings"
             onClick={() => setMenuOpenModal((prev) => !prev)}
           >
             <Settings />
           </button>
-          <button
-            className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
-                Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
-                ? "btn-rewards-pulse" : ""
-              }`}
-            onClick={() => setRewardsOpen(true)}
-          >
-            🏆
-          </button>
+
         </div>
 
         <RewardsModal
           isOpen={rewardsOpen}
           onClose={() => setRewardsOpen(false)}
+        />
+
+        <RaidScreen
+          isOpen={raidOpen}
+          onClose={() => setRaidOpen(false)}
         />
 
         {/* MENA DE ORO — elemento principal clickeable */}

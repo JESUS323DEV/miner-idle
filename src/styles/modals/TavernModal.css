@@ -10,6 +10,7 @@
     height: calc(100vh - 5.5rem);
     z-index: 10;
     overflow-y: auto;
+    padding-bottom: 5rem;
 }
 
 .tavern-content {
@@ -416,29 +417,28 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    padding: 10px;
     overflow-y: auto;
     max-height: 65vh;
-    padding-bottom: 5rem;
 }
 
 .dog-card {
     background: rgba(0, 0, 0, 0.888);
     border: 1px solid rgba(255, 165, 0, 0.3);
     border-radius: 10px;
-    padding: 10px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
     transition: all 0.2s;
+    padding: 10px 6px;
 }
 
 .dog-card.dog-hired {
     border-color: rgba(0, 255, 0, 0.5);
     background: rgba(19, 42, 0, 0.847);
 }
+
 
 .dog-card.dog-cant-afford {
     opacity: 0.9;
@@ -456,10 +456,11 @@
     width: 100%;
     height: 100px;
     object-fit: contain;
-    border-radius: 8px 8px 0 0;
+    border-radius: 50%;
     margin: -10px -6px 4px -6px;
     width: calc(100% + 12px);
 }
+
 
 /* Rareza — bordes card front */
 .dog-card-front.dog-rarity-legendary { border-color: #f5c842; }
@@ -512,7 +513,6 @@
 }
 
 .dog-hire-btn {
-    margin-top: 4px;
     width: 100%;
     padding: 4px 0;
     border: none;
@@ -547,6 +547,7 @@
     backface-visibility: hidden;
     transition: transform 0.5s ease;
     border-radius: 10px;
+
 }
 
 .dog-card-front {
@@ -770,7 +771,6 @@
     display: flex;
     gap: 2px;
     justify-content: center;
-    margin: 3px 0;
 }
 
 .dog-star {
@@ -789,6 +789,31 @@
     text-align: center;
     margin: 2px 0;
 }
+
+.dog-unlock-cost {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    margin: 3px 0;
+}
+
+.dog-unlock-cost span {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.dog-unlock-cost .cost-icon {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+.cost-ok   { color: #7fff7f; }
+.cost-missing { color: #ff6b6b; }
 
 /* SOBRES */
 .packs-grid {

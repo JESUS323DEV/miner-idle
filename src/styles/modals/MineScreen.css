@@ -15,6 +15,7 @@
     bottom: 0;
     z-index: 5;
     overflow-y: auto;
+    padding-bottom: 5rem;
 }
 
 .modal-overlay2::before {

@@ -1,4 +1,46 @@
 export const ForgeDogsConfig = {
+    pip: {
+        rarity: 'rare',
+        id: 'pip',
+        name: 'Pip',
+        unlockCost: { gold: 3000, tavernCoins: 1 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [80, 160, 240, 320, 400],
+        forgeBonus: {
+            timeReduction: 1,
+            doubleIngot: 0,
+            biomeBonus: { bronze: 1, iron: 0, diamond: 0 }
+        }
+    },
+    koda: {
+        rarity: 'rare',
+        id: 'koda',
+        name: 'Koda',
+        unlockCost: { gold: 5000, tavernCoins: 1 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [80, 160, 240, 320, 400],
+        forgeBonus: {
+            timeReduction: 0,
+            doubleIngot: 0.05,
+            biomeBonus: { bronze: 0, iron: 1, diamond: 0 }
+        }
+    },
+    milo: {
+        rarity: 'rare',
+        id: 'milo',
+        name: 'Milo',
+        unlockCost: { gold: 8000, tavernCoins: 1 },
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [80, 160, 240, 320, 400],
+        forgeBonus: {
+            timeReduction: 0,
+            doubleIngot: 0.08,
+            biomeBonus: { bronze: 0, iron: 0, diamond: 1 }
+        }
+    },
     rocky: {
         rarity: 'epic',
         id: 'rocky',

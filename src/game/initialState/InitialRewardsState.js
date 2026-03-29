@@ -185,6 +185,12 @@ const InitialRewardsState = {
         },
     },
 
+    // ===== RECOMPENSAS DE FRAGMENTOS =====
+    fragmentRewards: {
+        welcomeDruh: { claimed: false, unlocked: true, dogId: 'druh', isForge: false, amount: 100, label: 'Bienvenida — Druh' },
+        welcomePip:  { claimed: false, unlocked: true, dogId: 'pip',  isForge: true,  amount: 100, label: 'Bienvenida — Pip (Forja)' },
+    },
+
     hasUnclaimed: false,      // si hay alguna sin reclamar (btn brilla)
 };
 

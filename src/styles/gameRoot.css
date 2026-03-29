@@ -457,6 +457,16 @@
     padding: 0;
 }
 
+@keyframes forge-pulse {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
+    50%       { filter: brightness(1.4) drop-shadow(0 0 8px #ff9500); }
+}
+
+.forge-btn-ready {
+    animation: forge-pulse 1.2s ease-in-out infinite;
+}
+
+
 
 
 
@@ -653,7 +663,7 @@
 /*=============================================================================*/
 .hud-top-right {
     position: fixed;
-    top: 17rem;
+    top: 15rem;
     left: 1rem;
     display: flex;
     flex-direction: column;
@@ -863,6 +873,26 @@
 
 .btn-rewards-pulse {
     animation: pulse 1s infinite;
+}
+
+.btn-raid {
+    background: #2a2a4e;
+    border: 2px solid #e05050;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.btn-raid-ready {
+    animation: raid-pulse 1s infinite;
+}
+
+@keyframes raid-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.7); transform: scale(1); }
+    50%  { box-shadow: 0 0 0 10px rgba(76,175,80,0); transform: scale(1.15); }
+    100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); transform: scale(1); }
 }
 
 @keyframes pulse {

@@ -10,10 +10,17 @@ const fmt = (num) => {
 };
 
 const RewardsModal = ({ isOpen, onClose }) => {
-    const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward } = useGameContext();
+    const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward, handleClaimFragmentReward: onClaimFragmentReward } = useGameContext();
     const [activeTab, setActiveTab] = useState("gold");
+    const [fragmentToast, setFragmentToast] = useState(null);
 
     if (!isOpen) return null;
+
+    const claimFragment = (key, amount) => {
+        onClaimFragmentReward(key);
+        setFragmentToast(`+${amount} 🧩`);
+        setTimeout(() => setFragmentToast(null), 1500);
+    };
 
     const rewards = gameState.rewards;
     const coinRewards = rewards.coinRewards;
@@ -147,6 +154,11 @@ const RewardsModal = ({ isOpen, onClose }) => {
         uniqueCoinRewardsList.some(({ key }) => coinRewards[key] && isUniqueCoinClaimable(key)) ||
         progressiveCoinRewardsList.some(({ key }) => coinRewards[key] && isProgressiveCoinClaimable(key));
 
+    const hasUnclaimedGold = goldRewardsList.some(({ key }) => isClaimable(key));
+
+    const fragmentRewards = rewards.fragmentRewards ?? {};
+    const hasUnclaimedFragments = Object.values(fragmentRewards).some(r => r.unlocked && !r.claimed);
+
     return (
         <div className="modal-overlay1" onClick={onClose}>
             <div className="rewards-modal-content" onClick={e => e.stopPropagation()}>
@@ -156,7 +168,7 @@ const RewardsModal = ({ isOpen, onClose }) => {
 
                 <div className="rewards-tabs">
                     <button
-                        className={`rewards-tab ${activeTab === "gold" ? "active" : ""}`}
+                        className={`rewards-tab ${activeTab === "gold" ? "active" : ""} ${hasUnclaimedGold && activeTab !== "gold" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("gold")}
                     >
                         💰 Oro
@@ -166,6 +178,12 @@ const RewardsModal = ({ isOpen, onClose }) => {
                         onClick={() => setActiveTab("coins")}
                     >
                         🪙 Monedas
+                    </button>
+                    <button
+                        className={`rewards-tab ${activeTab === "fragments" ? "active" : ""} ${hasUnclaimedFragments && activeTab !== "fragments" ? "tab-pulse" : ""}`}
+                        onClick={() => setActiveTab("fragments")}
+                    >
+                        🧩 Fragmentos
                     </button>
                 </div>
 
@@ -264,6 +282,35 @@ const RewardsModal = ({ isOpen, onClose }) => {
                             );
                         })}
 
+                    </div>
+                )}
+
+                {/* TAB FRAGMENTOS */}
+                {activeTab === "fragments" && (
+                    <div className="rewards-list" style={{ position: "relative" }}>
+                        {fragmentToast && (
+                            <div className="fragment-toast">{fragmentToast}</div>
+                        )}
+                        {Object.entries(fragmentRewards).map(([key, r]) => (
+                            <div key={key} className={`reward-card ${r.claimed ? "fragment-claimed" : r.unlocked ? "claimable" : "locked"}`}>
+                                <span className="reward-icon">🧩</span>
+                                <div className="reward-info">
+                                    <p className="reward-label">{r.label}</p>
+                                    <p style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
+                                        ×{r.amount} fragmentos
+                                    </p>
+                                </div>
+                                <div className="reward-right">
+                                    <button
+                                        className={`reward-btn ${r.claimed ? "btn-fragment-claimed" : r.unlocked ? "btn-claim" : "btn-locked"}`}
+                                        onClick={() => !r.claimed && r.unlocked && claimFragment(key, r.amount)}
+                                        disabled={r.claimed || !r.unlocked}
+                                    >
+                                        {r.claimed ? "✅ Reclamado" : "RECLAMAR"}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
 

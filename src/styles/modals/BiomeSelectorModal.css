@@ -48,6 +48,62 @@
     transition: all 0.2s;
 }
 
+.biome-picks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: auto;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.biome-pick-item {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.biome-pick-item img {
+    object-fit: contain;
+}
+
+.biome-pick-item span {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.6;
+}
+
+.biome-pick-rec,
+.biome-pick-norm {
+
+    display: flex;
+    gap: 0.3rem;
+}
+
+.biome-pick-rec img {
+    width: 20px;
+    height: 20px;
+}
+
+.biome-pick-rec span {
+    color: #ffd740;
+    opacity: 1;
+    font-size: 0.5rem;
+}
+
+.biome-pick-norm img {
+    width: 16px;
+    height: 16px;
+    opacity: 1;
+}
+
+.biome-pick-norm span {
+
+    color: white;
+
+}
+
 /* Desbloqueado */
 .biome-unlocked {
     border-color: var(--biome-color);

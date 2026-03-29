@@ -3,6 +3,11 @@ import { X } from "lucide-react";
 import "../../styles/modals/BiomeSelectorModal.css"
 import { useGameContext } from "../../game/context/GameContext.jsx";
 
+import picoStone   from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
+import picoBronze  from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png";
+import picoIron    from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png";
+import picoDiamond from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png";
+
 const fmt = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
@@ -17,9 +22,9 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
     if (!isOpen) return null;
 
     const biomes = [
-        { type: "bronze", name: "Bronce",   emoji: "🏜️", unlockCost: 1000,  color: "#CD7F32", glow: "rgba(205,127,50,0.5)" },
-        { type: "iron",   name: "Hierro",   emoji: "🏔️", unlockCost: 10000, color: "#9E9E9E", glow: "rgba(158,158,158,0.5)" },
-        { type: "diamond",name: "Diamante", emoji: "❄️", unlockCost: 50000, color: "#89DFFF", glow: "rgba(137,223,255,0.5)" },
+        { type: "bronze",  name: "Bronce",   emoji: "🏜️", unlockCost: 1000,  color: "#CD7F32", glow: "rgba(205,127,50,0.5)",   pickRec: picoBronze,  pickNorm: picoStone  },
+        { type: "iron",    name: "Hierro",   emoji: "🏔️", unlockCost: 10000, color: "#9E9E9E", glow: "rgba(158,158,158,0.5)", pickRec: picoIron,    pickNorm: picoBronze },
+        { type: "diamond", name: "Diamante", emoji: "❄️", unlockCost: 50000, color: "#89DFFF", glow: "rgba(137,223,255,0.5)", pickRec: picoDiamond, pickNorm: picoIron   },
     ];
 
     const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);
@@ -63,6 +68,16 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
                                         </span>
                                     )}
                                     {unlocked && <span className="biome-ready">Disponible</span>}
+                                </div>
+                                <div className="biome-picks">
+                                    <div className="biome-pick-item biome-pick-rec">
+                                        <span>Recomendado</span>
+                                        <img src={biome.pickRec} alt="recomendado" />
+                                    </div>
+                                    <div className="biome-pick-item biome-pick-norm">
+                                        <span>normal</span>
+                                        <img src={biome.pickNorm} alt="normal" />
+                                    </div>
                                 </div>
                             </button>
                         );

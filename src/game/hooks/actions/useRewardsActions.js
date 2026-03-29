@@ -37,6 +37,7 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
             const stillHasUnclaimed = Object.entries(allMilestones).some(([key, m]) => {
                 if (key === 'hasUnclaimed') return false;
                 if (key === 'coinRewards') return false;
+                if (key === 'fragmentRewards') return false;
                 if (key === 'pickaxeMilestones') {
                     return checkMilestone(m, prevState.rewards.pickaxeMilestones.totalTiers);
                 }
@@ -116,8 +117,39 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
         });
     };
 
+    // ========== RECLAMAR RECOMPENSA DE FRAGMENTOS ==========
+    const handleClaimFragmentReward = (key) => {
+        setGameState(prevState => {
+            const reward = prevState.rewards.fragmentRewards?.[key];
+            if (!reward || reward.claimed || !reward.unlocked) return prevState;
+
+            const stateKey = reward.isForge ? 'forgeDogs' : 'dogs';
+            const dog = prevState[stateKey]?.[reward.dogId];
+            if (!dog) return prevState;
+
+            return {
+                ...prevState,
+                [stateKey]: {
+                    ...prevState[stateKey],
+                    [reward.dogId]: {
+                        ...dog,
+                        fragments: (dog.fragments ?? 0) + reward.amount,
+                    }
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    fragmentRewards: {
+                        ...prevState.rewards.fragmentRewards,
+                        [key]: { ...reward, claimed: true }
+                    }
+                }
+            };
+        });
+    };
+
     return {
         handleClaimReward,
         handleClaimCoinReward,
+        handleClaimFragmentReward,
     };
 };

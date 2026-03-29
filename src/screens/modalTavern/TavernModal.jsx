@@ -45,8 +45,9 @@ const dogAssets = {
 };
 
 const forgeDogAssets = {
+    pip: forgeIcon1,   koda: forgeIcon2,  milo: forgeIcon3,
     rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1,   toby: forgeIcon2, buddy: forgeIcon3,
+    rex: forgeIcon1,   toby: forgeIcon2,  buddy: forgeIcon3,
 };
 
 const ingotAssets = {
@@ -228,10 +229,15 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     })
                                     .map(dog => {
                                     const config = DogsConfig[dog.id];
-                                    const canUnlock = (dog.fragments ?? 0) >= config.unlockFragments;
+                                    const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
+                                    const canUnlock = (dog.fragments ?? 0) >= config.unlockFragments
+                                        && gameState.gold >= goldCost
+                                        && tavernCoins >= coinCost;
                                     const stars = dog.stars ?? 0;
                                     const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars] : null;
-                                    const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext;
+                                    const STAR_COIN_COST = { legendary: 3, epic: 2, rare: 1 };
+                                    const starCoinCost = STAR_COIN_COST[config.rarity] ?? 0;
+                                    const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost;
                                     const isFlipped = flippedDog === dog.id;
                                     return (
                                         <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
@@ -247,12 +253,25 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                     stars < 5 ? (
                                                         <>
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNext}</div>
+                                                            <div className="dog-unlock-cost">
+                                                                <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
+                                                                    <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
+                                                                </span>
+                                                            </div>
                                                             <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id)} disabled={!canUpgrade}>⬆ Mejorar</button>
                                                         </>
                                                     ) : <div className="dog-status">MAX ⭐</div>
                                                 ) : (
                                                     <>
                                                         <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
+                                                        <div className="dog-unlock-cost">
+                                                            <span className={gameState.gold < goldCost ? 'cost-missing' : 'cost-ok'}>
+                                                                <img src={iconGold} alt="oro" className="cost-icon" />{goldCost >= 1000 ? (goldCost/1000).toFixed(0)+'k' : goldCost}
+                                                            </span>
+                                                            <span className={tavernCoins < coinCost ? 'cost-missing' : 'cost-ok'}>
+                                                                <img src={coinTavern} alt="coins" className="cost-icon" />{coinCost}
+                                                            </span>
+                                                        </div>
                                                         <button className={`dog-hire-btn ${!canUnlock ? 'locked' : ''}`} onClick={() => onUnlockWithFragments(dog.id)} disabled={!canUnlock}>Desbloquear</button>
                                                     </>
                                                 )}
@@ -316,10 +335,14 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     })
                                     .map(dog => {
                                     const config = ForgeDogsConfig[dog.id];
-                                    const canUnlockF = (dog.fragments ?? 0) >= config.unlockFragments;
+                                    const { gold: goldCostF = 0, tavernCoins: coinCostF = 0 } = config.unlockCost ?? {};
+                                    const canUnlockF = (dog.fragments ?? 0) >= config.unlockFragments
+                                        && gameState.gold >= goldCostF
+                                        && tavernCoins >= coinCostF;
                                     const starsF = dog.stars ?? 0;
                                     const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF] : null;
-                                    const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF;
+                                    const starCoinCostF = { legendary: 3, epic: 2, rare: 1 }[config.rarity] ?? 0;
+                                    const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF;
                                     const isFlipped = flippedDog === dog.id;
 
                                     return (
@@ -336,15 +359,29 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                     starsF < 5 ? (
                                                         <>
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNextF}</div>
+                                                            <div className="dog-unlock-cost">
+                                                                <span className={tavernCoins < starCoinCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                    <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCostF}
+                                                                </span>
+                                                            </div>
                                                             <button className={`dog-hire-btn ${!canUpgradeF ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id, true)} disabled={!canUpgradeF}>⬆ Mejorar</button>
                                                         </>
                                                     ) : <div className="dog-status">MAX ⭐</div>
                                                 ) : (
                                                     <>
                                                         <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
+                                                        <div className="dog-unlock-cost">
+                                                            <span className={gameState.gold < goldCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                <img src={iconGold} alt="oro" className="cost-icon" />{goldCostF >= 1000 ? (goldCostF/1000).toFixed(0)+'k' : goldCostF}
+                                                            </span>
+                                                            <span className={tavernCoins < coinCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                <img src={coinTavern} alt="coins" className="cost-icon" />{coinCostF}
+                                                            </span>
+                                                        </div>
                                                         <button className={`dog-hire-btn ${!canUnlockF ? 'locked' : ''}`} onClick={() => onUnlockWithFragments(dog.id, true)} disabled={!canUnlockF}>Desbloquear</button>
                                                     </>
                                                 )}
+                                                
                                             </div>
                                             <div className="dog-card dog-card-back">
                                                 <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
