@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 1000000000,
+    gold: 5000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -81,7 +81,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 100000,
+    tavernCoins: 2,
     tavernUnlocked: false,
 
     // ========== MINAS ==========

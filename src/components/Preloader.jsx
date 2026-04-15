@@ -13,6 +13,11 @@ import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.png"
 import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-iron.png"
 import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.png"
 
+//mine interior
+import bgInsideBronze from "../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png"
+import bgInsideIron from "../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png"
+import bgInsideDiamond from "../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-diamond.png"
+
 import bgMain from "../assets/backgrounds/fondo4.png";
 import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.png";
 import bgStamina from "../assets/backgrounds/bg-modals-hud/bgStamina.png";
@@ -27,6 +32,7 @@ import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
 const IMAGES = [
     bgTavern, bgGold, bgCoin, bgGold1,
     bgMineBronze, bgMineIron, bgMineDiamond, bgMain, bgStamina, bgPickaxe,
+    bgInsideBronze, bgInsideIron, bgInsideDiamond,
 ];
 
 const Preloader = () => {
