@@ -342,6 +342,54 @@ export const useDogsActions = (gameState, setGameState) => {
         });
     };
 
+    const FREE_PULL_COOLDOWNS = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
+
+    const handleFreePull = (packId, isForge = false) => {
+        setGameState(prevState => {
+            const cooldown = FREE_PULL_COOLDOWNS[packId];
+            const last = prevState.lastFreePull?.[packId] ?? 0;
+            if (Date.now() - last < cooldown) return prevState;
+
+            const pack = PACK_TYPES[packId];
+            const pityKey = `${isForge ? 'forge' : 'miner'}_${packId}`;
+            const pity = prevState.gachaPity?.[pityKey] ?? { count: 0, epicCount: 0 };
+            let newCount = pity.count + 1;
+            let newEpicCount = pity.epicCount + 1;
+
+            let rarity;
+            const packPity = pack.pity;
+            if (packPity.legendary && newCount >= packPity.legendary) rarity = 'legendary';
+            else if (packPity.epic && newEpicCount >= packPity.epic) rarity = 'epic';
+            else {
+                const roll = Math.random();
+                if (roll < pack.rates.legendary) rarity = 'legendary';
+                else if (roll < pack.rates.legendary + pack.rates.epic) rarity = 'epic';
+                else rarity = 'rare';
+            }
+
+            if (rarity === 'legendary') { newCount = 0; newEpicCount = 0; }
+            else if (rarity === 'epic') { newEpicCount = 0; }
+
+            const stateKey = isForge ? 'forgeDogs' : 'dogs';
+            const configMap = isForge ? ForgeDogsConfig : DogsConfig;
+            const pool = Object.keys(configMap).filter(id => configMap[id].rarity === rarity);
+            if (pool.length === 0) return prevState;
+
+            const pickedId = pool[Math.floor(Math.random() * pool.length)];
+            const fragsGained = FRAGMENTS_PER_RARITY[rarity];
+            const currentDog = prevState[stateKey]?.[pickedId];
+            if (!currentDog) return prevState;
+
+            return {
+                ...prevState,
+                [stateKey]: { ...prevState[stateKey], [pickedId]: { ...currentDog, fragments: (currentDog.fragments ?? 0) + fragsGained } },
+                gachaPity: { ...prevState.gachaPity, [pityKey]: { count: newCount, epicCount: newEpicCount } },
+                lastFreePull: { ...prevState.lastFreePull, [packId]: Date.now() },
+                lastPackResult: { dogId: pickedId, rarity, fragments: fragsGained, isForge }
+            };
+        });
+    };
+
     return {
         handleHireDog,
         handleAssignDog,
@@ -353,5 +401,6 @@ export const useDogsActions = (gameState, setGameState) => {
         handleUnlockWithFragments,
         handleUpgradeStar,
         handleOpenPack,
+        handleFreePull,
     };
 };

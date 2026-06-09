@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import '../../styles/modals/PickaxeModal.css';
+import '../../styles/modals/UpgradeModal.css';
 
 // ===== ASSETS: LINGOTES =====
 import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
@@ -77,6 +78,9 @@ const PickaxeModal = ({
     canAffordMaterial,
     materialButtonImage,
     tutorialMessage = null,
+    tutorialPhase = null,
+    tutorialHintText = null,
+    tutorialStep0Active = false,
     onShowGoldCost = null,
     materialIngotCost = null,
     tierIngotCost = null,
@@ -84,7 +88,7 @@ const PickaxeModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay-pickaxe" onClick={onClose}>
+        <div className="modal-overlay-pickaxe" onClick={tutorialStep0Active ? undefined : onClose}>
             <div
                 className="pickaxe-modal-content"
                 onClick={(e) => e.stopPropagation()}
@@ -92,15 +96,12 @@ const PickaxeModal = ({
             >
                 <div className="pickaxe-modal">
 
-                    {/* BOTÓN CERRAR */}
-                    <button className="modal-close" onClick={onClose}><X /></button>
-
-                    {/* MENSAJE TUTORIAL */}
-                    {tutorialMessage && (
-                        <div className='title-modal-pickaxe'>
-                            <p>{tutorialMessage}</p>
-                        </div>
+                    {/* BOTÓN CERRAR — oculto durante tutorial */}
+                    {!tutorialStep0Active && (
+                        <button className="modal-close" onClick={onClose}><X /></button>
                     )}
+
+
 
                     {/* INFO PICO */}
                     <div className="pickaxe-modal-info">
@@ -113,7 +114,7 @@ const PickaxeModal = ({
 
                         {pickaxeTier < 5 ? (
                             <button
-                                className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
+                                className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
                                 onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
                                 disabled={!canAfford}
                             >
@@ -156,6 +157,15 @@ const PickaxeModal = ({
                         )}
                     </div>
                 </div>
+
+                {tutorialPhase === 'upgrade' && (
+                    <div className="tutorial-modal-hint">
+                        <p className="tutorial-modal-hint-text">
+                            {tutorialHintText ?? "Refuerza el pico para que aguante más golpes antes de romperse."}
+                        </p>
+                    </div>
+                )}
+
             </div>
         </div>
     );

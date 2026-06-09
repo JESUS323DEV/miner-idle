@@ -1,5 +1,8 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import iconGold from "../assets/ui/icons-hud/hud-principal/oro1.png";
+import iconCoin from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
+import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legendary.png";
 import "../styles/modals/RewardsModal.css"
 import { useGameContext } from "../game/context/GameContext.jsx";
 
@@ -171,19 +174,19 @@ const RewardsModal = ({ isOpen, onClose }) => {
                         className={`rewards-tab ${activeTab === "gold" ? "active" : ""} ${hasUnclaimedGold && activeTab !== "gold" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("gold")}
                     >
-                        💰 Oro
+                        <img src={iconGold}alt="oro" /> Oro
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "coins" ? "active" : ""} ${hasUnclaimedCoins && activeTab !== "coins" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("coins")}
                     >
-                        🪙 Monedas
+                        <img src={iconCoin}alt="monedas" /> Monedas
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "fragments" ? "active" : ""} ${hasUnclaimedFragments && activeTab !== "fragments" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("fragments")}
                     >
-                        🧩 Fragmentos
+                        <img src={iconShardLegendary}alt="fragmentos" /> Fragmentos
                     </button>
                 </div>
 

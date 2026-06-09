@@ -43,10 +43,11 @@
 
 .pickaxe-modal {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
     min-height: 60vh;
     gap: 0.5rem;
+
 
 }
 
@@ -57,7 +58,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
     padding: 1rem;
 
 
@@ -77,9 +77,6 @@
 
     color: white;
 
-    border: 1px solid rgba(255, 239, 136, 0.3);
-    padding: 0.4rem 1rem;
-    background-color: rgba(150, 75, 0, 0.615);
     border-radius: 0.5rem;
 }
 
@@ -110,10 +107,7 @@
 .cont-upgrade-pickaxe {
 
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+ margin-top: 1.5rem;
 
 }
 
@@ -170,5 +164,4 @@
     left: 2.5rem;
     font-size: 3rem;
     z-index: 20;
-    animation: point-right 1s ease-in-out infinite;
 }

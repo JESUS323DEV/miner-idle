@@ -142,6 +142,18 @@ export const useYacimientoActions = (gameState, setGameState) => {
             const newGoldSpent = prevState.totalGoldSpent + cost.gold;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const config = prevState.yacimientos[biome].slotConfig[slotId];
+            const newMena = {
+                type: biome,
+                level: 1,
+                durability: config.maxDurability,
+                maxDurability: config.maxDurability,
+                growthTime: config.growthTime,
+                plantedAt: Date.now(),
+                ready: false,
+                repairingUntil: null,
+            };
+
             return {
                 ...prevState,
                 gold: prevState.gold - cost.gold,
@@ -152,7 +164,7 @@ export const useYacimientoActions = (gameState, setGameState) => {
                     [biome]: {
                         ...prevState.yacimientos[biome],
                         slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? { ...s, unlocked: true } : s
+                            s.id === slotId ? { ...s, unlocked: true, mena: newMena } : s
                         )
                     }
                 },

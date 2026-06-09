@@ -39,12 +39,94 @@
 
     0%,
     100% {
-        transform: translateX(-50%)  translateY(0);
+        transform: translateX(-50%) translateY(0);
     }
 
     50% {
-        transform: translateX(-50%)  translateY(-8px);
+        transform: translateX(-50%) translateY(-8px);
     }
+}
+
+/* ============================================================
+   TUTORIAL DIALOG — panel inferior con info del paso actual
+   ============================================================ */
+
+.tutorial-dialog {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002;
+    width: 88%;
+    max-width: 340px;
+    background: linear-gradient(160deg, #16120a 0%, #0e0b06 100%);
+    border: 1.5px solid #c8992a;
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem 1rem;
+    box-shadow:
+        0 0 24px rgba(200, 153, 42, 0.35),
+        inset 0 1px 0 rgba(255, 215, 120, 0.08);
+    text-align: center;
+}
+
+.tutorial-dialog-counter {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: #9a7530;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+}
+
+.tutorial-dialog-skip {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.7rem;
+    background: none;
+    border: none;
+    color: #6b5520;
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 0.1rem 0.3rem;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.tutorial-dialog-skip:hover {
+    color: #c8992a;
+}
+
+.tutorial-dialog-title {
+    color: #FFD700;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 0.45rem;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.tutorial-dialog-text {
+    color: #d4c4a0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    margin: 0 0 0.9rem;
+}
+
+.tutorial-dialog-btn {
+    background: linear-gradient(to bottom, #c8992a, #9a6f1a);
+    border: none;
+    border-radius: 6px;
+    color: #1a1200;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.45rem 1.4rem;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: filter 0.15s;
+    box-shadow: 0 2px 8px rgba(200, 153, 42, 0.4);
+}
+
+.tutorial-dialog-btn:hover {
+    filter: brightness(1.15);
 }
 
 /* Texto tutorial */
@@ -64,4 +146,3 @@
     white-space: nowrap;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
-

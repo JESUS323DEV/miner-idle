@@ -27,21 +27,16 @@ const UpgradeModal = ({
     onUpgrade,           // Ejecuta el upgrade
     canAfford,           // Si puede pagar el upgrade
 
-    // ===== REFILL (stamina) =====
-    showRefill,          // Si muestra botón de recargar
-    refillCost,          // Texto del coste (ej: "Recargar: 60 Oro")
-    onRefill,            // Ejecuta la recarga
-    canAffordRefill,     // Si puede pagar la recarga
-
     // ===== TUTORIAL =====
     tutorialStep0Active = false,
-    tutorialMessage = null,
+    tutorialPhase = null,      // 'upgrade' | 'snacks' | null
+    onTutorialAction = null,
+    tutorialHintText = null,
 
     // ===== IMÁGENES =====
-    bgImage,             // Fondo del modal
-    iconImage,           // Icono del upgrade
-    buttonImage,         // Imagen del botón principal
-    refillButtonImage,   // Imagen del botón de refill
+    bgImage,
+    iconImage,
+    buttonImage,
 
     // ===== SNACKS =====
     showSnacks = false,
@@ -56,8 +51,8 @@ const UpgradeModal = ({
 
 
 }) => {
-    // Tick para actualizar el timer del snack cada segundo
-    const [tick, setTick] = useState(0);
+    // Tick para forzar re-render del timer del snack cada segundo
+    const [, setTick] = useState(0);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -84,12 +79,6 @@ const UpgradeModal = ({
                         </button>
                     )}
 
-                    {/* TUTORIAL POINTER */}
-                    {tutorialMessage && (
-                        <div className='title-modal'>
-                            <p>{tutorialMessage}</p>
-                        </div>
-                    )}
 
                     {/* ICONO + NIVEL + BOTÓN UPGRADE */}
                     <div className="modal-info">
@@ -102,13 +91,11 @@ const UpgradeModal = ({
                         <div className='cont-btn-upgrade'>
                             <p>{title}</p>
                             <button
-                                className={`btn-upgrade ${!canAfford ? "locked" : ""}`}
+                                className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
                                 onClick={onUpgrade}
                                 disabled={!canAfford}
                             >
                                 <img src={buttonImage} loading='lazy' alt="Upgrade" />
-
-
                             </button>
                             <span className='info-gold'>
                                 coste: {formatNumber(cost)}
@@ -117,9 +104,17 @@ const UpgradeModal = ({
                                     <> {coinCost} <img className='iconGold2' src={coinTavern} alt="coinTavern" /></>
                                 )}
                             </span>
-
                         </div>
                     </div>
+
+                    {/* TEXTO TUTORIAL FASE UPGRADE */}
+                    {tutorialPhase === 'upgrade' && (
+                        <div className="tutorial-modal-hint">
+                            <p className="tutorial-modal-hint-text">
+                                {tutorialHintText ?? "El oro por segundo es el motor del juego. Cuanto más lo mejores, más rico serás sin hacer nada."}
+                            </p>
+                        </div>
+                    )}
 
                     {/* BOTÓN REFILL — solo stamina 
                     {showRefill && (
@@ -153,11 +148,14 @@ const UpgradeModal = ({
 
                     {/* ===== SNACKS — solo modal de oro ===== */}
                     {showSnacks && snacksData && (
-                        <div className='cont-snacks'>
+                        <div className="cont-snacks">
 
                             {/* GALLETA */}
                             <div className='container-snacks'>
-                                <div className='snack1'>
+                                <div className={`snack1 ${tutorialPhase === 'snacks' ? 'tutorial-pulse' : ''}`}>
+                                    {tutorialPhase === 'snacks' && (
+                                        <span className="tutorial-hand-above">👇</span>
+                                    )}
 
                                     <div className='cont-cookie'>
                                         <div className='cont-text-img'>
@@ -241,6 +239,18 @@ const UpgradeModal = ({
                                 */}
                             </div>
 
+                        </div>
+                    )}
+
+                    {/* TEXTO TUTORIAL FASE SNACKS */}
+                    {tutorialPhase === 'snacks' && (
+                        <div className="tutorial-modal-hint tutorial-modal-hint--top">
+                            <p className="tutorial-modal-hint-text">
+                                Las galletas dan un boost de oro por segundo durante un tiempo. Desbloquéalas con monedas de taberna cuando puedas.
+                            </p>
+                            <button className="tutorial-modal-hint-btn" onClick={onTutorialAction}>
+                                Entendido
+                            </button>
                         </div>
                     )}
 

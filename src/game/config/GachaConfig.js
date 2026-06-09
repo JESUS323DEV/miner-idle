@@ -6,15 +6,15 @@ export const PACK_TYPES = {
     basic: {
         id: 'basic',
         name: 'Básico',
-        cost: 3,
-        rates: { rare: 0.70, epic: 0.25, legendary: 0.05 },
+        cost: 5,
+        rates: { rare: 0.88, epic: 0.10, legendary: 0.02 },
         pity: { epic: 30, legendary: 80 },
     },
     epic: {
         id: 'epic',
         name: 'Épico',
-        cost: 8,
-        rates: { rare: 0, epic: 0.70, legendary: 0.30 },
+        cost: 10,
+        rates: { rare: 0.10, epic: 0.85, legendary: 0.05 },
         pity: { epic: null, legendary: 40 },
     },
     legendary: {

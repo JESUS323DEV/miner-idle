@@ -74,8 +74,20 @@ const MineScreen = ({ isOpen, onClose }) => {
   const [now, setNow] = useState(Date.now());
   const [openInfo, setOpenInfo] = useState(null);
   const [animTriggers, setAnimTriggers] = useState({});
+  const [mineWarnings, setMineWarnings] = useState([]);
   const automineRef = useRef(null);
   const snackLastUsed = useRef({});
+  const mineContentRef = useRef(null);
+
+  const addMineWarning = (clientX, clientY, msg) => {
+    const rect = mineContentRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = Math.min(Math.max(clientX - rect.left, 60), rect.width - 110);
+    const y = clientY - rect.top;
+    const wId = Date.now() + Math.random();
+    setMineWarnings(prev => [...prev, { id: wId, x, y, msg }]);
+    setTimeout(() => setMineWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
+  };
 
   const totalRemainingEarly = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
 
@@ -178,7 +190,10 @@ const MineScreen = ({ isOpen, onClose }) => {
       onClick={onClose}
       style={{ backgroundImage: `url(${bgImages[baseMineType]})` }}
     >
-      <div className="mine-screen-content" onClick={(e) => e.stopPropagation()}>
+      <div className="mine-screen-content" ref={mineContentRef} onClick={(e) => e.stopPropagation()}>
+        {mineWarnings.map(w => (
+          <div key={w.id} className="floating-warning" style={{ left: `${w.x}px`, top: `${w.y}px` }}>{w.msg}</div>
+        ))}
         {/* HEADER */}
         <div className="mine-screen-header">
           <div className="mine-title">
@@ -218,23 +233,27 @@ const MineScreen = ({ isOpen, onClose }) => {
             const hasCharges = snack.charges > 0;
 
             return (
-              <div key={cfg.id} className={`mine-snack-item ${isActive ? 'snack-active' : ''} ${!hasCharges && !isActive ? 'snack-locked' : ''} ${anySnackActive && !isActive ? 'snack-blocked' : ''}`}>
+              <div key={cfg.id} className={`mine-snack-item ${cfg.id === 'dynamite' ? 'snack-locked' : ''} ${isActive ? 'snack-active' : ''} ${!hasCharges && !isActive && cfg.id !== 'dynamite' ? 'snack-locked' : ''} ${anySnackActive && !isActive ? 'snack-blocked' : ''}`}>
 
                 {/* EMOJI = botón usar */}
                 <button
                   className={`mine-snack-emoji-btn ${isActive && cfg.id === 'automine' ? 'snack-anim-spin' : ''} ${isActive && cfg.id === 'toughness' ? 'snack-anim-pulse' : ''}`}
                   onClick={() => {
+                    if (cfg.id === 'dynamite') return;
                     const now2 = Date.now();
                     if (!hasCharges || anySnackActive) return;
                     if (now2 - (snackLastUsed.current[cfg.id] || 0) < 500) return;
                     snackLastUsed.current[cfg.id] = now2;
-                    cfg.id === 'dynamite' ? handleDynamiteMine() : handleUseMineSnack(cfg.id);
+                    handleUseMineSnack(cfg.id);
                   }}
-                  disabled={!hasCharges || anySnackActive}
+                  disabled={cfg.id === 'dynamite' || !hasCharges || anySnackActive}
                 >
-                  {isActive ? <span className="snack-timer">{secsLeft}s</span> : cfg.emoji}
+                  {cfg.id === 'dynamite'
+                    ? <span className="snack-proximamente">Próx.</span>
+                    : isActive ? <span className="snack-timer">{secsLeft}s</span> : cfg.emoji
+                  }
                   {/* BADGE de cargas */}
-                  {!isActive && hasCharges && (
+                  {cfg.id !== 'dynamite' && !isActive && hasCharges && (
                     <span className="snack-charges-badge">x{snack.charges}</span>
                   )}
                 </button>
@@ -281,6 +300,9 @@ const MineScreen = ({ isOpen, onClose }) => {
               vein={vein}
               onMineVein={onMineVein}
               canMine={canMine && vein.remaining > 0}
+              stamina={gameState.stamina}
+              pickaxeDurability={gameState.pickaxe.durability}
+              onWarning={addMineWarning}
               mineType={currentMine.mineType}
               mineColor={getMineColor(currentMine.mineType)}
               menaImg={menaImg}
@@ -378,7 +400,7 @@ const MineScreen = ({ isOpen, onClose }) => {
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg, animTrigger }) => {
+const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning, menaImg, hudImg, animTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [particles, setParticles] = useState([]);
@@ -400,7 +422,13 @@ const Vein = ({ vein, onMineVein, canMine, menaImg, hudImg, animTrigger }) => {
   }, [animTrigger]);
 
   const handleClick = (e) => {
-    if (!canMine) return;
+    if (!canMine) {
+      if (vein.remaining > 0) {
+        const msg = stamina <= 0 && pickaxeDurability <= 0 ? '⚡⛏️ Recarga todo' : stamina <= 0 ? '⚡ Sin stamina' : '⛏️ Pico roto';
+        onWarning(e.clientX, e.clientY, msg);
+      }
+      return;
+    }
 
     // Ejecuta la lógica de minado
     onMineVein(vein.id);

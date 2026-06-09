@@ -1,8 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import '../../styles/modals/MinesMapModal.css';
+import '../../styles/modals/MineScreen.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
+
+const BIOME_INTRO = {
+    bronze:  { title: "Mina de Bronce",   text: "Explora minas de extracción para conseguir materiales con tu pico y desbloquea puestos mineros donde tus mascotas trabajarán por ti incluso cuando no estés minando. Después, convierte las menas en valiosos lingotes en la forja para mejorar tu equipo y seguir avanzando." },
+    iron:    { title: "Mina de Hierro",   text: "El hierro es más resistente y valioso que el bronce. Necesitarás un pico más potente para extraerlo, pero sus materiales te permitirán acceder a mejoras más avanzadas, forjar un pico de mayor calidad y continuar tu camino hacia recursos aún más raros." },
+    diamond: { title: "Mina de Diamante", text: "El diamante es uno de los materiales más raros y valiosos que existen. Sus vetas son escasas y duran muy pocos golpes, así que aprovecha cada oportunidad para extraerlo. Utilízalo con sabiduría para fabricar el mejor equipo y alcanzar los tiers más altos." },
+};
+
+const INTRO_FLAG = {
+    bronze:  'mineIntroBronzeDone',
+    iron:    'mineIntroIronDone',
+    diamond: 'mineIntroDiamondDone',
+};
 
 
 
@@ -47,8 +60,9 @@ import { X } from 'lucide-react';
 const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, onEnterMine }) => {
     const {
         gameState,
+        setGameState,
         handleUnlockMineType: onUnlockType,
-        handlePlantMena: onPlantMena,
+
         handleMineYacimiento: onMineYacimiento,
         handleDogMineYacimiento: onDogMineYacimiento,
         handleRepairYacimiento: onRepairYacimiento,
@@ -60,8 +74,16 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
     const { unlockedTypes, bestScores } = mines;
     const minesConfig = MinesConfig;
 
-    // ⚠️ useState SIEMPRE antes del early return (Rules of Hooks)
-    const [dogMenuSlot, setDogMenuSlot] = useState(null); // slotId abierto
+    const [showIntro, setShowIntro] = useState(false);
+    const [dogMenuSlot, setDogMenuSlot] = useState(null);
+
+    useEffect(() => {
+        if (!isOpen || !selectedBiome) return;
+        const flag = INTRO_FLAG[selectedBiome];
+        if (flag && !gameState.tutorial?.[flag]) {
+            setShowIntro(true);
+        }
+    }, [isOpen, selectedBiome]); // eslint-disable-line
 
     if (!isOpen) return null;
 
@@ -145,6 +167,25 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
             <div className="mines-modal-content" onClick={(e) => e.stopPropagation()}
                 style={{ backgroundImage: bgImage ? `url(${bgImage})` : 'none' }}
             >
+                {showIntro && BIOME_INTRO[selectedBiome] && (
+                    <div className="mine-intro-overlay">
+                        <h3 className="mine-intro-title">{BIOME_INTRO[selectedBiome].title}</h3>
+                        <p className="mine-intro-text">{BIOME_INTRO[selectedBiome].text}</p>
+                        <button
+                            className="mine-intro-btn"
+                            onClick={() => {
+                                setShowIntro(false);
+                                setGameState(prev => ({
+                                    ...prev,
+                                    tutorial: { ...prev.tutorial, [INTRO_FLAG[selectedBiome]]: true }
+                                }));
+                            }}
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                )}
+
                 {/* HEADER */}
                 <div className="mines-modal-header">
                     <button className="modal-close" onClick={onClose}><X /></button>
@@ -213,7 +254,6 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                     const mena = slot.mena;
                                     const ready = isMenaReady(mena);
                                     const timeLeft = getGrowthTimeLeft(mena);
-                                    const config = mena ? yacimientos[selectedBiome].slotConfig[slot.id] : null;
 
                                     const unlockCost = yacimientos[selectedBiome].unlockCosts[slot.id];
 
@@ -255,23 +295,9 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                         </div>
                                     );
 
-                                    if (!mena) return (
-                                        <div key={slot.id} className="yacimiento-slot empty">
-                                            <p>🪏</p>
-                                            <div className="mena-bottom">
-                                                <button
-                                                    className="btn-plant-mena"
-                                                    onClick={(e) => { e.stopPropagation(); onPlantMena(slot.id, selectedBiome); }}
-                                                    disabled={gameState[selectedBiome] < yacimientos[selectedBiome].plantCost.amount}
-                                                >
-                                                    Excavar
-                                                </button>
-                                            </div>
+                                    if (!mena) return null;
 
-                                        </div>
-
-                                    );
-
+                                    const config = yacimientos[selectedBiome].slotConfig[slot.id];
                                     return (
                                         <YacimientoSlotActivo
                                             key={slot.id}
@@ -385,7 +411,7 @@ const YacimientoSlotActivo = ({
                 <div className="mena-bottom-info">
                     {!ready && <span>⏱️ {timeLeft}s</span>}
                     {isRepairing(mena)
-                        ? <span>🪏 {getRepairTimeLeft(mena)}s</span>
+                        ? <span>⏱️ {getRepairTimeLeft(mena)}s</span>
                         : <span
                             className={`repair-mena-btn ${mena.durability >= mena.maxDurability ? 'repair-disabled' : ''} ${mena.durability <= 0 ? 'repair-urgent' : ''}`}
                             onClick={(e) => {
@@ -395,14 +421,12 @@ const YacimientoSlotActivo = ({
                                 }
                             }}
                         >
-                            🪏
                             <span className="info-yacimientos">
                                 <img className="icon-info" src={iconGold} alt="gold" /> {formatNumber2(config?.repairCost)}
                             </span>
                         </span>
                     }
                 </div>
-
             </div>
             <div
                 className={`dog-slot-box${dogAssigned ? ` dog-rarity-${DogsConfig[dogAssigned.id]?.rarity}` : ''}`}

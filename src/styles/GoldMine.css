@@ -1,8 +1,7 @@
 .gold-mine-container {
-    position: absolute;
-    top: 31rem;
+    position: fixed;
+    top: clamp(20rem, 72vh, 38rem);
     left: 5rem;
-
 }
 
 .gold-mine {
@@ -76,6 +75,18 @@
 }
 
 /*==================================FLOTANTES ORO=========================================*/
+.floating-warning-gold {
+    position: absolute;
+    font-size: 13px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: float-up 1.2s ease-out forwards;
+    color: #ff6b6b;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+    z-index: 100;
+}
+
 .floating-number-gold {
     position: absolute;
     animation: float-up 1s ease-out forwards;

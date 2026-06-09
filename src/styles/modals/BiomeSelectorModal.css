@@ -133,9 +133,11 @@
     cursor: not-allowed;
 }
 
-.biome-emoji {
-    font-size: 1.8rem;
-    line-height: 1;
+.biome-img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
     flex-shrink: 0;
 }
 

@@ -3,6 +3,10 @@ import { X } from "lucide-react";
 import "../../styles/modals/BiomeSelectorModal.css"
 import { useGameContext } from "../../game/context/GameContext.jsx";
 
+import bgBronze   from "../../assets/backgrounds/bg-mines/bg-mine-bronze.png";
+import bgIron     from "../../assets/backgrounds/bg-mines/bg-mine-iron.png";
+import bgDiamond  from "../../assets/backgrounds/bg-mines/bg-mine-diamond.png";
+
 import picoStone   from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
 import picoBronze  from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png";
 import picoIron    from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png";
@@ -22,9 +26,9 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
     if (!isOpen) return null;
 
     const biomes = [
-        { type: "bronze",  name: "Bronce",   emoji: "🏜️", unlockCost: 1000,  color: "#CD7F32", glow: "rgba(205,127,50,0.5)",   pickRec: picoBronze,  pickNorm: picoStone  },
-        { type: "iron",    name: "Hierro",   emoji: "🏔️", unlockCost: 10000, color: "#9E9E9E", glow: "rgba(158,158,158,0.5)", pickRec: picoIron,    pickNorm: picoBronze },
-        { type: "diamond", name: "Diamante", emoji: "❄️", unlockCost: 50000, color: "#89DFFF", glow: "rgba(137,223,255,0.5)", pickRec: picoDiamond, pickNorm: picoIron   },
+        { type: "bronze",  name: "Bronce",   img: bgBronze,   unlockCost: 1000,  color: "#CD7F32", glow: "rgba(205,127,50,0.5)",   pickRec: picoBronze,  pickNorm: picoStone  },
+        { type: "iron",    name: "Hierro",   img: bgIron,     unlockCost: 10000, color: "#9E9E9E", glow: "rgba(158,158,158,0.5)", pickRec: picoIron,    pickNorm: picoBronze },
+        { type: "diamond", name: "Diamante", img: bgDiamond,  unlockCost: 50000, color: "#89DFFF", glow: "rgba(137,223,255,0.5)", pickRec: picoDiamond, pickNorm: picoIron   },
     ];
 
     const isBiomeUnlocked = (type) => unlockedBiomes.includes(type);
@@ -59,7 +63,7 @@ const BiomeSelectorModal = ({ isOpen, onClose, onSelectBiome }) => {
                                 disabled={isLocked}
                                 style={{ "--biome-color": biome.color, "--biome-glow": biome.glow }}
                             >
-                                <span className="biome-emoji">{biome.emoji}</span>
+                                <img src={biome.img} className="biome-img" alt={biome.name} />
                                 <div className="biome-info">
                                     <span className="biome-name">{biome.name}</span>
                                     {!unlocked && (

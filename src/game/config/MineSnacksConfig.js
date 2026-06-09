@@ -5,10 +5,10 @@ const MineSnacksConfig = {
         id: 'automine',
         name: 'Auto-pico',
         emoji: '⚙️',
-        description: 'Mina solo durante 10s',
+        description: 'Mina solo durante 20s',
         costGold: 1500,       // Precio en oro por recarga
         chargesPerBuy: 2,    // Cargas que da cada recarga
-        duration: 10000,     // Duración en ms (10s)
+        duration: 20000,     // Duración en ms (20s)
         interval: 166,       // Ms entre golpes (~6 clicks/s)
     },
 
@@ -27,11 +27,11 @@ const MineSnacksConfig = {
         id: 'toughness',
         name: 'Refuerzo',
         emoji: '🛡️',
-        description: '30% por golpe sin coste de stamina/pico (15s)',
+        description: '30% por golpe sin coste de stamina/pico (25s)',
         costGold: 1000,       // Precio en oro por recarga
         chargesPerBuy: 2,    // Cargas que da cada recarga
-        duration: 15000,     // Duración en ms (15s)
-        procChance: 0.5,     // Probabilidad de no consumir por golpe (0-1)
+        duration: 25000,     // Duración en ms (25s)
+        procChance: 0.8,     // Probabilidad de no consumir por golpe (0-1)
     },
 
 };

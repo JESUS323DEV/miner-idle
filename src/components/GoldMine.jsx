@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
 import menaGold from '../assets/scenes/mining/mena-gold5.png';
 import { useGameContext } from '../game/context/GameContext.jsx';
 
-const GoldMine = () => {
+const GoldMine = ({ elevated = false }) => {
     const { gameState, handleMineClick: onMineClick } = useGameContext();
     const { pickaxe, comboCount: currentCombo, comboMilestones, stamina } = gameState;
     const goldPerMine = pickaxe.goldPerMine;
@@ -23,10 +24,19 @@ const GoldMine = () => {
 
 
     const [comboNumbers, setComboNumbers] = useState([]);
+    const [floatingWarnings, setFloatingWarnings] = useState([]);
 
     const handleClick = (e) => {
-        // Si no puede minar (sin stamina o durabilidad), no hace nada
-        if (!canMine) return;
+        if (!canMine) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = Math.min(Math.max(e.clientX - rect.left, 60), rect.width - 110);
+            const y = e.clientY - rect.top;
+            const msg = stamina <= 0 && pickaxe.durability <= 0 ? '⚡⛏️ Recarga todo' : stamina <= 0 ? '⚡ Sin stamina' : '⛏️ Pico roto';
+            const wId = Date.now();
+            setFloatingWarnings(prev => [...prev, { id: wId, x, y, msg }]);
+            setTimeout(() => setFloatingWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
+            return;
+        }
 
         // Ejecuta la lógica de minado (suma oro, resta stamina/durabilidad)
         onMineClick();
@@ -130,8 +140,27 @@ const GoldMine = () => {
         }, 800);
     };
 
-    return (
-        <div className="gold-mine-container">
+    const content = (
+        <div
+            className="gold-mine-container"
+            style={elevated ? { position: 'fixed', zIndex: 1500 } : {}}
+        >
+            {elevated && (
+                <div style={{
+                    position: 'absolute',
+                    top: '-2.2rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    color: '#FFD700',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    whiteSpace: 'nowrap',
+                    textShadow: '0 1px 4px rgba(0,0,0,0.9)',
+                    pointerEvents: 'none',
+                }}>
+                    👇 Dale tap
+                </div>
+            )}
             {/* IMAGEN DE LA MENA (clickeable) */}
             <img
                 src={menaGold}
@@ -140,6 +169,10 @@ const GoldMine = () => {
                 data-gold-mine="true"
                 onClick={handleClick}
             />
+
+            {floatingWarnings.map(w => (
+                <div key={w.id} className="floating-warning-gold" style={{ left: `${w.x}px`, top: `${w.y}px` }}>{w.msg}</div>
+            ))}
 
             {/* NÚMEROS FLOTANTES DE ORO */}
             {floatingNumbers.map(num => (
@@ -188,6 +221,9 @@ const GoldMine = () => {
             ))}
         </div>
     );
+
+    if (elevated) return createPortal(content, document.body);
+    return content;
 };
 
 export default GoldMine;

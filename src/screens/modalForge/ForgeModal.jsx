@@ -10,9 +10,9 @@ import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png";
 import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png";
 
 const forgeDogAssets = {
-    pip: forgeIcon1,   koda: forgeIcon2,  milo: forgeIcon3,
+    pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
     rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1,   toby: forgeIcon2,  buddy: forgeIcon3,
+    rex: forgeIcon1, toby: forgeIcon2, buddy: forgeIcon3,
 };
 
 
@@ -77,6 +77,7 @@ const forgeAssets = {
 const ForgeModal = ({ isOpen, onClose }) => {
     const {
         gameState,
+        setGameState,
         handleUnlockFurnace: onUnlockFurnace,
         handleStartSmelt: onStartSmelt,
         handleCollectIngot: onCollectIngot,
@@ -86,8 +87,15 @@ const ForgeModal = ({ isOpen, onClose }) => {
     } = useGameContext();
     const forgeDogs = gameState.forgeDogs ?? {};
 
+    const [showIntro, setShowIntro] = useState(false);
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     const [dogMenuOpen, setDogMenuOpen] = useState(null);
+
+    useEffect(() => {
+        if (isOpen && !gameState.tutorial?.forgeIntroDone) {
+            setShowIntro(true);
+        }
+    }, [isOpen]);
     useEffect(() => {
         const interval = setInterval(() => {
             const newTimers = {};
@@ -248,6 +256,27 @@ const ForgeModal = ({ isOpen, onClose }) => {
                         );
                     })}
                 </div>
+
+                {showIntro && (
+                    <div className="forge-intro-overlay">
+                        <h3 className="forge-intro-title">La Forja</h3>
+                        <p className="forge-intro-text">
+                            Convierte minerales en valiosos lingotes y desbloquea nuevos hornos para procesar materiales más raros. Los lingotes son esenciales para mejorar tu pico, conseguir monedas en la taberna y avanzar hacia tiers superiores. Más adelante podrás asignar mascotas a los hornos para aumentar la velocidad de producción.
+                        </p>
+                        <button
+                            className="forge-intro-btn"
+                            onClick={() => {
+                                setShowIntro(false);
+                                setGameState(prev => ({
+                                    ...prev,
+                                    tutorial: { ...prev.tutorial, forgeIntroDone: true }
+                                }));
+                            }}
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

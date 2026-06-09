@@ -35,12 +35,12 @@
 
 
 .mine-screen-content {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
-
 }
 
 /* ========== HEADER ========== */
@@ -170,8 +170,13 @@
 .snack-anim-pulse { animation: snack-pulse 1s ease-in-out infinite; }
 
 .snack-locked .mine-snack-emoji-btn {
-    opacity: 0.4;
+    opacity: 0.90;
     filter: grayscale(0.7);
+}
+
+.snack-proximamente {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .snack-blocked .mine-snack-emoji-btn {
@@ -563,6 +568,18 @@
     object-fit: contain;
 }
 
+.floating-warning {
+    position: absolute;
+    font-size: 13px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 1.2s ease-out forwards;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    color: #ff6b6b;
+    white-space: nowrap;
+}
+
 @keyframes floatUp {
     0% {
         opacity: 1;
@@ -599,4 +616,49 @@
         transform: translate(calc(cos(var(--angle)) * var(--distance)),
                 calc(sin(var(--angle)) * var(--distance))) scale(0);
     }
+}
+
+/* ========== INTRO PRIMERA VISITA ========== */
+
+.mine-intro-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem 1.5rem;
+    z-index: 50;
+    border-radius: 0.5rem;
+}
+
+.mine-intro-title {
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.mine-intro-text {
+    color: #d4c4a0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+}
+
+.mine-intro-btn {
+    margin-top: 0.5rem;
+    background: linear-gradient(to bottom, #c8992a, #9a6f1a);
+    border: none;
+    border-radius: 6px;
+    color: #1a1200;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.5rem 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(200, 153, 42, 0.4);
 }

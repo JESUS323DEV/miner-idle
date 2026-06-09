@@ -259,15 +259,15 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
     // ========== MAPA DE MINAS ==========
     const handleUnlockMinesMap = () => {
         setGameState(prevState => {
-            if (prevState.gold < 1000) return prevState;
+            if (prevState.gold < 2000) return prevState;
             if (prevState.minesMapUnlocked) return prevState;
 
-            const newGoldSpent = prevState.totalGoldSpent + 1000;
+            const newGoldSpent = prevState.totalGoldSpent + 2000;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
-                gold: prevState.gold - 1000,
+                gold: prevState.gold - 2000,
                 totalGoldSpent: newGoldSpent,
                 minesMapUnlocked: true,
                 rewards: {

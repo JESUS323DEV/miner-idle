@@ -316,8 +316,13 @@
 }
 
 .openDisplay1 {
-
     width: 25px;
+}
+
+.openDisplay1:disabled {
+    filter: grayscale(100%) brightness(0.5);
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 
@@ -399,19 +404,8 @@
 }
 
 
-.mines-map-locked span {
-    position: absolute;
-    bottom: -1.2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 0.7rem;
-    white-space: nowrap;
-    filter: grayscale(0%) brightness(2);
-}
-
 .mines-map-locked:disabled {
-    opacity: 0.6;
+    opacity: 1;
 }
 
 /*================TABERNA ==========================*/
@@ -424,25 +418,11 @@
 .tavern-locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;
-
-}
-
-.tavern-locked span {
-    position: absolute;
-    bottom: -1.2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 0.7rem;
-    white-space: nowrap;
-
 }
 
 .tavern-locked:disabled {
-    opacity: 0.6;
+    opacity: 1;
 }
-
-
 
 /* Wrapper relativo para posicionar elementos sobre la mina */
 .gold-mine-isolate {
@@ -450,11 +430,58 @@
     width: fit-content;
 }
 
-
-
 /*================FORJA==========================*/
 .forge-btn {
     padding: 0;
+}
+
+.forge-btn-locked img {
+    filter: grayscale(100%) brightness(0.5);
+}
+
+.forge-btn-locked {
+    position: relative;
+    cursor: not-allowed;
+}
+
+.forge-btn-locked:disabled {
+    opacity: 1;
+}
+
+/*================LOCK PRICE BADGE==========================*/
+.lock-price-badge {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(60, 30, 0, 0.88);
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    white-space: nowrap;
+    color: #777;
+    pointer-events: none;
+}
+
+.lock-price-badge img {
+    width: 12px;
+    height: 12px;
+    filter: grayscale(100%) brightness(0.6);
+}
+
+button:not(:disabled) .lock-price-badge {
+    color: #f5c842;
+    border-color: #a06000;
+    background: rgba(40, 18, 0, 0.9);
+}
+
+button:not(:disabled) .lock-price-badge img {
+    filter: none;
 }
 
 @keyframes forge-pulse {
@@ -475,7 +502,7 @@
    ============================================================ */
 .automine-container {
     position: fixed;
-    top: 26rem;
+    top: 28rem;
     left: -0.8rem;
     padding: 0.9rem;
     display: flex;
@@ -883,6 +910,46 @@
     height: 50px;
     font-size: 22px;
     cursor: pointer;
+    position: relative;
+}
+
+.btn-raid-wrapper {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.btn-raid-locked {
+    filter: grayscale(100%) brightness(0.5);
+    cursor: not-allowed;
+}
+
+.btn-raid-locked:not(:disabled) {
+    filter: grayscale(40%) brightness(0.7);
+    cursor: pointer;
+}
+
+.btn-raid-locked:disabled {
+    opacity: 1;
+}
+
+.raid-price-badge {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.raid-price-badge.badge-cant-afford {
+    color: #777;
+    border-color: #555;
+    background: rgba(20, 10, 0, 0.88);
+}
+
+.raid-price-badge.badge-cant-afford img {
+    filter: grayscale(100%) brightness(0.6);
 }
 
 .btn-raid-ready {
@@ -979,4 +1046,39 @@
 .gold-dog-none {
     font-size: 10px;
     color: #000000;
+}
+
+.automine-hint-tooltip {
+    position: fixed;
+    top: 29rem;
+    left: 4.5rem;
+    width: 200px;
+    background: rgba(10, 8, 5, 0.96);
+    border: 1px solid rgba(240, 165, 0, 0.55);
+    border-radius: 10px;
+    padding: 12px;
+    z-index: 2000;
+}
+
+.automine-hint-tooltip p {
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.automine-hint-tooltip button {
+    width: 100%;
+    background: #c47f00;
+    border: 1px solid #f0a500;
+    border-radius: 8px;
+    color: #1a0e00;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.automine-hint-tooltip button:hover {
+    background: #f0a500;
 }

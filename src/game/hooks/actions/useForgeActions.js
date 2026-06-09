@@ -5,6 +5,30 @@ import { getDogStats } from '../../utils/getDogStats.js';
 
 export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
+    // ========== DESBLOQUEAR FORJA ==========
+    const handleUnlockForge = () => {
+        const COST = 3000;
+        showGoldCost(COST);
+        setGameState(prevState => {
+            if (prevState.forgeUnlocked) return prevState;
+            if (prevState.gold < COST) return prevState;
+
+            const newGoldSpent = prevState.totalGoldSpent + COST;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - COST,
+                totalGoldSpent: newGoldSpent,
+                forgeUnlocked: true,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                },
+            };
+        });
+    };
+
     // ========== DESBLOQUEAR HORNO ==========
     const handleUnlockFurnace = (material) => {
         showGoldCost(ForgeConfig.furnaces[material].unlockCost);
@@ -177,6 +201,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
     };
 
     return {
+        handleUnlockForge,
         handleUnlockFurnace,
         handleStartSmelt,
         handleCollectIngot,

@@ -1,0 +1,102 @@
+import "../styles/tutorial.css";
+
+const STEPS = {
+    intro: {
+        title: "¡Bienvenido a Lady Hungry!",
+        text: "Tu aventura minera está a punto de comenzar. Extrae minerales, mejora tu equipo, descubre nuevas minas y recluta poderosas mascotas que trabajarán a tu lado.",
+        action: "¡Empezar!",
+        counter: null,
+        showSkip: true,
+    },
+    0: {
+        title: "Ingresos pasivos",
+        text: "Cada segundo puedes ganar oro automáticamente. Compra tu primera mejora y comienza a generar oro.",
+        action: null,
+        counter: "Paso 1 de 4",
+        showSkip: true,
+    },
+    1: {
+        title: "Tu energía",
+        text: "La Stamina es la energía que gastas al picar. Sin ella no puedes minar. Mejora el máximo para aguantar más golpes.",
+        action: null,
+        counter: "Paso 2 de 4",
+        showSkip: true,
+    },
+    2: {
+        title: "Tu pico",
+        text: "El pico es tu herramienta principal. Mejóralo para extraer más oro y materiales con cada golpe y avanzar más rápido en tu aventura.",
+        action: null,
+        counter: "Paso 3 de 4",
+        showSkip: true,
+    },
+    hint_tavern: {
+        title: "La Taberna",
+        text: "La taberna es el lugar donde contratar nuevas mascotas mineras, intercambiar materiales por monedas y conseguir recursos.",
+        action: "Entendido",
+        counter: "Paso 4 de 6",
+        showSkip: true,
+    },
+    hint_mine: {
+        title: "Las Minas",
+        text: "En las minas consigues materiales para mejorar tu equipo. También podrás desbloquear minas pasivas donde tus mascotas trabajarán por ti. Explóralas.",
+        action: "Entendido",
+        counter: "Paso 5 de 6",
+        showSkip: true,
+    },
+    hint_forge: {
+        title: "La Forja",
+        text: "Funde minerales en valiosos lingotes para mejorar tu pico y tus herramientas. También podrás asignar mascotas a las forjas para aumentar la velocidad de producción.",
+        action: "Entendido",
+        counter: "Paso 6 de 6",
+        showSkip: true,
+    },
+    mine_tap: {
+        title: "¡A picar!",
+        text: "Toca la mena para golpear y conseguir oro. Agota toda tu stamina minando.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    stamina_hint: {
+        title: "¡Stamina agotada!",
+        text: "Para minar necesitas stamina y durabilidad en tu pico. Cada golpe consume 1 punto de ambos recursos. Pulsa el botón + para recuperar energía y continuar excavando.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    done: {
+        title: "¡COMIENZA LA AVENTURA!",
+        text: "Sigue explorando minas, mejora tu equipo, refuerza tu forja y visita la taberna para contratar ayudantes. Tu aventura acaba de comenzar.",
+        action: "¡A minar!",
+        counter: null,
+        showSkip: false,
+    },
+};
+
+const TutorialDialog = ({ step, onSkip, onAction }) => {
+    if (step === null || step === undefined) return null;
+    const data = STEPS[step];
+    if (!data) return null;
+
+    return (
+        <div className="tutorial-dialog">
+            {data.counter && (
+                <span className="tutorial-dialog-counter">{data.counter}</span>
+            )}
+            {data.showSkip && (
+                <button className="tutorial-dialog-skip" onClick={onSkip}>
+                    Saltar
+                </button>
+            )}
+            <h3 className="tutorial-dialog-title">{data.title}</h3>
+            <p className="tutorial-dialog-text">{data.text}</p>
+            {data.action && (
+                <button className="tutorial-dialog-btn" onClick={onAction}>
+                    {data.action}
+                </button>
+            )}
+        </div>
+    );
+};
+
+export default TutorialDialog;

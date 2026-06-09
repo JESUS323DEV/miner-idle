@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 5000,
+    gold: 100000000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -43,9 +43,9 @@ const InitialGameState = {
 
     // ========== SNACKS DE MINA ==========
     mineSnacks: {
-        automine:  { charges: 2, activeUntil: null },
+        automine:  { charges: 2, activeUntil: null, remainingMs: 0 },
         dynamite:  { charges: 2 },
-        toughness: { charges: 2, activeUntil: null },
+        toughness: { charges: 2, activeUntil: null, remainingMs: 0 },
     },
 
     // ========== MINADO ==========
@@ -73,7 +73,7 @@ const InitialGameState = {
     },
 
     // ========== FORJA ==========
-    forgeUnlocked: true,
+    forgeUnlocked: false,
     furnaces: {
         bronze: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
         iron: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
@@ -81,11 +81,11 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 2,
+    tavernCoins: 10000,
     tavernUnlocked: false,
 
     // ========== MINAS ==========
-    minesMapUnlocked: true,
+    minesMapUnlocked: false,
     lastMineReward: null,
 
     // ========== TIEMPO ==========
@@ -118,6 +118,7 @@ const InitialGameState = {
     // ========== GACHA ==========
     gachaPity: {},
     lastPackResult: null,
+    lastFreePull: { basic: null, epic: null, legendary: null },
 
     // ========== RAIDS ==========
     raid: InitialRaidState,
@@ -131,6 +132,19 @@ const InitialGameState = {
         minesUnlocked: false,
         goldPerSecondBought: false,
         pickaxeUpgradeDone: false,
+        introDone: false,
+        minesHinted: false,
+        snacksHinted: false,
+        automineHinted: false,
+        forgeIntroDone: false,
+        tavernIntroDone: false,
+        cambistaIntroDone: false,
+        dogsIntroDone: false,
+        raidIntroDone: false,
+        sobreIntroDone: false,
+        mineIntroBronzeDone: false,
+        mineIntroIronDone: false,
+        mineIntroDiamondDone: false,
     },
 };
 

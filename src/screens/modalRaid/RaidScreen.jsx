@@ -5,6 +5,7 @@ import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import '../../styles/modals/RaidScreen.css';
+import '../../styles/modals/ForgeModal.css';
 
 import iconGold   from '../../assets/ui/icons-hud/hud-principal/oro1.png';
 import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.png';
@@ -48,7 +49,7 @@ const formatTime = (ms) => {
 // ============================================================
 const RaidScreen = ({ isOpen, onClose }) => {
     const {
-        gameState,
+        gameState, setGameState,
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
         handleCancelPassiveRaid,
@@ -58,6 +59,11 @@ const RaidScreen = ({ isOpen, onClose }) => {
     const [selectedRaid, setSelectedRaid] = useState(null);
     const [teamDogIds, setTeamDogIds] = useState([]);
     const [raidTab, setRaidTab] = useState('passive');
+    const [showRaidIntro, setShowRaidIntro] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && !gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
+    }, [isOpen]); // eslint-disable-line
 
     useEffect(() => {
         const t = setInterval(() => setNow(Date.now()), 1000);
@@ -118,6 +124,30 @@ const RaidScreen = ({ isOpen, onClose }) => {
             <div className="raid-screen-content" onClick={e => e.stopPropagation()}>
                 <button className="modal-close" onClick={onClose}><X /></button>
                 <h2>⚔️ Raids</h2>
+
+                {showRaidIntro && (
+                    <div className="forge-intro-overlay">
+                        <h3 className="forge-intro-title">⚔️ Raids</h3>
+                        <p className="forge-intro-text">
+                            Envía a tus mascotas en expediciones mientras sigues jugando. Cada raid dura un tiempo y al terminar te trae oro, monedas o fragmentos.
+                        </p>
+                        <p className="forge-intro-text">
+                            Cuanto más fuertes sean las mascotas del equipo, más recompensas obtendrás.
+                        </p>
+                        <button
+                            className="forge-intro-btn"
+                            onClick={() => {
+                                setShowRaidIntro(false);
+                                setGameState(prev => ({
+                                    ...prev,
+                                    tutorial: { ...prev.tutorial, raidIntroDone: true }
+                                }));
+                            }}
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                )}
 
                 {/* TABS */}
                 <div className="raid-tabs">
