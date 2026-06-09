@@ -5,8 +5,8 @@ let audioCtx = null;
 const buffers = {};
 
 const SFX_CONFIG = {
-    hit:     { offset: 2.0, duration: 0.4, gain: 1.0 },
-    blocked: { offset: 0.0, duration: 0.4, gain: 0.09 },
+    hit:     { offset: 2.0, duration: 0.4, gain: 0.4 },
+    blocked: { offset: 0.0, duration: 0.4, gain: 0.03 },
 };
 
 const loadBuffer = async (key, url) => {
