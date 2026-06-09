@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
 import MineSnacksConfig from "../../game/config/MineSnacksConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
+import { playBuffer } from "../../game/utils/sfx.js";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
@@ -424,11 +425,14 @@ const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning
   const handleClick = (e) => {
     if (!canMine) {
       if (vein.remaining > 0) {
+        playBuffer('blocked');
         const msg = stamina <= 0 && pickaxeDurability <= 0 ? '⚡⛏️ Recarga todo' : stamina <= 0 ? '⚡ Sin stamina' : '⛏️ Pico roto';
         onWarning(e.clientX, e.clientY, msg);
       }
       return;
     }
+
+    playBuffer('hit');
 
     // Ejecuta la lógica de minado
     onMineVein(vein.id);

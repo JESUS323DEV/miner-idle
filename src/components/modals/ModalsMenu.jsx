@@ -1,17 +1,10 @@
 import { useState } from "react";
-import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, Mountain, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2 } from "lucide-react";
+import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2, VolumeX } from "lucide-react";
 import "../../styles/modals/ModalsMenu.css";
 
-const SettingsModal = ({ isOpen, onClose, onNewGame }) => {
+const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, onMusicToggle, onMusicVolume, sfxEnabled, sfxVolume, onSfxToggle, onSfxVolume }) => {
     const [view, setView] = useState("main");
-    const [toast, setToast] = useState(null);
-
     if (!isOpen) return null;
-
-    const showToast = (msg, type = "ok") => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 2500);
-    };
 
     const handleNewGame = () => {
         onNewGame();
@@ -32,6 +25,52 @@ const SettingsModal = ({ isOpen, onClose, onNewGame }) => {
                 {/* VISTA PRINCIPAL */}
                 {view === "main" && (
                     <div className="settings-list">
+                        <div className="settings-item settings-item-music">
+                            <span className="settings-item-icon">
+                                {musicEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                            </span>
+                            <span className="settings-item-label">Música</span>
+                            <button
+                                className={`music-toggle ${musicEnabled ? 'music-toggle-on' : ''}`}
+                                onClick={() => onMusicToggle(!musicEnabled)}
+                            />
+                        </div>
+                        {musicEnabled && (
+                            <div className="settings-item settings-item-volume">
+                                <input
+                                    type="range"
+                                    min={0.01}
+                                    max={0.5}
+                                    step={0.01}
+                                    value={musicVolume}
+                                    onChange={e => onMusicVolume(parseFloat(e.target.value))}
+                                    className="volume-slider"
+                                />
+                            </div>
+                        )}
+                        <div className="settings-item settings-item-music">
+                            <span className="settings-item-icon">
+                                {sfxEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                            </span>
+                            <span className="settings-item-label">Efectos</span>
+                            <button
+                                className={`music-toggle ${sfxEnabled ? 'music-toggle-on' : ''}`}
+                                onClick={() => onSfxToggle(!sfxEnabled)}
+                            />
+                        </div>
+                        {sfxEnabled && (
+                            <div className="settings-item settings-item-volume">
+                                <input
+                                    type="range"
+                                    min={0.01}
+                                    max={1}
+                                    step={0.01}
+                                    value={sfxVolume}
+                                    onChange={e => onSfxVolume(parseFloat(e.target.value))}
+                                    className="volume-slider"
+                                />
+                            </div>
+                        )}
                         <button className="settings-item" onClick={() => setView("confirm")}>
                             <span className="settings-item-icon"><RefreshCw size={18} /></span>
                             <span className="settings-item-label">Nuevo juego</span>
@@ -180,12 +219,6 @@ const SettingsModal = ({ isOpen, onClose, onNewGame }) => {
                     </div>
                 )}
 
-                {/* TOAST */}
-                {toast && (
-                    <div className={`settings-toast ${toast.type === "error" ? "settings-toast-error" : ""}`}>
-                        {toast.msg}
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -9,6 +9,7 @@ import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
 import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import useDogsAutomine from "../game/hooks/useDogsAutomine.js";
+import { useBackgroundMusic } from "../game/hooks/useBackgroundMusic.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
 import { InitialDogsState } from "../game/initialState/InitialDogsState.js";
 import { InitialForgeDogsState } from "../game/initialState/InitialForgeDogsState.js";
@@ -136,6 +137,41 @@ import "../styles/gameRoot.css";
 import { Settings } from "lucide-react";
 
 function GameRoot() {
+  const [musicEnabled, setMusicEnabled] = useState(() => {
+    const saved = localStorage.getItem('music_enabled');
+    return saved === null ? true : saved === 'true';
+  });
+  const [musicVolume, setMusicVolume] = useState(() => {
+    const saved = localStorage.getItem('music_volume');
+    return saved === null ? 0.02 : parseFloat(saved);
+  });
+
+  const [sfxEnabled, setSfxEnabled] = useState(() => {
+    const saved = localStorage.getItem('sfx_enabled');
+    return saved === null ? true : saved === 'true';
+  });
+  const [sfxVolume, setSfxVolume] = useState(() => {
+    const saved = localStorage.getItem('sfx_volume');
+    return saved === null ? 0.4 : parseFloat(saved);
+  });
+
+  const handleMusicToggle = (val) => {
+    setMusicEnabled(val);
+    localStorage.setItem('music_enabled', val);
+  };
+  const handleMusicVolume = (val) => {
+    setMusicVolume(val);
+    localStorage.setItem('music_volume', val);
+  };
+  const handleSfxToggle = (val) => {
+    setSfxEnabled(val);
+    localStorage.setItem('sfx_enabled', val);
+  };
+  const handleSfxVolume = (val) => {
+    setSfxVolume(val);
+    localStorage.setItem('sfx_volume', val);
+  };
+
   // ===== ESTADOS UI =====
   const [isResetting, setIsResetting] = useState(false);
   const [isMineScreenOpen, setIsMineScreenOpen] = useState(false);
@@ -146,6 +182,8 @@ function GameRoot() {
   const [goldFloatingNumbers, setGoldFloatingNumbers] = useState([]);
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
+
+  useBackgroundMusic(musicEnabled, musicVolume, tavernModalOpen ? 'tavern' : 'main');
 
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
@@ -725,6 +763,14 @@ function GameRoot() {
             isOpen={menuOpenModal}
             onClose={() => setMenuOpenModal(false)}
             onNewGame={handleNewGame}
+            musicEnabled={musicEnabled}
+            musicVolume={musicVolume}
+            onMusicToggle={handleMusicToggle}
+            onMusicVolume={handleMusicVolume}
+            sfxEnabled={sfxEnabled}
+            sfxVolume={sfxVolume}
+            onSfxToggle={handleSfxToggle}
+            onSfxVolume={handleSfxVolume}
           />
         </div>
 

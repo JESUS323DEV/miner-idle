@@ -4,6 +4,7 @@ import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
 import menaGold from '../assets/scenes/mining/mena-gold5.png';
 import { useGameContext } from '../game/context/GameContext.jsx';
+import { playBuffer } from '../game/utils/sfx.js';
 
 const GoldMine = ({ elevated = false }) => {
     const { gameState, handleMineClick: onMineClick } = useGameContext();
@@ -26,8 +27,15 @@ const GoldMine = ({ elevated = false }) => {
     const [comboNumbers, setComboNumbers] = useState([]);
     const [floatingWarnings, setFloatingWarnings] = useState([]);
 
+    const lastHandledRef = useRef(0);
+
     const handleClick = (e) => {
+        const now = Date.now();
+        if (now - lastHandledRef.current < 100) return;
+        lastHandledRef.current = now;
+        e.stopPropagation();
         if (!canMine) {
+            playBuffer('blocked');
             const rect = e.currentTarget.getBoundingClientRect();
             const x = Math.min(Math.max(e.clientX - rect.left, 60), rect.width - 110);
             const y = e.clientY - rect.top;
@@ -37,6 +45,9 @@ const GoldMine = ({ elevated = false }) => {
             setTimeout(() => setFloatingWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
             return;
         }
+
+
+        playBuffer('hit');
 
         // Ejecuta la lógica de minado (suma oro, resta stamina/durabilidad)
         onMineClick();
@@ -65,10 +76,10 @@ const GoldMine = ({ elevated = false }) => {
             setFloatingNumbers(prev => prev.filter(n => n.id !== numId));
         }, 1000);
 
-        const now = Date.now();
+        const clickNow = Date.now();
 
         const timeSinceLastClick = lastClickTimeRef.current
-            ? now - lastClickTimeRef.current
+            ? clickNow - lastClickTimeRef.current
             : 0;
 
         let displayCombo;
@@ -82,7 +93,7 @@ const GoldMine = ({ elevated = false }) => {
 
 
         // Actualiza timestamp local
-        lastClickTimeRef.current = now;
+        lastClickTimeRef.current = clickNow;
 
         // ✅ VERIFICA SI ES UN HITO (20, 25, 30, etc.)
         const isHito = displayCombo >= CombosConfig.firstMilestone &&
