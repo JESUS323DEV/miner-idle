@@ -225,6 +225,7 @@ function GameRoot() {
     ) {
       setIsResetting(true);
       localStorage.removeItem("ladyHungryGame");
+      localStorage.setItem("hasPlayedBefore", "true");
       setTimeout(() => location.reload(), 0);
     }
   };
@@ -1354,6 +1355,7 @@ function GameRoot() {
           step={openModal === null && tutorialStep !== 'mine_tap' ? tutorialStep : null}
           onSkip={handleSkipTutorial}
           onAction={handleTutorialAction}
+          isFirstTime={!localStorage.getItem("hasPlayedBefore")}
         />
 
         {tutorialStep === 'automine_hint' && (

@@ -73,7 +73,7 @@ const STEPS = {
     },
 };
 
-const TutorialDialog = ({ step, onSkip, onAction }) => {
+const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true }) => {
     if (step === null || step === undefined) return null;
     const data = STEPS[step];
     if (!data) return null;
@@ -83,7 +83,7 @@ const TutorialDialog = ({ step, onSkip, onAction }) => {
             {data.counter && (
                 <span className="tutorial-dialog-counter">{data.counter}</span>
             )}
-            {data.showSkip && (
+            {data.showSkip && !isFirstTime && (
                 <button className="tutorial-dialog-skip" onClick={onSkip}>
                     Saltar
                 </button>
