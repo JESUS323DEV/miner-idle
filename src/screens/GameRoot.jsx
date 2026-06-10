@@ -911,6 +911,7 @@ function GameRoot() {
             iconImage={upgradeStamina}
             buttonImage={buttonUpgrade}
             title={"Mejorar Burst"}
+            showStaminaSnacks={true}
           />
 
           {/* PICO */}

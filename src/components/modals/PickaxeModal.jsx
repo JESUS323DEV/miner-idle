@@ -160,6 +160,15 @@ const PickaxeModal = ({
                     </div>
                 )}
 
+                <div className="cont-snack-stamina">
+                    <div className="snack1-stamina">
+                        <p>Snack Durabilidad (Próximamente)</p>
+                    </div>
+                    <div className="snack2-repair">
+                        <p>Snack Reparación (Próximamente)</p>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
