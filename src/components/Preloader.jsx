@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // ===== FONDOS =====
 import bgTavern from "../assets/backgrounds/bg-tavern/bg-tavern1.png"
@@ -80,40 +80,38 @@ import nupitoIcon from "../assets/ui/icons-pets/mineros/nupito-icon.png"
 import zeusIcon from "../assets/ui/icons-pets/mineros/zeus-icon.png"
 
 const IMAGES = [
-    // fondos
     bgTavern, bgCoin, bgGold1,
     bgMineBronze, bgMineIron, bgMineDiamond,
     bgInsideBronze, bgInsideIron, bgInsideDiamond,
     bgMain, bgGold, bgStamina, bgPickaxe,
-    // hud principal
     cofre, gold1, coinTavern, stamina1, goldOpen, repair, refillStaminaIcon,
-    // hud modals
     iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier,
-    // picos
     pickAxeStone, pickAxeStone1, pickAxeStone2, pickAxeStone3,
     pickAxeBronze, pickAxeBronze1, pickAxeBronze2, pickAxeBronze3,
     pickAxeIron, pickAxeIron1, pickAxeIron2, pickAxeIron3,
     pickAxeDiamond, pickAxeDiamond1, pickAxeDiamond2, pickAxeDiamond3,
-    // lingotes y menas
     iconBronze, iconIron, iconDiamond,
     menaBronze, menaIron, menaDiamond,
-    // pantalla
     mineModal, iconTavern, iconForge,
-    // automina
     activeMine, stopMine,
-    // pets
     ladyIcon, tokyoIcon, tukaIcon, munaIcon, gordoIcon, druhIcon, smokeIcon, nupitoIcon, zeusIcon,
 ];
 
-const Preloader = () => {
+export const usePreloader = () => {
+    const [loaded, setLoaded] = useState(false);
+
     useEffect(() => {
+        let done = 0;
+        const total = IMAGES.length;
         IMAGES.forEach(src => {
             const img = new Image();
+            img.onload = img.onerror = () => {
+                done++;
+                if (done === total) setLoaded(true);
+            };
             img.src = src;
         });
     }, []);
 
-    return null;
+    return loaded;
 };
-
-export default Preloader;

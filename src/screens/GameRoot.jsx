@@ -34,10 +34,6 @@ import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 import RewardsModal from "../screens/RewardsModal.jsx";
 import RaidScreen from "../screens/modalRaid/RaidScreen.jsx";
-import Preloader from "../components/Preloader";
-
-// En el return, al principio:
-<Preloader />;
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
 import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png";
@@ -664,7 +660,7 @@ function GameRoot() {
       });
       return { ...prev, mineSnacks: updated };
     });
-  }, [isMineScreenOpen]); // eslint-disable-line
+  }, [isMineScreenOpen]);
 
   // ===== TUTORIAL MODAL AUTO-OPEN (recuperación tras recarga) =====
   // Solo para recovery tras recarga en fase '0_snacks' (modal bloqueado sin dialog)
@@ -713,8 +709,6 @@ function GameRoot() {
         className="game-container"
         style={{ backgroundImage: `url(${bgMain})` }}
       >
-        <Preloader />
-
         {/* OVERLAY OSCURO DURANTE TUTORIAL */}
         {tutorialStep !== null && tutorialStep !== 'done' && tutorialStep !== 'automine_hint' && openModal === null && (
           <div
