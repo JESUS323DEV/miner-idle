@@ -104,7 +104,7 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, 
                             <button className="settings-close" onClick={() => setView("main")}><ArrowLeft size={18} /></button>
                             <span className="settings-title">Sobre el juego</span>
                         </div>
-                        <div className="settings-about-title"><PawPrint size={18} /> Lady Hungry <span className="settings-about-version">v2.0</span></div>
+                        <div className="settings-about-title"><PawPrint size={18} /> Lady Hungry <span className="settings-about-version">v2.1</span></div>
                         <p className="settings-about-desc">
                             Lady Hungry nació como un proyecto de prácticas en React y terminó convirtiéndose en un juego de minería, progresión y gestión de recursos.
                             Mejora tu pico, explora minas, funde materiales en la forja, consigue mascotas con habilidades únicas y desarrolla una red de producción capaz de generar riquezas incluso cuando no estés minando.

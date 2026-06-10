@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 10000000,
+    gold: 1000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -18,9 +18,9 @@ const InitialGameState = {
     diamond: 5,
 
     // ========== LINGOTES ==========
-    bronzeIngot: 2500,
-    ironIngot: 1000,
-    diamondIngot: 11110,
+    bronzeIngot: 10,
+    ironIngot: 5,
+    diamondIngot: 0,
 
     // ========== BURST (antes Stamina) ==========
     stamina: 15,                      // segundos restantes del burst activo (UI: X/maxStamina)
