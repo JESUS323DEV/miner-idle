@@ -110,7 +110,7 @@ const UpgradeModal = ({
                                     )}
                                 </span>
 
-                                
+
                             </div>
 
                             {secondUpgrade && (
@@ -159,11 +159,11 @@ const UpgradeModal = ({
                         <div className="cont-snack-stamina">
 
                             <div className='snack1-stamina'>
-                                <p>⚡Snack Stamina (Próximamente)</p>
+                                <p>Snack Stamina (Próximamente)</p>
                             </div>
 
                             <div className='snack2-repair'>
-                                <p>⛏️ Snack Repair (Próximamente)</p>
+                                <p>Snack (Próximamente)</p>
                             </div>
 
 

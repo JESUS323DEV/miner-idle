@@ -17,7 +17,7 @@ const STEPS = {
     },
     1: {
         title: "Tu energía",
-        text: "La cantidad de energía determina cuánto tiempo puede durar a antes de agotarse. Auméntala para mantener el bonus de materiales activo durante más tiempo.",
+        text: "La cantidad de Energía determina cuánto tiempo puedes mantener activa tu habilidad. Auméntala para prolongar su duración y aprovechar el bonus de materiales durante más tiempo.",
         action: null,
         counter: "Paso 2 de 4",
         showSkip: true,

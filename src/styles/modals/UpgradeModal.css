@@ -381,7 +381,7 @@
 
 .tutorial-modal-hint {
     position: fixed;
-    bottom: 4rem;
+    top: 6rem;
     left: 5%;
     width: 90%;
     display: flex;
@@ -395,10 +395,7 @@
     z-index: 200;
 }
 
-.tutorial-modal-hint--top {
-    bottom: auto;
-    top: 15rem;
-}
+
 
 .tutorial-modal-hint-text {
     color: #ffe97a;
