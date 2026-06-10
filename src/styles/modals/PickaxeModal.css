@@ -140,14 +140,16 @@
 }
 
 .info-tier {
-
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
 }
 
 .info-tier img {
-    
-    width: 40px;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
     filter: none !important;
 }
 

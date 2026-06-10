@@ -38,7 +38,7 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
         setGameState(prevState => {
             if (!prevState.automine.unlocked) return prevState;
             if (prevState.automine.isActive) return prevState;
-            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
+            if (prevState.pickaxe.durability <= 0) return prevState;
 
             const chargeIndex = prevState.automine.charges.findIndex(c => c.available);
             if (chargeIndex === -1) return prevState;

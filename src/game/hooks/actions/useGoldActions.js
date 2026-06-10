@@ -55,7 +55,7 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
 
             const newMaxCombo = Math.max(newCombo, prevState.maxComboEver);
 
-            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) {
+            if (prevState.pickaxe.durability <= 0) {
                 const newClicks = prevState.totalClicks + 1;
                 const hasClickMilestone = checkMilestone(prevState.rewards.clickMilestones, newClicks);
                 return {
@@ -96,27 +96,35 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
             let dogBonusGold = 0;
-            let dogFreeHit = false;
+            let rechargeReduction = 0;
             for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
                 if (!dogId) continue;
                 const dogBonus = DogsConfig[dogId]?.goldMineBonus;
                 if (!dogBonus) continue;
                 if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
-                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) dogFreeHit = true; }
                 else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += goldGained; }
+                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) rechargeReduction++; }
             }
 
             const totalGold = goldGained + dogBonusGold;
+            const prevBurst = prevState.burst ?? { active: false, recharging: false, rechargeRemaining: 0 };
+            let newBurst = prevBurst;
+            if (rechargeReduction > 0 && prevBurst.recharging) {
+                const newRemaining = Math.max(0, prevBurst.rechargeRemaining - rechargeReduction);
+                newBurst = newRemaining <= 0
+                    ? { active: false, recharging: false, rechargeRemaining: 0 }
+                    : { ...prevBurst, rechargeRemaining: newRemaining };
+            }
 
             return {
                 ...prevState,
                 totalClicks: newTotalClicks,
                 totalGoldEarned: newTotalGoldEarned,
                 gold: prevState.gold + totalGold,
-                stamina: dogFreeHit ? prevState.stamina : prevState.stamina - 1,
+                burst: newBurst,
                 pickaxe: {
                     ...prevState.pickaxe,
-                    durability: dogFreeHit ? prevState.pickaxe.durability : prevState.pickaxe.durability - 1
+                    durability: prevState.pickaxe.durability - 1
                 },
                 comboCount: newCombo,
                 maxComboEver: newMaxCombo,
@@ -134,32 +142,40 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
     // ========== MINADO AUTOMÁTICO ==========
     const handleMine = () => {
         setGameState(prevState => {
-            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
+            if (prevState.pickaxe.durability <= 0) return prevState;
 
             const newTotalGoldEarned = prevState.totalGoldEarned + prevState.pickaxe.goldPerMine;
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
             let dogBonusGold = 0;
-            let dogFreeHit = false;
+            let rechargeReduction = 0;
             for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
                 if (!dogId) continue;
                 const dogBonus = DogsConfig[dogId]?.goldMineBonus;
                 if (!dogBonus) continue;
                 if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
-                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) dogFreeHit = true; }
                 else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += prevState.pickaxe.goldPerMine; }
+                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) rechargeReduction++; }
             }
 
             const totalGold = prevState.pickaxe.goldPerMine + dogBonusGold;
+            const prevBurst = prevState.burst ?? { active: false, recharging: false, rechargeRemaining: 0 };
+            let newBurst = prevBurst;
+            if (rechargeReduction > 0 && prevBurst.recharging) {
+                const newRemaining = Math.max(0, prevBurst.rechargeRemaining - rechargeReduction);
+                newBurst = newRemaining <= 0
+                    ? { active: false, recharging: false, rechargeRemaining: 0 }
+                    : { ...prevBurst, rechargeRemaining: newRemaining };
+            }
 
             return {
                 ...prevState,
                 gold: prevState.gold + totalGold,
                 totalGoldEarned: newTotalGoldEarned,
-                stamina: dogFreeHit ? prevState.stamina : prevState.stamina - 1,
+                burst: newBurst,
                 pickaxe: {
                     ...prevState.pickaxe,
-                    durability: dogFreeHit ? prevState.pickaxe.durability : prevState.pickaxe.durability - 1
+                    durability: prevState.pickaxe.durability - 1
                 },
                 rewards: {
                     ...prevState.rewards,
@@ -169,39 +185,54 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
         });
     };
 
-    // ========== STAMINA ==========
+    // ========== BURST ==========
+
+    const getRechargeTime = (level) => {
+        if (level <= 20) return Math.round(40 - level * 0.5);
+        if (level <= 40) return Math.round(30 - (level - 20) * 0.25);
+        if (level <= 55) return Math.round(25 - (level - 40) * (5 / 15));
+        return 20;
+    };
+
+    const handleActivateBurst = () => {
+        setGameState(prevState => {
+            const burst = prevState.burst ?? { active: false, recharging: false, rechargeRemaining: 0 };
+            const maxStamina = prevState.maxStamina ?? 15;
+            if (burst.active || burst.recharging) return prevState;
+            return {
+                ...prevState,
+                stamina: maxStamina,
+                burst: { active: true, recharging: false, rechargeRemaining: 0 }
+            };
+        });
+    };
+
     const handleBuyMaxStaminaUpgrade = () => {
         const isFree = !gameState.tutorial?.staminaUpgradeDone;
         const cost = isFree ? 0 : gameState.maxStaminaCost;
-        const coinCost = gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10);
         if (!isFree && cost > 0) showGoldCost(cost);
-        if (!isFree && coinCost > 0) showTavernCost(coinCost);
 
         setGameState(prevState => {
             const isFree = !prevState.tutorial?.staminaUpgradeDone;
             const cost = isFree ? 0 : prevState.maxStaminaCost;
-            const coinCost = prevState.maxStaminaLevel < 10 ? 1 : 1 + (prevState.maxStaminaLevel - 10);
-            if (!isFree && prevState.tavernCoins < coinCost) return prevState;
             if (!isFree && prevState.gold < cost) return prevState;
+            if (prevState.maxStaminaLevel >= 55) return prevState;
 
-            const newStaminaLevel = prevState.maxStaminaLevel + 1;
+            const newLevel = prevState.maxStaminaLevel + 1;
+            const newMax = Math.min(15 + newLevel, 60);
             const newGoldSpent = prevState.totalGoldSpent + cost;
-            const hasStaminaMilestone = checkMilestone(prevState.rewards.staminaMilestones, newStaminaLevel);
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
                 gold: prevState.gold - cost,
                 totalGoldSpent: newGoldSpent,
-                maxStamina: prevState.maxStamina + 5,
-                stamina: prevState.maxStamina + 5,
-                maxStaminaLevel: newStaminaLevel,
+                maxStamina: newMax,
+                maxStaminaLevel: newLevel,
                 maxStaminaCost: prevState.maxStaminaCost + prevState.maxStaminaCostIncrease,
-                staminaRefillCost: prevState.staminaRefillCost + 10,
-                tavernCoins: prevState.tavernCoins - (isFree ? 0 : coinCost),
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasStaminaMilestone || hasGoldSpentMilestone,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 },
                 tutorial: prevState.tutorial ? {
                     ...prevState.tutorial,
@@ -212,36 +243,11 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
         });
     };
 
-    const handleRefillStamina = () => {
-        showGoldCost(gameState.staminaRefillCost);
-        setGameState(prevState => {
-            if (prevState.stamina >= prevState.maxStamina) return prevState;
-            if (prevState.gold < prevState.staminaRefillCost) return prevState;
-
-            const newTotalRefills = prevState.totalRefills + 1;
-            const newGoldSpent = prevState.totalGoldSpent + prevState.staminaRefillCost;
-            const hasRefillMilestone = checkMilestone(prevState.rewards.refillMilestones, newTotalRefills);
-            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
-
-            return {
-                ...prevState,
-                gold: prevState.gold - prevState.staminaRefillCost,
-                totalGoldSpent: newGoldSpent,
-                totalRefills: newTotalRefills,
-                stamina: prevState.maxStamina,
-                rewards: {
-                    ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasRefillMilestone || hasGoldSpentMilestone,
-                }
-            };
-        });
-    };
-
     return {
         handleMine,
         handleMineClick,
         handleBuyGoldPerSecondUpgrade,
+        handleActivateBurst,
         handleBuyMaxStaminaUpgrade,
-        handleRefillStamina,
     };
 };

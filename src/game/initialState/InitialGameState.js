@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 1000,
+    gold: 10000000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -12,29 +12,27 @@ const InitialGameState = {
     goldPerSecondCost: 1000,      // Coste actual del upgrade
     goldPerSecondCostIncrease: 500, // Cuánto sube el coste por nivel
 
-    // ========== MATERIALES ==========
+    // ========== MATERIALES/menas ==========
     bronze: 25,
     iron: 10,
     diamond: 5,
 
     // ========== LINGOTES ==========
-    bronzeIngot: 25,
-    ironIngot: 10,
-    diamondIngot: 0,
+    bronzeIngot: 2500,
+    ironIngot: 1000,
+    diamondIngot: 11110,
 
-    // ========== STAMINA ==========
-    stamina: 15,
-    maxStamina: 15,
-    maxStaminaLevel: 0,
+    // ========== BURST (antes Stamina) ==========
+    stamina: 15,                      // segundos restantes del burst activo (UI: X/maxStamina)
+    maxStamina: 15,                   // duración máxima del burst en segundos
+    maxStaminaLevel: 0,               // nivel único — mejora duración (0-45) y recarga (0-55)
     maxStaminaCost: 500,
-    maxStaminaCostIncrease: 5000,
-    maxStaminaBuffs: 0,
-    staminaBuffs: 0,
-    staminaBuffSnack: 0,
-    staminaCostPerSecond: 1,
-    staminaRefillCost: 30,
-    staminaRefillCostIncrease: 1000,
-    staminaRefillCount: 0,
+    maxStaminaCostIncrease: 2000,
+    burst: {
+        active: false,
+        recharging: false,
+        rechargeRemaining: 0,
+    },
 
     // ========== SNACKS ==========
     snackBuffHasta: null,

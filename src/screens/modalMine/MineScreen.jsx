@@ -69,7 +69,7 @@ const MineScreen = ({ isOpen, onClose }) => {
   const currentMine = gameState.mines.currentMine;
   const mineSnacks = gameState.mineSnacks;
 
-  const canMine = gameState.stamina > 0 && gameState.pickaxe.durability > 0;
+  const canMine = gameState.pickaxe.durability > 0;
 
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState(Date.now());
@@ -309,6 +309,8 @@ const MineScreen = ({ isOpen, onClose }) => {
               menaImg={menaImg}
               hudImg={hudAssets[baseMineType]}
               animTrigger={animTriggers[vein.id] || 0}
+              burstActive={gameState.burst?.active ?? false}
+              burstLevel={gameState.maxStaminaLevel ?? 0}
             />
           ))}
         </div>
@@ -401,9 +403,20 @@ const MineScreen = ({ isOpen, onClose }) => {
  * COMPONENTE: Vein (Vena individual clickeable)
  * Con números flotantes y partículas como GoldMine
  */
-const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning, menaImg, hudImg, animTrigger }) => {
+const calcBurstBonus = (level) => {
+  let bMin = 0, bMax = 1;
+  if (level <= 1) { bMin = 0; bMax = 1; }
+  else if (level <= 5) { bMin = 0; bMax = level; }
+  else if (level <= 15) { bMin = 0; bMax = 5; }
+  else if (level <= 25) { bMin = 1; bMax = 1; }
+  else { bMin = 1; bMax = Math.min(2 + (level - 26), 5); }
+  return bMin + Math.floor(Math.random() * (bMax - bMin + 1));
+};
+
+const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning, menaImg, hudImg, animTrigger, burstActive = false, burstLevel = 0 }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
+  const [burstFloats, setBurstFloats] = useState([]);
   const [particles, setParticles] = useState([]);
   const veinRef = useRef(null);
 
@@ -426,7 +439,7 @@ const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning
     if (!canMine) {
       if (vein.remaining > 0) {
         playBuffer('blocked');
-        const msg = stamina <= 0 && pickaxeDurability <= 0 ? '⚡⛏️ Recarga todo' : stamina <= 0 ? '⚡ Sin stamina' : '⛏️ Pico roto';
+        const msg = '⛏️ Pico roto';
         onWarning(e.clientX, e.clientY, msg);
       }
       return;
@@ -448,10 +461,14 @@ const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning
 
     const numId = Date.now();
     setFloatingNumbers((prev) => [...prev, { id: numId, x, y }]);
+    setTimeout(() => setFloatingNumbers((prev) => prev.filter((n) => n.id !== numId)), 1000);
 
-    setTimeout(() => {
-      setFloatingNumbers((prev) => prev.filter((n) => n.id !== numId));
-    }, 1000);
+    if (burstActive) {
+      const bonus = Math.max(1, calcBurstBonus(burstLevel));
+      const burstId = numId + 1;
+      setBurstFloats((prev) => [...prev, { id: burstId, x, y, value: bonus }]);
+      setTimeout(() => setBurstFloats((prev) => prev.filter((n) => n.id !== burstId)), 1000);
+    }
 
     // ✅ Genera partículas
     const newParticles = Array.from({ length: 6 }, (_, i) => ({
@@ -490,15 +507,13 @@ const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning
 
       {/* ✅ NÚMEROS FLOTANTES */}
       {floatingNumbers.map((num) => (
-        <div
-          key={num.id}
-          className="floating-number"
-          style={{
-            left: `${num.x}px`,
-            top: `${num.y}px`,
-          }}
-        >
+        <div key={num.id} className="floating-number" style={{ left: `${num.x}px`, top: `${num.y}px` }}>
           + <img src={hudImg} alt="mat" className="mena-floating-icon" />
+        </div>
+      ))}
+      {burstFloats.map((num) => (
+        <div key={num.id} className="floating-number-burst" style={{ left: `${num.x}px`, top: `${num.y}px` }}>
+          +{num.value}
         </div>
       ))}
 

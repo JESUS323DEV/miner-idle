@@ -123,7 +123,7 @@ const PickaxeModal = ({
                                     {formatNumber(cost)}<img src={iconGold} alt="Gold" />
                                     {tierIngotCost && (
                                         <>
-                                            {' + '}{tierIngotCost.amount}
+                                            {tierIngotCost.amount}
                                         </>
                                     )}
                                     <img src={getLingoteIcon(tierIngotCost.type)} alt="lingote" />
@@ -148,7 +148,7 @@ const PickaxeModal = ({
                                     Coste: {formatNumber(materialCost)} <img src={iconGold} alt="oro" />
                                     {materialIngotCost && (
                                         <>
-                                            {' + '}{materialIngotCost.amount}
+                                            {materialIngotCost.amount}
                                             <img src={getLingoteIcon(materialIngotCost.type)} alt="lingote" />
                                         </>
                                     )}

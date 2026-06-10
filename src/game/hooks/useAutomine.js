@@ -6,7 +6,7 @@ const useAutomine = (gameState, handleMineClick, handleStopAutomine) => {
         if (!gameState.automine?.isActive) return;
 
         const interval = setInterval(() => {
-            if (gameState.stamina <= 0 || gameState.pickaxe.durability <= 0) {
+            if (gameState.pickaxe.durability <= 0) {
                 handleStopAutomine();
                 return;
             }
@@ -32,7 +32,7 @@ const useAutomine = (gameState, handleMineClick, handleStopAutomine) => {
         }, AutomineConfig.clickInterval);
 
         return () => clearInterval(interval);
-    }, [gameState.automine?.isActive, gameState.stamina, gameState.pickaxe.durability, handleMineClick, handleStopAutomine]);
+    }, [gameState.automine?.isActive, gameState.pickaxe.durability, handleMineClick, handleStopAutomine]);
 };
 
 export default useAutomine;

@@ -568,6 +568,18 @@
     object-fit: contain;
 }
 
+.floating-number-burst {
+    position: absolute;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 0 0 8px rgba(210, 140, 0, 0.9);
+    z-index: 101;
+    color: #e8a020;
+    margin-left: 24px;
+}
+
 .floating-warning {
     position: absolute;
     font-size: 13px;

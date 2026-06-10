@@ -27,7 +27,7 @@ export const DogsConfig = {
         },
         goldMineBonus: {
             type: 'freeHit',
-            chance: 0.25  // 20% de que no consuma stamina ni durabilidad
+            chance: 0.25  // 25% por picada de reducir 1s la recarga del burst
         }
     },
 
@@ -146,7 +146,7 @@ export const DogsConfig = {
 
         goldMineBonus: {
             type: 'freeHit',
-            chance: 0.20 // 20% de que no consuma stamina ni durabilidad
+            chance: 0.20 // 20% por picada de reducir 1s la recarga del burst
         }
     },
 

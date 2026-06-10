@@ -49,6 +49,8 @@ const UpgradeModal = ({
 
     coinCost,
 
+    // ===== SEGUNDO UPGRADE (opcional) =====
+    secondUpgrade = null, // { title, cost, onUpgrade, canAfford }
 
 }) => {
     // Tick para forzar re-render del timer del snack cada segundo
@@ -88,22 +90,45 @@ const UpgradeModal = ({
                             <p>{currentLevel}</p>
                         </div>
 
-                        <div className='cont-btn-upgrade'>
-                            <p>{title}</p>
-                            <button
-                                className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
-                                onClick={onUpgrade}
-                                disabled={!canAfford}
-                            >
-                                <img src={buttonImage} loading='lazy' alt="Upgrade" />
-                            </button>
-                            <span className='info-gold'>
-                                coste: {formatNumber(cost)}
-                                <img className='iconGold' src={iconGold} alt="Gold" />
-                                {coinCost !== undefined && (
-                                    <> {coinCost} <img className='iconGold2' src={coinTavern} alt="coinTavern" /></>
-                                )}
-                            </span>
+                        <div className='wrap-cont-stamina'>
+                            <div className='cont-btn-upgrade'>
+                                <p>{title}</p>
+                                <button
+                                    className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
+                                    onClick={onUpgrade}
+                                    disabled={!canAfford}
+                                >
+                                    <img src={buttonImage} loading='lazy' alt="Upgrade" />
+                                </button>
+
+
+                                <span className='info-gold'>
+                                    coste: {formatNumber(cost)}
+                                    <img className='iconGold' src={iconGold} alt="Gold" />
+                                    {coinCost !== undefined && (
+                                        <> {coinCost} <img className='iconGold2' src={coinTavern} alt="coinTavern" /></>
+                                    )}
+                                </span>
+
+                                
+                            </div>
+
+                            {secondUpgrade && (
+                                <div className='cont-btn-upgrade'>
+                                    <p>{secondUpgrade.title}</p>
+                                    <button
+                                        className={`btn-upgrade ${!secondUpgrade.canAfford ? "locked" : ""}`}
+                                        onClick={secondUpgrade.onUpgrade}
+                                        disabled={!secondUpgrade.canAfford}
+                                    >
+                                        <img src={buttonImage} loading='lazy' alt="Upgrade" />
+                                    </button>
+                                    <span className='info-gold'>
+                                        coste: {formatNumber(secondUpgrade.cost)}
+                                        <img className='iconGold' src={iconGold} alt="Gold" />
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 

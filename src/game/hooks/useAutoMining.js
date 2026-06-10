@@ -20,7 +20,7 @@ export const useAutoMining = (gameState, handleMine, setGameState) => {
 
     useEffect(() => {
         // ===== AUTO-DETENCIÓN: Si no hay recursos, detiene el minado automático =====
-        if (gameState.stamina <= 0 || gameState.pickaxe.durability <= 0) {
+        if (gameState.pickaxe.durability <= 0) {
             // Si el auto-minar está activo, lo desactiva
             if (gameState.isMining) {
                 setGameState(prevState => ({

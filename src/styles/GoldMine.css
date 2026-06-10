@@ -103,6 +103,21 @@
     z-index: 50;
 }
 
+.floating-number-burst-gold {
+    position: absolute;
+    animation: float-up 1s ease-out forwards;
+    pointer-events: none;
+    font-size: 18px;
+    font-weight: bold;
+    color: #e8a020;
+    text-shadow:
+        -1px -1px 0 #3a1a00,
+        1px -1px 0 #3a1a00,
+        -1px 1px 0 #3a1a00,
+        1px 1px 0 #3a1a00;
+    z-index: 51;
+}
+
 @keyframes float-up {
     0% {
         transform: translateY(0);

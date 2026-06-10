@@ -6,17 +6,27 @@ import menaGold from '../assets/scenes/mining/mena-gold5.png';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { playBuffer } from '../game/utils/sfx.js';
 
+const calcBurstBonus = (level) => {
+    let bMin = 0, bMax = 1;
+    if (level <= 1) { bMin = 0; bMax = 1; }
+    else if (level <= 5) { bMin = 0; bMax = level; }
+    else if (level <= 15) { bMin = 0; bMax = 5; }
+    else if (level <= 25) { bMin = 1; bMax = 1; }
+    else { bMin = 1; bMax = Math.min(2 + (level - 26), 5); }
+    return Math.max(1, bMin + Math.floor(Math.random() * (bMax - bMin + 1)));
+};
+
 const GoldMine = ({ elevated = false }) => {
     const { gameState, handleMineClick: onMineClick } = useGameContext();
-    const { pickaxe, comboCount: currentCombo, comboMilestones, stamina } = gameState;
+    const { pickaxe, comboCount: currentCombo, comboMilestones } = gameState;
     const goldPerMine = pickaxe.goldPerMine;
-    const canMine = stamina > 0 && pickaxe.durability > 0;
+    const canMine = pickaxe.durability > 0;
+    const burstActive = gameState.burst?.active ?? false;
+    const burstLevel = gameState.maxStaminaLevel ?? 0;
     const [bonusNumbers, setBonusNumbers] = useState([]);
+    const [burstFloats, setBurstFloats] = useState([]);
     const lastClickTimeRef = useRef(null);
-    // Estado para controlar la animación de shake de la mena
     const [isShaking, setIsShaking] = useState(false);
-
-    // Array de números flotantes activos (ej: [{id: 123, value: 5, x: 100, y: 200}])
     const [floatingNumbers, setFloatingNumbers] = useState([]);
 
     // Array de partículas activas que explotan al clickear
@@ -39,7 +49,7 @@ const GoldMine = ({ elevated = false }) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = Math.min(Math.max(e.clientX - rect.left, 60), rect.width - 110);
             const y = e.clientY - rect.top;
-            const msg = stamina <= 0 && pickaxe.durability <= 0 ? '⚡⛏️ Recarga todo' : stamina <= 0 ? '⚡ Sin stamina' : '⛏️ Pico roto';
+            const msg = '⛏️ Pico roto';
             const wId = Date.now();
             setFloatingWarnings(prev => [...prev, { id: wId, x, y, msg }]);
             setTimeout(() => setFloatingWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
@@ -71,10 +81,14 @@ const GoldMine = ({ elevated = false }) => {
             y: y   // Posición Y del click
         }]);
 
-        // Elimina el número flotante después de 1 segundo (cuando termina la animación)
-        setTimeout(() => {
-            setFloatingNumbers(prev => prev.filter(n => n.id !== numId));
-        }, 1000);
+        setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 1000);
+
+        if (burstActive) {
+            const bonus = calcBurstBonus(burstLevel);
+            const burstId = numId + 1;
+            setBurstFloats(prev => [...prev, { id: burstId, value: bonus, x, y }]);
+            setTimeout(() => setBurstFloats(prev => prev.filter(n => n.id !== burstId)), 1000);
+        }
 
         const clickNow = Date.now();
 
@@ -192,6 +206,12 @@ const GoldMine = ({ elevated = false }) => {
                     className="floating-number-gold"
                     style={{ left: `${num.x}px`, top: `${num.y}px` }}
                 >
+                    +{num.value}
+                </div>
+            ))}
+
+            {burstFloats.map(num => (
+                <div key={num.id} className="floating-number-burst-gold" style={{ left: `${num.x + 50}px`, top: `${num.y}px` }}>
                     +{num.value}
                 </div>
             ))}

@@ -45,6 +45,7 @@ import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
 import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
 
 import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.png"
+import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.png"
 import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png"
 import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png"
 
@@ -403,12 +404,9 @@ const TavernModal = ({ isOpen, onClose }) => {
 
                                                     <div className="dog-stat-divider">Pasiva oro</div>
                                                     <div className="dog-stat-passive">
-                                                        {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
-                                                        {config.goldMineBonus.type === 'freeHit' && <>🎯
-                                                            <b>{config.goldMineBonus.chance * 100}%</b> de que el golpe no consuma stamina ni pico</>}
-
-                                                        {config.goldMineBonus.type === 'doubleHit' && <><b>+{config.goldMineBonus.chance * 100}%</b> de doblar el
-                                                            <img src={iconGold} className="dog-stat-icon" /> minado </>}
+                                                        {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> de <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
+                                                        {config.goldMineBonus.type === 'freeHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de reducir la recarga de <img src={staminaIcon}  className="dog-stat-icon" /> picando</>}
+                                                        {config.goldMineBonus.type === 'doubleHit' && <><b>+{config.goldMineBonus.chance * 100}%</b> de prob. de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
                                                     </div>
                                                 </div>
                                             </div>

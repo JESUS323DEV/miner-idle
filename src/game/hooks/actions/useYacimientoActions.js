@@ -55,7 +55,7 @@ export const useYacimientoActions = (gameState, setGameState) => {
             if (!isReady) return prevState;
 
             if (mena.durability <= 0) return prevState;
-            if (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0) return prevState;
+            if (prevState.pickaxe.durability <= 0) return prevState;
 
             const baseDrop = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
             const miningPowerPerTier = prevState.pickaxe.miningPowerPerTier ?? 0;
@@ -67,7 +67,6 @@ export const useYacimientoActions = (gameState, setGameState) => {
             return {
                 ...prevState,
                 [biome]: (prevState[biome] ?? 0) + materialGained,
-                stamina: prevState.stamina - 1,
                 pickaxe: {
                     ...prevState.pickaxe,
                     durability: prevState.pickaxe.durability - 1

@@ -145,7 +145,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
 
             const skipCost = toughnessProc || (isAutomineActive && fromAutomine);
 
-            if (!skipCost && (prevState.stamina <= 0 || prevState.pickaxe.durability <= 0)) return prevState;
+            if (!skipCost && prevState.pickaxe.durability <= 0) return prevState;
 
             const veinIndex = prevState.mines.currentMine.veins.findIndex(v => v.id === veinId);
             if (veinIndex === -1) return prevState;
@@ -162,7 +162,19 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
 
             const miningPower = prevState.pickaxe.miningPowerByMaterial?.[prevState.pickaxe.material] || 1;
             const baseGain = Math.floor(Math.random() * (yieldRange.max - yieldRange.min + 1)) + yieldRange.min;
-            const materialGained = baseGain;
+
+            const burstLevel = prevState.maxStaminaLevel ?? 0;
+            let burstBonus = 0;
+            if (prevState.burst?.active) {
+                let bMin = 0, bMax = 1;
+                if (burstLevel <= 1) { bMin = 0; bMax = 1; }
+                else if (burstLevel <= 5) { bMin = 0; bMax = burstLevel; }
+                else if (burstLevel <= 15) { bMin = 0; bMax = 5; }
+                else if (burstLevel <= 25) { bMin = 1; bMax = 1; }
+                else { bMin = 1; bMax = Math.min(2 + (burstLevel - 26), 5); }
+                burstBonus = bMin + Math.floor(Math.random() * (bMax - bMin + 1));
+            }
+            const materialGained = baseGain + burstBonus;
             const updatedVeins = [...prevState.mines.currentMine.veins];
             updatedVeins[veinIndex] = {
                 ...vein,
@@ -171,7 +183,6 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
 
             return {
                 ...prevState,
-                stamina: skipCost ? prevState.stamina : prevState.stamina - 1,
                 pickaxe: skipCost ? prevState.pickaxe : { ...prevState.pickaxe, durability: prevState.pickaxe.durability - 1 },
                 mines: {
                     ...prevState.mines,

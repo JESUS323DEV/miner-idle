@@ -585,7 +585,13 @@
     transform: rotateY(180deg);
     background: rgba(0, 0, 0, 0.85);
     border: 1px solid rgba(255, 165, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 4px;
+    padding: 10px 6px;
+    overflow-y: auto;
 }
 
 /* Fondos card back por perro — van después de .dog-card-back para no ser pisados */
@@ -725,15 +731,16 @@
 }
 
 .dog-stat-passive {
-    display: flex;
-    align-items: center;
-    gap: 2px;
     font-size: 9px;
     color: rgba(255, 255, 255, 0.7);
-    text-align: left;
     width: 100%;
-    line-height: 1.4;
+    line-height: 1.6;
+}
 
+.dog-stat-passive img {
+    display: inline;
+    vertical-align: middle;
+    margin: 0 1px;
 }
 
 .dog-stat-passive b {
