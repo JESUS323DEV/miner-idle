@@ -360,7 +360,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
                                                             <div className="dog-unlock-cost">
                                                                 <span className={gameState.gold < goldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCost >= 1000 ? (goldCost / 1000).toFixed(0) + 'k' : goldCost}
+                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCost >= 1000000 ? (goldCost / 1000000).toFixed(1) + 'M' : goldCost >= 1000 ? (goldCost / 1000).toFixed(0) + 'k' : goldCost}
                                                                 </span>
                                                                 <span className={tavernCoins < coinCost ? 'cost-missing' : 'cost-ok'}>
                                                                     <img src={coinTavern} alt="coins" className="cost-icon" />{coinCost}
@@ -380,7 +380,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                             <span className="dog-stat-val">{config.miningPower}</span>
                                                         </div>
                                                         <div className="dog-stat-row">
-                                                            <span className="dog-stat-label">⏳ Vel. ataque</span>
+                                                            <span className="dog-stat-label">⚡ Velocidad</span>
                                                             <span className="dog-stat-val">{(() => { const pps = 1 / config.miningSpeed; return pps >= 1 ? `${parseFloat(pps.toFixed(2))} pic/s` : `1 pic/${config.miningSpeed}s`; })()}</span>
                                                         </div>
                                                     </div>
@@ -466,7 +466,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
                                                             <div className="dog-unlock-cost">
                                                                 <span className={gameState.gold < goldCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCostF >= 1000 ? (goldCostF / 1000).toFixed(0) + 'k' : goldCostF}
+                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCostF >= 1000000 ? (goldCostF / 1000000).toFixed(1) + 'M' : goldCostF >= 1000 ? (goldCostF / 1000).toFixed(0) + 'k' : goldCostF}
                                                                 </span>
                                                                 <span className={tavernCoins < coinCostF ? 'cost-missing' : 'cost-ok'}>
                                                                     <img src={coinTavern} alt="coins" className="cost-icon" />{coinCostF}
@@ -581,7 +581,14 @@ const TavernModal = ({ isOpen, onClose }) => {
 
                                         <div className='wrap-title-pack'>
                                             <div className="pack-envelope">
-                                                <img src={{ basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]} className="pack-shard-icon" alt={pack.id} />
+                                                <img
+                                                    src={packTab === 'forja'
+                                                        ? { basic: forgeIcon1, epic: forgeIcon2, legendary: forgeIcon3 }[pack.id]
+                                                        : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
+                                                    }
+                                                    className="pack-shard-icon"
+                                                    alt={pack.id}
+                                                />
                                             </div>
                                             <div className="pack-name">{pack.name}</div>
                                         </div>

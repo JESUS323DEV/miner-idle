@@ -157,7 +157,7 @@ export const DogsConfig = {
         rarity: 'rare',
         id: 'druh',
         name: 'Druh',
-        unlockCost: { gold: 50000, tavernCoins: 3 },
+        unlockCost: { gold: 10000, tavernCoins: 3 },
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],

@@ -246,8 +246,11 @@
     border: none;
     color: #AAA;
     cursor: pointer;
-    margin-bottom: 1rem;
     font-size: 0.9rem;
+    position: fixed;
+    top: 6rem;
+    left: 0.8rem;
+    z-index: 20;
 }
 
 .tavern-back-btn:hover {
