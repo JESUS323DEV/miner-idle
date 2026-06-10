@@ -3,7 +3,8 @@ import "../styles/tutorial.css";
 const STEPS = {
     intro: {
         title: "¡Bienvenido a Lady Hungry!",
-        text: "Tu aventura minera está a punto de comenzar. Extrae minerales, mejora tu equipo, descubre nuevas minas y recluta poderosas mascotas que trabajarán a tu lado.",
+        text: "Comienza tu aventura minera. Consigue oro, extrae materiales, mejora tu equipo y recluta poderosas mascotas que trabajarán a tu lado para aumentar tu producción.",
+        subtext: "Lady Hungry se encuentra actualmente en desarrollo, por lo que algunas funciones pueden cambiar y es posible que encuentres algún error durante tu aventura. ¡Gracias por probar el juego!",
         action: "¡Empezar!",
         counter: null,
         showSkip: true,
@@ -97,6 +98,9 @@ const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true }) => {
             )}
             <h3 className="tutorial-dialog-title">{data.title}</h3>
             <p className="tutorial-dialog-text">{data.text}</p>
+            {data.subtext && (
+                <p className="tutorial-dialog-subtext">{data.subtext}</p>
+            )}
             {data.action && (
                 <button className="tutorial-dialog-btn" onClick={onAction}>
                     {data.action}

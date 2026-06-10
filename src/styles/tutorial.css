@@ -111,6 +111,14 @@
     margin: 0 0 0.9rem;
 }
 
+.tutorial-dialog-subtext {
+    color: #8a7a60;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    margin: 0 0 0.9rem;
+    font-style: italic;
+}
+
 .tutorial-dialog-btn {
     background: linear-gradient(to bottom, #c8992a, #9a6f1a);
     border: none;
