@@ -892,11 +892,15 @@ function GameRoot() {
             onClose={() => { setOpenModal(null); setTutorialStep(null); }}
             currentLevel={`Nv. ${gameState.maxStaminaLevel} `}
             cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
+            coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
             onUpgrade={() => {
               handleBuyMaxStaminaUpgrade();
               if (!gameState.tutorial?.completed) setOpenModal(null);
             }}
-            canAfford={gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0)}
+            canAfford={
+              gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0) &&
+              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10))
+            }
             tutorialPhase={!gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
             tutorialHintText="Mejora la Energía para aumentar la duración del burst, reducir su tiempo de recarga y obtener más materiales mientras esté activo."
             onTutorialAction={handleTutorialAction}
