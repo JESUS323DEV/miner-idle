@@ -1297,7 +1297,8 @@ function GameRoot() {
           </button>
           <button
             className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
-              Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed)
+              Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
+              Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed)
               ? "btn-rewards-pulse" : ""
               }`}
             onClick={() => setRewardsOpen(true)}
