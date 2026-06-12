@@ -134,6 +134,7 @@ import "../styles/gameRoot.css";
 
 // ===== ICONS =====
 import { Settings } from "lucide-react";
+import CombatScreen from "./modalCombat/CombatScreen.jsx";
 
 function GameRoot() {
   const [musicEnabled, setMusicEnabled] = useState(() => {
@@ -189,6 +190,7 @@ function GameRoot() {
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [raidOpen, setRaidOpen] = useState(false);
   const [rentalModalOpen, setRentalModalOpen] = useState(false);
+  const [combatOpen, setCombatOpen] = useState(false);
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
@@ -1135,7 +1137,7 @@ function GameRoot() {
             */}
 
         {/* BOTONES PANTALLAS — Taberna, Minas, Forja */}
-        <div className="cont-screens">
+        <div className="cont-screens" style={{ display: combatOpen ? 'none' : undefined }}>
           {/* Taberna — bloqueada hasta pagar 1000 oro */}
           <div className="modal-tavern">
             {gameState.tavernUnlocked ? (
@@ -1420,7 +1422,7 @@ function GameRoot() {
         </div>
 
         {/* SETTINGS */}
-        <div className="hud-top-right">
+        <div className="hud-top-right" style={{ display: combatOpen ? 'none' : undefined }}>
 
           {(() => {
             const raidReady = gameState.raid?.passiveRaid && Date.now() >= gameState.raid.passiveRaid.returnAt;
@@ -1475,6 +1477,13 @@ function GameRoot() {
         <RaidScreen
           isOpen={raidOpen}
           onClose={() => setRaidOpen(false)}
+          onOpenCombat={() => { setRaidOpen(false); setCombatOpen(true); }}
+        />
+
+        <CombatScreen
+          isOpen={combatOpen}
+          onClose={() => setCombatOpen(false)}
+          onBack={() => { setCombatOpen(false); setRaidOpen(true); }}
         />
 
         {/* MENA DE ORO — elemento principal clickeable */}

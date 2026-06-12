@@ -1,0 +1,698 @@
+/* ===== COMBAT SCREEN ===== */
+.combat-screen {
+    position: fixed;
+    top: 5.5rem;
+    left: 0;
+    width: 100%;
+    height: calc(100dvh - 5.5rem);
+    background: linear-gradient(180deg, #0d1117 0%, #1a1025 100%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ===== BACKGROUND con imagen de bioma ===== */
+.combat-screen-with-bg {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.combat-screen-with-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.68);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.combat-screen-with-bg > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== NAV (back + title + close) ===== */
+.combat-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.25rem 0;
+}
+
+.combat-back-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+.combat-back-btn svg { width: 26px; height: 26px; }
+
+.combat-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+.combat-close-btn svg { width: 26px; height: 26px; }
+
+.combat-close-btn-sm {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+.combat-close-btn-sm svg { width: 22px; height: 22px; }
+
+/* ===== BIOME SELECT ===== */
+.combat-biome-select {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1.5rem 1.5rem;
+    gap: 1.5rem;
+    height: 100%;
+    position: relative;
+}
+
+.combat-biome-back {
+    align-self: flex-start;
+}
+
+.combat-biome-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.combat-biome-btn {
+    padding: 22px 16px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.combat-biome-btn:hover:not(.combat-biome-soon) {
+    border-color: rgba(168, 85, 247, 0.55);
+    background: rgba(168, 85, 247, 0.12);
+}
+
+.combat-biome-soon {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.cbb-name {
+    font-size: 1.05rem;
+    font-weight: bold;
+}
+
+.cbb-soon-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ===== ENEMY SELECT ===== */
+.combat-enemy-select {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1rem 1.5rem;
+    gap: 0.75rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.combat-enemy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.combat-enemy-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.combat-enemy-card:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.combat-enemy-card img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.combat-enemy-boss {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.combat-enemy-boss:hover {
+    border-color: rgba(239, 68, 68, 0.7);
+    background: rgba(239, 68, 68, 0.14);
+}
+
+.cec-name {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.cec-meta {
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 0.65rem;
+}
+
+.cec-boss-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.52rem;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ===== SELECT ===== */
+.combat-select {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1rem 1.5rem;
+    gap: 0.75rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.combat-title {
+    color: #ffd740;
+    font-size: 1.2rem;
+    margin: 0;
+    text-align: center;
+}
+
+.combat-subtitle {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+.combat-subtitle-meta {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.72rem;
+    margin: 0;
+}
+
+/* Slots seleccionados */
+.combat-selected-slots {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 0.25rem 0;
+}
+
+.combat-sel-slot {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    gap: 3px;
+    transition: all 0.2s;
+}
+
+.combat-sel-slot.filled {
+    border-style: solid;
+    background: rgba(255,255,255,0.06);
+}
+
+.combat-sel-slot.filled img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.combat-sel-slot.filled span {
+    font-size: 0.52rem;
+    color: rgba(255,255,255,0.65);
+}
+
+.combat-sel-slot.empty span {
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.22);
+    font-weight: 300;
+}
+
+.combat-sel-slot.filled:hover {
+    border-color: #ff4444;
+    background: rgba(255,68,68,0.1);
+}
+
+.combat-sel-slot.dog-rarity-legendary { border-color: rgba(245,200,66,0.6); }
+.combat-sel-slot.dog-rarity-epic      { border-color: rgba(180,92,255,0.6); }
+.combat-sel-slot.dog-rarity-rare      { border-color: rgba(76,168,255,0.6); }
+
+/* Grid perros */
+.combat-dogs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+.combat-dog-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.combat-dog-card img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.combat-dog-card.combat-dog-selected { border-color: #ffd740; background: rgba(255,215,64,0.1); }
+
+.combat-dog-card.dog-rarity-legendary { border-color: rgba(245,200,66,0.35); }
+.combat-dog-card.dog-rarity-epic      { border-color: rgba(180,92,255,0.35); }
+.combat-dog-card.dog-rarity-rare      { border-color: rgba(76,168,255,0.35); }
+
+.combat-dog-card.combat-dog-selected.dog-rarity-legendary { border-color: #f5c842; background: rgba(245,200,66,0.12); }
+.combat-dog-card.combat-dog-selected.dog-rarity-epic      { border-color: #b45cff; background: rgba(180,92,255,0.12); }
+.combat-dog-card.combat-dog-selected.dog-rarity-rare      { border-color: #4ca8ff; background: rgba(76,168,255,0.12); }
+
+.cdc-name {
+    color: white;
+    font-size: 0.58rem;
+    text-align: center;
+}
+
+.cdc-power {
+    color: #ff9070;
+    font-size: 0.55rem;
+}
+
+.combat-no-dogs {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+    text-align: center;
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+.combat-start-btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.2s;
+}
+
+.combat-start-btn:hover:not(.combat-start-disabled) {
+    filter: brightness(1.15);
+    transform: scale(1.02);
+}
+
+.combat-start-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* ===== FIGHT ===== */
+.combat-fight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 1rem 1rem 0;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    gap: 0.75rem;
+}
+
+.combat-timer {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffd740;
+    letter-spacing: 0.05em;
+}
+
+.combat-timer-urgent {
+    color: #ff4444;
+    animation: timer-pulse 0.7s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.18); }
+}
+
+.combat-boss-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    justify-content: center;
+}
+
+.combat-boss-label {
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.combat-hp-bar-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.combat-hp-bar {
+    width: 100%;
+    height: 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.combat-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    border-radius: 7px;
+    transition: width 0.12s ease;
+}
+
+.combat-hp-text {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.7rem;
+}
+
+/* Boss portrait — zona de tap */
+.combat-boss-portrait {
+    width: 190px;
+    height: 190px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(239,68,68,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.07s, background 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 0 20px rgba(239,68,68,0.15);
+}
+
+.combat-boss-portrait:active {
+    transform: scale(0.91);
+    background: rgba(239,68,68,0.18);
+    box-shadow: 0 0 30px rgba(239,68,68,0.4);
+}
+
+.combat-boss-img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    image-rendering: pixelated;
+}
+
+/* Team row */
+.combat-team-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.combat-team-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    width: 68px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.combat-team-slot img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.ability-label {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.55);
+    text-align: center;
+}
+
+.combat-team-slot.ability-ready {
+    background: rgba(255,220,50,0.1);
+    box-shadow: 0 0 10px rgba(255,220,50,0.25);
+}
+
+.combat-team-slot.ability-ready .ability-label {
+    color: #ffd740;
+}
+
+.combat-team-slot.ability-ready:active {
+    transform: scale(0.9);
+}
+
+.combat-team-slot:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.combat-team-slot.dog-rarity-legendary { border-color: rgba(245,200,66,0.5); }
+.combat-team-slot.dog-rarity-epic      { border-color: rgba(180,92,255,0.5); }
+.combat-team-slot.dog-rarity-rare      { border-color: rgba(76,168,255,0.5); }
+
+.combat-team-slot.ability-ready.dog-rarity-legendary { border-color: #f5c842; box-shadow: 0 0 12px rgba(245,200,66,0.4); }
+.combat-team-slot.ability-ready.dog-rarity-epic      { border-color: #b45cff; box-shadow: 0 0 12px rgba(180,92,255,0.4); }
+.combat-team-slot.ability-ready.dog-rarity-rare      { border-color: #4ca8ff; box-shadow: 0 0 12px rgba(76,168,255,0.4); }
+
+/* ===== RESULTS ===== */
+.combat-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem 1.5rem;
+    gap: 1.25rem;
+}
+
+.combat-results-title {
+    color: #ffd740;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.combat-result-boss {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.combat-result-pct-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.combat-result-pct-bar {
+    width: 100%;
+    height: 18px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.combat-result-pct-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    border-radius: 9px;
+    transition: width 0.7s ease;
+}
+
+.combat-result-pct-label {
+    color: white;
+    font-size: 0.88rem;
+    font-weight: bold;
+}
+
+.combat-result-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    width: 100%;
+}
+
+.combat-result-reward.has-reward {
+    border-color: rgba(168,85,247,0.5);
+    background: rgba(168,85,247,0.08);
+}
+
+.combat-result-tier {
+    color: #c084fc;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.combat-result-shards {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.combat-result-dog {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+}
+
+.combat-result-dog img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.combat-result-dog span {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.combat-result-dog.dog-rarity-legendary { border-color: rgba(245,200,66,0.5); background: rgba(245,200,66,0.08); }
+.combat-result-dog.dog-rarity-epic      { border-color: rgba(180,92,255,0.5); background: rgba(180,92,255,0.08); }
+.combat-result-dog.dog-rarity-rare      { border-color: rgba(76,168,255,0.5); background: rgba(76,168,255,0.08); }
+
+.combat-result-gold {
+    color: #ffd740;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.combat-result-noreward {
+    color: rgba(255,255,255,0.38);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.combat-retry-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,215,64,0.4);
+    background: rgba(255,215,64,0.08);
+    color: #ffd740;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.combat-retry-btn:hover { background: rgba(255,215,64,0.18); }
+
+.combat-exit-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: transparent;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.combat-exit-btn:hover {
+    border-color: rgba(255,255,255,0.28);
+    color: white;
+}

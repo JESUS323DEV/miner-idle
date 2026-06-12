@@ -47,7 +47,7 @@ const formatTime = (ms) => {
 };
 
 // ============================================================
-const RaidScreen = ({ isOpen, onClose }) => {
+const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
@@ -180,8 +180,11 @@ const RaidScreen = ({ isOpen, onClose }) => {
                     >
                         🏕️ Pasiva
                     </button>
-                    <button className="raid-tab raid-tab-soon" disabled>
-                        ⚡ Activa <span className="raid-soon-badge">pronto</span>
+                    <button
+                        className="raid-tab"
+                        onClick={() => onOpenCombat?.()}
+                    >
+                        ⚡ Activa
                     </button>
                 </div>
 
