@@ -276,6 +276,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             const newGoldSpent = prevState.totalGoldSpent + 2000;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const fragReward = prevState.rewards.fragmentRewards?.unlockMinas;
             return {
                 ...prevState,
                 gold: prevState.gold - 2000,
@@ -283,7 +284,13 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 minesMapUnlocked: true,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || true,
+                    fragmentRewards: {
+                        ...prevState.rewards.fragmentRewards,
+                        unlockMinas: fragReward && !fragReward.unlocked
+                            ? { ...fragReward, unlocked: true }
+                            : fragReward,
+                    },
                 }
             };
         });

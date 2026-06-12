@@ -1,10 +1,55 @@
-import { X } from "lucide-react";
-import { useState } from "react";
+import { X, Lock, LockOpen } from "lucide-react";
+import { useState, useEffect } from "react";
 import iconGold from "../assets/ui/icons-hud/hud-principal/oro1.png";
 import iconCoin from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
 import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legendary.png";
+import iconShardEpic from "../assets/ui/icons-pets-shards/icon-shard-epic.png";
+import iconShardRare from "../assets/ui/icons-pets-shards/icon-shard-rare.png";
 import "../styles/modals/RewardsModal.css"
 import { useGameContext } from "../game/context/GameContext.jsx";
+import { DogsConfig } from "../game/config/DogsConfig.js";
+
+import boxerIcon    from "../assets/ui/icons-pets/mineros/boxer-icon.png";
+import bullyIcon    from "../assets/ui/icons-pets/mineros/bully-icon.png";
+import chihuahuaIcon from "../assets/ui/icons-pets/mineros/chihuhua-icon.png";
+import ladyIcon     from "../assets/ui/icons-pets/mineros/lady-icon.png";
+import tokyoIcon    from "../assets/ui/icons-pets/mineros/tokyo-icon.png";
+import tukaIcon     from "../assets/ui/icons-pets/mineros/tuka-icon.png";
+import munaIcon     from "../assets/ui/icons-pets/mineros/muna-icon.png";
+import gordoIcon    from "../assets/ui/icons-pets/mineros/gordo-icon.png";
+import druhIcon     from "../assets/ui/icons-pets/mineros/druh-icon.png";
+import smokeIcon    from "../assets/ui/icons-pets/mineros/smoke-icon.png";
+import nupitoIcon   from "../assets/ui/icons-pets/mineros/nupito-icon.png";
+import zeusIcon     from "../assets/ui/icons-pets/mineros/zeus-icon.png";
+import forgeIcon1 from "../assets/ui/icons-pets/forge/forge-icon1.png";
+import forgeIcon2 from "../assets/ui/icons-pets/forge/forge-icon2.png";
+import forgeIcon3 from "../assets/ui/icons-pets/forge/forge-icon3.png";
+import forgeIcon4 from "../assets/ui/icons-pets/forge/forge-icon4.png";
+import forgeIcon5 from "../assets/ui/icons-pets/forge/forge-icon5.png";
+import forgeIcon6 from "../assets/ui/icons-pets/forge/forge-icon6.png";
+import forgeIcon7 from "../assets/ui/icons-pets/forge/forge-icon7.png";
+import forgeIcon8 from "../assets/ui/icons-pets/forge/forge-icon8.png";
+import forgeIcon9 from "../assets/ui/icons-pets/forge/forge-icon9.png";
+
+const dogIconMap = {
+    boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
+    lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+    muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+    smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+    pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
+    rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
+    rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
+};
+
+const CyclingImg = ({ srcs }) => {
+    const [idx, setIdx] = useState(0);
+    useEffect(() => {
+        if (srcs.length < 2) return;
+        const t = setInterval(() => setIdx(i => (i + 1) % srcs.length), 3000);
+        return () => clearInterval(t);
+    }, [srcs.length]);
+    return <img src={srcs[idx]} alt="" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, transition: 'opacity 0.3s' }} />;
+};
 
 const fmt = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -19,9 +64,16 @@ const RewardsModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const claimFragment = (key, amount) => {
+    const claimFragment = (key) => {
+        const r = gameState.rewards.fragmentRewards?.[key];
+        if (!r) return;
         onClaimFragmentReward(key);
-        setFragmentToast(`+${amount} 🧩`);
+        const total = r.dogs
+            ? r.dogs.reduce((s, d) => s + d.amount, 0)
+            : r.randomFragments
+                ? r.randomFragments.reduce((s, { amount }) => s + amount, 0)
+                : r.amount;
+        setFragmentToast(`+${total} 🧩`);
         setTimeout(() => setFragmentToast(null), 1500);
     };
 
@@ -160,7 +212,8 @@ const RewardsModal = ({ isOpen, onClose }) => {
     const hasUnclaimedGold = goldRewardsList.some(({ key }) => isClaimable(key));
 
     const fragmentRewards = rewards.fragmentRewards ?? {};
-    const hasUnclaimedFragments = Object.values(fragmentRewards).some(r => r.unlocked && !r.claimed);
+    const isGroupClosed = (group) => Object.values(fragmentRewards).some(r => r.group === group && r.groupCloser && r.claimed);
+    const hasUnclaimedFragments = Object.values(fragmentRewards).some(r => r.visible !== false && r.unlocked && !r.claimed);
 
     return (
         <div className="modal-overlay1" onClick={onClose}>
@@ -174,19 +227,19 @@ const RewardsModal = ({ isOpen, onClose }) => {
                         className={`rewards-tab ${activeTab === "gold" ? "active" : ""} ${hasUnclaimedGold && activeTab !== "gold" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("gold")}
                     >
-                        <img src={iconGold}alt="oro" /> Oro
+                        <img src={iconGold}alt="oro" />
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "coins" ? "active" : ""} ${hasUnclaimedCoins && activeTab !== "coins" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("coins")}
                     >
-                        <img src={iconCoin}alt="monedas" /> Monedas
+                        <img src={iconCoin}alt="monedas" /> 
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "fragments" ? "active" : ""} ${hasUnclaimedFragments && activeTab !== "fragments" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("fragments")}
                     >
-                        <img src={iconShardLegendary}alt="fragmentos" /> Fragmentos
+                        <img src={iconShardLegendary}alt="fragmentos" /> 
                     </button>
                 </div>
 
@@ -209,13 +262,13 @@ const RewardsModal = ({ isOpen, onClose }) => {
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward)} 💰</p>
+                                        <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
-                                            className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
+                                            className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimReward(key)}
                                             disabled={!claimable}
                                         >
-                                            {claimable ? "RECLAMAR" : "🔒"}
+                                            {claimable ? <LockOpen size={20} /> : <Lock size={18} />}
                                         </button>
                                     </div>
                                 </div>
@@ -234,22 +287,23 @@ const RewardsModal = ({ isOpen, onClose }) => {
                             if (!reward) return null;
                             const claimable = isUniqueCoinClaimable(key);
                             const isClaimed = reward.claimed;
+                            if (isClaimed) return null;
 
                             return (
-                                <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"} ${isClaimed ? "claimed" : ""}`}>
+                                <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
                                     <span className="reward-icon">{icon}</span>
                                     <div className="reward-info">
                                         <p className="reward-label">{label}</p>
-                                        <p className="reward-claimed">{isClaimed ? "✅ Reclamado" : "🔒 Pendiente"}</p>
+                                        <p className="reward-claimed">🔒 Pendiente</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward.reward)} 🪙</p>
+                                        <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimCoinReward(key)}
-                                            disabled={!claimable || isClaimed}
+                                            disabled={!claimable}
                                         >
-                                            {isClaimed ? "✅" : claimable ? "RECLAMAR" : "🔒"}
+                                            {claimable ? "Obtener" : "🔒"}
                                         </button>
                                     </div>
                                 </div>
@@ -272,13 +326,13 @@ const RewardsModal = ({ isOpen, onClose }) => {
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward)} 🪙</p>
+                                        <p className="reward-amount">+{fmt(reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
                                             onClick={() => claimable && onClaimCoinReward(key)}
                                             disabled={!claimable}
                                         >
-                                            {claimable ? "RECLAMAR" : "🔒"}
+                                            {claimable ? "Obtener" : "🔒"}
                                         </button>
                                     </div>
                                 </div>
@@ -294,22 +348,47 @@ const RewardsModal = ({ isOpen, onClose }) => {
                         {fragmentToast && (
                             <div className="fragment-toast">{fragmentToast}</div>
                         )}
-                        {Object.entries(fragmentRewards).map(([key, r]) => (
+                        {Object.entries(fragmentRewards).filter(([, r]) => {
+                            if (r.visible === false) return false;
+                            if (!r.claimed) return true;
+                            return r.group ? !isGroupClosed(r.group) : false;
+                        }).map(([key, r]) => (
                             <div key={key} className={`reward-card ${r.claimed ? "fragment-claimed" : r.unlocked ? "claimable" : "locked"}`}>
-                                <span className="reward-icon">🧩</span>
+                                <CyclingImg srcs={
+                                    r.dogs
+                                        ? r.dogs.map(d => dogIconMap[d.dogId]).filter(Boolean)
+                                        : r.randomFragments
+                                            ? [iconShardRare, iconShardEpic, iconShardLegendary]
+                                            : r.amount === 0
+                                                ? [iconShardRare, iconShardEpic, iconShardLegendary]
+                                                : [dogIconMap[r.dogId]].filter(Boolean)
+                                } />
                                 <div className="reward-info">
                                     <p className="reward-label">{r.label}</p>
-                                    <p style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
-                                        ×{r.amount} fragmentos
-                                    </p>
+                                    {r.dogs
+                                        ? r.dogs.map(({ dogId, amount }) => (
+                                            <p key={dogId} style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
+                                                ×{amount} fragmentos de {dogId}
+                                            </p>
+                                        ))
+                                        : r.randomFragments
+                                            ? r.randomFragments.map(({ rarity, amount }) => (
+                                                <p key={rarity} style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
+                                                    ×{amount} frags {rarity}
+                                                </p>
+                                            ))
+                                            : r.amount > 0
+                                                ? <p style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>×{r.amount} fragmentos</p>
+                                                : <p style={{ margin: "2px 0", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>Condición para la recompensa final</p>
+                                    }
                                 </div>
                                 <div className="reward-right">
                                     <button
                                         className={`reward-btn ${r.claimed ? "btn-fragment-claimed" : r.unlocked ? "btn-claim" : "btn-locked"}`}
-                                        onClick={() => !r.claimed && r.unlocked && claimFragment(key, r.amount)}
+                                        onClick={() => !r.claimed && r.unlocked && claimFragment(key)}
                                         disabled={r.claimed || !r.unlocked}
                                     >
-                                        {r.claimed ? "✅ Reclamado" : "RECLAMAR"}
+                                        {r.claimed ? "✅" : "Obtener"}
                                     </button>
                                 </div>
                             </div>

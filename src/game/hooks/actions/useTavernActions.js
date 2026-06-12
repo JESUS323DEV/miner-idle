@@ -18,7 +18,8 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             return {
                 ...prevState,
                 [materialType]: prevState[materialType] - conversion.amount,
-                tavernCoins: prevState.tavernCoins + conversion.coins
+                tavernCoins: prevState.tavernCoins + conversion.coins,
+                totalExchanges: (prevState.totalExchanges ?? 0) + 1,
             };
         });
     };
@@ -85,6 +86,7 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             const newGoldSpent = prevState.totalGoldSpent + 1000;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const fragReward = prevState.rewards.fragmentRewards?.unlockTaverna;
             return {
                 ...prevState,
                 gold: prevState.gold - 1000,
@@ -92,7 +94,13 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
                 tavernUnlocked: true,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    hasUnclaimed: true,
+                    fragmentRewards: {
+                        ...prevState.rewards.fragmentRewards,
+                        unlockTaverna: fragReward && !fragReward.unlocked
+                            ? { ...fragReward, unlocked: true }
+                            : fragReward,
+                    },
                 }
             };
         });

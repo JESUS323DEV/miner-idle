@@ -25,12 +25,16 @@ import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.png';
 import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.png';
 import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.png';
 import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.png';
-import zeusIcon   from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
+import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
+import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.png';
+import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.png';
+import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.png';
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
     smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+    boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
 };
 
 const enemyImgs = {

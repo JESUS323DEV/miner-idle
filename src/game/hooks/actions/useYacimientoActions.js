@@ -67,6 +67,7 @@ export const useYacimientoActions = (gameState, setGameState) => {
             return {
                 ...prevState,
                 [biome]: (prevState[biome] ?? 0) + materialGained,
+                ...(biome === 'iron' ? { totalIronMined: (prevState.totalIronMined ?? 0) + materialGained } : {}),
                 pickaxe: {
                     ...prevState.pickaxe,
                     durability: prevState.pickaxe.durability - 1
@@ -196,6 +197,7 @@ export const useYacimientoActions = (gameState, setGameState) => {
             return {
                 ...prevState,
                 [biome]: (prevState[biome] ?? 0) + materialGained,
+                ...(biome === 'iron' ? { totalIronMined: (prevState.totalIronMined ?? 0) + materialGained } : {}),
                 yacimientos: {
                     ...prevState.yacimientos,
                     [biome]: {

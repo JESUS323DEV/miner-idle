@@ -9,6 +9,29 @@ export const RARITY_COLORS = {
 //=========================LEGENDARIAS
 export const DogsConfig = {
 
+    //CHIHUAHUA LEGENDARIA DE REGALO
+    chihuahua: {
+        rarity: 'legendary',
+        id: 'chihuahua',
+        name: 'Chihuahua',
+        unlockCost: { gold: 0, tavernCoins: 0 },
+        starGoldCost: 20000,
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
+        miningPower: 3,
+        miningSpeed: 1,
+        biomeBonus: {
+            bronze: 2.0,
+            iron: 2.0,
+            diamond: 2.0,
+        },
+        goldMineBonus: {
+            type: 'doubleHit',
+            chance: 0.10
+        }
+    },
+
     //TOKYO LEGENDARIA PARA MINA DE BRONZE
     tokio: {
         rarity: 'legendary',
@@ -78,6 +101,29 @@ export const DogsConfig = {
 
 
     //================================ÉPICAS
+
+    //BULLY ÉPICA DE REGALO
+    bully: {
+        rarity: 'epic',
+        id: 'bully',
+        name: 'Bully',
+        unlockCost: { gold: 0, tavernCoins: 0 },
+        starGoldCost: 8000,
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
+        miningPower: 2,
+        miningSpeed: 2,
+        biomeBonus: {
+            bronze: 1.5,
+            iron: 1.5,
+            diamond: 1.5,
+        },
+        goldMineBonus: {
+            type: 'extraGold',
+            value: 1
+        }
+    },
 
     //MUNA ÉPICA PARA MINA DE BRONZE
     muna: {
@@ -152,8 +198,32 @@ export const DogsConfig = {
 
     //==================================RARAS
 
+    //BOXER RARA DE REGALO
+    boxer: {
+        rarity: 'rare',
+        id: 'boxer',
+        name: 'Boxer',
+        unlockCost: { gold: 0, tavernCoins: 0 },
+        starGoldCost: 3000,
+        starBonus: 0.10,
+        unlockFragments: 50,
+        starFragments: [100, 200, 300, 400, 500],
+        miningPower: 1,
+        miningSpeed: 2,
+        biomeBonus: {
+            bronze: 1.2,
+            iron: 1.0,
+            diamond: 1.0,
+        },
+        goldMineBonus: {
+            type: 'freeHit',
+            chance: 0.05
+        }
+    },
+
     //DRUH RARA PARA MINA DE BRONZE
     druh: {
+        combatReward: false,
         rarity: 'rare',
         id: 'druh',
         name: 'Druh',

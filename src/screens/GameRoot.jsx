@@ -117,10 +117,14 @@ import druhIcon from "../assets/ui/icons-pets/mineros/druh-icon.png";
 import smokeIcon from "../assets/ui/icons-pets/mineros/smoke-icon.png";
 import nupitoIcon from "../assets/ui/icons-pets/mineros/nupito-icon.png";
 import zeusIcon from "../assets/ui/icons-pets/mineros/zeus-icon.png";
+import boxerIcon from "../assets/ui/icons-pets/mineros/boxer-icon.png";
+import bullyIcon from "../assets/ui/icons-pets/mineros/bully-icon.png";
+import chihuahuaIcon from "../assets/ui/icons-pets/mineros/chihuhua-icon.png";
 const dogAssets = {
   lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
   muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
   smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+  boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
 };
 
 // ===== MINAS =====
@@ -201,11 +205,35 @@ function GameRoot() {
     if (saved) {
       const loaded = JSON.parse(saved);
       const r = loaded.rental ?? InitialRentalState;
+
+      // Añade entradas nuevas de fragmentRewards que no existen en el save
+      const savedFR = loaded.rewards?.fragmentRewards ?? {};
+      const mergedFR = { ...savedFR };
+      Object.keys(InitialRewardsState.fragmentRewards).forEach(k => {
+        if (!(k in mergedFR)) mergedFR[k] = InitialRewardsState.fragmentRewards[k];
+      });
+
+      // Añade entradas nuevas de coinRewards que no existen en el save
+      const savedCR = loaded.rewards?.coinRewards ?? {};
+      const mergedCR = { ...savedCR };
+      Object.keys(InitialRewardsState.coinRewards).forEach(k => {
+        if (!(k in mergedCR)) mergedCR[k] = InitialRewardsState.coinRewards[k];
+      });
+
       return {
+        ...InitialGameState,
         ...loaded,
+        totalExchanges: loaded.totalExchanges ?? 0,
+        totalSummons: loaded.totalSummons ?? 0,
+        totalIronMined: loaded.totalIronMined ?? 0,
         rental: {
           ...r,
           active: Array.isArray(r.active) ? r.active : (r.active ? [r.active] : []),
+        },
+        rewards: {
+          ...loaded.rewards,
+          fragmentRewards: mergedFR,
+          coinRewards: mergedCR,
         },
       };
     }
@@ -228,6 +256,118 @@ function GameRoot() {
       localStorage.setItem("ladyHungryGame", JSON.stringify(gameState));
     }
   }, [gameState, isResetting]);
+
+  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET2 =====
+  useEffect(() => {
+    const fr = gameState.rewards?.fragmentRewards;
+    if (!fr) return;
+    const checks = {
+      goldPassive5: gameState.goldPerSecondLevel >= 5,
+      stamina2:     gameState.maxStaminaLevel >= 2,
+      pickaxeTier2: (gameState.rewards?.pickaxeMilestones?.totalTiers ?? 0) >= 2,
+    };
+    const needsUpdate = Object.entries(checks).some(
+      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
+    );
+    if (!needsUpdate) return;
+    setGameState(prev => {
+      const updated = { ...prev.rewards.fragmentRewards };
+      Object.entries(checks).forEach(([k, met]) => {
+        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
+          updated[k] = { ...updated[k], unlocked: true };
+        }
+      });
+      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
+    });
+  }, [
+    gameState.goldPerSecondLevel,
+    gameState.maxStaminaLevel,
+    gameState.rewards?.pickaxeMilestones?.totalTiers,
+    gameState.rewards?.fragmentRewards,
+  ]);
+
+  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET3 (minas) =====
+  useEffect(() => {
+    const fr = gameState.rewards?.fragmentRewards;
+    if (!fr) return;
+    const hasDogInMine = Object.values(gameState.dogs ?? {}).some(
+      d => d && typeof d === 'object' && d.assignedTo?.biome !== undefined
+    );
+    const ironMineUnlocked = gameState.mines?.unlockedBiomes?.includes('iron') ?? false;
+    const checks = {
+      set3Iron:        (gameState.totalIronMined ?? 0) >= 500,
+      set3DogMine:     hasDogInMine,
+      set3IronMine:    ironMineUnlocked,
+      set3ForjaBronze: gameState.furnaces?.bronze?.unlocked === true,
+      set3SmeltBronze: (gameState.totalIngotsSmelted ?? 0) >= 50,
+    };
+    const needsUpdate = Object.entries(checks).some(
+      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
+    );
+    if (!needsUpdate) return;
+    setGameState(prev => {
+      const updated = { ...prev.rewards.fragmentRewards };
+      Object.entries(checks).forEach(([k, met]) => {
+        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
+          updated[k] = { ...updated[k], unlocked: true };
+        }
+      });
+      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
+    });
+  }, [
+    gameState.totalIronMined,
+    gameState.totalIngotsSmelted,
+    gameState.dogs,
+    gameState.mines?.unlockedBiomes,
+    gameState.furnaces?.bronze?.unlocked,
+    gameState.rewards?.fragmentRewards,
+  ]);
+
+  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET4 (estrellas + hornos) =====
+  useEffect(() => {
+    const fr = gameState.rewards?.fragmentRewards;
+    if (!fr) return;
+    const maxMinerStars = Math.max(0, ...Object.values(gameState.dogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
+    const maxForgeStars = Math.max(0, ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
+    const checks = {
+      set4Miner1Star:      maxMinerStars >= 1,
+      set4Miner2Star:      maxMinerStars >= 2,
+      set4Miner3Star:      maxMinerStars >= 3,
+      set4Miner4Star:      maxMinerStars >= 4,
+      set4Miner5Star:      maxMinerStars >= 5,
+      set4Forge1Star:      maxForgeStars >= 1,
+      set4Forge2Star:      maxForgeStars >= 2,
+      set4Forge3Star:      maxForgeStars >= 3,
+      set4Forge4Star:      maxForgeStars >= 4,
+      set4Forge5Star:      maxForgeStars >= 5,
+      set4FurnaceBronze2:  (gameState.furnaces?.bronze?.level ?? 1) >= 2,
+      set4FurnaceBronze3:  (gameState.furnaces?.bronze?.level ?? 1) >= 3,
+      set4FurnaceIron2:    (gameState.furnaces?.iron?.level ?? 1) >= 2,
+      set4FurnaceIron3:    (gameState.furnaces?.iron?.level ?? 1) >= 3,
+      set4FurnaceDiamond2: (gameState.furnaces?.diamond?.level ?? 1) >= 2,
+      set4FurnaceDiamond3: (gameState.furnaces?.diamond?.level ?? 1) >= 3,
+    };
+    const needsUpdate = Object.entries(checks).some(
+      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
+    );
+    if (!needsUpdate) return;
+    setGameState(prev => {
+      const updated = { ...prev.rewards.fragmentRewards };
+      Object.entries(checks).forEach(([k, met]) => {
+        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
+          updated[k] = { ...updated[k], unlocked: true };
+        }
+      });
+      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
+    });
+  }, [
+    gameState.dogs,
+    gameState.forgeDogs,
+    gameState.furnaces?.bronze?.level,
+    gameState.furnaces?.iron?.level,
+    gameState.furnaces?.diamond?.level,
+    gameState.rewards?.fragmentRewards,
+  ]);
 
   // ===== NUEVO JUEGO — borra save y recarga =====
   const handleNewGame = () => {
@@ -513,8 +653,9 @@ function GameRoot() {
       : rand < RentalConfig.rarityThresholds.epic
         ? 'epic'
         : 'rare';
-    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && !hiredIds.has(d.id) && !rentedIds.has(d.id));
-    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => !hiredIds.has(d.id) && !rentedIds.has(d.id));
+    const giftIds = new Set(['boxer', 'bully', 'chihuahua']);
+    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
+    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
     if (pool.length === 0) return null;
     const dog = pool[Math.floor(Math.random() * pool.length)];
     return { dogId: dog.id, rarity: dog.rarity, cost: RentalConfig.costs[dog.rarity] };
@@ -1425,10 +1566,22 @@ function GameRoot() {
         <div className="hud-top-right" style={{ display: combatOpen ? 'none' : undefined }}>
 
           {(() => {
-            const raidReady = gameState.raid?.passiveRaid && Date.now() >= gameState.raid.passiveRaid.returnAt;
+            const passiveRaids = gameState.raid?.passiveRaids ?? [];
+            const canClaim = passiveRaids.some(r => now >= r.returnAt);
+            const hasFreeDogs =
+              Object.values(gameState.dogs ?? {}).some(
+                d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && !d.assignedTo
+              ) ||
+              Object.values(gameState.forgeDogs ?? {}).some(
+                d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && !d.assignedTo
+              ) ||
+              (gameState.rental?.active ?? []).some(r =>
+                r.destination === 'raid' &&
+                !passiveRaids.some(pr => pr.dogEntries?.some(d => d.id === r.dogId))
+              );
             return (
               <button
-                className={`btn-raid ${raidReady ? 'btn-raid-ready' : ''}`}
+                className={`btn-raid ${canClaim ? 'btn-raid-ready' : hasFreeDogs ? 'btn-raid-dogs-free' : ''}`}
                 onClick={() => setRaidOpen(true)}
               >
                 ⚔️

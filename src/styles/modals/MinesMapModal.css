@@ -286,7 +286,7 @@
 .yacimientos-slots {
     display: flex;
     align-items: flex-start;
-    margin-top: clamp(15rem, 45vh, 26rem);
+    margin-top: clamp(15rem, 35vh, 26rem);
 }
 
 .yacimiento-slot {

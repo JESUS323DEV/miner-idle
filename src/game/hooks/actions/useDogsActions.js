@@ -125,6 +125,7 @@ export const useDogsActions = (gameState, setGameState) => {
             newState = {
                 ...newState,
                 [biome]: currentAmount + materialGained,
+                ...(biome === 'iron' ? { totalIronMined: (newState.totalIronMined ?? 0) + materialGained } : {}),
             };
 
             newYacimientos = {
@@ -274,9 +275,12 @@ export const useDogsActions = (gameState, setGameState) => {
             if ((dog.fragments ?? 0) < needed) return prevState;
             const coinCost = STAR_COIN_COST[config.rarity] ?? 0;
             if (prevState.tavernCoins < coinCost) return prevState;
+            const goldCost = config.starGoldCost ?? 0;
+            if (prevState.gold < goldCost) return prevState;
 
             return {
                 ...prevState,
+                gold: prevState.gold - goldCost,
                 tavernCoins: prevState.tavernCoins - coinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
@@ -337,6 +341,7 @@ export const useDogsActions = (gameState, setGameState) => {
                     ...prevState.gachaPity,
                     [pityKey]: { count: newCount, epicCount: newEpicCount }
                 },
+                totalSummons: (prevState.totalSummons ?? 0) + 1,
                 lastPackResult: { dogId: pickedId, rarity, fragments: fragsGained, isForge }
             };
         });
@@ -347,7 +352,8 @@ export const useDogsActions = (gameState, setGameState) => {
     const handleFreePull = (packId, isForge = false) => {
         setGameState(prevState => {
             const cooldown = FREE_PULL_COOLDOWNS[packId];
-            const last = prevState.lastFreePull?.[packId] ?? 0;
+            const pullKey = `${isForge ? 'forge' : 'miner'}_${packId}`;
+            const last = prevState.lastFreePull?.[pullKey] ?? 0;
             if (Date.now() - last < cooldown) return prevState;
 
             const pack = PACK_TYPES[packId];
@@ -384,7 +390,8 @@ export const useDogsActions = (gameState, setGameState) => {
                 ...prevState,
                 [stateKey]: { ...prevState[stateKey], [pickedId]: { ...currentDog, fragments: (currentDog.fragments ?? 0) + fragsGained } },
                 gachaPity: { ...prevState.gachaPity, [pityKey]: { count: newCount, epicCount: newEpicCount } },
-                lastFreePull: { ...prevState.lastFreePull, [packId]: Date.now() },
+                lastFreePull: { ...prevState.lastFreePull, [pullKey]: Date.now() },
+                totalSummons: (prevState.totalSummons ?? 0) + 1,
                 lastPackResult: { dogId: pickedId, rarity, fragments: fragsGained, isForge }
             };
         });

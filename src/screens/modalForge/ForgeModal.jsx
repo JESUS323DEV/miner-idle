@@ -8,11 +8,17 @@ import '../../styles/modals/ForgeModal.css';
 import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.png";
 import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png";
 import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png";
+import forgeIcon4 from "../../assets/ui/icons-pets/forge/forge-icon4.png";
+import forgeIcon5 from "../../assets/ui/icons-pets/forge/forge-icon5.png";
+import forgeIcon6 from "../../assets/ui/icons-pets/forge/forge-icon6.png";
+import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.png";
+import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.png";
+import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.png";
 
 const forgeDogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
-    rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1, toby: forgeIcon2, buddy: forgeIcon3,
+    rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
+    rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
 

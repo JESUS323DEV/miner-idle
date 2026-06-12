@@ -43,22 +43,32 @@ import druhIcon from "../../assets/ui/icons-pets/mineros/druh-icon.png"
 import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
 import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
 import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
+import boxerIcon from "../../assets/ui/icons-pets/mineros/boxer-icon.png"
+import bullyIcon from "../../assets/ui/icons-pets/mineros/bully-icon.png"
+import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png"
 
 import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.png"
-import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.png"
 import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png"
 import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png"
+import forgeIcon4 from "../../assets/ui/icons-pets/forge/forge-icon4.png"
+import forgeIcon5 from "../../assets/ui/icons-pets/forge/forge-icon5.png"
+import forgeIcon6 from "../../assets/ui/icons-pets/forge/forge-icon6.png"
+import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.png"
+import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.png"
+import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.png"
+import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.png"
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
     smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+    boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
 };
 
 const forgeDogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
-    rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1, toby: forgeIcon2, buddy: forgeIcon3,
+    rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
+    rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
 const ingotAssets = {
@@ -318,8 +328,13 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     .filter(d => d && typeof d === 'object' && !Array.isArray(d))
                                     .filter(d => !rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter)
                                     .sort((a, b) => {
+                                        const ca = DogsConfig[a.id];
+                                        const cb = DogsConfig[b.id];
+                                        const isGiftA = ca?.unlockCost?.gold === 0 && ca?.unlockCost?.tavernCoins === 0 ? 1 : 0;
+                                        const isGiftB = cb?.unlockCost?.gold === 0 && cb?.unlockCost?.tavernCoins === 0 ? 1 : 0;
+                                        if (isGiftA !== isGiftB) return isGiftA - isGiftB;
                                         const order = { legendary: 0, epic: 1, rare: 2 };
-                                        return (order[DogsConfig[a.id]?.rarity] ?? 3) - (order[DogsConfig[b.id]?.rarity] ?? 3);
+                                        return (order[ca?.rarity] ?? 3) - (order[cb?.rarity] ?? 3);
                                     })
                                     .map(dog => {
                                         const config = DogsConfig[dog.id];
@@ -331,7 +346,8 @@ const TavernModal = ({ isOpen, onClose }) => {
                                         const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars] : null;
                                         const STAR_COIN_COST = { legendary: 3, epic: 2, rare: 1 };
                                         const starCoinCost = STAR_COIN_COST[config.rarity] ?? 0;
-                                        const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost;
+                                        const starGoldCost = config.starGoldCost ?? 0;
+                                        const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
                                         const isFlipped = flippedDog === dog.id;
                                         return (
                                             <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
@@ -351,6 +367,11 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                                     <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
                                                                     </span>
+                                                                    {starGoldCost > 0 && (
+                                                                        <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
+                                                                            <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${starGoldCost / 1000}k` : starGoldCost}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id)} disabled={!canUpgrade}>⬆ Mejorar</button>
                                                             </>
@@ -421,6 +442,9 @@ const TavernModal = ({ isOpen, onClose }) => {
                                     .filter(d => d && typeof d === 'object')
                                     .filter(d => !rarityFilter || ForgeDogsConfig[d.id]?.rarity === rarityFilter)
                                     .sort((a, b) => {
+                                        const isGiftA = (ForgeDogsConfig[a.id]?.unlockCost?.gold === 0 && ForgeDogsConfig[a.id]?.unlockCost?.tavernCoins === 0);
+                                        const isGiftB = (ForgeDogsConfig[b.id]?.unlockCost?.gold === 0 && ForgeDogsConfig[b.id]?.unlockCost?.tavernCoins === 0);
+                                        if (isGiftA !== isGiftB) return isGiftA ? 1 : -1;
                                         const order = { legendary: 0, epic: 1, rare: 2 };
                                         return (order[ForgeDogsConfig[a.id]?.rarity] ?? 3) - (order[ForgeDogsConfig[b.id]?.rarity] ?? 3);
                                     })
@@ -433,7 +457,8 @@ const TavernModal = ({ isOpen, onClose }) => {
                                         const starsF = dog.stars ?? 0;
                                         const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF] : null;
                                         const starCoinCostF = { legendary: 3, epic: 2, rare: 1 }[config.rarity] ?? 0;
-                                        const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF;
+                                        const starGoldCostF = config.starGoldCost ?? 0;
+                                        const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF && gameState.gold >= starGoldCostF;
                                         const isFlipped = flippedDog === dog.id;
 
                                         return (
@@ -451,6 +476,11 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                             <>
                                                                 <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNextF}</div>
                                                                 <div className="dog-unlock-cost">
+                                                                    {starGoldCostF > 0 && (
+                                                                        <span className={gameState.gold < starGoldCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                            <img src={iconGold} alt="oro" className="cost-icon" />{starGoldCostF >= 1000 ? (starGoldCostF / 1000).toFixed(0) + 'k' : starGoldCostF}
+                                                                        </span>
+                                                                    )}
                                                                     <span className={tavernCoins < starCoinCostF ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCostF}
                                                                     </span>
@@ -565,7 +595,8 @@ const TavernModal = ({ isOpen, onClose }) => {
                             {Object.values(PACK_TYPES).map(pack => {
                                 const canOpen = tavernCoins >= pack.cost;
                                 const cooldowns = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
-                                const last = gameState.lastFreePull?.[pack.id] ?? 0;
+                                const pullKey = `${packTab === 'forja' ? 'forge' : 'miner'}_${pack.id}`;
+                                const last = gameState.lastFreePull?.[pullKey] ?? 0;
                                 const remaining = cooldowns[pack.id] - (Date.now() - last);
                                 const freeReady = remaining <= 0;
                                 const freeLabel = freeReady ? 'Gratis' : (() => {

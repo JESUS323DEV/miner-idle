@@ -554,11 +554,32 @@
     gap: 6px;
 }
 
+.rlr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .rlr-title {
     color: #7fff7f;
     font-size: 0.78rem;
     font-weight: 600;
     margin: 0;
+}
+
+.rlr-dismiss {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+
+.rlr-dismiss:hover {
+    color: rgba(255,255,255,0.85);
 }
 
 .rlr-loot {

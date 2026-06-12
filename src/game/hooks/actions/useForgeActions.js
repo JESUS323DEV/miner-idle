@@ -16,6 +16,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
             const newGoldSpent = prevState.totalGoldSpent + COST;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const fragReward = prevState.rewards.fragmentRewards?.unlockForja;
             return {
                 ...prevState,
                 gold: prevState.gold - COST,
@@ -23,7 +24,13 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                 forgeUnlocked: true,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || true,
+                    fragmentRewards: {
+                        ...prevState.rewards.fragmentRewards,
+                        unlockForja: fragReward && !fragReward.unlocked
+                            ? { ...fragReward, unlocked: true }
+                            : fragReward,
+                    },
                 },
             };
         });
@@ -138,6 +145,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                 ...prevState,
                 [recipe.output]: prevState[recipe.output] + ingotsGained,
                 [recipe.input]: hasMore ? prevState[recipe.input] - recipe.inputAmount : prevState[recipe.input],
+                totalIngotsSmelted: (prevState.totalIngotsSmelted ?? 0) + ingotsGained,
                 furnaces: {
                     ...prevState.furnaces,
                     [material]: {

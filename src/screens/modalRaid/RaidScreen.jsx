@@ -18,19 +18,29 @@ import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.png';
 import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.png';
 import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.png';
 import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.png';
-import zeusIcon   from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
+import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
+import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.png';
+import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.png';
+import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.png';
 
 import forgeIcon1 from '../../assets/ui/icons-pets/forge/forge-icon1.png';
 import forgeIcon2 from '../../assets/ui/icons-pets/forge/forge-icon2.png';
 import forgeIcon3 from '../../assets/ui/icons-pets/forge/forge-icon3.png';
+import forgeIcon4 from '../../assets/ui/icons-pets/forge/forge-icon4.png';
+import forgeIcon5 from '../../assets/ui/icons-pets/forge/forge-icon5.png';
+import forgeIcon6 from '../../assets/ui/icons-pets/forge/forge-icon6.png';
+import forgeIcon7 from '../../assets/ui/icons-pets/forge/forge-icon7.png';
+import forgeIcon8 from '../../assets/ui/icons-pets/forge/forge-icon8.png';
+import forgeIcon9 from '../../assets/ui/icons-pets/forge/forge-icon9.png';
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
     smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
-    pip: forgeIcon1,   koda: forgeIcon2,  milo: forgeIcon3,
-    rocky: forgeIcon1, bruno: forgeIcon2, max: forgeIcon3,
-    rex: forgeIcon1,   toby: forgeIcon2,  buddy: forgeIcon3,
+    boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
+    pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
+    rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
+    rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
 const fmt = (n) => {
@@ -180,11 +190,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
                     >
                         🏕️ Pasiva
                     </button>
-                    <button
-                        className="raid-tab"
-                        onClick={() => onOpenCombat?.()}
-                    >
-                        ⚡ Activa
+                    <button className="raid-tab raid-tab-soon" disabled>
+                        ⚡ Activa <span className="raid-soon-badge">pronto</span>
                     </button>
                 </div>
 
@@ -192,9 +199,17 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
                 {Object.entries(lastRaidResults).map(([raidId, result]) => {
                     if (passiveRaids.some(r => r.raidId === raidId)) return null;
                     const raidCfg = RaidConfig.passiveRaids.find(r => r.id === raidId);
+                    const dismiss = () => setGameState(prev => {
+                        const next = { ...prev.raid.lastRaidResults };
+                        delete next[raidId];
+                        return { ...prev, raid: { ...prev.raid, lastRaidResults: next } };
+                    });
                     return (
                         <div key={raidId} className="raid-last-result">
-                            <p className="rlr-title">🎁 {raidCfg?.emoji} {raidCfg?.name}</p>
+                            <div className="rlr-header">
+                                <p className="rlr-title">🎁 {raidCfg?.emoji} {raidCfg?.name}</p>
+                                <button className="rlr-dismiss" onClick={dismiss}><X size={16} /></button>
+                            </div>
                             <div className="rlr-loot">
                                 {result.gold > 0 && <span><img src={iconGold} alt="gold" />{fmt(result.gold)}</span>}
                                 {result.tavernCoins > 0 && <span><img src={coinTavern} alt="coins" />{result.tavernCoins}</span>}
@@ -228,7 +243,72 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
                             return (
                                 <div key={raid.id} className="raid-entry">
 
-                                    {/* SELECTOR DE EQUIPO — se abre arriba de la raid */}
+                                    {/* RAID CARD */}
+                                    <div
+                                        className={`raid-card ${isSelected ? 'raid-card-selected' : ''} ${isActive ? 'raid-card-active' : ''}`}
+                                        onClick={() => !isActive && handleSelectRaid(raid.id)}
+                                    >
+                                        {isActive ? (
+                                            /* Estado EN CURSO */
+                                            <div className="raid-inline-progress">
+                                                <div className="rip-header">
+                                                    <span className="rc-emoji">{raid.emoji}</span>
+                                                    <span className="rc-name">{raid.name}</span>
+                                                </div>
+                                                <div className="rip-dogs">
+                                                    {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id }) => (
+                                                        <div key={id} className={`rip-dog dog-rarity-${DogsConfig[id]?.rarity}`}>
+                                                            <img src={dogAssets[id]} alt={id} />
+                                                            <span>{DogsConfig[id]?.name ?? id}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="rap-progress-bar">
+                                                    <div className="rap-progress-fill" style={{ width: `${progress * 100}%` }} />
+                                                </div>
+                                                <div className="rap-timer">
+                                                    {canClaim ? '¡Han vuelto!' : `⏱ ${formatTime(timeLeft)}`}
+                                                </div>
+                                                <div className="rip-actions">
+                                                    <button
+                                                        className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
+                                                        onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id); }}
+                                                        disabled={!canClaim}
+                                                    >
+                                                        {canClaim ? '🎁 Reclamar' : 'En camino...'}
+                                                    </button>
+                                                    <button
+                                                        className="btn-cancel-raid"
+                                                        onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Estado NORMAL */
+                                            <>
+                                                <span className="rc-emoji">{raid.emoji}</span>
+                                                <div className="rc-info">
+                                                    <span className="rc-name">{raid.name}</span>
+                                                    <span className="rc-desc">{raid.description}</span>
+                                                    <span className="rc-meta">
+                                                        ⏱ {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
+                                                        👥 {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
+                                                    </span>
+                                                </div>
+                                                <div className="rc-loot-preview">
+                                                    {Object.keys(raid.loot).map(res =>
+                                                        res === 'gold' ? <img key={res} src={iconGold} alt="gold" /> :
+                                                        res === 'tavernCoins' ? <img key={res} src={coinTavern} alt="coins" /> :
+                                                        res === 'fragments' ? <span key={res}>🧩</span> : null
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* SELECTOR DE EQUIPO — se abre debajo de la raid */}
                                     {isSelected && (
                                         <div className="raid-team-picker">
                                             {/* 3 slots */}
@@ -300,70 +380,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
                                         </div>
                                     )}
 
-                                    {/* RAID CARD */}
-                                    <div
-                                        className={`raid-card ${isSelected ? 'raid-card-selected' : ''} ${isActive ? 'raid-card-active' : ''}`}
-                                        onClick={() => !isActive && handleSelectRaid(raid.id)}
-                                    >
-                                        {isActive ? (
-                                            /* Estado EN CURSO */
-                                            <div className="raid-inline-progress">
-                                                <div className="rip-header">
-                                                    <span className="rc-emoji">{raid.emoji}</span>
-                                                    <span className="rc-name">{raid.name}</span>
-                                                </div>
-                                                <div className="rip-dogs">
-                                                    {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id }) => (
-                                                        <div key={id} className={`rip-dog dog-rarity-${DogsConfig[id]?.rarity}`}>
-                                                            <img src={dogAssets[id]} alt={id} />
-                                                            <span>{DogsConfig[id]?.name ?? id}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="rap-progress-bar">
-                                                    <div className="rap-progress-fill" style={{ width: `${progress * 100}%` }} />
-                                                </div>
-                                                <div className="rap-timer">
-                                                    {canClaim ? '¡Han vuelto!' : `⏱ ${formatTime(timeLeft)}`}
-                                                </div>
-                                                <div className="rip-actions">
-                                                    <button
-                                                        className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
-                                                        onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id); }}
-                                                        disabled={!canClaim}
-                                                    >
-                                                        {canClaim ? '🎁 Reclamar' : 'En camino...'}
-                                                    </button>
-                                                    <button
-                                                        className="btn-cancel-raid"
-                                                        onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
-                                                    >
-                                                        Cancelar
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            /* Estado NORMAL */
-                                            <>
-                                                <span className="rc-emoji">{raid.emoji}</span>
-                                                <div className="rc-info">
-                                                    <span className="rc-name">{raid.name}</span>
-                                                    <span className="rc-desc">{raid.description}</span>
-                                                    <span className="rc-meta">
-                                                        ⏱ {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
-                                                        👥 {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
-                                                    </span>
-                                                </div>
-                                                <div className="rc-loot-preview">
-                                                    {Object.keys(raid.loot).map(res =>
-                                                        res === 'gold' ? <img key={res} src={iconGold} alt="gold" /> :
-                                                        res === 'tavernCoins' ? <img key={res} src={coinTavern} alt="coins" /> :
-                                                        res === 'fragments' ? <span key={res}>🧩</span> : null
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
 
                                 </div>
                             );

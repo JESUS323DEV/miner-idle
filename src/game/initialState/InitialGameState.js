@@ -112,11 +112,18 @@ const InitialGameState = {
     totalClicks: 0,
     totalRepairs: 0,
     totalRefills: 0,
+    totalExchanges: 0,
+    totalSummons: 0,
+    totalIronMined: 0,
+    totalIngotsSmelted: 0,
 
     // ========== GACHA ==========
     gachaPity: {},
     lastPackResult: null,
-    lastFreePull: { basic: null, epic: null, legendary: null },
+    lastFreePull: {
+        miner_basic: null, miner_epic: null, miner_legendary: null,
+        forge_basic: null, forge_epic: null, forge_legendary: null,
+    },
 
     // ========== RAIDS ==========
     raid: InitialRaidState,
