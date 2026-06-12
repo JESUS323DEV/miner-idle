@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DogsConfig } from "../game/config/DogsConfig.js";
+import { RentalConfig } from "../game/config/RentalConfig.js";
+import { InitialRentalState } from "../game/initialState/InitialRentalState.js";
 
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
@@ -26,6 +28,7 @@ import UpgradeModal from "../components/modals/UpgradeModal.jsx";
 import ModalsMenu from "../components/modals/ModalsMenu.jsx";
 import PickaxeModal from "../components/modals/PickaxeModal.jsx";
 import TavernModal from "./modalTavern/TavernModal.jsx";
+import RentalModal from "./modalRental/RentalModal.jsx";
 import GoldMine from "../components/GoldMine.jsx";
 import TutorialPointer from "../components/TutorialPointer.jsx";
 import TutorialDialog from "../components/TutorialDialog.jsx";
@@ -185,6 +188,7 @@ function GameRoot() {
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [raidOpen, setRaidOpen] = useState(false);
+  const [rentalModalOpen, setRentalModalOpen] = useState(false);
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
@@ -192,7 +196,17 @@ function GameRoot() {
   // ===== GAME STATE — carga desde localStorage si existe =====
   const [gameState, setGameState] = useState(() => {
     const saved = localStorage.getItem("ladyHungryGame");
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const loaded = JSON.parse(saved);
+      const r = loaded.rental ?? InitialRentalState;
+      return {
+        ...loaded,
+        rental: {
+          ...r,
+          active: Array.isArray(r.active) ? r.active : (r.active ? [r.active] : []),
+        },
+      };
+    }
     return {
       ...InitialGameState,
       lady: InitialLadyState,
@@ -202,6 +216,7 @@ function GameRoot() {
       yacimientos: InitialYacimientosState,
       dogs: InitialDogsState,
       forgeDogs: InitialForgeDogsState,
+      rental: InitialRentalState,
     };
   });
 
@@ -482,6 +497,96 @@ function GameRoot() {
     return icons[material]?.[assetMap[tier]] || pickAxeStone;
   };
 
+  // ===== RENTAL — helper para generar perro aleatorio =====
+  const getRentalDog = (currentDogs, currentActive) => {
+    const hiredIds = new Set(
+      Object.values(currentDogs)
+        .filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired)
+        .map(d => d.id)
+    );
+    const rentedIds = new Set((currentActive ?? []).map(r => r.dogId));
+    const rand = Math.random() * 100;
+    const rarity = rand < RentalConfig.rarityThresholds.legendary
+      ? 'legendary'
+      : rand < RentalConfig.rarityThresholds.epic
+        ? 'epic'
+        : 'rare';
+    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && !hiredIds.has(d.id) && !rentedIds.has(d.id));
+    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => !hiredIds.has(d.id) && !rentedIds.has(d.id));
+    if (pool.length === 0) return null;
+    const dog = pool[Math.floor(Math.random() * pool.length)];
+    return { dogId: dog.id, rarity: dog.rarity, cost: RentalConfig.costs[dog.rarity] };
+  };
+
+  // ===== RENTAL — timer de aparición y duración activa =====
+  useEffect(() => {
+    const t = setInterval(() => {
+      setGameState(prev => {
+        const rental = prev.rental;
+        if (!rental) return prev;
+
+        let changed = false;
+        let available = rental.available;
+        let appearanceRemainingMs = rental.appearanceRemainingMs;
+        const newSlots = [...(prev.dogs?.globalSlots ?? [null, null, null])];
+        let slotsChanged = false;
+
+        // Timer de aparición: corre siempre que no haya perro disponible
+        if (!available) {
+          const newMs = Math.max(0, appearanceRemainingMs - 1000);
+          if (newMs !== appearanceRemainingMs) {
+            changed = true;
+            if (newMs <= 0) {
+              const generated = getRentalDog(prev.dogs ?? {}, rental.active);
+              if (generated) {
+                available = generated;
+                appearanceRemainingMs = 0;
+              } else {
+                appearanceRemainingMs = 60 * 1000;
+              }
+            } else {
+              appearanceRemainingMs = newMs;
+            }
+          }
+        }
+
+        // Timers de alquileres activos (array)
+        const newActive = [];
+        for (const r of (rental.active ?? [])) {
+          const newMs = Math.max(0, r.remainingMs - 1000);
+          if (newMs <= 0) {
+            changed = true;
+            if (r.destination !== 'raid' && r.assignedSlot !== null && newSlots[r.assignedSlot] === r.dogId) {
+              newSlots[r.assignedSlot] = null;
+              slotsChanged = true;
+            }
+          } else {
+            if (newMs !== r.remainingMs) changed = true;
+            newActive.push({ ...r, remainingMs: newMs });
+          }
+        }
+
+        if (!changed) return prev;
+
+        return {
+          ...prev,
+          rental: { available, active: newActive, appearanceRemainingMs },
+          dogs: slotsChanged ? { ...prev.dogs, globalSlots: newSlots } : prev.dogs,
+        };
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const formatRentalTimer = (ms) => {
+    const totalSec = Math.ceil(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   // ===== HOOKS DE SISTEMA =====
   useGoldPerSecond(gameState, setGameState); // Tick oro/segundo
   useAutoMining(gameState, handleMine, setGameState); // Automina continua
@@ -727,6 +832,12 @@ function GameRoot() {
 
         {/* HEADER — oro + monedas taberna + menú */}
         <div className="gold-menu-display">
+          <button
+            className="btn-settings btn-settings-header"
+            onClick={() => setMenuOpenModal((prev) => !prev)}
+          >
+            <Settings />
+          </button>
           <div className="gold-display">
             <div className="gold-cont" style={{ position: "relative" }}>
               <div className="cont-gold-mena">
@@ -922,7 +1033,8 @@ function GameRoot() {
               }}
               disabled={
                 (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ||
-                gameState.pickaxe.durability >= gameState.pickaxe.maxDurability
+                gameState.pickaxe.durability >= gameState.pickaxe.maxDurability ||
+                gameState.automine?.isActive
               }
               className={`
                             ${gameState.pickaxe.durability <= 5 ? "low-resource" : ""}
@@ -1184,6 +1296,12 @@ function GameRoot() {
           onClose={() => setTavernModalOpen(false)}
         />
 
+        {/* ALQUILER */}
+        <RentalModal
+          isOpen={rentalModalOpen}
+          onClose={() => setRentalModalOpen(false)}
+        />
+
         {/* FORJA */}
         <ForgeModal
           isOpen={forgeModalOpen}
@@ -1211,11 +1329,17 @@ function GameRoot() {
             };
 
             const assignedRarity = assignedDogId ? DogsConfig[assignedDogId]?.rarity : null;
+            const rentalEntry = (gameState.rental?.active ?? []).find(r => r.assignedSlot === i && r.dogId === assignedDogId);
+            const isRentedSlot = !!rentalEntry;
             return (
-              <div key={i} className="global-dog-slot-wrapper">
+              <div key={i} className={`global-dog-slot-wrapper${isRentedSlot ? ' global-dog-slot-rented' : ''}`}>
                 <div
                   className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
                   onClick={() => {
+                    if (isRentedSlot) {
+                      setFlippedSlot(isFlipped ? null : i);
+                      return;
+                    }
                     if (assignedDog) {
                       setFlippedSlot(isFlipped ? null : i);
                       setGlobalDogMenuOpen(isMenuOpen ? null : i);
@@ -1233,18 +1357,23 @@ function GameRoot() {
                             ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
                             : <span className="global-dog-slot-emoji">🐕</span>
                           }
-                          <button className="global-dog-slot-unassign" onClick={e => {
-                            e.stopPropagation();
-                            setFlippedSlot(null);
-                            setGameState(prev => ({
-                              ...prev,
-                              dogs: {
-                                ...prev.dogs,
-                                globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
-                                [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
-                              }
-                            }));
-                          }}>✖</button>
+                          {isRentedSlot && (
+                            <span className="global-dog-slot-rental-badge">{formatRentalTimer(rentalEntry.remainingMs)}</span>
+                          )}
+                          {!isRentedSlot && (
+                            <button className="global-dog-slot-unassign" onClick={e => {
+                              e.stopPropagation();
+                              setFlippedSlot(null);
+                              setGameState(prev => ({
+                                ...prev,
+                                dogs: {
+                                  ...prev.dogs,
+                                  globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
+                                  [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                                }
+                              }));
+                            }}>✖</button>
+                          )}
                         </>
                       ) : (
                         <span className="global-dog-slot-plus">+</span>
@@ -1258,8 +1387,8 @@ function GameRoot() {
                     )}
                   </div>
 
-                  {/* Menú asignar / cambiar */}
-                  {isMenuOpen && (
+                  {/* Menú asignar / cambiar — bloqueado para slots alquilados */}
+                  {isMenuOpen && !isRentedSlot && (
                     <div className="global-dog-menu">
                       {availableDogs.length === 0
                         ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
@@ -1293,12 +1422,37 @@ function GameRoot() {
         {/* SETTINGS */}
         <div className="hud-top-right">
 
-          <button
-            className={`btn-raid ${gameState.raid?.passiveRaid && Date.now() >= gameState.raid.passiveRaid.returnAt ? 'btn-raid-ready' : ''}`}
-            onClick={() => setRaidOpen(true)}
-          >
-            ⚔️
-          </button>
+          {(() => {
+            const raidReady = gameState.raid?.passiveRaid && Date.now() >= gameState.raid.passiveRaid.returnAt;
+            return (
+              <button
+                className={`btn-raid ${raidReady ? 'btn-raid-ready' : ''}`}
+                onClick={() => setRaidOpen(true)}
+              >
+                ⚔️
+              </button>
+            );
+          })()}
+
+          {/* ALQUILER — abre Ayudantes directo al tab de alquiler */}
+          {(() => {
+            const rentalAvailable = gameState.rental?.available;
+            const activeCount = gameState.rental?.active?.length ?? 0;
+            return (
+              <button
+                className={`btn-rental ${rentalAvailable ? 'btn-rental-ready' : 'btn-rental-recharging'}`}
+                onClick={() => setRentalModalOpen(true)}
+              >
+                <img src={ladyIcon} className="btn-rental-img" alt="alquiler" />
+                {activeCount > 0 && (
+                  <span className="btn-rental-active-count">{activeCount}</span>
+                )}
+                {!rentalAvailable && (
+                  <span className="btn-rental-timer">{formatRentalTimer(gameState.rental?.appearanceRemainingMs ?? 0)}</span>
+                )}
+              </button>
+            );
+          })()}
           <button
             className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
               Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
@@ -1310,12 +1464,6 @@ function GameRoot() {
             🏆
           </button>
 
-          <button
-            className="btn-settings"
-            onClick={() => setMenuOpenModal((prev) => !prev)}
-          >
-            <Settings />
-          </button>
 
         </div>
 

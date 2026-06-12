@@ -26,7 +26,8 @@ export const useRaidActions = (gameState, setGameState) => {
             if (dogEntries.length < raid.minTeam || dogEntries.length > raid.maxTeam) return prevState;
 
             // Validar que todos los perros están disponibles
-            for (const { id, isForge } of dogEntries) {
+            for (const { id, isForge, isRented } of dogEntries) {
+                if (isRented) continue;
                 const dog = isForge ? prevState.forgeDogs?.[id] : prevState.dogs?.[id];
                 if (!dog || !dog.hired || dog.assignedTo) return prevState;
             }

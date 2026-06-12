@@ -224,6 +224,16 @@
     line-height: 1;
 }
 
+.rdc-rented-badge {
+    font-size: 0.5rem;
+    background: rgba(168, 85, 247, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    color: #c084fc;
+    border-radius: 4px;
+    padding: 1px 4px;
+    line-height: 1.2;
+}
+
 /* Rareza en dog cards */
 .raid-dog-card.dog-rarity-legendary { border-color: rgba(245,200,66,0.4); }
 .raid-dog-card.dog-rarity-epic      { border-color: rgba(180,92,255,0.4); }

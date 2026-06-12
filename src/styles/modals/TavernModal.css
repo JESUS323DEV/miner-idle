@@ -1177,3 +1177,298 @@
     color: #888;
     cursor: not-allowed;
 }
+
+/* ===== TAB ALQUILER ===== */
+
+.dog-tab-rental {
+    border-color: #a855f7 !important;
+    color: #c084fc !important;
+}
+
+.dog-tab-rental.active {
+    background: rgba(168, 85, 247, 0.25) !important;
+    color: #e9d5ff !important;
+}
+
+.dog-tab-rental-ready {
+    animation: rental-tab-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes rental-tab-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(168, 85, 247, 0); }
+}
+
+.rental-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    min-height: 300px;
+    justify-content: center;
+}
+
+/* Estado recargando */
+.rental-recharging {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    opacity: 0.75;
+}
+
+.rental-lady-icon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    filter: grayscale(50%);
+}
+
+.rental-recharging-label {
+    color: #aaa;
+    font-size: 0.75rem;
+}
+
+.rental-recharging-timer {
+    color: #c084fc;
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+/* Tarjeta rental */
+.rental-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 12px;
+    padding: 1.5rem 1.2rem;
+    width: 90%;
+    max-width: 280px;
+    position: relative;
+}
+
+.dog-card-front.rental-card-available {
+    animation: rental-card-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes rental-card-glow {
+    0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.3); }
+    50%       { box-shadow: 0 0 20px rgba(168, 85, 247, 0.7); }
+}
+
+.rental-dog-portrait {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rental-dog-name {
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.rental-cost {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.rental-cost-icon {
+    width: 20px;
+}
+
+.rental-no-slots {
+    color: #f87171;
+    font-size: 0.65rem;
+    text-align: center;
+}
+
+.rental-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+}
+
+.rental-btn-hire {
+    background: rgba(168, 85, 247, 0.75);
+    color: white;
+    border: 1px solid #a855f7;
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.rental-btn-hire:hover:not(.locked) {
+    background: rgba(168, 85, 247, 1);
+}
+
+.rental-btn-hire.locked {
+    background: rgba(60, 60, 60, 0.5);
+    border-color: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.rental-btn-discard {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 6px;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rental-btn-discard:hover {
+    background: rgba(239, 68, 68, 0.45);
+}
+
+.rental-dest-choice {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.rental-dest-btn {
+    flex: 1;
+    padding: 0.45rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 1px solid;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: background 0.2s;
+}
+
+.rental-dest-slot {
+    background: rgba(245, 196, 66, 0.2);
+    border-color: rgba(245, 196, 66, 0.6);
+    color: #fde68a;
+}
+
+.rental-dest-slot:hover:not(.locked) {
+    background: rgba(245, 196, 66, 0.35);
+}
+
+.rental-dest-raid {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.6);
+    color: #fca5a5;
+}
+
+.rental-dest-raid:hover:not(.locked) {
+    background: rgba(239, 68, 68, 0.35);
+}
+
+.rental-dest-btn.locked {
+    background: rgba(60, 60, 60, 0.4);
+    border-color: #444;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.rental-dest-hint {
+    font-size: 0.55rem;
+    font-weight: normal;
+    opacity: 0.75;
+}
+
+.rental-dest-status {
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 0.25rem;
+}
+
+.rental-dest-status-slot {
+    background: rgba(245, 196, 66, 0.15);
+    color: #fde68a;
+    border: 1px solid rgba(245, 196, 66, 0.4);
+}
+
+.rental-dest-status-raid {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Tarjeta activa */
+.rental-active-timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: 0.2rem;
+}
+
+.rental-timer-label {
+    color: #9ca3af;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rental-timer-value {
+    color: #c084fc;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Fragmentos */
+.rental-fragments {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.2rem;
+}
+
+.rental-frag-row {
+    color: white;
+    font-size: 0.8rem;
+}
+
+.rental-frag-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rental-frag-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    border-radius: 3px;
+    transition: width 0.4s;
+}
+
+.rental-frag-hint {
+    color: #9ca3af;
+    font-size: 0.6rem;
+    text-align: center;
+    line-height: 1.3;
+}

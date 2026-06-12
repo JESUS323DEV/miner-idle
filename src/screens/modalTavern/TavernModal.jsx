@@ -97,7 +97,6 @@ const TavernModal = ({ isOpen, onClose }) => {
     const [packTab, setPackTab] = useState('mineros');
     const [packResult, setPackResult] = useState(null);
     const [resultStreak, setResultStreak] = useState({ dogId: null, count: 0 });
-
     useEffect(() => {
         if (view === 'ayudantes' && !gameState.tutorial?.dogsIntroDone) setShowDogsIntro(true);
         if (view === 'cambista' && !gameState.tutorial?.cambistaIntroDone) setShowCambistaIntro(true);

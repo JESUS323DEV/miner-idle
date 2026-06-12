@@ -77,7 +77,30 @@ const RaidScreen = ({ isOpen, onClose }) => {
     const dogs = gameState.dogs ?? {};
     const forgeDogs = gameState.forgeDogs ?? {};
 
+    const rentalForRaids = (gameState.rental?.active ?? []).filter(r =>
+        r.destination === 'raid' &&
+        !passiveRaids.some(pr => pr.dogEntries?.some(d => d.id === r.dogId))
+    );
+
+    const formatRentalMs = (ms) => {
+        const totalSec = Math.ceil(ms / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
     const availableDogs = [
+        ...rentalForRaids.map(r => ({
+            id: r.dogId,
+            isForge: false,
+            isRented: true,
+            remainingMs: r.remainingMs,
+            stars: dogs[r.dogId]?.stars ?? 0,
+            hired: true,
+            assignedTo: null,
+        })),
         ...Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired && !d.assignedTo)
             .map(d => ({ ...d, isForge: false })),
         ...Object.values(forgeDogs).filter(d => d && typeof d === 'object' && d.hired && !d.assignedTo)
@@ -87,12 +110,12 @@ const RaidScreen = ({ isOpen, onClose }) => {
     const getDogConfig = (dogId, isForge) => isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
 
     // teamDogIds: array de { id, isForge }
-    const toggleDog = (dogId, isForge) => {
+    const toggleDog = (dogId, isForge, isRented = false) => {
         setTeamDogIds(prev => {
             if (prev.some(d => d.id === dogId)) return prev.filter(d => d.id !== dogId);
             if (!selectedRaid) return prev;
             if (prev.length >= 3) return prev;
-            return [...prev, { id: dogId, isForge }];
+            return [...prev, { id: dogId, isForge, isRented }];
         });
     };
 
@@ -250,7 +273,7 @@ const RaidScreen = ({ isOpen, onClose }) => {
                                                         <button
                                                             key={dog.id}
                                                             className={`raid-dog-card ${selected ? 'raid-dog-selected' : ''} dog-rarity-${cfg?.rarity}`}
-                                                            onClick={() => toggleDog(dog.id, dog.isForge)}
+                                                            onClick={() => toggleDog(dog.id, dog.isForge, dog.isRented)}
                                                         >
                                                             <img src={dogAssets[dog.id]} alt={dog.id} />
                                                             <span className="rdc-name">{cfg?.name ?? dog.id}</span>
@@ -258,6 +281,7 @@ const RaidScreen = ({ isOpen, onClose }) => {
                                                                 {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
                                                             </span>
                                                             {dog.isForge && <span className="rdc-forge-badge">🔥</span>}
+                                                            {dog.isRented && <span className="rdc-rented-badge">{formatRentalMs(dog.remainingMs)}</span>}
                                                         </button>
                                                     );
                                                 })}

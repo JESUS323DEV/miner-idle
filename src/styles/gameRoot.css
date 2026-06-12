@@ -38,6 +38,10 @@
    HEADER - ORO TOTAL + MENÚ
    ============================================================ */
 
+.gold-menu-display {
+    position: relative;
+}
+
 .gold-display {
     display: flex;
     align-items: center;
@@ -887,6 +891,23 @@ button:not(:disabled) .lock-price-badge img {
     color: white;
 }
 
+.btn-settings-header {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 34px;
+    height: 34px;
+    z-index: 10;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+}
+
+.btn-settings-header svg {
+    width: 16px;
+    height: 16px;
+}
+
 .btn-rewards {
     background: #2a2a4e;
     border: 2px solid #f0a500;
@@ -961,6 +982,7 @@ button:not(:disabled) .lock-price-badge img {
     100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); transform: scale(1); }
 }
 
+
 @keyframes pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.7);
@@ -976,6 +998,98 @@ button:not(:disabled) .lock-price-badge img {
         box-shadow: 0 0 0 0 rgba(240, 165, 0, 0);
         transform: scale(1);
     }
+}
+
+/* ===== BOTÓN ALQUILER ===== */
+.btn-rental {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #a855f7;
+    background: #1a1a2e;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-rental-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    transition: opacity 0.3s;
+}
+
+.btn-rental-recharging .btn-rental-img {
+    opacity: 0.3;
+    filter: grayscale(60%);
+}
+
+.btn-rental-timer {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.45rem;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px 4px;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.btn-rental-active-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #a855f7;
+    color: white;
+    font-size: 0.55rem;
+    font-weight: bold;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.btn-rental-ready {
+    animation: rental-pulse 1s infinite;
+}
+
+@keyframes rental-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.8); transform: scale(1); }
+    50%  { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); transform: scale(1.15); }
+    100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); transform: scale(1); }
+}
+
+/* Slot alquilado en pantalla principal */
+.global-dog-slot-rented .global-dog-slot {
+    border-color: #a855f7;
+    border-style: solid;
+}
+
+.global-dog-slot-rental-badge {
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.72);
+    color: #c084fc;
+    font-size: 0.5rem;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px 4px;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
 .gold-dog-slot {

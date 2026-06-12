@@ -1,0 +1,108 @@
+/* ===== OVERLAY ===== */
+.rm-overlay {
+    position: absolute;
+    top: 5.5rem;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 5.5rem);
+    z-index: 10;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-y: auto;
+    padding-bottom: 3rem;
+}
+
+.rm-content {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    padding: 2.5rem 0.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.rm-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.82);
+    z-index: -1;
+}
+
+/* ===== CLOSE ===== */
+.rm-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.rm-close svg {
+    width: 30px;
+    height: 30px;
+}
+
+/* ===== TITLE ===== */
+.rm-title {
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+/* ===== RECHARGING ===== */
+.rm-recharging {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    opacity: 0.75;
+}
+
+.rm-recharging-icon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    filter: grayscale(50%);
+}
+
+.rm-recharging-label {
+    color: #aaa;
+    font-size: 0.75rem;
+}
+
+.rm-recharging-timer {
+    color: #c084fc;
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+/* ===== GRID — altura de tarjetas ===== */
+
+/* El dogs-grid del rental usa todo el ancho disponible */
+.rm-grid {
+    width: 100%;
+    max-height: none;
+    padding-bottom: 1rem;
+}
+
+/* Tarjeta disponible: más alta por los botones de destino + descartar */
+.rm-grid .rm-avail-wrapper {
+    height: 290px;
+}
+
+/* Tarjeta activa: portrait + estado + timer + fragmentos */
+.rm-grid .rm-active-wrapper {
+    height: 280px;
+}
