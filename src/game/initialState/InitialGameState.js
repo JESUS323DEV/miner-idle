@@ -114,8 +114,10 @@ const InitialGameState = {
     totalRefills: 0,
     totalExchanges: 0,
     totalSummons: 0,
+    totalBronzeMined: 0,
     totalIronMined: 0,
     totalIngotsSmelted: 0,
+    totalBronzeIngotsSmelted: 0,
 
     // ========== GACHA ==========
     gachaPity: {},
@@ -146,6 +148,7 @@ const InitialGameState = {
         cambistaIntroDone: false,
         dogsIntroDone: false,
         raidIntroDone: false,
+        rentalTutorialStep: 0,  // 0=not started, 1=zeus shown, 2=zeus rented/druh shown, 3=done
         sobreIntroDone: false,
         mineIntroBronzeDone: false,
         mineIntroIronDone: false,

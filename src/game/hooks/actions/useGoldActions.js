@@ -1,5 +1,6 @@
 import { CombosConfig } from '../../config/CombosConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
+import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
 export const useGoldActions = (gameState, setGameState, showGoldCost, showTavernCost) => {
@@ -96,14 +97,18 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
             let dogBonusGold = 0;
+            let saveDur = false;
             let rechargeReduction = 0;
             for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
                 if (!dogId) continue;
                 const dogBonus = DogsConfig[dogId]?.goldMineBonus;
-                if (!dogBonus) continue;
-                if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
-                else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += goldGained; }
-                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) rechargeReduction++; }
+                if (dogBonus) {
+                    if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
+                    else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += goldGained; }
+                    else if (dogBonus.type === 'saveDurability') { if (!saveDur && Math.random() < dogBonus.chance) saveDur = true; }
+                }
+                const forgeBonus = ForgeDogsConfig[dogId]?.globalSlotBonus;
+                if (forgeBonus?.type === 'burstRecharge') { if (Math.random() < forgeBonus.chance) rechargeReduction++; }
             }
 
             const totalGold = goldGained + dogBonusGold;
@@ -124,7 +129,7 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
                 burst: newBurst,
                 pickaxe: {
                     ...prevState.pickaxe,
-                    durability: prevState.pickaxe.durability - 1
+                    durability: prevState.pickaxe.durability - (saveDur ? 0 : 1)
                 },
                 comboCount: newCombo,
                 maxComboEver: newMaxCombo,
@@ -148,14 +153,18 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
 
             let dogBonusGold = 0;
+            let saveDur = false;
             let rechargeReduction = 0;
             for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
                 if (!dogId) continue;
                 const dogBonus = DogsConfig[dogId]?.goldMineBonus;
-                if (!dogBonus) continue;
-                if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
-                else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += prevState.pickaxe.goldPerMine; }
-                else if (dogBonus.type === 'freeHit') { if (Math.random() < dogBonus.chance) rechargeReduction++; }
+                if (dogBonus) {
+                    if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
+                    else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += prevState.pickaxe.goldPerMine; }
+                    else if (dogBonus.type === 'saveDurability') { if (!saveDur && Math.random() < dogBonus.chance) saveDur = true; }
+                }
+                const forgeBonus = ForgeDogsConfig[dogId]?.globalSlotBonus;
+                if (forgeBonus?.type === 'burstRecharge') { if (Math.random() < forgeBonus.chance) rechargeReduction++; }
             }
 
             const totalGold = prevState.pickaxe.goldPerMine + dogBonusGold;
@@ -175,7 +184,7 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
                 burst: newBurst,
                 pickaxe: {
                     ...prevState.pickaxe,
-                    durability: prevState.pickaxe.durability - 1
+                    durability: prevState.pickaxe.durability - (saveDur ? 0 : 1)
                 },
                 rewards: {
                     ...prevState.rewards,

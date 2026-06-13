@@ -72,6 +72,34 @@ const STEPS = {
         counter: null,
         showSkip: false,
     },
+    hint_rewards: {
+        title: "Tus primeras recompensas",
+        text: "Tienes recompensas disponibles. Ábrelas, reclámalas todas y cierra el panel cuando termines.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_rental: {
+        title: "Alquiler de ayudantes",
+        text: "Puedes alquilar ayudantes temporales. Alquila a Zeus para el slot de oro y a Druh para raids. ¡Son gratis ahora!",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_raids: {
+        title: "¡Envía una raid!",
+        text: "Selecciona el Bosque Antiguo, añade a Druh al equipo y envíalo. Vuelve cuando regrese para recoger las recompensas.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_mine_dog: {
+        title: "Zeus está activo",
+        text: "Zeus te da una bonificación pasiva cada vez que picas. Mientras esté alquilado trabajará para ti. Consigue sus fragmentos para quedártelo para siempre.",
+        action: "Entendido",
+        counter: null,
+        showSkip: false,
+    },
     done: {
         title: "¡COMIENZA LA AVENTURA!",
         text: "Sigue explorando minas, mejora tu equipo, refuerza tu forja y visita la taberna para contratar ayudantes. Tu aventura acaba de comenzar.",
@@ -90,11 +118,6 @@ const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true }) => {
         <div className="tutorial-dialog">
             {data.counter && (
                 <span className="tutorial-dialog-counter">{data.counter}</span>
-            )}
-            {data.showSkip && !isFirstTime && (
-                <button className="tutorial-dialog-skip" onClick={onSkip}>
-                    Saltar
-                </button>
             )}
             <h3 className="tutorial-dialog-title">{data.title}</h3>
             <p className="tutorial-dialog-text">{data.text}</p>

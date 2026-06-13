@@ -12,7 +12,8 @@ export const ForgeDogsConfig = {
             timeReduction: 1,
             doubleIngot: 0,
             biomeBonus: { bronze: 1, iron: 0, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'goldTrickle', min: 1, max: 1 },
     },
     koda: {
         rarity: 'rare',
@@ -26,7 +27,8 @@ export const ForgeDogsConfig = {
             timeReduction: 0,
             doubleIngot: 0.05,
             biomeBonus: { bronze: 0, iron: 1, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'burstRecharge', chance: 0.05 },
     },
     milo: {
         rarity: 'rare',
@@ -40,7 +42,8 @@ export const ForgeDogsConfig = {
             timeReduction: 0,
             doubleIngot: 0.08,
             biomeBonus: { bronze: 0, iron: 0, diamond: 1 }
-        }
+        },
+        globalSlotBonus: { type: 'maxDurability', value: 1 },
     },
     rocky: {
         rarity: 'epic',
@@ -55,7 +58,8 @@ export const ForgeDogsConfig = {
             timeReduction: 2,
             doubleIngot: 0,
             biomeBonus: { bronze: 2, iron: 0, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'burstRecharge', chance: 0.05 },
     },
     bruno: {
         rarity: 'epic',
@@ -69,7 +73,8 @@ export const ForgeDogsConfig = {
             timeReduction: 1,
             doubleIngot: 0.10,
             biomeBonus: { bronze: 0, iron: 3, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'goldTrickle', min: 1, max: 3 },
     },
     max: {
         rarity: 'epic',
@@ -83,7 +88,8 @@ export const ForgeDogsConfig = {
             timeReduction: 1,
             doubleIngot: 0.15,
             biomeBonus: { bronze: 0, iron: 0, diamond: 4 }
-        }
+        },
+        globalSlotBonus: { type: 'maxDurability', value: 3 },
     },
     rex: {
         rarity: 'legendary',
@@ -98,7 +104,8 @@ export const ForgeDogsConfig = {
             timeReduction: 3,
             doubleIngot: 0.05,
             biomeBonus: { bronze: 2, iron: 0, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'burstRecharge', chance: 0.08 },
     },
     toby: {
         rarity: 'legendary',
@@ -112,7 +119,8 @@ export const ForgeDogsConfig = {
             timeReduction: 2,
             doubleIngot: 0.20,
             biomeBonus: { bronze: 0, iron: 3, diamond: 0 }
-        }
+        },
+        globalSlotBonus: { type: 'goldTrickle', min: 2, max: 4 },
     },
     buddy: {
         rarity: 'legendary',
@@ -126,6 +134,7 @@ export const ForgeDogsConfig = {
             timeReduction: 4,
             doubleIngot: 0.25,
             biomeBonus: { bronze: 0, iron: 0, diamond: 2 }
-        }
+        },
+        globalSlotBonus: { type: 'maxDurability', value: 5 },
     }
 };

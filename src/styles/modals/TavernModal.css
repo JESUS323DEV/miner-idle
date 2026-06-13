@@ -94,7 +94,9 @@
     transition: background 0.2s, border-color 0.2s;
     color: white;
     text-align: left;
+    position: relative;
 }
+
 
 .tavern-menu-card:hover {
     background: rgba(255, 215, 0, 0.1);
@@ -839,6 +841,12 @@
 .rarity-filter-legendary.rarity-filter-pulse { animation: rarity-pulse-legendary 1.2s ease-in-out infinite; }
 .rarity-filter-epic.rarity-filter-pulse { animation: rarity-pulse-epic 1.2s ease-in-out infinite; }
 .rarity-filter-rare.rarity-filter-pulse { animation: rarity-pulse-rare 1.2s ease-in-out infinite; }
+
+@keyframes dog-tab-pulse {
+    0%, 100% { box-shadow: none; transform: scale(1); }
+    50% { box-shadow: 0 0 12px rgba(255, 210, 80, 0.9), 0 0 4px rgba(255, 210, 80, 0.5); transform: scale(1.07); }
+}
+.dog-tab-btn-pulse { animation: dog-tab-pulse 1.2s ease-in-out infinite; }
 
 /* ESTRELLAS */
 .dog-stars-row {

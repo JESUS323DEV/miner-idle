@@ -40,7 +40,7 @@ const formatMs = (ms) => {
     return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-const RentalModal = ({ isOpen, onClose }) => {
+const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
     const { gameState, setGameState } = useGameContext();
     const [cardFlipped, setCardFlipped] = useState(false);
     const [flippedActiveIdx, setFlippedActiveIdx] = useState(null);
@@ -54,7 +54,13 @@ const RentalModal = ({ isOpen, onClose }) => {
     const rental = gameState.rental;
     const firstFreeSlot = (gameState.dogs?.globalSlots ?? [null, null, null]).findIndex(s => s === null);
 
-    const handleRentDog = (destination) => {
+    const isTutorialRental = tutorialStep === 'hint_rental';
+    const activeRental = gameState.rental?.active ?? [];
+    const zeusRented = activeRental.some(r => r.dogId === 'zeus');
+    const druhRented = activeRental.some(r => r.dogId === 'druh');
+    const rentalTutorialDone = zeusRented && druhRented;
+
+    const handleRentDog = (destination, durationMs = RentalConfig.rentalDurationMs) => {
         const available = rental?.available;
         if (!available || gameState.gold < available.cost) return;
         if (destination === 'slot' && firstFreeSlot === -1) return;
@@ -63,7 +69,7 @@ const RentalModal = ({ isOpen, onClose }) => {
                 dogId: available.dogId,
                 rarity: available.rarity,
                 cost: available.cost,
-                remainingMs: RentalConfig.rentalDurationMs,
+                remainingMs: durationMs,
                 destination,
                 assignedSlot: null,
             };
@@ -111,9 +117,14 @@ const RentalModal = ({ isOpen, onClose }) => {
     const hasCards = rental?.available || (rental?.active?.length > 0);
 
     return (
-        <div className="rm-overlay" onClick={onClose} style={{ backgroundImage: `url(${bgCoin})` }}>
+        <div className="rm-overlay" onClick={isTutorialRental && !rentalTutorialDone ? undefined : onClose} style={{ backgroundImage: `url(${bgCoin})` }}>
             <div className="rm-content" onClick={e => e.stopPropagation()}>
-                <button className="rm-close" onClick={onClose}><X /></button>
+                <button
+                    className={`rm-close ${isTutorialRental && rentalTutorialDone ? 'tutorial-highlight' : ''}`}
+                    onClick={isTutorialRental && !rentalTutorialDone ? undefined : onClose}
+                    disabled={isTutorialRental && !rentalTutorialDone}
+                    style={isTutorialRental && !rentalTutorialDone ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                ><X /></button>
                 <h2 className="rm-title">Alquiler</h2>
 
                 {/* Recargando — solo si no hay perro disponible */}
@@ -152,24 +163,47 @@ const RentalModal = ({ isOpen, onClose }) => {
                                             <img src={iconGold} className="rental-cost-icon" alt="oro" />
                                             <span className={canAfford ? 'cost-ok' : 'cost-missing'}>{avail.cost.toLocaleString()}</span>
                                         </div>
-                                        <div className="rental-dest-choice">
-                                            <button
-                                                className={`rental-dest-btn rental-dest-slot ${!canAfford || !hasSlot ? 'locked' : ''}`}
-                                                onClick={() => handleRentDog('slot')}
-                                                disabled={!canAfford || !hasSlot}
-                                            >
-                                                Asignar a Oro
-                                                {!hasSlot && <span className="rental-dest-hint">sin slots</span>}
-                                            </button>
-                                            <button
-                                                className={`rental-dest-btn rental-dest-raid ${!canAfford ? 'locked' : ''}`}
-                                                onClick={() => handleRentDog('raid')}
-                                                disabled={!canAfford}
-                                            >
-                                                Asignar a Raids
-                                            </button>
-                                        </div>
-                                        <button className="rental-btn-discard" onClick={handleDiscard}>Descartar</button>
+                                        {tutorialStep === 'hint_rental' ? (
+                                            <div className="rental-dest-choice">
+                                                {avail.dogId === 'zeus' && (
+                                                    <button
+                                                        className="rental-dest-btn rental-dest-slot"
+                                                        onClick={() => handleRentDog('slot', 30 * 60 * 1000)}
+                                                    >
+                                                        Asignar a Oro
+                                                    </button>
+                                                )}
+                                                {avail.dogId === 'druh' && (
+                                                    <button
+                                                        className="rental-dest-btn rental-dest-raid"
+                                                        onClick={() => handleRentDog('raid', 30 * 60 * 1000)}
+                                                    >
+                                                        Asignar a Raids
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="rental-dest-choice">
+                                                    <button
+                                                        className={`rental-dest-btn rental-dest-slot ${!canAfford || !hasSlot ? 'locked' : ''}`}
+                                                        onClick={() => handleRentDog('slot')}
+                                                        disabled={!canAfford || !hasSlot}
+                                                    >
+                                                        Asignar a Oro
+                                                        {!hasSlot && <span className="rental-dest-hint">sin slots</span>}
+                                                    </button>
+                                                    <button
+                                                        className={`rental-dest-btn rental-dest-raid ${!canAfford ? 'locked' : ''}`}
+                                                        onClick={() => handleRentDog('raid')}
+                                                        disabled={!canAfford}
+                                                    >
+                                                        Asignar a Raids
+                                                    </button>
+                                                </div>
+                                                <button className="rental-btn-discard" onClick={handleDiscard}>Descartar</button>
+                                            </>
+                                        )}
                                     </div>
                                     <div className={`dog-card dog-card-back dog-card-back-${avail.dogId}`}>
                                         <button className="dog-info-btn" onClick={() => setCardFlipped(false)}>✖</button>

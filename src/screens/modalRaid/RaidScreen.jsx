@@ -57,7 +57,7 @@ const formatTime = (ms) => {
 };
 
 // ============================================================
-const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
+const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, tutorialRaidPhase, onTutorialRaidPhaseChange, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
@@ -79,6 +79,25 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
         const t = setInterval(() => setNow(Date.now()), 1000);
         return () => clearInterval(t);
     }, []);
+
+    // Auto-select forest + Druh during tutorial raid steps
+    useEffect(() => {
+        if (!isOpen || tutorialStep !== 'hint_raids') return;
+        if (tutorialRaidPhase !== null && tutorialRaidPhase !== 'send2') return;
+        const passiveRaids = gameState.raid?.passiveRaids ?? [];
+        if (passiveRaids.some(r => r.raidId === 'forest')) return;
+        setSelectedRaid('forest');
+        setTeamDogIds([{ id: 'druh', isForge: false, isRented: true }]);
+    }, [isOpen, tutorialStep, tutorialRaidPhase]); // eslint-disable-line
+
+    // Detect when first tutorial raid is claimed → advance to send2
+    useEffect(() => {
+        if (tutorialStep !== 'hint_raids' || tutorialRaidPhase !== 'wait1') return;
+        const passiveRaids = gameState.raid?.passiveRaids ?? [];
+        if (!passiveRaids.some(r => r.raidId === 'forest')) {
+            onTutorialRaidPhaseChange?.('send2');
+        }
+    }, [gameState.raid?.passiveRaids, tutorialStep, tutorialRaidPhase]); // eslint-disable-line
 
     if (!isOpen) return null;
 
@@ -147,15 +166,36 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat }) => {
 
     const handleSend = (raidId, minTeam) => {
         if (teamDogIds.length < minTeam) return;
-        handleSendPassiveRaid(raidId, teamDogIds); // teamDogIds = [{ id, isForge }]
+        if (tutorialStep === 'hint_raids' && raidId === 'forest') {
+            if (tutorialRaidPhase === null) {
+                handleSendPassiveRaid(raidId, teamDogIds, 10);
+                onTutorialRaidPhaseChange?.('wait1');
+                setTeamDogIds([]);
+                setSelectedRaid(null);
+                return;
+            }
+            if (tutorialRaidPhase === 'send2') {
+                handleSendPassiveRaid(raidId, teamDogIds);
+                setTeamDogIds([]);
+                setSelectedRaid(null);
+                onTutorialRaidSent?.();
+                return;
+            }
+        }
+        handleSendPassiveRaid(raidId, teamDogIds);
         setTeamDogIds([]);
         setSelectedRaid(null);
     };
 
     return (
-        <div className="modal-overlay1" onClick={onClose}>
+        <div className="modal-overlay1" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
             <div className="raid-screen-content" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}><X /></button>
+                <button
+                    className="modal-close"
+                    onClick={tutorialStep === 'hint_raids' ? undefined : onClose}
+                    disabled={tutorialStep === 'hint_raids'}
+                    style={tutorialStep === 'hint_raids' ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                ><X /></button>
                 <h2>⚔️ Raids</h2>
 
                 {showRaidIntro && (

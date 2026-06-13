@@ -1,5 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { DogsConfig } from "../game/config/DogsConfig.js";
+import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
+import { getDogStats } from "../game/utils/getDogStats.js";
 import { RentalConfig } from "../game/config/RentalConfig.js";
 import { InitialRentalState } from "../game/initialState/InitialRentalState.js";
 
@@ -120,11 +122,23 @@ import zeusIcon from "../assets/ui/icons-pets/mineros/zeus-icon.png";
 import boxerIcon from "../assets/ui/icons-pets/mineros/boxer-icon.png";
 import bullyIcon from "../assets/ui/icons-pets/mineros/bully-icon.png";
 import chihuahuaIcon from "../assets/ui/icons-pets/mineros/chihuhua-icon.png";
+import forgeIcon1 from "../assets/ui/icons-pets/forge/forge-icon1.png";
+import forgeIcon2 from "../assets/ui/icons-pets/forge/forge-icon2.png";
+import forgeIcon3 from "../assets/ui/icons-pets/forge/forge-icon3.png";
+import forgeIcon4 from "../assets/ui/icons-pets/forge/forge-icon4.png";
+import forgeIcon5 from "../assets/ui/icons-pets/forge/forge-icon5.png";
+import forgeIcon6 from "../assets/ui/icons-pets/forge/forge-icon6.png";
+import forgeIcon7 from "../assets/ui/icons-pets/forge/forge-icon7.png";
+import forgeIcon8 from "../assets/ui/icons-pets/forge/forge-icon8.png";
+import forgeIcon9 from "../assets/ui/icons-pets/forge/forge-icon9.png";
 const dogAssets = {
   lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
   muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
   smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
   boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
+  pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
+  rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
+  rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
 // ===== MINAS =====
@@ -198,6 +212,14 @@ function GameRoot() {
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
+  const [tutorialRaidPhase, setTutorialRaidPhase] = useState(null);
+
+  const trickleRef = useRef([
+    { cooldown: 60, active: false, activeRemaining: 0 },
+    { cooldown: 60, active: false, activeRemaining: 0 },
+    { cooldown: 60, active: false, activeRemaining: 0 },
+  ]);
+  const globalSlotsRef = useRef([null, null, null]);
 
   // ===== GAME STATE — carga desde localStorage si existe =====
   const [gameState, setGameState] = useState(() => {
@@ -225,7 +247,14 @@ function GameRoot() {
         ...loaded,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,
+        totalBronzeMined: loaded.totalBronzeMined ?? 0,
         totalIronMined: loaded.totalIronMined ?? 0,
+        totalIngotsSmelted: loaded.totalIngotsSmelted ?? 0,
+        totalBronzeIngotsSmelted: loaded.totalBronzeIngotsSmelted ?? 0,
+        tutorial: {
+          ...InitialGameState.tutorial,
+          ...(loaded.tutorial ?? {}),
+        },
         rental: {
           ...r,
           active: Array.isArray(r.active) ? r.active : (r.active ? [r.active] : []),
@@ -261,10 +290,14 @@ function GameRoot() {
   useEffect(() => {
     const fr = gameState.rewards?.fragmentRewards;
     if (!fr) return;
+    const bronzeMineUnlocked = gameState.mines?.unlockedBiomes?.includes('bronze') ?? false;
     const checks = {
-      goldPassive5: gameState.goldPerSecondLevel >= 5,
-      stamina2:     gameState.maxStaminaLevel >= 2,
-      pickaxeTier2: (gameState.rewards?.pickaxeMilestones?.totalTiers ?? 0) >= 2,
+      goldPassive5:    gameState.goldPerSecondLevel >= 5,
+      stamina2:        gameState.maxStaminaLevel >= 2,
+      set2IronMine:    bronzeMineUnlocked,
+      set2Iron300:     (gameState.totalBronzeMined ?? 0) >= 300,
+      set2ForgeBronze: gameState.furnaces?.bronze?.unlocked === true,
+      set2Smelt50:     (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
     };
     const needsUpdate = Object.entries(checks).some(
       ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
@@ -282,44 +315,10 @@ function GameRoot() {
   }, [
     gameState.goldPerSecondLevel,
     gameState.maxStaminaLevel,
-    gameState.rewards?.pickaxeMilestones?.totalTiers,
-    gameState.rewards?.fragmentRewards,
-  ]);
-
-  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET3 (minas) =====
-  useEffect(() => {
-    const fr = gameState.rewards?.fragmentRewards;
-    if (!fr) return;
-    const hasDogInMine = Object.values(gameState.dogs ?? {}).some(
-      d => d && typeof d === 'object' && d.assignedTo?.biome !== undefined
-    );
-    const ironMineUnlocked = gameState.mines?.unlockedBiomes?.includes('iron') ?? false;
-    const checks = {
-      set3Iron:        (gameState.totalIronMined ?? 0) >= 500,
-      set3DogMine:     hasDogInMine,
-      set3IronMine:    ironMineUnlocked,
-      set3ForjaBronze: gameState.furnaces?.bronze?.unlocked === true,
-      set3SmeltBronze: (gameState.totalIngotsSmelted ?? 0) >= 50,
-    };
-    const needsUpdate = Object.entries(checks).some(
-      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
-    );
-    if (!needsUpdate) return;
-    setGameState(prev => {
-      const updated = { ...prev.rewards.fragmentRewards };
-      Object.entries(checks).forEach(([k, met]) => {
-        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
-          updated[k] = { ...updated[k], unlocked: true };
-        }
-      });
-      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
-    });
-  }, [
-    gameState.totalIronMined,
-    gameState.totalIngotsSmelted,
-    gameState.dogs,
     gameState.mines?.unlockedBiomes,
+    gameState.totalBronzeMined,
     gameState.furnaces?.bronze?.unlocked,
+    gameState.totalBronzeIngotsSmelted,
     gameState.rewards?.fragmentRewards,
   ]);
 
@@ -378,7 +377,6 @@ function GameRoot() {
     ) {
       setIsResetting(true);
       localStorage.removeItem("ladyHungryGame");
-      localStorage.setItem("hasPlayedBefore", "true");
       setTimeout(() => location.reload(), 0);
     }
   };
@@ -586,6 +584,8 @@ function GameRoot() {
         tutorial: { ...prev.tutorial, minesHinted: true }
       }));
       setTutorialStep('stamina_hint');
+    } else if (tutorialStep === 'hint_mine_dog') {
+      setTutorialStep('done');
     } else if (tutorialStep === 'done') {
       setGameState(prev => ({
         ...prev,
@@ -803,6 +803,41 @@ function GameRoot() {
     });
   }, [gameState.automine?.charges, now]);
 
+  // Mantiene globalSlotsRef sincronizado
+  useEffect(() => {
+    globalSlotsRef.current = gameState.dogs?.globalSlots ?? [null, null, null];
+  }, [gameState.dogs?.globalSlots]); // eslint-disable-line
+
+  // goldTrickle: cada segundo tick, activa 10s cada 60s
+  useEffect(() => {
+    const t = setInterval(() => {
+      const slots = globalSlotsRef.current;
+      const trickle = trickleRef.current;
+      let goldGained = 0;
+      const newTrickle = trickle.map((timer, i) => {
+        const dogId = slots[i];
+        const bonus = dogId ? ForgeDogsConfig[dogId]?.globalSlotBonus : null;
+        if (!bonus || bonus.type !== 'goldTrickle') return { cooldown: 60, active: false, activeRemaining: 0 };
+        if (timer.active) {
+          goldGained += Math.floor(Math.random() * (bonus.max - bonus.min + 1)) + bonus.min;
+          const rem = timer.activeRemaining - 1;
+          return rem <= 0 ? { cooldown: 60, active: false, activeRemaining: 0 } : { ...timer, activeRemaining: rem };
+        }
+        const cd = timer.cooldown - 1;
+        return cd <= 0 ? { active: true, activeRemaining: 10, cooldown: 0 } : { ...timer, cooldown: cd };
+      });
+      trickleRef.current = newTrickle;
+      if (goldGained > 0) {
+        setGameState(prev => ({
+          ...prev,
+          gold: prev.gold + goldGained,
+          totalGoldEarned: prev.totalGoldEarned + goldGained,
+        }));
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, []); // eslint-disable-line
+
   // ===== TUTORIAL TRIGGERS =====
   // Intro: muestra bienvenida si es la primera vez
   useEffect(() => {
@@ -888,6 +923,48 @@ function GameRoot() {
     }
   }, [gameState.pickaxe.durability, tutorialStep]);
 
+  // hint_rewards: no hace nada automático, el jugador abre el modal
+
+  // hint_rental: inyecta Zeus cuando empieza el paso
+  useEffect(() => {
+    if (tutorialStep !== 'hint_rental') return;
+    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 0) return;
+    setGameState(prev => ({
+      ...prev,
+      rental: { ...prev.rental, available: { dogId: 'zeus', rarity: 'rare', cost: 0 } },
+    }));
+  }, [tutorialStep]); // eslint-disable-line
+
+  // hint_rental: Zeus alquilado → inyectar Druh
+  useEffect(() => {
+    if (tutorialStep !== 'hint_rental') return;
+    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 0) return;
+    const zeusRented = (gameState.rental?.active ?? []).some(r => r.dogId === 'zeus');
+    if (zeusRented && !gameState.rental?.available) {
+      setGameState(prev => ({
+        ...prev,
+        tutorial: { ...prev.tutorial, rentalTutorialStep: 1 },
+        rental: { ...prev.rental, available: { dogId: 'druh', rarity: 'rare', cost: 0 } },
+      }));
+    }
+  }, [gameState.rental?.active, gameState.rental?.available, tutorialStep, gameState.tutorial?.rentalTutorialStep]); // eslint-disable-line
+
+  // hint_rental: Druh alquilado → avanzar a raids
+  useEffect(() => {
+    if (tutorialStep !== 'hint_rental') return;
+    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 1) return;
+    const druhRented = (gameState.rental?.active ?? []).some(r => r.dogId === 'druh');
+    if (druhRented) {
+      setGameState(prev => ({
+        ...prev,
+        tutorial: { ...prev.tutorial, rentalTutorialStep: 2 },
+      }));
+      setRentalModalOpen(false);
+      setTutorialRaidPhase(null);
+      setTutorialStep('hint_raids');
+    }
+  }, [gameState.rental?.active, tutorialStep, gameState.tutorial?.rentalTutorialStep]); // eslint-disable-line
+
   // Pausa/reanuda snacks de mina según si la pantalla está abierta
   useEffect(() => {
     setGameState(prev => {
@@ -930,6 +1007,28 @@ function GameRoot() {
     }
   }, [gameState.gold]); // eslint-disable-line
 
+  const effectiveMaxDurability = (gameState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
+    if (!dogId) return sum;
+    const bonus = ForgeDogsConfig[dogId]?.globalSlotBonus;
+    return bonus?.type === 'maxDurability' ? sum + bonus.value : sum;
+  }, gameState.pickaxe.maxDurability);
+
+  const FREE_PULL_COOLDOWNS = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
+  const hasFreePacks = ['miner_basic', 'miner_epic', 'miner_legendary', 'forge_basic', 'forge_epic', 'forge_legendary'].some(key => {
+    const packId = key.split('_')[1];
+    return Date.now() - (gameState.lastFreePull?.[key] ?? 0) >= FREE_PULL_COOLDOWNS[packId];
+  });
+  const _checkDogsPending = (dogsState, config) =>
+    Object.entries(dogsState).some(([id, dog]) => {
+      const cfg = config[id];
+      if (!cfg) return false;
+      const frags = dog.fragments ?? 0;
+      if (!dog.hired) return frags >= cfg.unlockFragments;
+      if ((dog.stars ?? 0) < 5) return frags >= (cfg.starFragments?.[dog.stars ?? 0] ?? Infinity);
+      return false;
+    });
+  const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
+
   // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
   const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + "M";
@@ -958,7 +1057,7 @@ function GameRoot() {
         style={{ backgroundImage: `url(${bgMain})` }}
       >
         {/* OVERLAY OSCURO DURANTE TUTORIAL */}
-        {tutorialStep !== null && tutorialStep !== 'done' && tutorialStep !== 'automine_hint' && openModal === null && (
+        {tutorialStep !== null && tutorialStep !== 'done' && openModal === null && !rewardsOpen && !rentalModalOpen && !raidOpen && (
           <div
             style={{
               position: "fixed",
@@ -1176,7 +1275,7 @@ function GameRoot() {
               }}
               disabled={
                 (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ||
-                gameState.pickaxe.durability >= gameState.pickaxe.maxDurability ||
+                gameState.pickaxe.durability >= effectiveMaxDurability ||
                 gameState.automine?.isActive
               }
               className={`
@@ -1194,7 +1293,7 @@ function GameRoot() {
             </button>
 
             <p>
-              {gameState.pickaxe.durability}/{gameState.pickaxe.maxDurability}
+              {gameState.pickaxe.durability}/{effectiveMaxDurability}
             </p>
 
             {/* "+" — abre modal de mejora */}
@@ -1284,7 +1383,7 @@ function GameRoot() {
             {gameState.tavernUnlocked ? (
               <button
                 onClick={() => setTavernModalOpen(true)}
-                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''}`}
+                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction) ? 'notify-pulse' : ''}`}
               >
                 <img src={iconTavern} alt="Icono-Taberna" />
               </button>
@@ -1349,7 +1448,7 @@ function GameRoot() {
         </div>
 
         {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
-        <div className="automine-container">
+        <div className="automine-container" style={tutorialStep === 'automine_hint' ? { zIndex: 600 } : undefined}>
           {!gameState.automine?.unlocked ? (
             // Bloqueado — muestra coste de desbloqueo
             <button
@@ -1437,12 +1536,15 @@ function GameRoot() {
         <TavernModal
           isOpen={tavernModalOpen}
           onClose={() => setTavernModalOpen(false)}
+          hasFreePacks={hasFreePacks}
+          hasPendingDogAction={hasPendingDogAction}
         />
 
         {/* ALQUILER */}
         <RentalModal
           isOpen={rentalModalOpen}
           onClose={() => setRentalModalOpen(false)}
+          tutorialStep={tutorialStep}
         />
 
         {/* FORJA */}
@@ -1452,30 +1554,39 @@ function GameRoot() {
         />
 
         {/* SLOTS PERROS GLOBALES */}
-        <div className="global-dog-slots">
+        <div className="global-dog-slots" style={tutorialStep === 'hint_mine_dog' ? { zIndex: 600 } : undefined}>
           {[0, 1, 2].map(i => {
             const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
-            const assignedDog = assignedDogId ? gameState.dogs[assignedDogId] : null;
-            const availableDogs = Object.values(gameState.dogs).filter(
-              d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null
-            );
+            const assignedDog = assignedDogId ? (gameState.dogs[assignedDogId] ?? gameState.forgeDogs?.[assignedDogId] ?? null) : null;
+            const availableDogs = [
+              ...Object.values(gameState.dogs).filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null),
+              ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null),
+            ];
             const isMenuOpen = globalDogMenuOpen === i;
             const isFlipped = flippedSlot === i;
 
             const renderPassiveBack = () => {
-              const bonus = DogsConfig[assignedDogId]?.goldMineBonus;
+              if (!assignedDogId) return null;
+              const isForge = assignedDogId in ForgeDogsConfig;
+              const stars = assignedDog?.stars ?? 0;
+              const scaledConfig = getDogStats(assignedDogId, stars, isForge);
+              const bonus = isForge ? scaledConfig?.globalSlotBonus : scaledConfig?.goldMineBonus;
               if (!bonus) return null;
               if (bonus.type === 'extraGold') return <><span>+{bonus.value} oro</span><span>por picada</span></>;
-              if (bonus.type === 'freeHit') return <><span>{bonus.chance * 100}%</span><span>reduce</span><span>cooldown</span></>;
-              if (bonus.type === 'doubleHit') return <><span>{bonus.chance * 100}%</span><span>de doblar</span><span>el oro</span></>;
+              if (bonus.type === 'saveDurability') return <><span>{Math.round(bonus.chance * 100)}%</span><span>sin gastar</span><span>durabilidad</span></>;
+              if (bonus.type === 'doubleHit') return <><span>{Math.round(bonus.chance * 100)}%</span><span>de doblar</span><span>el oro</span></>;
+              if (bonus.type === 'goldTrickle') return <><span>+{bonus.min === bonus.max ? bonus.min : `${bonus.min}-${bonus.max}`}</span><span>oro cada</span><span>60s</span></>;
+              if (bonus.type === 'burstRecharge') return <><span>{Math.round(bonus.chance * 100)}%</span><span>recarga</span><span>energía</span></>;
+              if (bonus.type === 'maxDurability') return <><span>+{bonus.value}</span><span>durabilidad</span><span>máx.</span></>;
               return null;
             };
 
-            const assignedRarity = assignedDogId ? DogsConfig[assignedDogId]?.rarity : null;
+            const assignedRarity = assignedDogId ? (DogsConfig[assignedDogId]?.rarity ?? ForgeDogsConfig[assignedDogId]?.rarity ?? null) : null;
             const rentalEntry = (gameState.rental?.active ?? []).find(r => r.assignedSlot === i && r.dogId === assignedDogId);
             const isRentedSlot = !!rentalEntry;
+            const isZeusTutorialSlot = tutorialStep === 'hint_mine_dog' && assignedDogId === 'zeus';
             return (
-              <div key={i} className={`global-dog-slot-wrapper${isRentedSlot ? ' global-dog-slot-rented' : ''}`}>
+              <div key={i} className={`global-dog-slot-wrapper${isRentedSlot ? ' global-dog-slot-rented' : ''}${isZeusTutorialSlot ? ' tutorial-highlight' : ''}`}>
                 <div
                   className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
                   onClick={() => {
@@ -1507,14 +1618,14 @@ function GameRoot() {
                             <button className="global-dog-slot-unassign" onClick={e => {
                               e.stopPropagation();
                               setFlippedSlot(null);
-                              setGameState(prev => ({
-                                ...prev,
-                                dogs: {
-                                  ...prev.dogs,
-                                  globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id),
-                                  [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null }
+                              const isForge = assignedDogId in ForgeDogsConfig;
+                              setGameState(prev => {
+                                const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id);
+                                if (isForge) {
+                                  return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [assignedDogId]: { ...prev.forgeDogs[assignedDogId], assignedTo: null } } };
                                 }
-                              }));
+                                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null } } };
+                              });
                             }}>✖</button>
                           )}
                         </>
@@ -1538,16 +1649,16 @@ function GameRoot() {
                         : availableDogs.map(dog => (
                           <button key={dog.id} className="global-dog-menu-option" onClick={e => {
                             e.stopPropagation();
-                            setGameState(prev => ({
-                              ...prev,
-                              dogs: {
-                                ...prev.dogs,
-                                globalSlots: (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id),
-                                [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } }
+                            const isForge = dog.id in ForgeDogsConfig;
+                            setGameState(prev => {
+                              const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id);
+                              if (isForge) {
+                                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [dog.id]: { ...prev.forgeDogs[dog.id], assignedTo: { globalSlot: i } } } };
                               }
-                            }));
+                              return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } } } };
+                            });
                             setGlobalDogMenuOpen(null);
-                          }}>🐕 {DogsConfig[dog.id]?.name ?? dog.id}</button>
+                          }}>🐕 {DogsConfig[dog.id]?.name ?? ForgeDogsConfig[dog.id]?.name ?? dog.id}</button>
                         ))
                       }
                       <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); setFlippedSlot(null); }}>✕</button>
@@ -1555,7 +1666,7 @@ function GameRoot() {
                   )}
                 </div>
                 {assignedDog && (
-                  <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
+                  <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? ForgeDogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
                 )}
               </div>
             );
@@ -1563,7 +1674,13 @@ function GameRoot() {
         </div>
 
         {/* SETTINGS */}
-        <div className="hud-top-right" style={{ display: combatOpen ? 'none' : undefined }}>
+        <div
+          className="hud-top-right"
+          style={{
+            display: (combatOpen || rewardsOpen || rentalModalOpen || raidOpen) ? 'none' : undefined,
+            zIndex: (tutorialStep === 'hint_rewards' || tutorialStep === 'hint_rental' || tutorialStep === 'hint_raids') ? 600 : undefined,
+          }}
+        >
 
           {(() => {
             const passiveRaids = gameState.raid?.passiveRaids ?? [];
@@ -1579,24 +1696,35 @@ function GameRoot() {
                 r.destination === 'raid' &&
                 !passiveRaids.some(pr => pr.dogEntries?.some(d => d.id === r.dogId))
               );
+            const isRaidStep = tutorialStep === 'hint_raids';
+            const raidBlocked = tutorialStep !== null && tutorialStep !== 'done' && !isRaidStep;
             return (
               <button
-                className={`btn-raid ${canClaim ? 'btn-raid-ready' : hasFreeDogs ? 'btn-raid-dogs-free' : ''}`}
+                className={`btn-raid ${canClaim ? 'btn-raid-ready' : hasFreeDogs ? 'btn-raid-dogs-free' : ''} ${isRaidStep ? 'tutorial-highlight' : ''}`}
                 onClick={() => setRaidOpen(true)}
+                disabled={raidBlocked}
+                style={{ position: 'relative', ...(raidBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
               >
                 ⚔️
+                {isRaidStep && !raidOpen && <TutorialPointer step="hint_raids" />}
               </button>
             );
           })()}
 
-          {/* ALQUILER — abre Ayudantes directo al tab de alquiler */}
+          {/* ALQUILER */}
           {(() => {
             const rentalAvailable = gameState.rental?.available;
             const activeCount = gameState.rental?.active?.length ?? 0;
+            const isRentalStep = tutorialStep === 'hint_rental';
+            const inActiveTutorial = tutorialStep !== null && tutorialStep !== 'done';
+            const showRentalReady = rentalAvailable && (!inActiveTutorial || isRentalStep);
+            const rentalBlocked = inActiveTutorial && !isRentalStep;
             return (
               <button
-                className={`btn-rental ${rentalAvailable ? 'btn-rental-ready' : 'btn-rental-recharging'}`}
+                className={`btn-rental ${showRentalReady ? 'btn-rental-ready' : !rentalAvailable ? 'btn-rental-recharging' : ''} ${isRentalStep ? 'tutorial-highlight' : ''}`}
                 onClick={() => setRentalModalOpen(true)}
+                disabled={rentalBlocked}
+                style={{ position: 'relative', ...(rentalBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
               >
                 <img src={ladyIcon} className="btn-rental-img" alt="alquiler" />
                 {activeCount > 0 && (
@@ -1605,32 +1733,53 @@ function GameRoot() {
                 {!rentalAvailable && (
                   <span className="btn-rental-timer">{formatRentalTimer(gameState.rental?.appearanceRemainingMs ?? 0)}</span>
                 )}
+                {isRentalStep && !rentalModalOpen && <TutorialPointer step="hint_rental" />}
               </button>
             );
           })()}
+
+          {(() => {
+            const isRewardsStep = tutorialStep === 'hint_rewards';
+            const rewardsBlocked = tutorialStep !== null && tutorialStep !== 'done' && !isRewardsStep;
+            return (
           <button
             className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
               Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
               Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed)
               ? "btn-rewards-pulse" : ""
-              }`}
+              } ${isRewardsStep ? 'tutorial-highlight' : ''}`}
             onClick={() => setRewardsOpen(true)}
+            disabled={rewardsBlocked}
+            style={{ position: 'relative', ...(rewardsBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
           >
             🏆
+            {tutorialStep === 'hint_rewards' && !rewardsOpen && <TutorialPointer step="hint_rewards" />}
           </button>
-
+            );
+          })()}
 
         </div>
 
         <RewardsModal
           isOpen={rewardsOpen}
-          onClose={() => setRewardsOpen(false)}
+          onClose={() => {
+            setRewardsOpen(false);
+            if (tutorialStep === 'hint_rewards') setTutorialStep('hint_rental');
+          }}
+          tutorialStep={tutorialStep}
         />
 
         <RaidScreen
           isOpen={raidOpen}
           onClose={() => setRaidOpen(false)}
           onOpenCombat={() => { setRaidOpen(false); setCombatOpen(true); }}
+          tutorialStep={tutorialStep}
+          tutorialRaidPhase={tutorialRaidPhase}
+          onTutorialRaidPhaseChange={setTutorialRaidPhase}
+          onTutorialRaidSent={() => {
+            setRaidOpen(false);
+            setTutorialStep('hint_mine_dog');
+          }}
         />
 
         <CombatScreen
@@ -1644,18 +1793,24 @@ function GameRoot() {
 
         {/* TUTORIAL DIALOG */}
         <TutorialDialog
-          step={openModal === null && tutorialStep !== 'mine_tap' ? tutorialStep : null}
+          step={openModal === null &&
+                tutorialStep !== 'mine_tap' &&
+                !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
+                !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
+                !(tutorialStep === 'hint_raids' && raidOpen)
+                ? tutorialStep : null}
           onSkip={handleSkipTutorial}
           onAction={handleTutorialAction}
-          isFirstTime={!localStorage.getItem("hasPlayedBefore")}
+          isFirstTime={true}
         />
 
         {tutorialStep === 'automine_hint' && (
           <div className="automine-hint-tooltip">
             <p>El autominado golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo.</p>
-            <button onClick={() => setTutorialStep('done')}>Entendido</button>
+            <button onClick={() => setTutorialStep('hint_rewards')}>Entendido</button>
           </div>
         )}
+
       </div>
     </GameContext.Provider>
   );

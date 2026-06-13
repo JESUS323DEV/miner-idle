@@ -17,7 +17,7 @@ const markDogs = (prevState, dogEntries, assignedTo) => {
 export const useRaidActions = (gameState, setGameState) => {
 
     // ===== ENVIAR RAID PASIVA =====
-    const handleSendPassiveRaid = (raidId, dogEntries) => {
+    const handleSendPassiveRaid = (raidId, dogEntries, durationOverride = null) => {
         // dogEntries: [{ id, isForge }]
         setGameState(prevState => {
             const raid = RaidConfig.passiveRaids.find(r => r.id === raidId);
@@ -47,7 +47,7 @@ export const useRaidActions = (gameState, setGameState) => {
                             raidId,
                             dogEntries,  // [{ id, isForge }]
                             startedAt: now,
-                            returnAt: now + raid.duration * 1000,
+                            returnAt: now + (durationOverride ?? raid.duration) * 1000,
                         },
                     ],
                 },

@@ -57,10 +57,58 @@ const fmt = (num) => {
     return num;
 };
 
-const RewardsModal = ({ isOpen, onClose }) => {
+const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward, handleClaimFragmentReward: onClaimFragmentReward } = useGameContext();
     const [activeTab, setActiveTab] = useState("gold");
     const [fragmentToast, setFragmentToast] = useState(null);
+
+    // Calcular unclaimed para useEffect (debe estar antes del early return)
+    const _r = gameState.rewards;
+    const _fr = _r?.fragmentRewards ?? {};
+    const _cr = _r?.coinRewards ?? {};
+    const _goldKeys = ['goldMilestones','goldSpentMilestones','goldPerSecondMilestones','clickMilestones','staminaMilestones','pickaxeMilestones','repairMilestones','refillMilestones'];
+    const _goldVals = {
+        goldMilestones: gameState.totalGoldEarned, goldSpentMilestones: gameState.totalGoldSpent,
+        goldPerSecondMilestones: gameState.goldPerSecond, clickMilestones: gameState.totalClicks,
+        staminaMilestones: gameState.maxStaminaLevel, pickaxeMilestones: _r?.pickaxeMilestones?.totalTiers ?? 0,
+        repairMilestones: gameState.totalRepairs, refillMilestones: gameState.totalRefills,
+    };
+    const _hasGold = _goldKeys.some(k => {
+        const m = _r?.[k]; if (!m) return false;
+        const next = m.claimed.length === 0 ? m.firstStep : m.firstStep + m.step * m.claimed.length;
+        return (_goldVals[k] ?? 0) >= next;
+    });
+    const _hasCoins = Object.entries(_cr).some(([key, c]) => {
+        if (!c) return false;
+        if (typeof c.claimed === 'boolean') return c.unlocked && !c.claimed;
+        if (Array.isArray(c.claimed)) {
+            const nextTarget = c.claimed.length === 0 ? c.firstStep : c.firstStep + c.step * c.claimed.length;
+            const progressiveVals = {
+                pickaxeTiers: _r?.pickaxeMilestones?.totalTiers ?? 0,
+                forgeUpgrades: ((gameState.furnaces?.bronze?.level ?? 1) - 1) +
+                               ((gameState.furnaces?.iron?.level ?? 1) - 1) +
+                               ((gameState.furnaces?.diamond?.level ?? 1) - 1),
+            };
+            return (progressiveVals[key] ?? 0) >= nextTarget;
+        }
+        return false;
+    });
+    const _hasFrags = Object.values(_fr).some(f => f.visible !== false && f.unlocked && !f.claimed);
+    const isTutorial = tutorialStep === 'hint_rewards';
+
+    useEffect(() => {
+        if (!isOpen || !isTutorial) return;
+        if (activeTab === 'gold' && !_hasGold) {
+            if (_hasCoins) setActiveTab('coins');
+            else if (_hasFrags) setActiveTab('fragments');
+        } else if (activeTab === 'coins' && !_hasCoins) {
+            if (_hasFrags) setActiveTab('fragments');
+            else if (_hasGold) setActiveTab('gold');
+        } else if (activeTab === 'fragments' && !_hasFrags) {
+            if (_hasGold) setActiveTab('gold');
+            else if (_hasCoins) setActiveTab('coins');
+        }
+    }, [isOpen, isTutorial, _hasGold, _hasCoins, _hasFrags, activeTab]); // eslint-disable-line
 
     if (!isOpen) return null;
 
@@ -215,11 +263,20 @@ const RewardsModal = ({ isOpen, onClose }) => {
     const isGroupClosed = (group) => Object.values(fragmentRewards).some(r => r.group === group && r.groupCloser && r.claimed);
     const hasUnclaimedFragments = Object.values(fragmentRewards).some(r => r.visible !== false && r.unlocked && !r.claimed);
 
+    const allDone = !hasUnclaimedGold && !hasUnclaimedCoins && !hasUnclaimedFragments;
+
     return (
-        <div className="modal-overlay1" onClick={onClose}>
+        <div className="modal-overlay1" onClick={isTutorial && !allDone ? undefined : onClose}>
             <div className="rewards-modal-content" onClick={e => e.stopPropagation()}>
 
-                <button className="modal-close" onClick={onClose}><X /></button>
+                <button
+                    className={`modal-close ${isTutorial && allDone ? 'tutorial-highlight' : ''}`}
+                    onClick={isTutorial && !allDone ? undefined : onClose}
+                    disabled={isTutorial && !allDone}
+                    style={isTutorial && !allDone ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                >
+                    <X />
+                </button>
                 <h2>🏆 Recompensas</h2>
 
                 <div className="rewards-tabs">

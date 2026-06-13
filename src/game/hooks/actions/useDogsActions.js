@@ -125,6 +125,7 @@ export const useDogsActions = (gameState, setGameState) => {
             newState = {
                 ...newState,
                 [biome]: currentAmount + materialGained,
+                ...(biome === 'bronze' ? { totalBronzeMined: (newState.totalBronzeMined ?? 0) + materialGained } : {}),
                 ...(biome === 'iron' ? { totalIronMined: (newState.totalIronMined ?? 0) + materialGained } : {}),
             };
 

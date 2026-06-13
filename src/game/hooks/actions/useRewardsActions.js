@@ -176,34 +176,20 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
             const set1Keys = ['unlockTaverna', 'unlockMinas', 'unlockForja'];
             const set1AllClaimed = set1Keys.every(k => updatedFragRewards[k]?.claimed);
             if (set1AllClaimed) {
-                ['goldPassive5', 'stamina2', 'pickaxeTier2', 'set2Complete'].forEach(k => {
+                ['goldPassive5', 'stamina2', 'set2IronMine', 'set2Iron300', 'set2ForgeBronze', 'set2Smelt50', 'set2Complete'].forEach(k => {
                     if (updatedFragRewards[k]) updatedFragRewards[k] = { ...updatedFragRewards[k], visible: true };
                 });
             }
 
-            // Si se acaban de reclamar las 3 primeras de set2, desbloquear set2Complete
-            const set2ConditionKeys = ['goldPassive5', 'stamina2', 'pickaxeTier2'];
+            // Si se acaban de reclamar las 6 condiciones de set2, desbloquear set2Complete
+            const set2ConditionKeys = ['goldPassive5', 'stamina2', 'set2IronMine', 'set2Iron300', 'set2ForgeBronze', 'set2Smelt50'];
             const set2AllClaimed = set2ConditionKeys.every(k => updatedFragRewards[k]?.claimed);
             if (set2AllClaimed && updatedFragRewards.set2Complete) {
                 updatedFragRewards.set2Complete = { ...updatedFragRewards.set2Complete, unlocked: true };
             }
 
-            // Si se acaba de reclamar set2Complete, hacer visibles las de set3 (minas)
+            // Si se acaba de reclamar set2Complete, hacer visibles las de set4
             if (key === 'set2Complete') {
-                ['set3Iron', 'set3DogMine', 'set3IronMine', 'set3ForjaBronze', 'set3SmeltBronze', 'set3Complete'].forEach(k => {
-                    if (updatedFragRewards[k]) updatedFragRewards[k] = { ...updatedFragRewards[k], visible: true };
-                });
-            }
-
-            // Si se acaban de reclamar las 5 condiciones de set3, desbloquear set3Complete
-            const set3ConditionKeys = ['set3Iron', 'set3DogMine', 'set3IronMine', 'set3ForjaBronze', 'set3SmeltBronze'];
-            const set3AllClaimed = set3ConditionKeys.every(k => updatedFragRewards[k]?.claimed);
-            if (set3AllClaimed && updatedFragRewards.set3Complete) {
-                updatedFragRewards.set3Complete = { ...updatedFragRewards.set3Complete, unlocked: true };
-            }
-
-            // Si se acaba de reclamar set3Complete, hacer visibles las de set4
-            if (key === 'set3Complete') {
                 const set4Keys = ['set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star','set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star','set4FurnaceBronze2','set4FurnaceBronze3','set4FurnaceIron2','set4FurnaceIron3','set4FurnaceDiamond2','set4FurnaceDiamond3'];
                 set4Keys.forEach(k => {
                     if (updatedFragRewards[k]) updatedFragRewards[k] = { ...updatedFragRewards[k], visible: true };

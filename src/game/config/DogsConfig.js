@@ -49,8 +49,8 @@ export const DogsConfig = {
             diamond: 3,
         },
         goldMineBonus: {
-            type: 'freeHit',
-            chance: 0.25  // 25% por picada de reducir 1s la recarga del burst
+            type: 'saveDurability',
+            chance: 0.20
         }
     },
 
@@ -191,8 +191,8 @@ export const DogsConfig = {
         },
 
         goldMineBonus: {
-            type: 'freeHit',
-            chance: 0.20 // 20% por picada de reducir 1s la recarga del burst
+            type: 'saveDurability',
+            chance: 0.15
         }
     },
 
@@ -216,7 +216,7 @@ export const DogsConfig = {
             diamond: 1.0,
         },
         goldMineBonus: {
-            type: 'freeHit',
+            type: 'saveDurability',
             chance: 0.05
         }
     },
@@ -239,8 +239,8 @@ export const DogsConfig = {
             diamond: 1.0,
         },
         goldMineBonus: {
-            type: 'freeHit',
-            chance: 0.10 // 10% de que no consuma stamina ni durabilidad
+            type: 'saveDurability',
+            chance: 0.10
         }
     },
 

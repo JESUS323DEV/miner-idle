@@ -84,7 +84,7 @@ const formatNumber2 = (num) => {
     return num;
 };
 
-const TavernModal = ({ isOpen, onClose }) => {
+const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogAction = false }) => {
     const {
         gameState,
         setGameState,
@@ -129,6 +129,24 @@ const TavernModal = ({ isOpen, onClose }) => {
     const currentMaterials = { bronzeIngot, ironIngot, diamondIngot };
 
     const STAR_COIN_COST_MAP = { legendary: 3, epic: 2, rare: 1 };
+    const FREE_PULL_COOLDOWNS = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
+    const _dogHasAction = (dogsState, config) => Object.values(dogsState).some(dog => {
+        if (!dog || typeof dog !== 'object') return false;
+        const cfg = config[dog.id];
+        if (!cfg) return false;
+        const frags = dog.fragments ?? 0;
+        const stars = dog.stars ?? 0;
+        const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = cfg.unlockCost ?? {};
+        const starCoinCost = STAR_COIN_COST_MAP[cfg.rarity] ?? 0;
+        const canUnlock = !dog.hired && frags >= cfg.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
+        const canUpgrade = dog.hired && stars < 5 && frags >= (cfg.starFragments?.[stars] ?? Infinity) && tavernCoins >= starCoinCost;
+        return canUnlock || canUpgrade;
+    });
+    const minerHasAction = _dogHasAction(dogs, DogsConfig);
+    const forgeHasAction = _dogHasAction(forgeDogs, ForgeDogsConfig);
+    const minerHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`miner_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
+    const forgeHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`forge_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
+
     const currentDogsData = dogTab === 'mineros' ? dogs : forgeDogs;
     const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : ForgeDogsConfig;
     const rarityHasAction = {};
@@ -168,7 +186,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                 <span className="tavern-card-arrow">›</span>
                             </button>
 
-                            <button className="tavern-menu-card" onClick={() => setView('ayudantes')}>
+                            <button className={`tavern-menu-card ${hasPendingDogAction ? 'notify-pulse' : ''}`} onClick={() => setView('ayudantes')}>
                                 <img src={ladyIcon} className="tavern-card-icon" />
                                 <div className="tavern-card-info">
                                     <span className="tavern-card-name">Ayudantes</span>
@@ -177,7 +195,7 @@ const TavernModal = ({ isOpen, onClose }) => {
                                 <span className="tavern-card-arrow">›</span>
                             </button>
 
-                            <button className="tavern-menu-card" onClick={() => setView('sobres')}>
+                            <button className={`tavern-menu-card ${hasFreePacks ? 'notify-pulse' : ''}`} onClick={() => setView('sobres')}>
                                 <img src={iconInvocacion} className="tavern-card-icon" />
                                 <div className="tavern-card-info">
                                     <span className="tavern-card-name">Invocación</span>
@@ -292,13 +310,13 @@ const TavernModal = ({ isOpen, onClose }) => {
                         {/* PESTAÑAS */}
                         <div className="dog-tabs">
                             <button
-                                className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''}`}
+                                className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'dog-tab-btn-pulse' : ''}`}
                                 onClick={() => setDogTab('mineros')}
                             >
                                 ⛏️ Mineros
                             </button>
                             <button
-                                className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''}`}
+                                className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'dog-tab-btn-pulse' : ''}`}
                                 onClick={() => setDogTab('forja')}
                             >
                                 🔥 Forja
@@ -536,6 +554,17 @@ const TavernModal = ({ isOpen, onClose }) => {
                                                             <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.diamond > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.diamond}s</span>
                                                         </div>
                                                     </div>
+
+                                                    {config.globalSlotBonus && (
+                                                        <>
+                                                            <div className="dog-stat-divider">Pasiva slot principal</div>
+                                                            <div className="dog-stat-passive">
+                                                                {config.globalSlotBonus.type === 'goldTrickle' && <>+{config.globalSlotBonus.min === config.globalSlotBonus.max ? config.globalSlotBonus.min : `${config.globalSlotBonus.min}-${config.globalSlotBonus.max}`} <img src={iconGold} className="dog-stat-icon" /> oro cada 60s</>}
+                                                                {config.globalSlotBonus.type === 'burstRecharge' && <><b>{config.globalSlotBonus.chance * 100}%</b> de recargar energía al minar</>}
+                                                                {config.globalSlotBonus.type === 'maxDurability' && <>+{config.globalSlotBonus.value} de durabilidad máxima del pico</>}
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
@@ -567,8 +596,8 @@ const TavernModal = ({ isOpen, onClose }) => {
                         )}
 
                         <div className="dog-tabs">
-                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>⛏️ Mineros</button>
-                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>🔥 Forja</button>
+                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''} ${minerHasFree && packTab !== 'mineros' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('mineros')}>⛏️ Mineros</button>
+                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''} ${forgeHasFree && packTab !== 'forja' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('forja')}>🔥 Forja</button>
                         </div>
 
                         {packResult && (

@@ -1,4 +1,13 @@
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
+import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
+
+const getEffectiveMaxDurability = (prevState) => {
+    return (prevState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
+        if (!dogId) return sum;
+        const bonus = ForgeDogsConfig[dogId]?.globalSlotBonus;
+        return bonus?.type === 'maxDurability' ? sum + bonus.value : sum;
+    }, prevState.pickaxe.maxDurability);
+};
 
 export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
 
@@ -6,7 +15,8 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
     const handleRepairPickaxe = () => {
         showGoldCost(gameState.pickaxe.repairCost);
         setGameState(prevState => {
-            if (prevState.pickaxe.durability >= prevState.pickaxe.maxDurability) return prevState;
+            const effectiveMax = getEffectiveMaxDurability(prevState);
+            if (prevState.pickaxe.durability >= effectiveMax) return prevState;
             if (prevState.gold < prevState.pickaxe.repairCost) return prevState;
 
             const newTotalRepairs = prevState.totalRepairs + 1;
@@ -21,7 +31,7 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
                 totalRepairs: newTotalRepairs,
                 pickaxe: {
                     ...prevState.pickaxe,
-                    durability: prevState.pickaxe.maxDurability,
+                    durability: effectiveMax,
                 },
                 rewards: {
                     ...prevState.rewards,

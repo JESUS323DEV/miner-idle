@@ -12,13 +12,15 @@ export const getDogStats = (dogId, stars = 0, isForge = false) => {
     if (stars === 0) return config;
 
     const mult = 1 + config.starBonus * stars;
+    const CHANCE_CAPS = { rare: 0.30, epic: 0.40, legendary: 0.60 };
+    const chanceCap = CHANCE_CAPS[config.rarity] ?? 0.50;
 
     if (isForge) {
         return {
             ...config,
             forgeBonus: {
                 timeReduction: +(config.forgeBonus.timeReduction * mult).toFixed(2),
-                doubleIngot:   +(config.forgeBonus.doubleIngot   * mult).toFixed(3),
+                doubleIngot:   Math.min(chanceCap, +(config.forgeBonus.doubleIngot * mult).toFixed(3)),
                 biomeBonus: {
                     bronze:  +(config.forgeBonus.biomeBonus.bronze  * mult).toFixed(1),
                     iron:    +(config.forgeBonus.biomeBonus.iron    * mult).toFixed(1),
@@ -31,7 +33,7 @@ export const getDogStats = (dogId, stars = 0, isForge = false) => {
     const bonus = config.goldMineBonus;
     const scaledBonus = bonus.type === 'extraGold'
         ? { ...bonus, value: +(bonus.value * mult).toFixed(1) }
-        : { ...bonus, chance: Math.min(1, +(bonus.chance * mult).toFixed(3)) };
+        : { ...bonus, chance: Math.min(chanceCap, +(bonus.chance * mult).toFixed(3)) };
 
     return {
         ...config,
