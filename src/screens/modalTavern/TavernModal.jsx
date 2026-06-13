@@ -14,6 +14,9 @@ import tutorialForja from "../../assets/tutorial/mascotas/forja.png"
 
 import iconInvocacion from "../../assets/ui/icons-pets-shards/icon-invocacion.png"
 import iconShardRare from "../../assets/ui/icons-pets-shards/icon-shard-rare.png"
+import iconShardRareGeneric from "../../assets/ui/icons-pets-shards/icon-shard-rare-generic.png"
+import iconShardEpicGeneric from "../../assets/ui/icons-pets-shards/icon-shard-epic-generic.png"
+import iconShardLegendaryGeneric from "../../assets/ui/icons-pets-shards/icon-shard-legendary-generic.png"
 import iconShardEpic from "../../assets/ui/icons-pets-shards/icon-shard-epic.png"
 import iconShardLegendary from "../../assets/ui/icons-pets-shards/icon-shard-legendary.png"
 
@@ -443,8 +446,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     <div className="dog-stat-divider">Pasiva oro</div>
                                                     <div className="dog-stat-passive">
                                                         {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> de <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
-                                                        {config.goldMineBonus.type === 'freeHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de reducir la recarga de <img src={staminaIcon}  className="dog-stat-icon" /> picando</>}
-                                                        {config.goldMineBonus.type === 'doubleHit' && <><b>+{config.goldMineBonus.chance * 100}%</b> de prob. de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
+                                                        {config.goldMineBonus.type === 'freeHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de reducir la recarga de <img src={staminaIcon} className="dog-stat-icon" /> picando</>}
+                                                        {config.goldMineBonus.type === 'doubleHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
+                                                        {config.goldMineBonus.type === 'saveDurability' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de no gastar durabilidad al picar</>}
                                                     </div>
                                                 </div>
                                             </div>
@@ -596,8 +600,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         <div className="dog-tabs">
-                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''} ${minerHasFree && packTab !== 'mineros' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('mineros')}>⛏️ Mineros</button>
-                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''} ${forgeHasFree && packTab !== 'forja' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('forja')}>🔥 Forja</button>
+                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>⛏️ Mineros</button>
+                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>🔥 Forja</button>
+                            <button className={`dog-tab-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('gratis')}>🎁 Gratis</button>
                         </div>
 
                         {packResult && (
@@ -620,62 +625,94 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </div>
                         )}
 
-                        <div className="packs-grid">
-                            {Object.values(PACK_TYPES).map(pack => {
-                                const canOpen = tavernCoins >= pack.cost;
-                                const cooldowns = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
-                                const pullKey = `${packTab === 'forja' ? 'forge' : 'miner'}_${pack.id}`;
-                                const last = gameState.lastFreePull?.[pullKey] ?? 0;
-                                const remaining = cooldowns[pack.id] - (Date.now() - last);
-                                const freeReady = remaining <= 0;
-                                const freeLabel = freeReady ? 'Gratis' : (() => {
-                                    const h = Math.floor(remaining / 3600000);
-                                    const m = Math.floor((remaining % 3600000) / 60000);
-                                    return h > 0 ? `${h}h ${m}m` : `${m}m`;
-                                })();
-                                return (
-                                    <div key={pack.id} className={`pack-card pack-card-${pack.id}`}>
-
-                                        <div className='wrap-title-pack'>
-                                            <div className="pack-envelope">
-                                                <img
-                                                    src={packTab === 'forja'
-                                                        ? { basic: forgeIcon1, epic: forgeIcon2, legendary: forgeIcon3 }[pack.id]
-                                                        : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
-                                                    }
-                                                    className="pack-shard-icon"
-                                                    alt={pack.id}
-                                                />
+                        {(packTab === 'mineros' || packTab === 'forja') && (
+                            <div className="packs-grid">
+                                {Object.values(PACK_TYPES).map(pack => {
+                                    const canOpen = tavernCoins >= pack.cost;
+                                    return (
+                                        <div key={pack.id} className={`pack-card pack-card-${pack.id}`}>
+                                            <div className='wrap-title-pack'>
+                                                <div className="pack-envelope">
+                                                    <img
+                                                        src={packTab === 'forja'
+                                                            ? { basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]
+                                                            : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
+                                                        }
+                                                        className="pack-shard-icon"
+                                                        alt={pack.id}
+                                                    />
+                                                </div>
+                                                <div className="pack-name">{pack.name}</div>
                                             </div>
-                                            <div className="pack-name">{pack.name}</div>
-                                        </div>
-
-                                        <div className='wrap-btn-rates-card'>
-                                            <div className="pack-rates">
-                                                {pack.rates.legendary > 0 && <span className="pack-rate rate-legendary">⭐ {pack.rates.legendary * 100}%</span>}
-                                                {pack.rates.epic > 0 && <span className="pack-rate rate-epic">🔮 {pack.rates.epic * 100}%</span>}
-                                                {pack.rates.rare > 0 && <span className="pack-rate rate-rare">💠 {pack.rates.rare * 100}%</span>}
+                                            <div className='wrap-btn-rates-card'>
+                                                <div className="pack-rates">
+                                                    {pack.rates.legendary > 0 && <span className="pack-rate rate-legendary">⭐ {pack.rates.legendary * 100}%</span>}
+                                                    {pack.rates.epic > 0 && <span className="pack-rate rate-epic">🔮 {pack.rates.epic * 100}%</span>}
+                                                    {pack.rates.rare > 0 && <span className="pack-rate rate-rare">💠 {pack.rates.rare * 100}%</span>}
+                                                </div>
+                                                <button
+                                                    className={`pack-open-btn ${!canOpen ? 'locked' : ''}`}
+                                                    disabled={!canOpen}
+                                                    onClick={() => onOpenPack(pack.id, packTab === 'forja')}
+                                                >
+                                                    Abrir — {pack.cost} 🪙
+                                                </button>
                                             </div>
-
-                                            <button
-                                                className={`pack-open-btn ${!canOpen ? 'locked' : ''}`}
-                                                disabled={!canOpen}
-                                                onClick={() => onOpenPack(pack.id, packTab === 'forja')}
-                                            >
-                                                Abrir — {pack.cost} 🪙
-                                            </button>
-                                            <button
-                                                className={`pack-free-btn ${!freeReady ? 'locked' : ''}`}
-                                                disabled={!freeReady}
-                                                onClick={() => onFreePull(pack.id, packTab === 'forja')}
-                                            >
-                                                {freeReady ? '🎁 Gratis' : `⏱ ${freeLabel}`}
-                                            </button>
                                         </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {packTab === 'gratis' && (() => {
+                            const cooldowns = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
+                            const renderGroup = (isForge) => (
+                                <div className="free-packs-group">
+                                    <p className="free-packs-group-title">{isForge ? '🔥 Forja' : '⛏️ Mineros'}</p>
+                                    <div className="free-packs-grid">
+                                        {Object.values(PACK_TYPES).map(pack => {
+                                            const pullKey = `${isForge ? 'forge' : 'miner'}_${pack.id}`;
+                                            const last = gameState.lastFreePull?.[pullKey] ?? 0;
+                                            const remaining = cooldowns[pack.id] - (Date.now() - last);
+                                            const freeReady = remaining <= 0;
+                                            const freeLabel = (() => {
+                                                const h = Math.floor(remaining / 3600000);
+                                                const m = Math.floor((remaining % 3600000) / 60000);
+                                                return h > 0 ? `${h}h ${m}m` : `${m}m`;
+                                            })();
+                                            return (
+                                                <div key={`${isForge ? 'forge' : 'miner'}_${pack.id}`} className={`free-pack-card pack-card-${pack.id}`}>
+                                                    <img
+                                                        src={isForge
+                                                            ? { basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]
+                                                            : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
+                                                        }
+                                                        className="free-pack-img"
+                                                        alt={pack.id}
+                                                    />
+                                                    <span className={`dog-rarity-badge dog-rarity-${pack.id === 'basic' ? 'rare' : pack.id === 'epic' ? 'epic' : 'legendary'}`}>
+                                                        {pack.name}
+                                                    </span>
+                                                    <button
+                                                        className={`pack-free-btn ${!freeReady ? 'locked' : ''}`}
+                                                        disabled={!freeReady}
+                                                        onClick={() => onFreePull(pack.id, isForge)}
+                                                    >
+                                                        {freeReady ? '🎁 Gratis' : `⏱ ${freeLabel}`}
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                );
-                            })}
-                        </div>
+                                </div>
+                            );
+                            return (
+                                <div className="free-packs-sections">
+                                    {renderGroup(false)}
+                                    {renderGroup(true)}
+                                </div>
+                            );
+                        })()}
 
                     </div>
                 )}

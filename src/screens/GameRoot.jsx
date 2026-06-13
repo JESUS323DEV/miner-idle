@@ -14,6 +14,7 @@ import useAutomine from "../game/hooks/useAutomine.js";
 import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import useDogsAutomine from "../game/hooks/useDogsAutomine.js";
 import { useBackgroundMusic } from "../game/hooks/useBackgroundMusic.js";
+import { useFloatingNumbers } from "../game/hooks/useFloatingNumbers.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
 import { InitialDogsState } from "../game/initialState/InitialDogsState.js";
 import { InitialForgeDogsState } from "../game/initialState/InitialForgeDogsState.js";
@@ -197,7 +198,8 @@ function GameRoot() {
   const [menuOpenModal, setMenuOpenModal] = useState(false);
   const [minesModalOpen, setMinesModalOpen] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(null);
-  const [goldFloatingNumbers, setGoldFloatingNumbers] = useState([]);
+  const { floats: goldFloats, add: addGoldFloat } = useFloatingNumbers();
+  const { floats: tavernFloats, add: addTavernFloat } = useFloatingNumbers();
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
@@ -382,32 +384,12 @@ function GameRoot() {
   };
 
   // ===== FLOATING NUMBERS — oro =====
-  const showGoldCost = (cost) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setGoldFloatingNumbers((prev) => [...prev, { id, value: -cost }]);
-    setTimeout(() => setGoldFloatingNumbers((prev) => prev.filter((n) => n.id !== id)), 1500);
-  };
-
-  const showGoldGain = (amount) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setGoldFloatingNumbers((prev) => [...prev, { id, value: +amount }]);
-    setTimeout(() => setGoldFloatingNumbers((prev) => prev.filter((n) => n.id !== id)), 1500);
-  };
+  const showGoldCost = (cost) => addGoldFloat('cost', { value: -cost }, 1500);
+  const showGoldGain = (amount) => addGoldFloat('gain', { value: +amount }, 1500);
 
   // ===== FLOATING NUMBERS — COIN TAVERN =====
-  const [tavernFloatingNumbers, setTavernFloatingNumbers] = useState([]);
-
-  const showTavernCost = (cost) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setTavernFloatingNumbers((prev) => [...prev, { id, value: -cost }]);
-    setTimeout(() => setTavernFloatingNumbers((prev) => prev.filter((n) => n.id !== id)), 1500);
-  };
-
-  const showTavernGain = (amount) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setTavernFloatingNumbers((prev) => [...prev, { id, value: +amount }]);
-    setTimeout(() => setTavernFloatingNumbers((prev) => prev.filter((n) => n.id !== id)), 1500);
-  };
+  const showTavernCost = (cost) => addTavernFloat('cost', { value: -cost }, 1500);
+  const showTavernGain = (amount) => addTavernFloat('gain', { value: +amount }, 1500);
 
   // ===== ACTIONS — todas las funciones de lógica del juego =====
   const {
@@ -1089,14 +1071,9 @@ function GameRoot() {
                 </div>
 
                 {/* Números flotantes de gasto de oro */}
-                {goldFloatingNumbers.map((num) => (
-                  <div
-                    key={num.id}
-                    className={
-                      num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"
-                    }
-                  >
-                    {num.value > 0 ? `+${num.value}` : num.value}
+                {goldFloats.map(f => (
+                  <div key={f.id} className={f.type === 'gain' ? "floating-gold-gain" : "floating-gold-cost1"}>
+                    {f.type === 'gain' ? `+${f.value}` : f.value}
                   </div>
                 ))}
 
@@ -1123,9 +1100,9 @@ function GameRoot() {
                 <div className="container-coinTavern" style={{ position: "relative" }}>
                   <img src={coinTavern} alt="Coin-Tavern" />
                   <span>{formatNumber2(gameState.tavernCoins)}</span>
-                  {tavernFloatingNumbers.map((num) => (
-                    <div key={num.id} className={num.value > 0 ? "floating-gold-gain" : "floating-gold-cost1"} style={{ color: num.value > 0 ? "#7eff7e" : "#f0c040" }}>
-                      {num.value > 0 ? `+${num.value}` : num.value}
+                  {tavernFloats.map(f => (
+                    <div key={f.id} className={f.type === 'gain' ? "floating-gold-gain" : "floating-gold-cost1"} style={{ color: f.type === 'gain' ? "#7eff7e" : "#f0c040" }}>
+                      {f.type === 'gain' ? `+${f.value}` : f.value}
                     </div>
                   ))}
                 </div>

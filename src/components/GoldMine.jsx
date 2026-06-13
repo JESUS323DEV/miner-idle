@@ -1,10 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
 import menaGold from '../assets/scenes/mining/mena-gold5.png';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { playBuffer } from '../game/utils/sfx.js';
+import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';
+import { DogsConfig } from '../game/config/DogsConfig.js';
 
 const calcBurstBonus = (level) => {
     let bMin = 0, bMax = 1;
@@ -23,21 +25,21 @@ const GoldMine = ({ elevated = false }) => {
     const canMine = pickaxe.durability > 0;
     const burstActive = gameState.burst?.active ?? false;
     const burstLevel = gameState.maxStaminaLevel ?? 0;
-    const [bonusNumbers, setBonusNumbers] = useState([]);
-    const [burstFloats, setBurstFloats] = useState([]);
+    const { floats, add } = useFloatingNumbers();
     const lastClickTimeRef = useRef(null);
     const [isShaking, setIsShaking] = useState(false);
-    const [floatingNumbers, setFloatingNumbers] = useState([]);
-
-    // Array de partículas activas que explotan al clickear
-    const [particles, setParticles] = useState([]);
-
-
-
-    const [comboNumbers, setComboNumbers] = useState([]);
-    const [floatingWarnings, setFloatingWarnings] = useState([]);
 
     const lastHandledRef = useRef(0);
+    const lastMineBonusRef = useRef(null);
+
+    useEffect(() => {
+        const bonus = gameState.lastMineBonus;
+        if (!bonus || bonus === lastMineBonusRef.current) return;
+        lastMineBonusRef.current = bonus;
+        if (bonus.doubleHitCount > 0) add('doubleHit', { multiplier: 1 + bonus.doubleHitCount }, 900);
+        if (bonus.savedDurability) add('saveDurability', {}, 1000);
+        if (bonus.burstReduced > 0) add('burstRecharge', { value: bonus.burstReduced }, 1000);
+    }, [gameState.lastMineBonus]); // eslint-disable-line
 
     const handleClick = (e) => {
         const now = Date.now();
@@ -49,120 +51,61 @@ const GoldMine = ({ elevated = false }) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = Math.min(Math.max(e.clientX - rect.left, 60), rect.width - 110);
             const y = e.clientY - rect.top;
-            const msg = '⛏️ Pico roto';
-            const wId = Date.now();
-            setFloatingWarnings(prev => [...prev, { id: wId, x, y, msg }]);
-            setTimeout(() => setFloatingWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
+            add('warning', { x, y, msg: '⛏️ Pico roto' }, 1200);
             return;
         }
 
 
         playBuffer('hit');
-
-        // Ejecuta la lógica de minado (suma oro, resta stamina/durabilidad)
         onMineClick();
 
-        // Activa animación de shake por 150ms
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 150);
 
-        // Calcula la posición exacta del click dentro de la imagen
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         const safeX = Math.min(x, rect.width - 100);
 
-        // Crea número flotante (+5, +8, etc.) en la posición del click
-        const numId = Date.now();
-        setFloatingNumbers(prev => [...prev, {
-            id: numId,
-            value: goldPerMine,  // Cantidad de oro ganado
-            x: x,  // Posición X del click
-            y: y   // Posición Y del click
-        }]);
+        add('gold', { value: goldPerMine, x, y }, 1000);
 
-        setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 1000);
+        const extraGoldTotal = (gameState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
+            if (!dogId) return sum;
+            const bonus = DogsConfig[dogId]?.goldMineBonus;
+            return bonus?.type === 'extraGold' ? sum + bonus.value : sum;
+        }, 0);
+        if (extraGoldTotal > 0) add('extraGold', { value: extraGoldTotal, x, y }, 1000);
 
         if (burstActive) {
-            const bonus = calcBurstBonus(burstLevel);
-            const burstId = numId + 1;
-            setBurstFloats(prev => [...prev, { id: burstId, value: bonus, x, y }]);
-            setTimeout(() => setBurstFloats(prev => prev.filter(n => n.id !== burstId)), 1000);
+            add('burst', { value: calcBurstBonus(burstLevel), x, y }, 1000);
         }
 
         const clickNow = Date.now();
-
-        const timeSinceLastClick = lastClickTimeRef.current
-            ? clickNow - lastClickTimeRef.current
-            : 0;
+        const timeSinceLastClick = lastClickTimeRef.current ? clickNow - lastClickTimeRef.current : 0;
 
         let displayCombo;
-        if (currentCombo === 0) {
-            displayCombo = 1;  // Primer click del juego
-        } else if (timeSinceLastClick > CombosConfig.resetTime) {
-            displayCombo = 1;  // Reset por tiempo
-        } else {
-            displayCombo = currentCombo + 1;  // Suma normal
-        }
+        if (currentCombo === 0) displayCombo = 1;
+        else if (timeSinceLastClick > CombosConfig.resetTime) displayCombo = 1;
+        else displayCombo = currentCombo + 1;
 
-
-        // Actualiza timestamp local
         lastClickTimeRef.current = clickNow;
 
-        // ✅ VERIFICA SI ES UN HITO (20, 25, 30, etc.)
         const isHito = displayCombo >= CombosConfig.firstMilestone &&
             displayCombo % CombosConfig.milestoneInterval === 0;
 
         if (isHito) {
-            // ✅ VERIFICA SI ES PRIMERA VEZ (igual que en handleMineClick)
-            // Necesitas pasar comboMilestones como prop
             const isFirstTime = !comboMilestones[displayCombo];
-
-            // Calcula bonus
             const bonusGold = isFirstTime
                 ? displayCombo * CombosConfig.bonusMultiplier
                 : Math.floor(displayCombo * CombosConfig.bonusMultiplier * CombosConfig.bonusRepeated);
-
-            const bonusId = Date.now() + 2;
-            setBonusNumbers(prev => [...prev, {
-                id: bonusId,
-                combo: displayCombo,
-                bonus: bonusGold,
-                x: safeX,  
-                y: y - 60
-            }]);
-
-            setTimeout(() => {
-                setBonusNumbers(prev => prev.filter(n => n.id !== bonusId));
-            }, 2000);
+            add('bonus', { combo: displayCombo, bonus: bonusGold, x: safeX, y: y - 60 }, 2000);
         }
-        // Muestra combo normal
-        const comboId = Date.now() + 1;
-        setComboNumbers(prev => [...prev, {
-            id: comboId,
-            value: displayCombo,
-            x: safeX,  // 👈
-            y: y - 90
-        }]);
 
-        setTimeout(() => {
-            setComboNumbers(prev => prev.filter(n => n.id !== comboId));
-        }, 1000);
+        add('combo', { value: displayCombo, x: safeX, y: y - 90 }, 1000);
 
-        // Genera 6 partículas doradas que explotan desde el punto de click
-        const newParticles = Array.from({ length: 6 }, (_, i) => ({
-            id: Date.now() + i,  // ID único para cada partícula
-            x: x,  // Posición inicial X (donde se clickeó)
-            y: y,  // Posición inicial Y (donde se clickeó)
-            angle: Math.random() * 360,  // Ángulo aleatorio de explosión (0-360°)
-            distance: 50 + Math.random() * 30  // Distancia de vuelo aleatoria (50-80px)
-        }));
-        setParticles(prev => [...prev, ...newParticles]);
-
-        // Elimina las partículas después de 800ms (cuando termina la animación)
-        setTimeout(() => {
-            setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)));
-        }, 800);
+        Array.from({ length: 6 }).forEach(() => {
+            add('particle', { x, y, angle: Math.random() * 360, distance: 50 + Math.random() * 30 }, 800);
+        });
     };
 
     const content = (
@@ -195,61 +138,19 @@ const GoldMine = ({ elevated = false }) => {
                 onClick={handleClick}
             />
 
-            {floatingWarnings.map(w => (
-                <div key={w.id} className="floating-warning-gold" style={{ left: `${w.x}px`, top: `${w.y}px` }}>{w.msg}</div>
-            ))}
-
-            {/* NÚMEROS FLOTANTES DE ORO */}
-            {floatingNumbers.map(num => (
-                <div
-                    key={num.id}
-                    className="floating-number-gold"
-                    style={{ left: `${num.x}px`, top: `${num.y}px` }}
-                >
-                    +{num.value}
-                </div>
-            ))}
-
-            {burstFloats.map(num => (
-                <div key={num.id} className="floating-number-burst-gold" style={{ left: `${num.x + 50}px`, top: `${num.y}px` }}>
-                    +{num.value}
-                </div>
-            ))}
-
-            {/* NÚMEROS COMBO */}
-            {comboNumbers.map(combo => (
-                <div
-                    key={combo.id}
-                    className="floating-combo"
-                    style={{ left: `${Math.min(combo.x, 200)}px`, top: `${combo.y}px` }}
-                >
-                    Combo x{combo.value}
-                </div>
-            ))}
-
-            {/* BONUS HITOS */}
-            {bonusNumbers.map(bonus => (
-                <div key={bonus.id} className="floating-bonus-wrapper"
-                    style={{ left: `${Math.min(bonus.x, 180)}px`, top: `${bonus.y}px` }}
-                >
-                    <div className="floating-bonus-combo">🔥 COMBO {bonus.combo}!</div>
-                    <div className="floating-bonus-gold">+{bonus.bonus} ORO ✨</div>
-                </div>
-            ))}
-
-            {/* PARTÍCULAS */}
-            {particles.map(particle => (
-                <div
-                    key={particle.id}
-                    className="particle"
-                    style={{
-                        left: `${particle.x}px`,
-                        top: `${particle.y}px`,
-                        '--angle': `${particle.angle}deg`,
-                        '--distance': `${particle.distance}px`
-                    }}
-                />
-            ))}
+            {floats.map(f => {
+                if (f.type === 'warning')   return <div key={f.id} className="floating-warning-gold" style={{ left: `${f.x}px`, top: `${f.y}px` }}>{f.msg}</div>;
+                if (f.type === 'gold')      return <div key={f.id} className="floating-number-gold" style={{ left: `${f.x}px`, top: `${f.y}px` }}>+{f.value}</div>;
+                if (f.type === 'extraGold') return <div key={f.id} className="floating-number-extra-gold" style={{ left: `${f.x - 40}px`, top: `${f.y}px` }}>+{f.value}</div>;
+                if (f.type === 'burst')     return <div key={f.id} className="floating-number-burst-gold" style={{ left: `${f.x + 50}px`, top: `${f.y}px` }}>+{f.value}</div>;
+                if (f.type === 'doubleHit')     return <div key={f.id} className="floating-double-hit">x{f.multiplier}!</div>;
+                if (f.type === 'saveDurability') return <div key={f.id} className="floating-save-durability">🛡️</div>;
+                if (f.type === 'burstRecharge')  return <div key={f.id} className="floating-burst-recharge">⚡-{f.value}s</div>;
+                if (f.type === 'combo')     return <div key={f.id} className="floating-combo" style={{ left: `${Math.min(f.x, 200)}px`, top: `${f.y}px` }}>Combo x{f.value}</div>;
+                if (f.type === 'bonus')     return <div key={f.id} className="floating-bonus-wrapper" style={{ left: `${Math.min(f.x, 180)}px`, top: `${f.y}px` }}><div className="floating-bonus-combo">🔥 COMBO {f.combo}!</div><div className="floating-bonus-gold">+{f.bonus} ORO ✨</div></div>;
+                if (f.type === 'particle')  return <div key={f.id} className="particle" style={{ left: `${f.x}px`, top: `${f.y}px`, '--angle': `${f.angle}deg`, '--distance': `${f.distance}px` }} />;
+                return null;
+            })}
         </div>
     );
 

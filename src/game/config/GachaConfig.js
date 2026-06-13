@@ -26,9 +26,16 @@ export const PACK_TYPES = {
     },
 };
 
-// Fragmentos que da cada rareza al abrir un sobre
+// Fragmentos que da cada rareza al abrir un sobre (pago)
 export const FRAGMENTS_PER_RARITY = {
-    rare: 10,
-    epic: 15,
+    rare: 20,
+    epic: 20,
     legendary: 20,
+};
+
+// Fragmentos para invocaciones gratis (más rares, menos legendarias)
+export const FREE_FRAGMENTS_PER_RARITY = {
+    rare: 15,
+    epic: 10,
+    legendary: 5,
 };

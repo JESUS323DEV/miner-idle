@@ -122,6 +122,7 @@ const InitialGameState = {
     // ========== GACHA ==========
     gachaPity: {},
     lastPackResult: null,
+    lastMineBonus: null,
     lastFreePull: {
         miner_basic: null, miner_epic: null, miner_legendary: null,
         forge_basic: null, forge_epic: null, forge_legendary: null,

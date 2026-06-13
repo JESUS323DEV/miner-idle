@@ -1,7 +1,7 @@
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { ForgeConfig } from '../../config/ForgeConfig.js';
-import { PACK_TYPES, FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
+import { PACK_TYPES, FRAGMENTS_PER_RARITY, FREE_FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
 import { getDogStats } from '../../utils/getDogStats.js';
 
 export const useDogsActions = (gameState, setGameState) => {
@@ -383,7 +383,7 @@ export const useDogsActions = (gameState, setGameState) => {
             if (pool.length === 0) return prevState;
 
             const pickedId = pool[Math.floor(Math.random() * pool.length)];
-            const fragsGained = FRAGMENTS_PER_RARITY[rarity];
+            const fragsGained = FREE_FRAGMENTS_PER_RARITY[rarity];
             const currentDog = prevState[stateKey]?.[pickedId];
             if (!currentDog) return prevState;
 

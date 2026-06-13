@@ -99,12 +99,13 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             let dogBonusGold = 0;
             let saveDur = false;
             let rechargeReduction = 0;
+            let doubleHitCount = 0;
             for (const dogId of (prevState.dogs?.globalSlots ?? [])) {
                 if (!dogId) continue;
                 const dogBonus = DogsConfig[dogId]?.goldMineBonus;
                 if (dogBonus) {
                     if (dogBonus.type === 'extraGold') dogBonusGold += dogBonus.value;
-                    else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) dogBonusGold += goldGained; }
+                    else if (dogBonus.type === 'doubleHit') { if (Math.random() < dogBonus.chance) { dogBonusGold += goldGained; doubleHitCount++; } }
                     else if (dogBonus.type === 'saveDurability') { if (!saveDur && Math.random() < dogBonus.chance) saveDur = true; }
                 }
                 const forgeBonus = ForgeDogsConfig[dogId]?.globalSlotBonus;
@@ -136,6 +137,9 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
                 lastClickTime: now,
                 comboMilestones: updatedMilestones,
                 lastComboBonus: bonusGold,
+                lastMineBonus: (doubleHitCount > 0 || saveDur || rechargeReduction > 0)
+                    ? { doubleHitCount, savedDurability: saveDur, burstReduced: rechargeReduction, timestamp: now }
+                    : prevState.lastMineBonus,
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasClickMilestone || hasGoldMilestone,
