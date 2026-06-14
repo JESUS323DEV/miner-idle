@@ -116,8 +116,11 @@ const InitialGameState = {
     totalSummons: 0,
     totalBronzeMined: 0,
     totalIronMined: 0,
+    totalDiamondMined: 0,
     totalIngotsSmelted: 0,
     totalBronzeIngotsSmelted: 0,
+    totalIronIngotsSmelted: 0,
+    totalDiamondIngotsSmelted: 0,
 
     // ========== GACHA ==========
     gachaPity: {},

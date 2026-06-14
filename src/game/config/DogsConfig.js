@@ -19,6 +19,7 @@ export const DogsConfig = {
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 6,
         miningPower: 3,
         miningSpeed: 1,
         biomeBonus: {
@@ -41,6 +42,7 @@ export const DogsConfig = {
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 8,
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -64,6 +66,7 @@ export const DogsConfig = {
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 8,
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -86,6 +89,7 @@ export const DogsConfig = {
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 8,
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
@@ -112,6 +116,7 @@ export const DogsConfig = {
         starBonus: 0.15,
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 3,
         miningPower: 2,
         miningSpeed: 2,
         biomeBonus: {
@@ -134,6 +139,7 @@ export const DogsConfig = {
         starBonus: 0.15,
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 4,
         miningPower: 3,
         miningSpeed: 4,
         biomeBonus: {
@@ -159,6 +165,7 @@ export const DogsConfig = {
         starBonus: 0.15,
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 4,
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
@@ -182,6 +189,7 @@ export const DogsConfig = {
         starBonus: 0.15,
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 4,
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
@@ -208,6 +216,7 @@ export const DogsConfig = {
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],
+        yacimientoYield: 1,
         miningPower: 1,
         miningSpeed: 2,
         biomeBonus: {
@@ -231,6 +240,7 @@ export const DogsConfig = {
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],
+        yacimientoYield: 2,
         miningPower: 1,
         miningSpeed: 4,
         biomeBonus: {
@@ -254,6 +264,7 @@ export const DogsConfig = {
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],
+        yacimientoYield: 2,
         miningPower: 2,
         miningSpeed: 5,
         biomeBonus: {
@@ -278,6 +289,7 @@ export const DogsConfig = {
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],
+        yacimientoYield: 2,
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {

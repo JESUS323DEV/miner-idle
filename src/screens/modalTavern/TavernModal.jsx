@@ -150,21 +150,46 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const minerHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`miner_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
     const forgeHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`forge_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
 
-    const currentDogsData = dogTab === 'mineros' ? dogs : forgeDogs;
-    const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : ForgeDogsConfig;
+    const currentDogsData = dogTab === 'mineros' ? dogs : dogTab === 'forja' ? forgeDogs : {};
+    const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : dogTab === 'forja' ? ForgeDogsConfig : DogsConfig;
     const rarityHasAction = {};
-    Object.values(currentDogsData).forEach(dog => {
-        if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
-        const config = currentDogsConfig[dog.id];
-        if (!config) return;
-        const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
-        const frags = dog.fragments ?? 0;
+    if (dogTab === 'obtenidos') {
+        [...Object.values(dogs).filter(d => d?.hired).map(d => ({ dog: d, config: DogsConfig[d.id] })),
+         ...Object.values(forgeDogs).filter(d => d?.hired).map(d => ({ dog: d, config: ForgeDogsConfig[d.id] }))
+        ].forEach(({ dog, config }) => {
+            if (!config) return;
+            const stars = dog.stars ?? 0;
+            const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
+            const starGoldCost = config.starGoldCost ?? 0;
+            const fragForNext = stars < 5 ? config.starFragments?.[stars] : null;
+            if (fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost)
+                rarityHasAction[config.rarity] = true;
+        });
+    } else {
+        Object.values(currentDogsData).forEach(dog => {
+            if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
+            const config = currentDogsConfig[dog.id];
+            if (!config) return;
+            const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
+            const frags = dog.fragments ?? 0;
+            const stars = dog.stars ?? 0;
+            const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
+            const starGoldCost = config.starGoldCost ?? 0;
+            const fragForNext = dog.hired && stars < 5 ? config.starFragments?.[stars] : null;
+            const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
+            const canUpgrade = fragForNext !== null && frags >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
+            if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
+        });
+    }
+    const obtenidosHasUpgrade = [...Object.values(dogs), ...Object.values(forgeDogs)].some(dog => {
+        if (!dog?.hired) return false;
+        const config = DogsConfig[dog.id] ?? ForgeDogsConfig[dog.id];
+        if (!config) return false;
         const stars = dog.stars ?? 0;
-        const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
-        const fragForNext = dog.hired && stars < 5 ? config.starFragments?.[stars] : null;
-        const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
-        const canUpgrade = fragForNext !== null && frags >= fragForNext && tavernCoins >= starCoinCost;
-        if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
+        const fragForNext = stars < 5 ? config.starFragments?.[stars] : null;
+        return fragForNext !== null && (dog.fragments ?? 0) >= fragForNext
+            && tavernCoins >= (STAR_COIN_COST_MAP[config.rarity] ?? 0)
+            && gameState.gold >= (config.starGoldCost ?? 0);
     });
 
     return (
@@ -324,6 +349,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             >
                                 🔥 Forja
                             </button>
+                            <button
+                                className={`dog-tab-btn ${dogTab === 'obtenidos' ? 'active' : ''} ${obtenidosHasUpgrade && dogTab !== 'obtenidos' ? 'dog-tab-btn-pulse' : ''}`}
+                                onClick={() => setDogTab('obtenidos')}
+                            >
+                                Obtenidos
+                            </button>
                         </div>
 
                         {/* FILTRO RAREZA */}
@@ -456,6 +487,163 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     })}
                             </div>
                         )}
+
+                        {/* OBTENIDOS */}
+                        {dogTab === 'obtenidos' && (() => {
+                            const sortByRarity = (a, b) => {
+                                const order = { legendary: 0, epic: 1, rare: 2 };
+                                const ca = DogsConfig[a.id] ?? ForgeDogsConfig[a.id];
+                                const cb = DogsConfig[b.id] ?? ForgeDogsConfig[b.id];
+                                return (order[ca?.rarity] ?? 3) - (order[cb?.rarity] ?? 3);
+                            };
+                            const hiredMineros = Object.values(dogs)
+                                .filter(d => d?.hired && (!rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter))
+                                .sort(sortByRarity);
+                            const hiredForja = Object.values(forgeDogs)
+                                .filter(d => d?.hired && (!rarityFilter || ForgeDogsConfig[d.id]?.rarity === rarityFilter))
+                                .sort(sortByRarity);
+
+                            const renderCard = (dog, isForge) => {
+                                const config = isForge ? ForgeDogsConfig[dog.id] : DogsConfig[dog.id];
+                                if (!config) return null;
+                                const assets = isForge ? forgeDogAssets : dogAssets;
+                                const stars = dog.stars ?? 0;
+                                const fragForNext = stars < 5 ? config.starFragments?.[stars] : null;
+                                const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
+                                const starGoldCost = config.starGoldCost ?? 0;
+                                const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
+                                const isFlipped = flippedDog === dog.id;
+                                return (
+                                    <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
+                                        <div className={`dog-card dog-card-front dog-rarity-${config.rarity} dog-hired`}>
+                                            <button className="dog-info-btn" onClick={() => setFlippedDog(isFlipped ? null : dog.id)}>ℹ</button>
+                                            <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
+                                            <img src={assets[dog.id]} className="dog-portrait" alt={config.name} />
+                                            <div className="dog-name">{config.name}</div>
+                                            <div className="dog-stars-row">
+                                                {[1,2,3,4,5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
+                                            </div>
+                                            {stars < 5 ? (
+                                                <>
+                                                    <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNext}</div>
+                                                    <div className="dog-unlock-cost">
+                                                        <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
+                                                            <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
+                                                        </span>
+                                                        {starGoldCost > 0 && (
+                                                            <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
+                                                                <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${(starGoldCost/1000).toFixed(0)}k` : starGoldCost}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id, isForge)} disabled={!canUpgrade}>Mejorar</button>
+                                                </>
+                                            ) : <div className="dog-status">MAX ⭐</div>}
+                                        </div>
+                                        <div className={`dog-card dog-card-back ${!isForge ? `dog-card-back-${dog.id}` : ''}`}>
+                                            <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
+                                            <div className="dog-name">{config.name}</div>
+                                            {!isForge ? (
+                                                <>
+                                                    <div className="dog-stat-section">
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={pickaxeStone} className="dog-stat-icon" /> Poder minado</span>
+                                                            <span className="dog-stat-val">{config.miningPower}</span>
+                                                        </div>
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label">Velocidad</span>
+                                                            <span className="dog-stat-val">{(() => { const pps = 1 / config.miningSpeed; return pps >= 1 ? `${parseFloat(pps.toFixed(2))} pic/s` : `1 pic/${config.miningSpeed}s`; })()}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="dog-stat-divider">Bonus bioma</div>
+                                                    <div className="dog-stat-section">
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                            <span className={`dog-stat-val ${config.biomeBonus.bronze > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.bronze}</span>
+                                                        </div>
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                            <span className={`dog-stat-val ${config.biomeBonus.iron > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.iron}</span>
+                                                        </div>
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                            <span className={`dog-stat-val ${config.biomeBonus.diamond > 1 ? 'dog-stat-bonus' : ''}`}>x{config.biomeBonus.diamond}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="dog-stat-divider">Pasiva oro</div>
+                                                    <div className="dog-stat-passive">
+                                                        {config.goldMineBonus.type === 'extraGold' && <><b>+{config.goldMineBonus.value}</b> de <img src={iconGold} className="dog-stat-icon" /> extra por picada</>}
+                                                        {config.goldMineBonus.type === 'freeHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de reducir recarga de energía</>}
+                                                        {config.goldMineBonus.type === 'doubleHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
+                                                        {config.goldMineBonus.type === 'saveDurability' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de no gastar durabilidad</>}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="dog-stat-section">
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label">Reducción base</span>
+                                                            <span className="dog-stat-val">-{config.forgeBonus.timeReduction}s</span>
+                                                        </div>
+                                                        {config.forgeBonus.doubleIngot > 0 && (
+                                                            <div className="dog-stat-row">
+                                                                <span className="dog-stat-label">Doble lingote</span>
+                                                                <span className="dog-stat-val dog-stat-bonus">{config.forgeBonus.doubleIngot * 100}%</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="dog-stat-divider">Bonus bioma</div>
+                                                    <div className="dog-stat-section">
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={ingotBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.bronze > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.bronze}s</span>
+                                                        </div>
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={ingotIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.iron > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.iron}s</span>
+                                                        </div>
+                                                        <div className="dog-stat-row">
+                                                            <span className="dog-stat-label"><img src={ingotDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.diamond > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.diamond}s</span>
+                                                        </div>
+                                                    </div>
+                                                    {config.globalSlotBonus && (
+                                                        <>
+                                                            <div className="dog-stat-divider">Pasiva slot principal</div>
+                                                            <div className="dog-stat-passive">
+                                                                {config.globalSlotBonus.type === 'goldTrickle' && <>+{config.globalSlotBonus.min}-{config.globalSlotBonus.max} <img src={iconGold} className="dog-stat-icon" /> oro cada 60s</>}
+                                                                {config.globalSlotBonus.type === 'burstRecharge' && <><b>{config.globalSlotBonus.chance * 100}%</b> de recargar energía al minar</>}
+                                                                {config.globalSlotBonus.type === 'maxDurability' && <>+{config.globalSlotBonus.value} de durabilidad máxima</>}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            };
+
+                            return (
+                                <div className="dogs-obtenidos">
+                                    {hiredMineros.length === 0 && hiredForja.length === 0 && (
+                                        <p className="dogs-empty-msg">Aún no tienes ayudantes contratados.</p>
+                                    )}
+                                    {hiredMineros.length > 0 && (
+                                        <>
+                                            <div className="dogs-section-title">Mineros</div>
+                                            <div className="dogs-grid">{hiredMineros.map(d => renderCard(d, false))}</div>
+                                        </>
+                                    )}
+                                    {hiredForja.length > 0 && (
+                                        <>
+                                            <div className="dogs-section-title">Forja</div>
+                                            <div className="dogs-grid">{hiredForja.map(d => renderCard(d, true))}</div>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {/* FORJA */}
                         {dogTab === 'forja' && (

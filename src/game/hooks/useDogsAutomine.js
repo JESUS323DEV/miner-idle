@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
-import { DogsConfig } from '../config/DogsConfig';
 
 const useDogsAutomine = (gameState, handleDogTick) => {
     useEffect(() => {
         const intervals = Object.values(gameState.dogs)
-            .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo !== null)
+            .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo !== null && d.assignedTo.globalSlot === undefined)
             .map(dog => {
-                const speed = DogsConfig[dog.id]?.miningSpeed || 5;
                 return setInterval(() => {
                     handleDogTick(dog.id);
-                }, speed * 1000);
+                }, 2000);
             });
 
         return () => intervals.forEach(clearInterval);

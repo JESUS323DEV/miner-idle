@@ -72,81 +72,41 @@ export const useDogsActions = (gameState, setGameState) => {
     // ========== TICK AUTOMÁTICO DE PERRO ==========
     const handleDogTick = (dogId) => {
         setGameState(prevState => {
-            let newState = { ...prevState };
-            let newYacimientos = { ...prevState.yacimientos };
-
             const dog = prevState.dogs[dogId];
             if (!dog || !dog.hired || !dog.assignedTo) return prevState;
-            if (dog.assignedTo.globalSlot !== undefined) return prevState; // slot global, sin tick de yacimiento
+            if (dog.assignedTo.globalSlot !== undefined) return prevState;
 
             const { biome, slotId } = dog.assignedTo;
             const slot = prevState.yacimientos[biome]?.slots?.find(s => s.id === slotId);
-            if (!slot || !slot.mena) return prevState;
+            if (!slot?.session?.active) return prevState;
 
-            const mena = slot.mena;
-            const config = prevState.yacimientos[biome].slotConfig[slotId];
+            const now = Date.now();
+            const SESSION_DURATION = 10 * 60 * 1000;
 
-            if (mena.repairingUntil && Date.now() < mena.repairingUntil) return prevState;
-
-            const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
-            if (!isReady) return prevState;
-
-            if (mena.durability <= 0) {
-                if (newState.gold < config.repairCost) return prevState;
-                newState = {
-                    ...newState,
-                    gold: newState.gold - config.repairCost,
-                    totalGoldSpent: newState.totalGoldSpent + config.repairCost,
-                };
-                newYacimientos = {
-                    ...newYacimientos,
-                    [biome]: {
-                        ...newYacimientos[biome],
-                        slots: newYacimientos[biome].slots.map(s =>
-                            s.id === slotId ? {
-                                ...s,
-                                mena: {
-                                    ...mena,
-                                    durability: mena.maxDurability,
-                                    repairingUntil: Date.now() + (config.repairCooldown * 1000),
-                                }
-                            } : s
-                        )
+            if (now - slot.session.startedAt >= SESSION_DURATION) {
+                return {
+                    ...prevState,
+                    yacimientos: {
+                        ...prevState.yacimientos,
+                        [biome]: {
+                            ...prevState.yacimientos[biome],
+                            slots: prevState.yacimientos[biome].slots.map(s =>
+                                s.id === slotId ? { ...s, session: { ...s.session, active: false } } : s
+                            )
+                        }
                     }
                 };
-                return { ...newState, yacimientos: newYacimientos };
             }
 
-            const dogConfig = getDogStats(dog.id, dog.stars ?? 0, false);
-            const bonus = dogConfig.biomeBonus[biome] || 1.0;
-            const currentAmount = newState[biome] ?? 0;
-            const materialGained = Math.floor(dogConfig.miningPower * bonus);
+            const materialGained = DogsConfig[dog.id]?.yacimientoYield ?? 1;
 
-            newState = {
-                ...newState,
-                [biome]: currentAmount + materialGained,
-                ...(biome === 'bronze' ? { totalBronzeMined: (newState.totalBronzeMined ?? 0) + materialGained } : {}),
-                ...(biome === 'iron' ? { totalIronMined: (newState.totalIronMined ?? 0) + materialGained } : {}),
+            return {
+                ...prevState,
+                [biome]: (prevState[biome] ?? 0) + materialGained,
+                ...(biome === 'bronze'  ? { totalBronzeMined:  (prevState.totalBronzeMined  ?? 0) + materialGained } : {}),
+                ...(biome === 'iron'    ? { totalIronMined:    (prevState.totalIronMined    ?? 0) + materialGained } : {}),
+                ...(biome === 'diamond' ? { totalDiamondMined: (prevState.totalDiamondMined ?? 0) + materialGained } : {}),
             };
-
-            newYacimientos = {
-                ...newYacimientos,
-                [biome]: {
-                    ...newYacimientos[biome],
-                    slots: newYacimientos[biome].slots.map(s =>
-                        s.id === slotId ? {
-                            ...s,
-                            mena: {
-                                ...mena,
-                                ready: true,
-                                durability: mena.durability - 1,
-                            }
-                        } : s
-                    )
-                }
-            };
-
-            return { ...newState, yacimientos: newYacimientos };
         });
     };
 

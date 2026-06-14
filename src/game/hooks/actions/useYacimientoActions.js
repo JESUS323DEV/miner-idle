@@ -2,170 +2,30 @@ import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
 export const useYacimientoActions = (gameState, setGameState) => {
 
-    // ========== PLANTAR MENA ==========
-    const handlePlantMena = (slotId, biome) => {
-        setGameState(prevState => {
-            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
-            if (!slot || !slot.unlocked || slot.mena !== null) return prevState;
-
-            const cost = prevState.yacimientos[biome].plantCost;
-            if (!cost) return prevState;
-            if (prevState[biome] < cost.amount) return prevState;
-
-            const config = prevState.yacimientos[biome].slotConfig[slotId];
-
-            const newMena = {
-                type: biome,
-                level: 1,
-                durability: config.maxDurability,
-                maxDurability: config.maxDurability,
-                growthTime: config.growthTime,
-                plantedAt: Date.now(),
-                ready: false,
-                repairingUntil: null,
-            };
-            console.log('config:', config);
-            console.log('growthTime:', config.growthTime);
-            return {
-                ...prevState,
-                [biome]: prevState[biome] - cost.amount,
-                yacimientos: {
-                    ...prevState.yacimientos,
-                    [biome]: {
-                        ...prevState.yacimientos[biome],
-                        slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? { ...s, mena: newMena } : s
-                        )
-                    }
-                }
-            };
-        });
-    };
-
-    // ========== MINAR YACIMIENTO ==========
-    const handleMineYacimiento = (slotId, biome, onGain) => {
-        setGameState(prevState => {
-            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
-            if (!slot || !slot.mena) return prevState;
-
-            const mena = slot.mena;
-
-            if (mena.repairingUntil && Date.now() < mena.repairingUntil) return prevState;
-            const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
-            if (!isReady) return prevState;
-
-            if (mena.durability <= 0) return prevState;
-            if (prevState.pickaxe.durability <= 0) return prevState;
-
-            const baseDrop = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
-            const miningPowerPerTier = prevState.pickaxe.miningPowerPerTier ?? 0;
-            const materialGained = Math.floor(baseDrop + (prevState.pickaxe.tier * miningPowerPerTier));
-            const newDurability = Math.max(0, mena.durability - 1);
-
-            if (onGain) onGain(materialGained);
-
-            return {
-                ...prevState,
-                [biome]: (prevState[biome] ?? 0) + materialGained,
-                ...(biome === 'bronze' ? { totalBronzeMined: (prevState.totalBronzeMined ?? 0) + materialGained } : {}),
-                ...(biome === 'iron' ? { totalIronMined: (prevState.totalIronMined ?? 0) + materialGained } : {}),
-                pickaxe: {
-                    ...prevState.pickaxe,
-                    durability: prevState.pickaxe.durability - 1
-                },
-                yacimientos: {
-                    ...prevState.yacimientos,
-                    [biome]: {
-                        ...prevState.yacimientos[biome],
-                        slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? {
-                                ...s,
-                                mena: {
-                                    ...mena,
-                                    ready: true,
-                                    durability: newDurability,
-                                }
-                            } : s
-                        )
-                    }
-                }
-            };
-        });
-    };
-
-    // ========== REPARAR YACIMIENTO ==========
-    const handleRepairYacimiento = (slotId, biome) => {
-        setGameState(prevState => {
-            const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
-            if (!slot || !slot.mena) return prevState;
-
-            const mena = slot.mena;
-            if (mena.durability >= mena.maxDurability) return prevState;
-
-            const config = prevState.yacimientos[biome].slotConfig[slotId];
-            if (prevState.gold < config.repairCost) return prevState;
-
-            return {
-                ...prevState,
-                gold: prevState.gold - config.repairCost,
-                totalGoldSpent: prevState.totalGoldSpent + config.repairCost,
-                yacimientos: {
-                    ...prevState.yacimientos,
-                    [biome]: {
-                        ...prevState.yacimientos[biome],
-                        slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? {
-                                ...s,
-                                mena: {
-                                    ...mena,
-                                    durability: mena.maxDurability,
-                                    repairingUntil: Date.now() + (config.repairCooldown * 1000),
-                                }
-                            } : s
-                        )
-                    }
-                }
-            };
-        });
-    };
-
-    // ========== DESBLOQUEAR SLOT DE YACIMIENTO ==========
+    // ========== DESBLOQUEAR SLOT ==========
     const handleUnlockYacimientoSlot = (slotId, biome) => {
         setGameState(prevState => {
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
             if (!slot || slot.unlocked) return prevState;
 
-            const cost = prevState.yacimientos[biome].unlockCosts[slotId];
-            if (!cost) return prevState;
-            if (prevState.gold < cost.gold) return prevState;
-            if (prevState[biome] < cost.amount) return prevState;
+            const { gold: goldCost, tavernCoins: coinCost } = prevState.yacimientos[biome].unlockCost;
+            if (prevState.gold < goldCost) return prevState;
+            if (prevState.tavernCoins < coinCost) return prevState;
 
-            const newGoldSpent = prevState.totalGoldSpent + cost.gold;
+            const newGoldSpent = prevState.totalGoldSpent + goldCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
-
-            const config = prevState.yacimientos[biome].slotConfig[slotId];
-            const newMena = {
-                type: biome,
-                level: 1,
-                durability: config.maxDurability,
-                maxDurability: config.maxDurability,
-                growthTime: config.growthTime,
-                plantedAt: Date.now(),
-                ready: false,
-                repairingUntil: null,
-            };
 
             return {
                 ...prevState,
-                gold: prevState.gold - cost.gold,
-                [biome]: prevState[biome] - cost.amount,
+                gold: prevState.gold - goldCost,
+                tavernCoins: prevState.tavernCoins - coinCost,
                 totalGoldSpent: newGoldSpent,
                 yacimientos: {
                     ...prevState.yacimientos,
                     [biome]: {
                         ...prevState.yacimientos[biome],
                         slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? { ...s, unlocked: true, mena: newMena } : s
+                            s.id === slotId ? { ...s, unlocked: true } : s
                         )
                     }
                 },
@@ -177,54 +37,44 @@ export const useYacimientoActions = (gameState, setGameState) => {
         });
     };
 
-    // ========== MINAR YACIMIENTO (PERRO) ==========
-    // No consume stamina ni durabilidad del pico, usa stats propias del perro
-    const handleDogMineYacimiento = (slotId, biome, dog, onGain) => {
+    // ========== ACTIVAR / RECARGAR SESIÓN ==========
+    const handleActivateYacimiento = (slotId, biome) => {
         setGameState(prevState => {
             const slot = prevState.yacimientos[biome].slots.find(s => s.id === slotId);
-            if (!slot || !slot.mena) return prevState;
+            if (!slot || !slot.unlocked) return prevState;
+            if (slot.session?.active) return prevState;
 
-            const mena = slot.mena;
-            if (mena.repairingUntil && Date.now() < mena.repairingUntil) return prevState;
-            const isReady = mena.ready || (Date.now() - mena.plantedAt >= mena.growthTime * 1000);
-            if (!isReady) return prevState;
-            if (mena.durability <= 0) return prevState;
+            const { gold: rechargeCost } = prevState.yacimientos[biome].rechargeCost;
+            if (prevState.gold < rechargeCost) return prevState;
 
-            const materialGained = dog?.mineAmount ?? 1;
-            const newDurability = Math.max(0, mena.durability - 1);
-
-            if (onGain) onGain(materialGained);
+            const newGoldSpent = prevState.totalGoldSpent + rechargeCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
             return {
                 ...prevState,
-                [biome]: (prevState[biome] ?? 0) + materialGained,
-                ...(biome === 'bronze' ? { totalBronzeMined: (prevState.totalBronzeMined ?? 0) + materialGained } : {}),
-                ...(biome === 'iron' ? { totalIronMined: (prevState.totalIronMined ?? 0) + materialGained } : {}),
+                gold: prevState.gold - rechargeCost,
+                totalGoldSpent: newGoldSpent,
                 yacimientos: {
                     ...prevState.yacimientos,
                     [biome]: {
                         ...prevState.yacimientos[biome],
                         slots: prevState.yacimientos[biome].slots.map(s =>
-                            s.id === slotId ? {
-                                ...s,
-                                mena: {
-                                    ...mena,
-                                    ready: true,
-                                    durability: newDurability,
-                                }
-                            } : s
+                            s.id === slotId
+                                ? { ...s, session: { active: true, startedAt: Date.now() } }
+                                : s
                         )
                     }
+                },
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
                 }
             };
         });
     };
 
     return {
-        handlePlantMena,
-        handleMineYacimiento,
-        handleDogMineYacimiento,
-        handleRepairYacimiento,
         handleUnlockYacimientoSlot,
+        handleActivateYacimiento,
     };
 };

@@ -303,7 +303,13 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                 {/* TAB ORO */}
                 {activeTab === "gold" && (
                     <div className="rewards-list">
-                        {goldRewardsList.map(({ key, icon, label }) => {
+                        {[...goldRewardsList].sort((a, b) => {
+                            const ca = isClaimable(a.key);
+                            const cb = isClaimable(b.key);
+                            if (ca && !cb) return -1;
+                            if (!ca && cb) return 1;
+                            return 0;
+                        }).map(({ key, icon, label }) => {
                             const claimable = isClaimable(key);
                             const reward = getReward(key);
                             const target = getNextTarget(key);
@@ -337,44 +343,45 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                 {/* TAB MONEDAS */}
                 {activeTab === "coins" && (
                     <div className="rewards-list">
-
-                        {/* ÚNICOS */}
-                        {uniqueCoinRewardsList.map(({ key, icon, label }) => {
-                            const reward = coinRewards[key];
-                            if (!reward) return null;
-                            const claimable = isUniqueCoinClaimable(key);
-                            const isClaimed = reward.claimed;
-                            if (isClaimed) return null;
-
-                            return (
-                                <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
-                                    <span className="reward-icon">{icon}</span>
-                                    <div className="reward-info">
-                                        <p className="reward-label">{label}</p>
-                                        <p className="reward-claimed">🔒 Pendiente</p>
+                        {[
+                            ...uniqueCoinRewardsList.map(e => ({ ...e, type: 'unique' })),
+                            ...progressiveCoinRewardsList.map(e => ({ ...e, type: 'progressive' })),
+                        ].sort((a, b) => {
+                            const ca = a.type === 'unique' ? (coinRewards[a.key] && isUniqueCoinClaimable(a.key)) : (coinRewards[a.key] && isProgressiveCoinClaimable(a.key));
+                            const cb = b.type === 'unique' ? (coinRewards[b.key] && isUniqueCoinClaimable(b.key)) : (coinRewards[b.key] && isProgressiveCoinClaimable(b.key));
+                            if (ca && !cb) return -1;
+                            if (!ca && cb) return 1;
+                            return 0;
+                        }).map(({ key, icon, label, type }) => {
+                            if (type === 'unique') {
+                                const reward = coinRewards[key];
+                                if (!reward || reward.claimed) return null;
+                                const claimable = isUniqueCoinClaimable(key);
+                                return (
+                                    <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
+                                        <span className="reward-icon">{icon}</span>
+                                        <div className="reward-info">
+                                            <p className="reward-label">{label}</p>
+                                            <p className="reward-claimed">Pendiente</p>
+                                        </div>
+                                        <div className="reward-right">
+                                            <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
+                                            <button
+                                                className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
+                                                onClick={() => claimable && onClaimCoinReward(key)}
+                                                disabled={!claimable}
+                                            >
+                                                {claimable ? "Obtener" : "🔒"}
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
-                                        <button
-                                            className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
-                                            onClick={() => claimable && onClaimCoinReward(key)}
-                                            disabled={!claimable}
-                                        >
-                                            {claimable ? "Obtener" : "🔒"}
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
-
-                        {/* PROGRESIVOS */}
-                        {progressiveCoinRewardsList.map(({ key, icon, label }) => {
+                                );
+                            }
                             const milestone = coinRewards[key];
                             if (!milestone) return null;
                             const claimable = isProgressiveCoinClaimable(key);
                             const reward = getProgressiveCoinReward(key);
                             const claimed = milestone.claimed.length;
-
                             return (
                                 <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
                                     <span className="reward-icon">{icon}</span>
@@ -395,7 +402,6 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                                 </div>
                             );
                         })}
-
                     </div>
                 )}
 
@@ -407,8 +413,11 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                         )}
                         {Object.entries(fragmentRewards).filter(([, r]) => {
                             if (r.visible === false) return false;
-                            if (!r.claimed) return true;
-                            return r.group ? !isGroupClosed(r.group) : false;
+                            return !r.claimed;
+                        }).sort(([, a], [, b]) => {
+                            if (a.unlocked && !b.unlocked) return -1;
+                            if (!a.unlocked && b.unlocked) return 1;
+                            return 0;
                         }).map(([key, r]) => (
                             <div key={key} className={`reward-card ${r.claimed ? "fragment-claimed" : r.unlocked ? "claimable" : "locked"}`}>
                                 <CyclingImg srcs={

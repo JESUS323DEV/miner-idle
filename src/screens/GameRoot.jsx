@@ -244,9 +244,15 @@ function GameRoot() {
         if (!(k in mergedCR)) mergedCR[k] = InitialRewardsState.coinRewards[k];
       });
 
+      // Migración yacimientos: si el save tiene la estructura antigua (con slotConfig o mena), resetea al estado inicial
+      const savedYac = loaded.yacimientos;
+      const yacNeedsReset = !savedYac || Object.values(savedYac).some(b => b.slotConfig || b.slots?.some(s => s.mena !== undefined));
+      const migratedYac = yacNeedsReset ? InitialYacimientosState : savedYac;
+
       return {
         ...InitialGameState,
         ...loaded,
+        yacimientos: migratedYac,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,
         totalBronzeMined: loaded.totalBronzeMined ?? 0,
@@ -293,13 +299,39 @@ function GameRoot() {
     const fr = gameState.rewards?.fragmentRewards;
     if (!fr) return;
     const bronzeMineUnlocked = gameState.mines?.unlockedBiomes?.includes('bronze') ?? false;
+    const ironMineUnlocked   = gameState.mines?.unlockedBiomes?.includes('iron')   ?? false;
+    const diamondMineUnlocked = gameState.mines?.unlockedBiomes?.includes('diamond') ?? false;
     const checks = {
+      // cadena oro pasivo
       goldPassive5:    gameState.goldPerSecondLevel >= 5,
+      goldPassive10:   gameState.goldPerSecondLevel >= 10,
+      goldPassive20:   gameState.goldPerSecondLevel >= 20,
+      goldPassive30:   gameState.goldPerSecondLevel >= 30,
+      goldPassive40:   gameState.goldPerSecondLevel >= 40,
+      goldPassive50:   gameState.goldPerSecondLevel >= 50,
+      // cadena stamina
       stamina2:        gameState.maxStaminaLevel >= 2,
-      set2IronMine:    bronzeMineUnlocked,
-      set2Iron300:     (gameState.totalBronzeMined ?? 0) >= 300,
-      set2ForgeBronze: gameState.furnaces?.bronze?.unlocked === true,
-      set2Smelt50:     (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
+      stamina5:        gameState.maxStaminaLevel >= 5,
+      stamina10:       gameState.maxStaminaLevel >= 10,
+      stamina20:       gameState.maxStaminaLevel >= 20,
+      stamina30:       gameState.maxStaminaLevel >= 30,
+      stamina50:       gameState.maxStaminaLevel >= 50,
+      // cadena minas
+      set2IronMine:      bronzeMineUnlocked,
+      unlockMineIron:    ironMineUnlocked,
+      unlockMineDiamond: diamondMineUnlocked,
+      // cadena menas
+      set2Iron300:  (gameState.totalBronzeMined ?? 0) >= 300,
+      iron300:      (gameState.totalIronMined   ?? 0) >= 300,
+      diamond300:   (gameState.totalDiamondMined ?? 0) >= 300,
+      // cadena hornos
+      set2ForgeBronze:    gameState.furnaces?.bronze?.unlocked  === true,
+      forgeUnlockIron:    gameState.furnaces?.iron?.unlocked    === true,
+      forgeUnlockDiamond: gameState.furnaces?.diamond?.unlocked === true,
+      // cadena lingotes
+      set2Smelt50:    (gameState.totalBronzeIngotsSmelted  ?? 0) >= 50,
+      smelt50Iron:    (gameState.totalIronIngotsSmelted    ?? 0) >= 50,
+      smelt50Diamond: (gameState.totalDiamondIngotsSmelted ?? 0) >= 50,
     };
     const needsUpdate = Object.entries(checks).some(
       ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
@@ -319,8 +351,14 @@ function GameRoot() {
     gameState.maxStaminaLevel,
     gameState.mines?.unlockedBiomes,
     gameState.totalBronzeMined,
+    gameState.totalIronMined,
+    gameState.totalDiamondMined,
     gameState.furnaces?.bronze?.unlocked,
+    gameState.furnaces?.iron?.unlocked,
+    gameState.furnaces?.diamond?.unlocked,
     gameState.totalBronzeIngotsSmelted,
+    gameState.totalIronIngotsSmelted,
+    gameState.totalDiamondIngotsSmelted,
     gameState.rewards?.fragmentRewards,
   ]);
 
@@ -341,12 +379,12 @@ function GameRoot() {
       set4Forge3Star:      maxForgeStars >= 3,
       set4Forge4Star:      maxForgeStars >= 4,
       set4Forge5Star:      maxForgeStars >= 5,
-      set4FurnaceBronze2:  (gameState.furnaces?.bronze?.level ?? 1) >= 2,
-      set4FurnaceBronze3:  (gameState.furnaces?.bronze?.level ?? 1) >= 3,
-      set4FurnaceIron2:    (gameState.furnaces?.iron?.level ?? 1) >= 2,
-      set4FurnaceIron3:    (gameState.furnaces?.iron?.level ?? 1) >= 3,
-      set4FurnaceDiamond2: (gameState.furnaces?.diamond?.level ?? 1) >= 2,
-      set4FurnaceDiamond3: (gameState.furnaces?.diamond?.level ?? 1) >= 3,
+      set3FurnaceBronze2:  (gameState.furnaces?.bronze?.level ?? 1) >= 2,
+      set3FurnaceBronze3:  (gameState.furnaces?.bronze?.level ?? 1) >= 3,
+      set3FurnaceIron2:    (gameState.furnaces?.iron?.level ?? 1) >= 2,
+      set3FurnaceIron3:    (gameState.furnaces?.iron?.level ?? 1) >= 3,
+      set3FurnaceDiamond2: (gameState.furnaces?.diamond?.level ?? 1) >= 2,
+      set3FurnaceDiamond3: (gameState.furnaces?.diamond?.level ?? 1) >= 3,
     };
     const needsUpdate = Object.entries(checks).some(
       ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
@@ -427,9 +465,7 @@ function GameRoot() {
     handleClaimFragmentReward,
 
     handleUnlockYacimientoSlot,
-    handleRepairYacimiento,
-    handleMineYacimiento,
-    handlePlantMena,
+    handleActivateYacimiento,
     handleConvertGoldToIngot,
     handleHireDog,
     handleAssignDog,
@@ -442,7 +478,6 @@ function GameRoot() {
     handleUpgradeStar,
     handleOpenPack,
     handleFreePull,
-    handleDogMineYacimiento,
     handleBuyMineSnack,
     handleUseMineSnack,
     handleDynamiteMine,
@@ -495,9 +530,7 @@ function GameRoot() {
     handleClaimCoinReward,
     handleClaimFragmentReward,
     handleUnlockYacimientoSlot,
-    handleRepairYacimiento,
-    handleMineYacimiento,
-    handlePlantMena,
+    handleActivateYacimiento,
     handleConvertGoldToIngot,
     handleHireDog,
     handleAssignDog,
@@ -510,7 +543,6 @@ function GameRoot() {
     handleUpgradeStar,
     handleOpenPack,
     handleFreePull,
-    handleDogMineYacimiento,
     handleBuyMineSnack,
     handleUseMineSnack,
     handleDynamiteMine,
@@ -1722,7 +1754,7 @@ function GameRoot() {
           <button
             className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
               Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
-              Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed)
+              Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed && r.visible !== false)
               ? "btn-rewards-pulse" : ""
               } ${isRewardsStep ? 'tutorial-highlight' : ''}`}
             onClick={() => setRewardsOpen(true)}
