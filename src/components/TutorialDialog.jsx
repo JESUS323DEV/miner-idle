@@ -60,7 +60,7 @@ const STEPS = {
     },
     repair_hint: {
         title: "¡Pico roto!",
-        text: "Tu pico se ha roto. Toca el icono del pico para repararlo.",
+        text: "Tu pico se ha roto. Toca el icono de reparar para recuperar su durabilidad.",
         action: null,
         counter: null,
         showSkip: false,
@@ -95,7 +95,7 @@ const STEPS = {
     },
     hint_mine_dog: {
         title: "Zeus está activo",
-        text: "Zeus te da una bonificación pasiva cada vez que picas. Mientras esté alquilado trabajará para ti. Consigue sus fragmentos para quedártelo para siempre.",
+        text: "Zeus te da una bonificación pasiva cada vez que picas. Mientras esté alquilado trabajará para ti. Consigue sus fragmentos para quedártelo para siempre. Puedes llevar hasta 3 ayudantes equipados al mismo tiempo.",
         action: "Entendido",
         counter: null,
         showSkip: false,
@@ -109,13 +109,13 @@ const STEPS = {
     },
 };
 
-const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true }) => {
+const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true, dialogStyle = {} }) => {
     if (step === null || step === undefined) return null;
     const data = STEPS[step];
     if (!data) return null;
 
     return (
-        <div className="tutorial-dialog">
+        <div className="tutorial-dialog" style={dialogStyle}>
             {data.counter && (
                 <span className="tutorial-dialog-counter">{data.counter}</span>
             )}

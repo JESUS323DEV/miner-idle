@@ -193,7 +193,7 @@ const InitialRewardsState = {
         unlockMinas: { claimed: false, unlocked: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 50 }, { dogId: 'pip', isForge: true, amount: 50 }], label: 'Desbloquea las Minas' },
         unlockForja: { claimed: false, unlocked: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 50 }, { dogId: 'pip', isForge: true, amount: 50 }], label: 'Desbloquea la Forja' },
         // ===== CADENA ORO PASIVO =====
-        goldPassive5:  { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 5' },
+        goldPassive5:  { claimed: false, unlocked: false, visible: true, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 5' },
         goldPassive10: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 150 }, { dogId: 'rocky', isForge: true, amount: 150 }], label: 'Oro pasivo nivel 10' },
         goldPassive20: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 200 }, { dogId: 'rocky', isForge: true, amount: 200 }], label: 'Oro pasivo nivel 20' },
         goldPassive30: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 250 }, { dogId: 'rocky', isForge: true, amount: 250 }], label: 'Oro pasivo nivel 30' },
@@ -201,7 +201,7 @@ const InitialRewardsState = {
         goldPassive50: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 350 }, { dogId: 'rocky', isForge: true, amount: 350 }], label: 'Oro pasivo nivel 50' },
 
         // ===== CADENA STAMINA =====
-        stamina2:  { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energía nivel 2' },
+        stamina2:  { claimed: false, unlocked: false, visible: true, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energía nivel 2' },
         stamina5:  { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 150 }, { dogId: 'rocky', isForge: true, amount: 150 }], label: 'Energía nivel 5' },
         stamina10: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 200 }, { dogId: 'rocky', isForge: true, amount: 200 }], label: 'Energía nivel 10' },
         stamina20: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 250 }, { dogId: 'rocky', isForge: true, amount: 250 }], label: 'Energía nivel 20' },
@@ -209,30 +209,30 @@ const InitialRewardsState = {
         stamina50: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 350 }, { dogId: 'rocky', isForge: true, amount: 350 }], label: 'Energía nivel 50' },
 
         // ===== CADENA MINAS =====
-        set2IronMine:    { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de bronce' },
-        unlockMineIron:  { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 150 }, { dogId: 'rex', isForge: true, amount: 150 }], label: 'Desbloquea la mina de hierro' },
+        unlockMineBronze:  { claimed: false, unlocked: false, visible: true, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de bronce' },
+        unlockMineIron:    { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 150 }, { dogId: 'rex', isForge: true, amount: 150 }], label: 'Desbloquea la mina de hierro' },
         unlockMineDiamond: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 200 }, { dogId: 'rex', isForge: true, amount: 200 }], label: 'Desbloquea la mina de diamante' },
 
         // ===== CADENA MENAS CONSEGUIDAS =====
-        set2Iron300:     { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 200 }, { dogId: 'pip', isForge: true, amount: 200 }], label: 'Consigue 300 de bronce' },
-        iron300:         { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 250 }, { dogId: 'pip', isForge: true, amount: 250 }], label: 'Consigue 300 de hierro' },
-        diamond300:      { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 300 }, { dogId: 'pip', isForge: true, amount: 300 }], label: 'Consigue 300 de diamante' },
+        bronze300:  { claimed: false, unlocked: false, visible: true, dogs: [{ dogId: 'boxer', isForge: false, amount: 200 }, { dogId: 'pip', isForge: true, amount: 200 }], label: 'Consigue 300 de bronce' },
+        iron300:    { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 250 }, { dogId: 'pip', isForge: true, amount: 250 }], label: 'Consigue 300 de hierro' },
+        diamond300: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 300 }, { dogId: 'pip', isForge: true, amount: 300 }], label: 'Consigue 300 de diamante' },
 
         // ===== CADENA HORNOS =====
-        set2ForgeBronze:  { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Desbloquea el horno de bronce' },
-        forgeUnlockIron:  { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20, isForge: true }, { rarity: 'epic', amount: 15, isForge: true }, { rarity: 'legendary', amount: 8, isForge: true }], label: 'Desbloquea el horno de hierro' },
+        forgeUnlockBronze:  { claimed: false, unlocked: false, visible: true, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Desbloquea el horno de bronce' },
+        forgeUnlockIron:    { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20, isForge: true }, { rarity: 'epic', amount: 15, isForge: true }, { rarity: 'legendary', amount: 8, isForge: true }], label: 'Desbloquea el horno de hierro' },
         forgeUnlockDiamond: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 25, isForge: true }, { rarity: 'epic', amount: 20, isForge: true }, { rarity: 'legendary', amount: 10, isForge: true }], label: 'Desbloquea el horno de diamante' },
 
         // ===== CADENA LINGOTES =====
-        set2Smelt50:       { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Funde 50 lingotes de bronce' },
-        smelt50Iron:       { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20, isForge: true }, { rarity: 'epic', amount: 15, isForge: true }, { rarity: 'legendary', amount: 8, isForge: true }], label: 'Funde 50 lingotes de hierro' },
-        smelt50Diamond:    { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 25, isForge: true }, { rarity: 'epic', amount: 20, isForge: true }, { rarity: 'legendary', amount: 10, isForge: true }], label: 'Funde 50 lingotes de diamante' },
-        set4Miner1Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 15 }, { rarity: 'epic', amount: 10 }, { rarity: 'legendary', amount: 5 }], label: 'Sube un minero a 1 estrella' },
+        smelt50Bronze:  { claimed: false, unlocked: false, visible: true, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Funde 50 lingotes de bronce' },
+        smelt50Iron:    { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20, isForge: true }, { rarity: 'epic', amount: 15, isForge: true }, { rarity: 'legendary', amount: 8, isForge: true }], label: 'Funde 50 lingotes de hierro' },
+        smelt50Diamond: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 25, isForge: true }, { rarity: 'epic', amount: 20, isForge: true }, { rarity: 'legendary', amount: 10, isForge: true }], label: 'Funde 50 lingotes de diamante' },
+        set4Miner1Star: { claimed: false, unlocked: false, visible: true, randomFragments: [{ rarity: 'rare', amount: 15 }, { rarity: 'epic', amount: 10 }, { rarity: 'legendary', amount: 5 }], label: 'Sube un minero a 1 estrella' },
         set4Miner2Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20 }, { rarity: 'epic', amount: 15 }, { rarity: 'legendary', amount: 8 }], label: 'Sube un minero a 2 estrellas' },
         set4Miner3Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 25 }, { rarity: 'epic', amount: 20 }, { rarity: 'legendary', amount: 10 }], label: 'Sube un minero a 3 estrellas' },
         set4Miner4Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 30 }, { rarity: 'epic', amount: 25 }, { rarity: 'legendary', amount: 12 }], label: 'Sube un minero a 4 estrellas' },
         set4Miner5Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 40 }, { rarity: 'epic', amount: 30 }, { rarity: 'legendary', amount: 15 }], label: 'Sube un minero a 5 estrellas' },
-        set4Forge1Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Sube un perro de forja a 1 estrella' },
+        set4Forge1Star: { claimed: false, unlocked: false, visible: true, randomFragments: [{ rarity: 'rare', amount: 15, isForge: true }, { rarity: 'epic', amount: 10, isForge: true }, { rarity: 'legendary', amount: 5, isForge: true }], label: 'Sube un perro de forja a 1 estrella' },
         set4Forge2Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 20, isForge: true }, { rarity: 'epic', amount: 15, isForge: true }, { rarity: 'legendary', amount: 8, isForge: true }], label: 'Sube un perro de forja a 2 estrellas' },
         set4Forge3Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 25, isForge: true }, { rarity: 'epic', amount: 20, isForge: true }, { rarity: 'legendary', amount: 10, isForge: true }], label: 'Sube un perro de forja a 3 estrellas' },
         set4Forge4Star: { claimed: false, unlocked: false, visible: false, randomFragments: [{ rarity: 'rare', amount: 30, isForge: true }, { rarity: 'epic', amount: 25, isForge: true }, { rarity: 'legendary', amount: 12, isForge: true }], label: 'Sube un perro de forja a 4 estrellas' },

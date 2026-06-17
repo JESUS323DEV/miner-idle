@@ -1,4 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { playSfx } from "../game/utils/sfx.js";
+import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.png";
+import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.png";
+import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.png";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
 import { getDogStats } from "../game/utils/getDogStats.js";
@@ -93,7 +97,6 @@ import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante
 import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png";
 
 // ===== ASSETS: AUTOMINE =====
-import activeMine from "../assets/ui/icons-auto-mine/active-mine.png";
 import stopMine from "../assets/ui/icons-auto-mine/stop-mine.png";
 
 // ===== ASSETS: ICONOS PANTALLAS =====
@@ -106,7 +109,6 @@ import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.png";
 import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.png";
 import buttonUpgrade from "../assets/ui/icons-hud/hud-modals/buttonUpgrade.png";
 import bgStamina from "../assets/backgrounds/bg-modals-hud/bgStamina.png";
-import upgradeStamina from "../assets/ui/icons-hud/hud-modals/icon-lvl-stamina.png";
 import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
@@ -156,35 +158,18 @@ import { Settings } from "lucide-react";
 import CombatScreen from "./modalCombat/CombatScreen.jsx";
 
 function GameRoot() {
-  const [musicEnabled, setMusicEnabled] = useState(() => {
-    const saved = localStorage.getItem('music_enabled');
-    return saved === null ? true : saved === 'true';
-  });
   const [musicVolume, setMusicVolume] = useState(() => {
     const saved = localStorage.getItem('music_volume');
-    return saved === null ? 0.02 : parseFloat(saved);
-  });
-
-  const [sfxEnabled, setSfxEnabled] = useState(() => {
-    const saved = localStorage.getItem('sfx_enabled');
-    return saved === null ? true : saved === 'true';
+    return saved === null ? 0.08 : parseFloat(saved);
   });
   const [sfxVolume, setSfxVolume] = useState(() => {
     const saved = localStorage.getItem('sfx_volume');
-    return saved === null ? 0.4 : parseFloat(saved);
+    return saved === null ? 0.09 : parseFloat(saved);
   });
 
-  const handleMusicToggle = (val) => {
-    setMusicEnabled(val);
-    localStorage.setItem('music_enabled', val);
-  };
   const handleMusicVolume = (val) => {
     setMusicVolume(val);
     localStorage.setItem('music_volume', val);
-  };
-  const handleSfxToggle = (val) => {
-    setSfxEnabled(val);
-    localStorage.setItem('sfx_enabled', val);
   };
   const handleSfxVolume = (val) => {
     setSfxVolume(val);
@@ -203,7 +188,7 @@ function GameRoot() {
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
-  useBackgroundMusic(musicEnabled, musicVolume, tavernModalOpen ? 'tavern' : 'main');
+  useBackgroundMusic(musicVolume);
 
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
@@ -214,7 +199,7 @@ function GameRoot() {
   const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
   const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
-  const [tutorialRaidPhase, setTutorialRaidPhase] = useState(null);
+
 
   const trickleRef = useRef([
     { cooldown: 60, active: false, activeRemaining: 0 },
@@ -235,6 +220,9 @@ function GameRoot() {
       const mergedFR = { ...savedFR };
       Object.keys(InitialRewardsState.fragmentRewards).forEach(k => {
         if (!(k in mergedFR)) mergedFR[k] = InitialRewardsState.fragmentRewards[k];
+      });
+      ['set4Miner1Star', 'set4Forge1Star'].forEach(k => {
+        if (mergedFR[k] && !mergedFR[k].claimed) mergedFR[k] = { ...mergedFR[k], visible: true };
       });
 
       // Añade entradas nuevas de coinRewards que no existen en el save
@@ -299,38 +287,38 @@ function GameRoot() {
     const fr = gameState.rewards?.fragmentRewards;
     if (!fr) return;
     const bronzeMineUnlocked = gameState.mines?.unlockedBiomes?.includes('bronze') ?? false;
-    const ironMineUnlocked   = gameState.mines?.unlockedBiomes?.includes('iron')   ?? false;
+    const ironMineUnlocked = gameState.mines?.unlockedBiomes?.includes('iron') ?? false;
     const diamondMineUnlocked = gameState.mines?.unlockedBiomes?.includes('diamond') ?? false;
     const checks = {
       // cadena oro pasivo
-      goldPassive5:    gameState.goldPerSecondLevel >= 5,
-      goldPassive10:   gameState.goldPerSecondLevel >= 10,
-      goldPassive20:   gameState.goldPerSecondLevel >= 20,
-      goldPassive30:   gameState.goldPerSecondLevel >= 30,
-      goldPassive40:   gameState.goldPerSecondLevel >= 40,
-      goldPassive50:   gameState.goldPerSecondLevel >= 50,
+      goldPassive5: gameState.goldPerSecondLevel >= 5,
+      goldPassive10: gameState.goldPerSecondLevel >= 10,
+      goldPassive20: gameState.goldPerSecondLevel >= 20,
+      goldPassive30: gameState.goldPerSecondLevel >= 30,
+      goldPassive40: gameState.goldPerSecondLevel >= 40,
+      goldPassive50: gameState.goldPerSecondLevel >= 50,
       // cadena stamina
-      stamina2:        gameState.maxStaminaLevel >= 2,
-      stamina5:        gameState.maxStaminaLevel >= 5,
-      stamina10:       gameState.maxStaminaLevel >= 10,
-      stamina20:       gameState.maxStaminaLevel >= 20,
-      stamina30:       gameState.maxStaminaLevel >= 30,
-      stamina50:       gameState.maxStaminaLevel >= 50,
+      stamina2: gameState.maxStaminaLevel >= 2,
+      stamina5: gameState.maxStaminaLevel >= 5,
+      stamina10: gameState.maxStaminaLevel >= 10,
+      stamina20: gameState.maxStaminaLevel >= 20,
+      stamina30: gameState.maxStaminaLevel >= 30,
+      stamina50: gameState.maxStaminaLevel >= 50,
       // cadena minas
-      set2IronMine:      bronzeMineUnlocked,
-      unlockMineIron:    ironMineUnlocked,
+      unlockMineBronze: bronzeMineUnlocked,
+      unlockMineIron: ironMineUnlocked,
       unlockMineDiamond: diamondMineUnlocked,
       // cadena menas
-      set2Iron300:  (gameState.totalBronzeMined ?? 0) >= 300,
-      iron300:      (gameState.totalIronMined   ?? 0) >= 300,
-      diamond300:   (gameState.totalDiamondMined ?? 0) >= 300,
+      bronze300: (gameState.totalBronzeMined ?? 0) >= 300,
+      iron300: (gameState.totalIronMined ?? 0) >= 300,
+      diamond300: (gameState.totalDiamondMined ?? 0) >= 300,
       // cadena hornos
-      set2ForgeBronze:    gameState.furnaces?.bronze?.unlocked  === true,
-      forgeUnlockIron:    gameState.furnaces?.iron?.unlocked    === true,
+      forgeUnlockBronze: gameState.furnaces?.bronze?.unlocked === true,
+      forgeUnlockIron: gameState.furnaces?.iron?.unlocked === true,
       forgeUnlockDiamond: gameState.furnaces?.diamond?.unlocked === true,
       // cadena lingotes
-      set2Smelt50:    (gameState.totalBronzeIngotsSmelted  ?? 0) >= 50,
-      smelt50Iron:    (gameState.totalIronIngotsSmelted    ?? 0) >= 50,
+      smelt50Bronze: (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
+      smelt50Iron: (gameState.totalIronIngotsSmelted ?? 0) >= 50,
       smelt50Diamond: (gameState.totalDiamondIngotsSmelted ?? 0) >= 50,
     };
     const needsUpdate = Object.entries(checks).some(
@@ -369,20 +357,20 @@ function GameRoot() {
     const maxMinerStars = Math.max(0, ...Object.values(gameState.dogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
     const maxForgeStars = Math.max(0, ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
     const checks = {
-      set4Miner1Star:      maxMinerStars >= 1,
-      set4Miner2Star:      maxMinerStars >= 2,
-      set4Miner3Star:      maxMinerStars >= 3,
-      set4Miner4Star:      maxMinerStars >= 4,
-      set4Miner5Star:      maxMinerStars >= 5,
-      set4Forge1Star:      maxForgeStars >= 1,
-      set4Forge2Star:      maxForgeStars >= 2,
-      set4Forge3Star:      maxForgeStars >= 3,
-      set4Forge4Star:      maxForgeStars >= 4,
-      set4Forge5Star:      maxForgeStars >= 5,
-      set3FurnaceBronze2:  (gameState.furnaces?.bronze?.level ?? 1) >= 2,
-      set3FurnaceBronze3:  (gameState.furnaces?.bronze?.level ?? 1) >= 3,
-      set3FurnaceIron2:    (gameState.furnaces?.iron?.level ?? 1) >= 2,
-      set3FurnaceIron3:    (gameState.furnaces?.iron?.level ?? 1) >= 3,
+      set4Miner1Star: maxMinerStars >= 1,
+      set4Miner2Star: maxMinerStars >= 2,
+      set4Miner3Star: maxMinerStars >= 3,
+      set4Miner4Star: maxMinerStars >= 4,
+      set4Miner5Star: maxMinerStars >= 5,
+      set4Forge1Star: maxForgeStars >= 1,
+      set4Forge2Star: maxForgeStars >= 2,
+      set4Forge3Star: maxForgeStars >= 3,
+      set4Forge4Star: maxForgeStars >= 4,
+      set4Forge5Star: maxForgeStars >= 5,
+      set3FurnaceBronze2: (gameState.furnaces?.bronze?.level ?? 1) >= 2,
+      set3FurnaceBronze3: (gameState.furnaces?.bronze?.level ?? 1) >= 3,
+      set3FurnaceIron2: (gameState.furnaces?.iron?.level ?? 1) >= 2,
+      set3FurnaceIron3: (gameState.furnaces?.iron?.level ?? 1) >= 3,
       set3FurnaceDiamond2: (gameState.furnaces?.diamond?.level ?? 1) >= 2,
       set3FurnaceDiamond3: (gameState.furnaces?.diamond?.level ?? 1) >= 3,
     };
@@ -452,6 +440,8 @@ function GameRoot() {
     handleUnlockAutomine,
     handleActivateAutomine,
     handleStopAutomine,
+    handleAutomineUpgrade,
+    handleActivatePoder,
     handleUnlockTavern,
     handleUnlockMinesMap,
     handleConvertCoinsToGold,
@@ -518,6 +508,8 @@ function GameRoot() {
     handleUnlockAutomine,
     handleActivateAutomine,
     handleStopAutomine,
+    handleAutomineUpgrade,
+    handleActivatePoder,
     handleUnlockTavern,
     handleUnlockMinesMap,
     handleConvertCoinsToGold,
@@ -620,12 +612,12 @@ function GameRoot() {
     gameState.pickaxe.tierIngotCosts?.[gameState.pickaxe.material]?.[
     gameState.pickaxe.tier
     ];
-  const canAffordTierUpgrade = !gameState.tutorial?.pickaxeUpgradeDone
-    ? true
-    : gameState.gold >=
-    (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] ||
-      0) &&
-    (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
+  const canAffordTierUpgrade = (gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed)
+    ? false
+    : !gameState.tutorial?.pickaxeUpgradeDone
+      ? true
+      : gameState.gold >= (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
+        (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
   const materialUpgradeCost =
     gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material];
@@ -778,9 +770,10 @@ function GameRoot() {
         if (burst.recharging) {
           const newRecharge = burst.rechargeRemaining - 1;
           if (newRecharge <= 0) {
+            const drinkBuffRecharge = prev.snacks?.drink?.active?.type === 'stamina' ? (prev.snacks.drink.active.effect ?? 0) : 0;
             return {
               ...prev,
-              stamina: prev.maxStamina,
+              stamina: prev.maxStamina + drinkBuffRecharge,
               burst: { active: false, recharging: false, rechargeRemaining: 0 }
             };
           }
@@ -816,6 +809,15 @@ function GameRoot() {
       return Math.max(0, Math.ceil((charge.cooldownUntil - now) / 1000));
     });
   }, [gameState.automine?.charges, now]);
+
+  const effectiveRecoveryTime = useMemo(() => {
+    const level = gameState.automineUpgradeLevel ?? 0;
+    const reduction = AutomineConfig.chargeUpgrades
+      .slice(0, level)
+      .reduce((sum, u) => sum + u.reductionSeconds, 0);
+    return AutomineConfig.chargeRecoveryTime - reduction;
+  }, [gameState.automineUpgradeLevel]);
+
 
   // Mantiene globalSlotsRef sincronizado
   useEffect(() => {
@@ -868,6 +870,25 @@ function GameRoot() {
       setTimeout(() => setTutorialStep(0), 500);
     }
   }, [gameState.tutorial?.currentStep, gameState.tutorial?.completed, gameState.tutorial?.introDone]);
+
+  // Sonido al gastar oro o monedas
+  const prevGoldRef = useRef(null);
+  const prevCoinsRef = useRef(null);
+  const skipUpgradeSoundRef = useRef(false);
+  useEffect(() => {
+    const gold = gameState.gold ?? 0;
+    const coins = gameState.tavernCoins ?? 0;
+    if (prevGoldRef.current !== null && prevCoinsRef.current !== null) {
+      if (gold < prevGoldRef.current || coins < prevCoinsRef.current) {
+        if (!skipUpgradeSoundRef.current) {
+          playSfx('upgrade');
+        }
+        skipUpgradeSoundRef.current = false;
+      }
+    }
+    prevGoldRef.current = gold;
+    prevCoinsRef.current = coins;
+  }, [gameState.gold, gameState.tavernCoins]);
 
   // Pasos de hint (taberna→mina→forja): tras completar el pico, cierra el modal
   useEffect(() => {
@@ -974,7 +995,6 @@ function GameRoot() {
         tutorial: { ...prev.tutorial, rentalTutorialStep: 2 },
       }));
       setRentalModalOpen(false);
-      setTutorialRaidPhase(null);
       setTutorialStep('hint_raids');
     }
   }, [gameState.rental?.active, tutorialStep, gameState.tutorial?.rentalTutorialStep]); // eslint-disable-line
@@ -1020,6 +1040,9 @@ function GameRoot() {
       setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, automineHinted: true } }));
     }
   }, [gameState.gold]); // eslint-disable-line
+
+  const drinkBuff = gameState.snacks?.drink?.active?.type === 'stamina' ? (gameState.snacks.drink.active.effect ?? 0) : 0;
+  const effectiveMaxStamina = gameState.maxStamina + drinkBuff;
 
   const effectiveMaxDurability = (gameState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
     if (!dogId) return sum;
@@ -1163,13 +1186,9 @@ function GameRoot() {
             isOpen={menuOpenModal}
             onClose={() => setMenuOpenModal(false)}
             onNewGame={handleNewGame}
-            musicEnabled={musicEnabled}
             musicVolume={musicVolume}
-            onMusicToggle={handleMusicToggle}
             onMusicVolume={handleMusicVolume}
-            sfxEnabled={sfxEnabled}
             sfxVolume={sfxVolume}
-            onSfxToggle={handleSfxToggle}
             onSfxVolume={handleSfxVolume}
           />
         </div>
@@ -1201,13 +1220,14 @@ function GameRoot() {
             currentLevel={`x${gameState.goldPerSecondLevel}`}
             cost={gameState.goldPerSecondCost}
             onUpgrade={handleBuyGoldPerSecondUpgrade}
-            canAfford={gameState.gold >= gameState.goldPerSecondCost}
+            canAfford={gameState.gold >= gameState.goldPerSecondCost && !(gameState.tutorial?.goldPerSecondBought && !gameState.tutorial?.completed)}
             tutorialStep0Active={!gameState.tutorial?.completed}
             tutorialPhase={
               tutorialStep === 0 ? 'upgrade'
-              : tutorialStep === '0_snacks' ? 'snacks'
-              : null
+                : tutorialStep === '0_snacks' ? 'snacks'
+                  : null
             }
+            tutorialHint="goldPerSecond"
             onTutorialAction={handleTutorialAction}
             bgImage={bgGold}
             iconImage={iconGold}
@@ -1224,10 +1244,7 @@ function GameRoot() {
           {/* BURST */}
           <div className="stamina-display">
             <button
-              onClick={handleActivateBurst}
-              disabled={gameState.burst?.active || gameState.burst?.recharging}
-              className={`${gameState.burst?.recharging ? "low-resource" : ""} ${gameState.burst?.active ? "burst-active" : ""} ${tutorialStep === 'stamina_hint' ? "tutorial-highlight" : ""}`}
-              style={{ position: "relative", ...(tutorialStep === 'stamina_hint' ? { zIndex: 600 } : {}) }}
+              style={{ cursor: 'default', pointerEvents: 'none' }}
             >
               <img src={stamina1} loading="lazy" alt="Burst" />
             </button>
@@ -1235,7 +1252,7 @@ function GameRoot() {
             <p>
               {gameState.burst?.recharging
                 ? `${gameState.burst.rechargeRemaining}s`
-                : `${gameState.stamina}/${gameState.maxStamina}`}
+                : `${gameState.stamina}/${effectiveMaxStamina}`}
             </p>
 
             {/* Mejora burst — abre modal con duración y recarga */}
@@ -1253,22 +1270,23 @@ function GameRoot() {
             isOpen={openModal === "maxStamina"}
             onClose={() => { setOpenModal(null); setTutorialStep(null); }}
             currentLevel={`Nv. ${gameState.maxStaminaLevel} `}
-            cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0}
+            cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 1000}
             coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
             onUpgrade={() => {
               handleBuyMaxStaminaUpgrade();
               if (!gameState.tutorial?.completed) setOpenModal(null);
             }}
             canAfford={
-              gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 0) &&
-              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10))
+              gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 1000) &&
+              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)) &&
+              !(gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed)
             }
             tutorialPhase={!gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
-            tutorialHintText="Mejora la Energía para aumentar la duración del burst, reducir su tiempo de recarga y obtener más materiales mientras esté activo."
+            tutorialHint="stamina"
             onTutorialAction={handleTutorialAction}
             tutorialStep0Active={!gameState.tutorial?.completed}
             bgImage={bgStamina}
-            iconImage={upgradeStamina}
+            iconImage={satEnergy}
             buttonImage={buttonUpgrade}
             title={"Mejorar Burst"}
             showStaminaSnacks={true}
@@ -1276,23 +1294,9 @@ function GameRoot() {
 
           {/* PICO */}
           <div className="pickaxe-display">
-            {/* Icono del pico — repara directamente */}
+            {/* Icono del pico — solo informativo */}
             <button
-              onClick={() => {
-                handleRepairPickaxe();
-                setOpenModal(null);
-              }}
-              disabled={
-                (!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed) ||
-                gameState.pickaxe.durability >= effectiveMaxDurability ||
-                gameState.automine?.isActive
-              }
-              className={`
-                            ${gameState.pickaxe.durability <= 5 ? "low-resource" : ""}
-                            ${tutorialStep === 'repair_hint' ? "tutorial-highlight" : ""}
-                            ${!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed ? "locked-tutorial" : ""}
-                        `.trim()}
-            style={tutorialStep === 'repair_hint' ? { position: 'relative', zIndex: 600 } : {}}
+              style={{ cursor: 'default', pointerEvents: 'none' }}
             >
               <img
                 src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
@@ -1332,7 +1336,7 @@ function GameRoot() {
                 ? gameState.pickaxe.tierUpgradeCosts?.[
                 gameState.pickaxe.material
                 ] || 0
-                : 0
+                : 1000
             }
             onUpgrade={() => {
               handlePickaxeUpgrade();
@@ -1340,7 +1344,7 @@ function GameRoot() {
             canAfford={canAffordTierUpgrade}
             tutorialPhase={!gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
             tutorialStep0Active={!gameState.tutorial?.completed}
-            tutorialHintText="Refuerza tu pico para conseguir más materiales. Cuando alcance el nivel máximo, podrás ascenderlo al siguiente nivel para obtener una mayor durabilidad.."
+            tutorialHint="pickaxe"
             buttonImage={btnTier}
             iconImage={getPickaxeIcon(
               gameState.pickaxe.material,
@@ -1457,48 +1461,99 @@ function GameRoot() {
         </div>
 
         {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
-        <div className="automine-container" style={tutorialStep === 'automine_hint' ? { zIndex: 600 } : undefined}>
-          {!gameState.automine?.unlocked ? (
-            // Bloqueado — muestra coste de desbloqueo
-            <button
-              onClick={handleUnlockAutomine}
-              disabled={gameState.gold < AutomineConfig.unlockCost}
-              className="automine-button unlock"
-            >
-              <img src={activeMine} alt="Pico" />
-              <span>🔒 {AutomineConfig.unlockCost} oro</span>
-            </button>
-          ) : (
-            // Activo — muestra cargas disponibles y progreso de cooldown
-            <button
-              onClick={
-                gameState.automine.isActive
-                  ? handleStopAutomine
-                  : handleActivateAutomine
-              }
-              disabled={
-                !gameState.automine.isActive &&
-                (availableCharges <= 0 ||
-                  gameState.pickaxe.durability <= 0)
-              }
-              className={`automine-button-pico charges-${availableCharges}`}
-              style={{
-                "--progress1": chargeTimers[0]
-                  ? `${Math.round((1 - chargeTimers[0] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
-                  : "0deg",
-                "--progress2": chargeTimers[1]
-                  ? `${Math.round((1 - chargeTimers[1] / AutomineConfig.chargeRecoveryTime) * 100) * 3.6}deg`
-                  : "0deg",
-              }}
-            >
-              <img
-                src={gameState.automine.isActive ? stopMine : activeMine}
-                alt="Pico"
-              />
-              <span className="automine-charge-count">{availableCharges}/2</span>
-            </button>
-          )}
+        <div className="automine-container" style={
+          (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
+            ? { zIndex: 600 }
+            : undefined
+        }>
+          <div className="automine-hub-wrap" style={!gameState.automine?.unlocked ? { width: 'auto', height: 'auto' } : undefined}>
+            {/* Hub — desbloquear o pico circular */}
+            {!gameState.automine?.unlocked ? (
+              <button
+                onClick={handleUnlockAutomine}
+                disabled={gameState.gold < AutomineConfig.unlockCost}
+                className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
+              >
+                <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                <span>{AutomineConfig.unlockCost} oro</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleActivateAutomine}
+                disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive}
+                className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}`}
+                style={{
+                  "--progress1": chargeTimers[0]
+                    ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                    : "0deg",
+                  "--progress2": chargeTimers[1]
+                    ? `${Math.round((1 - chargeTimers[1] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                    : "0deg",
+                }}
+              >
+                <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                <span className="automine-charge-count">{availableCharges}/2</span>
+              </button>
+            )}
 
+            {/* Satélite — Energía (siempre visible) */}
+            <button
+              className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
+              onClick={() => { playSfx('burst'); handleActivateBurst(); }}
+              disabled={gameState.burst?.active || gameState.burst?.recharging}
+              title={gameState.burst?.recharging ? `Recargando — ${gameState.burst.rechargeRemaining}s` : gameState.burst?.active ? 'Burst activo' : 'Activar Burst'}
+              style={tutorialStep === 'stamina_hint' ? { zIndex: 601 } : undefined}
+            >
+              <div className="sat-poder-inner">
+                <img src={satEnergy} alt="Burst" className="sat-poder-img" />
+                {gameState.burst?.active && (
+                  <div className="sat-burst-bar-wrap">
+                    <div
+                      className="sat-burst-bar"
+                      style={{ width: `${Math.max(0, (gameState.stamina / effectiveMaxStamina) * 100)}%` }}
+                    />
+                  </div>
+                )}
+                {gameState.burst?.recharging && (
+                  <span className="sat-poder-overlay">{gameState.burst.rechargeRemaining}s</span>
+                )}
+              </div>
+              {tutorialStep === 'stamina_hint' && <TutorialPointer step="stamina_hint" />}
+            </button>
+
+            {/* Satélite — Upgrade (bloqueado hasta desbloquear automine) */}
+            {(() => {
+              const level = gameState.automineUpgradeLevel ?? 0;
+              const atMax = level >= AutomineConfig.chargeUpgrades.length;
+              const next = atMax ? null : AutomineConfig.chargeUpgrades[level];
+              const lockedUpgrade = !gameState.automine?.unlocked;
+              return (
+                <button
+                  className={`sat-btn sat-upgrade sat-pos-upgrade${atMax ? ' at-max' : ''}${!atMax && !lockedUpgrade && gameState.gold < next.cost ? ' cant-afford' : ''}${lockedUpgrade ? ' locked-tutorial' : ''}`}
+                  onClick={handleAutomineUpgrade}
+                  disabled={lockedUpgrade || atMax || gameState.gold < next?.cost}
+                  title={lockedUpgrade ? 'Desbloquea el autominar primero' : atMax ? 'Mejora al máximo' : `Mejorar recarga (-${next.reductionSeconds}s) — ${next.cost} oro`}
+                >
+                  <div className="sat-upgrade-inner">
+                    <img src={satUpgrade} alt="Mejorar" className="sat-upgrade-arrow" />
+                    <span className="sat-upgrade-overlay">{atMax ? 'Max' : `${level}/${AutomineConfig.chargeUpgrades.length}`}</span>
+                  </div>
+                </button>
+              );
+            })()}
+
+            {/* Satélite — Reparar (siempre visible) */}
+            <button
+              className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
+              onClick={() => { skipUpgradeSoundRef.current = true; playSfx('repair'); handleRepairPickaxe(); }}
+              disabled={gameState.pickaxe.durability >= effectiveMaxDurability || gameState.automine?.isActive}
+              title="Reparar pico"
+              style={tutorialStep === 'repair_hint' ? { zIndex: 601 } : undefined}
+            >
+              <img src={satRepair} alt="Reparar" />
+              {tutorialStep === 'repair_hint' && <TutorialPointer step="repair_hint" />}
+            </button>
+          </div>
         </div>
 
         <BiomeSelectorModal
@@ -1517,6 +1572,7 @@ function GameRoot() {
           onClose={() => setMinesModalOpen(false)}
           selectedBiome={selectedBiome}
           bgImage={getMinesBg(selectedBiome)}
+          set1Complete={['welcomeBoxer','welcomePip','unlockTaverna','unlockMinas','unlockForja'].every(k => gameState.rewards?.fragmentRewards?.[k]?.claimed)}
           onEnterMine={(type) => {
             handleEnterMine(type);
             setTimeout(() => {
@@ -1751,19 +1807,19 @@ function GameRoot() {
             const isRewardsStep = tutorialStep === 'hint_rewards';
             const rewardsBlocked = tutorialStep !== null && tutorialStep !== 'done' && !isRewardsStep;
             return (
-          <button
-            className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
-              Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
-              Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed && r.visible !== false)
-              ? "btn-rewards-pulse" : ""
-              } ${isRewardsStep ? 'tutorial-highlight' : ''}`}
-            onClick={() => setRewardsOpen(true)}
-            disabled={rewardsBlocked}
-            style={{ position: 'relative', ...(rewardsBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
-          >
-            🏆
-            {tutorialStep === 'hint_rewards' && !rewardsOpen && <TutorialPointer step="hint_rewards" />}
-          </button>
+              <button
+                className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
+                  Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
+                  Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed && r.visible !== false)
+                  ? "btn-rewards-pulse" : ""
+                  } ${isRewardsStep ? 'tutorial-highlight' : ''}`}
+                onClick={() => setRewardsOpen(true)}
+                disabled={rewardsBlocked}
+                style={{ position: 'relative', ...(rewardsBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
+              >
+                🏆
+                {tutorialStep === 'hint_rewards' && !rewardsOpen && <TutorialPointer step="hint_rewards" />}
+              </button>
             );
           })()}
 
@@ -1783,8 +1839,6 @@ function GameRoot() {
           onClose={() => setRaidOpen(false)}
           onOpenCombat={() => { setRaidOpen(false); setCombatOpen(true); }}
           tutorialStep={tutorialStep}
-          tutorialRaidPhase={tutorialRaidPhase}
-          onTutorialRaidPhaseChange={setTutorialRaidPhase}
           onTutorialRaidSent={() => {
             setRaidOpen(false);
             setTutorialStep('hint_mine_dog');
@@ -1801,21 +1855,44 @@ function GameRoot() {
         <GoldMine elevated={tutorialStep === 'mine_tap'} />
 
         {/* TUTORIAL DIALOG */}
-        <TutorialDialog
-          step={openModal === null &&
+        {/* ── Posiciones por paso: ajusta top según donde caiga el botón en pantalla ── */}
+        {(() => {
+          const DIALOG_POSITIONS = {
+            'intro': { bottom: '7rem' },
+            0: { bottom: 'auto', top: '9rem' }, //gold x second
+            1: { bottom: 'auto', top: '9rem' },
+            2: { bottom: 'auto', top: '9rem', left: '12.5rem' },
+            'hint_tavern': { bottom: 'auto', top: '14rem' },
+            'hint_mine': { bottom: 'auto', top: '14rem' },
+            'hint_forge': { bottom: 'auto', top: '14rem' },
+            'stamina_hint': { bottom: 'auto', top: '17.5rem' },
+            'repair_hint': { bottom: 'auto', top: '23.5rem', left: '12rem' },
+            'hint_rewards': { bottom: '19rem' },
+            'hint_rental': { bottom: '22rem' },
+            'hint_raids': { bottom: '25.5rem' },
+            'hint_mine_dog': { bottom: '2rem' },
+            'done': { bottom: '2rem' },
+          };
+          const dialogStyle = DIALOG_POSITIONS[tutorialStep] ?? { bottom: '2rem' };
+          return (
+            <TutorialDialog
+              step={openModal === null &&
                 tutorialStep !== 'mine_tap' &&
                 !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
                 !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
                 !(tutorialStep === 'hint_raids' && raidOpen)
                 ? tutorialStep : null}
-          onSkip={handleSkipTutorial}
-          onAction={handleTutorialAction}
-          isFirstTime={true}
-        />
+              dialogStyle={dialogStyle}
+              onSkip={handleSkipTutorial}
+              onAction={handleTutorialAction}
+              isFirstTime={true}
+            />
+          );
+        })()}
 
         {tutorialStep === 'automine_hint' && (
           <div className="automine-hint-tooltip">
-            <p>El autominado golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo.</p>
+            <p>El autominado golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo. Usa el botón de mejora para reducir el tiempo de recarga. ¡Desbloquéalo cuando puedas!</p>
             <button onClick={() => setTutorialStep('hint_rewards')}>Entendido</button>
           </div>
         )}

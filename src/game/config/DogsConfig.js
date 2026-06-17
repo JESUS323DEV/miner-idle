@@ -12,9 +12,10 @@ export const DogsConfig = {
     //CHIHUAHUA LEGENDARIA DE REGALO
     chihuahua: {
         rarity: 'legendary',
+        order: 0,
         id: 'chihuahua',
         name: 'Chihuahua',
-        unlockCost: { gold: 0, tavernCoins: 0 },
+        unlockCost: { gold: 150000, tavernCoins: 10 },
         starGoldCost: 20000,
         starBonus: 0.20,
         unlockFragments: 150,
@@ -33,9 +34,110 @@ export const DogsConfig = {
         }
     },
 
-    //TOKYO LEGENDARIA PARA MINA DE BRONZE
+    //TUKA LEGENDARIA PARA MINA DE IRON
+    tuka: {
+        rarity: 'legendary',
+        order: 3,
+        id: 'tuka',
+        name: 'Tuka',
+        unlockCost: { gold: 2500000, tavernCoins: 100 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 8,
+        miningPower: 5,
+        miningSpeed: 0.5,
+        biomeBonus: {
+            bronze: 3.0,
+            iron: 5.0,
+            diamond: 2,
+        },
+        goldMineBonus: {
+            type: 'doubleHit',
+            chance: 0.20
+        }
+    },
+
+    //MUNA LEGENDARIA — EN MEMORIA DE LA PERRA REAL
+    muna: {
+        rarity: 'legendary',
+        order: 2,
+        id: 'muna',
+        name: 'Muna',
+        unlockCost: { gold: 1000000, tavernCoins: 40 },
+        starGoldCost: 20000,
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 7,
+        miningPower: 4,
+        miningSpeed: 1,
+        biomeBonus: {
+            bronze: 4.0,
+            iron: 2.0,
+            diamond: 2.0,
+        },
+        goldMineBonus: {
+            type: 'extraGold',
+            value: 3
+        }
+    },
+
+    //LADY LEGENDARIA PARA MINA DE DIAMANTE
+    lady: {
+        rarity: 'legendary',
+        order: 1,
+        id: 'lady',
+        name: 'Lady',
+        unlockCost: { gold: 3000000, tavernCoins: 150 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
+        yacimientoYield: 8,
+        miningPower: 5,
+        miningSpeed: 0.5,
+        biomeBonus: {
+            bronze: 3.0,
+            iron: 3.0,
+            diamond: 5.0,
+        },
+        goldMineBonus: {
+            type: 'extraGold',
+            value: 4
+        }
+    },
+
+
+    //================================ÉPICAS
+
+    //BULLY ÉPICA DE REGALO
+    bully: {
+        rarity: 'epic',
+        id: 'bully',
+        name: 'Bully',
+        unlockCost: { gold: 30000, tavernCoins: 3 },
+        starGoldCost: 8000,
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 3,
+        miningPower: 2,
+        miningSpeed: 2,
+        biomeBonus: {
+            bronze: 1.5,
+            iron: 1.5,
+            diamond: 1.5,
+        },
+        goldMineBonus: {
+            type: 'extraGold',
+            value: 1
+        }
+    },
+
+    //TOKIO LEGENDARIA PARA MINA DE BRONZE
     tokio: {
         rarity: 'legendary',
+        order: 4,
         id: 'tokio',
         name: 'Tokio',
         unlockCost: { gold: 2000000, tavernCoins: 80 },
@@ -56,106 +158,6 @@ export const DogsConfig = {
         }
     },
 
-
-    //TUKA LEGENDARIA PARA MINA DE IRON
-    tuka: {
-        rarity: 'legendary',
-        id: 'tuka',
-        name: 'Tuka',
-        unlockCost: { gold: 2500000, tavernCoins: 100 },
-        starBonus: 0.20,
-        unlockFragments: 150,
-        starFragments: [200, 400, 600, 800, 1000],
-        yacimientoYield: 8,
-        miningPower: 5,
-        miningSpeed: 0.5,
-        biomeBonus: {
-            bronze: 3.0,
-            iron: 5.0,
-            diamond: 2,
-        },
-        goldMineBonus: {
-            type: 'doubleHit',
-            chance: 0.20  // 20% de doblar el oro ganado
-        }
-    },
-
-    //LADY LEGENDARIA PARA MINA DE DIAMANTE
-    lady: {
-        rarity: 'legendary',
-        id: 'lady',
-        name: 'Lady',
-        unlockCost: { gold: 3000000, tavernCoins: 150 },
-        starBonus: 0.20,
-        unlockFragments: 150,
-        starFragments: [200, 400, 600, 800, 1000],
-        yacimientoYield: 8,
-        miningPower: 5,
-        miningSpeed: 0.5,
-        biomeBonus: {
-            bronze: 3.0,
-            iron: 3.0,
-            diamond: 5.0,
-        },
-        goldMineBonus: {
-            type: 'extraGold',
-            value: 4  // +4 oro por picada
-        }
-    },
-
-
-    //================================ÉPICAS
-
-    //BULLY ÉPICA DE REGALO
-    bully: {
-        rarity: 'epic',
-        id: 'bully',
-        name: 'Bully',
-        unlockCost: { gold: 0, tavernCoins: 0 },
-        starGoldCost: 8000,
-        starBonus: 0.15,
-        unlockFragments: 100,
-        starFragments: [150, 300, 450, 600, 750],
-        yacimientoYield: 3,
-        miningPower: 2,
-        miningSpeed: 2,
-        biomeBonus: {
-            bronze: 1.5,
-            iron: 1.5,
-            diamond: 1.5,
-        },
-        goldMineBonus: {
-            type: 'extraGold',
-            value: 1
-        }
-    },
-
-    //MUNA ÉPICA PARA MINA DE BRONZE
-    muna: {
-        rarity: 'epic',
-        id: 'muna',
-        name: 'Muna',
-        unlockCost: { gold: 500000, tavernCoins: 20 },
-        starBonus: 0.15,
-        unlockFragments: 100,
-        starFragments: [150, 300, 450, 600, 750],
-        yacimientoYield: 4,
-        miningPower: 3,
-        miningSpeed: 4,
-        biomeBonus: {
-            bronze: 2.5,
-            iron: 1.0,
-            diamond: 1.5,
-        },
-        goldMineBonus: {
-            type: 'extraGold',
-            value: 2  // +2 oro por picada
-        }
-    },
-
-
-
-
     //SMOKE ÉPICA PARA MINA DE IRON
     smoke: {
         rarity: 'epic',
@@ -175,7 +177,7 @@ export const DogsConfig = {
         },
         goldMineBonus: {
             type: 'doubleHit',
-            chance: 0.15 // 15% de doblar el oro ganado
+            chance: 0.15
         }
     },
 
@@ -197,7 +199,6 @@ export const DogsConfig = {
             iron: 1.5,
             diamond: 2.5,
         },
-
         goldMineBonus: {
             type: 'saveDurability',
             chance: 0.15
@@ -274,7 +275,7 @@ export const DogsConfig = {
         },
         goldMineBonus: {
             type: 'extraGold',
-            value: 1  // +1 oro por picada
+            value: 1
         }
     },
 
@@ -299,7 +300,7 @@ export const DogsConfig = {
         },
         goldMineBonus: {
             type: 'doubleHit',
-            chance: 0.10 // 10% de doblar el oro ganado
+            chance: 0.10
         }
     },
 

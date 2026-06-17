@@ -10,7 +10,7 @@ import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
 import MineSnacksConfig from "../../game/config/MineSnacksConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
-import { playBuffer } from "../../game/utils/sfx.js";
+import { playBuffer, playSfx } from "../../game/utils/sfx.js";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
@@ -102,7 +102,7 @@ const MineScreen = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen || !currentMine) return;
     if (totalRemainingEarly === 0) {
-      const t = setTimeout(() => setShowCompleted(true), 800);
+      const t = setTimeout(() => { setShowCompleted(true); playSfx('finalMina'); }, 800);
       return () => clearTimeout(t);
     } else {
       setShowCompleted(false);

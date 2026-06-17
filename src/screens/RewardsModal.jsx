@@ -1,5 +1,6 @@
 import { X, Lock, LockOpen } from "lucide-react";
 import { useState, useEffect } from "react";
+import { playSfx } from "../game/utils/sfx.js";
 import iconGold from "../assets/ui/icons-hud/hud-principal/oro1.png";
 import iconCoin from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
 import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legendary.png";
@@ -328,7 +329,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                                         <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
-                                            onClick={() => claimable && onClaimReward(key)}
+                                            onClick={() => { if (claimable) { playSfx('rewardGold'); onClaimReward(key); } }}
                                             disabled={!claimable}
                                         >
                                             {claimable ? <LockOpen size={20} /> : <Lock size={18} />}
@@ -368,7 +369,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                                             <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                             <button
                                                 className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
-                                                onClick={() => claimable && onClaimCoinReward(key)}
+                                                onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
                                                 disabled={!claimable}
                                             >
                                                 {claimable ? "Obtener" : "🔒"}
@@ -393,7 +394,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                                         <p className="reward-amount">+{fmt(reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
-                                            onClick={() => claimable && onClaimCoinReward(key)}
+                                            onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
                                             disabled={!claimable}
                                         >
                                             {claimable ? "Obtener" : "🔒"}
@@ -451,7 +452,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                                 <div className="reward-right">
                                     <button
                                         className={`reward-btn ${r.claimed ? "btn-fragment-claimed" : r.unlocked ? "btn-claim" : "btn-locked"}`}
-                                        onClick={() => !r.claimed && r.unlocked && claimFragment(key)}
+                                        onClick={() => { if (!r.claimed && r.unlocked) { playSfx('rewardShards'); claimFragment(key); } }}
                                         disabled={r.claimed || !r.unlocked}
                                     >
                                         {r.claimed ? "✅" : "Obtener"}

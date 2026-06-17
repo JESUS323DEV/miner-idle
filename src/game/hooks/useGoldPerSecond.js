@@ -33,13 +33,11 @@ export const useGoldPerSecond = (gameState, setGameState) => {
                 // ✅ APLICA BUFF DE SNACKS
                 const activeSnack = Object.values(prevState.snacks).find(s => s.active !== null);
 
-                if (activeSnack && activeSnack.active) {
+                if (activeSnack && activeSnack.active && activeSnack.active.type === 'gold') {
                     const now = Date.now();
-                    const elapsed = (now - activeSnack.active.startTime) / 1000;  // En segundos
-
-                    // Si el buff sigue activo
+                    const elapsed = (now - activeSnack.active.startTime) / 1000;
                     if (elapsed < activeSnack.active.duration) {
-                        goldToAdd += activeSnack.active.effect;  // Suma el bonus
+                        goldToAdd += activeSnack.active.effect;
                     }
                 }
 

@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import '../../styles/modals/PickaxeModal.css';
 import '../../styles/modals/UpgradeModal.css';
+import TutorialModalHint from './TutorialModalHint.jsx';
 
 // ===== ASSETS: LINGOTES =====
 import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
@@ -73,7 +74,7 @@ const PickaxeModal = ({
     canAffordMaterial,
     materialButtonImage,
     tutorialPhase = null,
-    tutorialHintText = null,
+    tutorialHint = null,
     tutorialStep0Active = false,
     onShowGoldCost = null,
     materialIngotCost = null,
@@ -152,13 +153,7 @@ const PickaxeModal = ({
                     </div>
                 </div>
 
-                {tutorialPhase === 'upgrade' && (
-                    <div className="tutorial-modal-hint">
-                        <p className="tutorial-modal-hint-text">
-                            {tutorialHintText ?? "Refuerza el pico para que aguante más golpes antes de romperse."}
-                        </p>
-                    </div>
-                )}
+                {tutorialPhase === 'upgrade' && <TutorialModalHint hint={tutorialHint} />}
 
                 <div className="cont-snack-stamina">
                     <div className="snack1-stamina">

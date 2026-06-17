@@ -2,77 +2,49 @@ import { useEffect, useRef, useCallback } from 'react';
 import track1 from '../../assets/audio/western-cowboy-texas-music-bg.mp3';
 import track2 from '../../assets/audio/western-cowboy-texas-music-bg-2.mp3';
 import track3 from '../../assets/audio/western-cowboy-texas-music-bg-3.mp3';
+import track4 from '../../assets/audio/western-cowboy-texas-music-bg-4.mp3';
+import track5 from '../../assets/audio/western-cowboy-texas-music-bg-5.mp3';
 import tavernTrack1 from '../../assets/audio/bg-tavern/western-tavern-bg.mp3';
 import tavernTrack2 from '../../assets/audio/bg-tavern/western-tavern-bg-2.mp3';
 
-const PLAYLISTS = {
-    main:   [track1, track2, track3],
-    tavern: [tavernTrack1, tavernTrack2],
-};
-const PAUSE_BETWEEN_MS = 40000;
+const PLAYLIST = [track1, track2, track3, track4, track5, tavernTrack1, tavernTrack2];
 
-const getNextTrack = (tracks, currentIndex) => {
-    const pool = tracks.map((_, i) => i).filter(i => i !== currentIndex);
+const getNextTrack = (currentIndex) => {
+    const pool = PLAYLIST.map((_, i) => i).filter(i => i !== currentIndex);
     return pool[Math.floor(Math.random() * pool.length)];
 };
 
-export const useBackgroundMusic = (enabled = true, volume = 0.02, scene = 'main') => {
+export const useBackgroundMusic = (volume = 0.010) => {
     const audioRef = useRef(null);
-    const pauseTimerRef = useRef(null);
     const startedRef = useRef(false);
     const currentTrackIndex = useRef(0);
-    const currentScene = useRef(scene);
+    const volumeRef = useRef(volume);
 
     const getAudio = () => {
-        if (!audioRef.current) {
-            audioRef.current = new Audio(PLAYLISTS.main[0]);
-        }
+        if (!audioRef.current) audioRef.current = new Audio();
         return audioRef.current;
     };
 
-    const playTrack = useCallback((tracks, index) => {
+    useEffect(() => {
+        volumeRef.current = volume;
+        getAudio().volume = volume;
+    }, [volume]);
+
+    const playTrack = useCallback((index) => {
         const audio = getAudio();
-        audio.src = tracks[index];
-        audio.volume = volume;
+        audio.src = PLAYLIST[index];
+        audio.volume = volumeRef.current;
         audio.currentTime = 0;
+        audio.load();
         audio.play().catch(() => {});
         currentTrackIndex.current = index;
-    }, [volume]);
-
-    useEffect(() => {
-        const audio = getAudio();
-        audio.volume = volume;
-    }, [volume]);
-
-    useEffect(() => {
-        const audio = getAudio();
-        if (!startedRef.current) return;
-        if (enabled) {
-            audio.play().catch(() => {});
-        } else {
-            audio.pause();
-            clearTimeout(pauseTimerRef.current);
-        }
-    }, [enabled]);
-
-    // Cambio de escena
-    useEffect(() => {
-        if (!startedRef.current || !enabled) return;
-        if (currentScene.current === scene) return;
-        currentScene.current = scene;
-        clearTimeout(pauseTimerRef.current);
-        const tracks = PLAYLISTS[scene] ?? PLAYLISTS.main;
-        playTrack(tracks, 0);
-    }, [scene, enabled, playTrack]);
+    }, []);
 
     useEffect(() => {
         const audio = getAudio();
 
         const handleEnded = () => {
-            if (!enabled) return;
-            const tracks = PLAYLISTS[currentScene.current] ?? PLAYLISTS.main;
-            const next = getNextTrack(tracks, currentTrackIndex.current);
-            pauseTimerRef.current = setTimeout(() => playTrack(tracks, next), PAUSE_BETWEEN_MS);
+            playTrack(getNextTrack(currentTrackIndex.current));
         };
 
         audio.addEventListener('ended', handleEnded);
@@ -80,8 +52,7 @@ export const useBackgroundMusic = (enabled = true, volume = 0.02, scene = 'main'
         const handleFirstInteraction = () => {
             if (startedRef.current) return;
             startedRef.current = true;
-            currentScene.current = scene;
-            if (enabled) playTrack(PLAYLISTS[scene] ?? PLAYLISTS.main, 0);
+            playTrack(0);
             document.removeEventListener('click', handleFirstInteraction);
             document.removeEventListener('touchstart', handleFirstInteraction);
         };
@@ -91,9 +62,8 @@ export const useBackgroundMusic = (enabled = true, volume = 0.02, scene = 'main'
 
         return () => {
             audio.removeEventListener('ended', handleEnded);
-            clearTimeout(pauseTimerRef.current);
             document.removeEventListener('click', handleFirstInteraction);
             document.removeEventListener('touchstart', handleFirstInteraction);
         };
-    }, [playTrack, enabled, scene]);
+    }, [playTrack]);
 };

@@ -13,7 +13,7 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -514,37 +514,44 @@ button:not(:disabled) .lock-price-badge img {
    ============================================================ */
 .automine-container {
     position: fixed;
-    top: 28rem;
-    left: -0.8rem;
+    top: clamp(20rem, 72dvh, 37rem);
+    left: 0.1rem;
     padding: 0.9rem;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Botón bloqueado (igual que minas/taberna) */
+/* Botón bloqueado — mismo estilo que el hub */
 .automine-button.unlock {
     position: relative;
-    left: 0.4rem;
-    background: none;
-    border: none;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    border: 2px solid rgba(150, 100, 50, 0.5);
+    background: rgba(30, 20, 10, 0.7);
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
-
+    justify-content: center;
 }
 
 .automine-button.unlock img {
-    width: 3.75rem;
-    filter: grayscale(100%) brightness(0.5);
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
 }
 
 .automine-button.unlock span {
-    color: white;
-    font-size: 0.7rem;
-    margin-top: 0.3rem;
+    position: absolute;
+    bottom: 0.3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFD700;
+    font-size: 0.6rem;
+    font-weight: 700;
     white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
 }
 
 .automine-button.unlock:disabled {
@@ -552,64 +559,244 @@ button:not(:disabled) .lock-price-badge img {
     cursor: not-allowed;
 }
 
-/* Botón pico activo/inactivo */
-.automine-button-pico {
+/* ===== AUTOMINE HUB + SATÉLITES ===== */
+
+.automine-hub-wrap {
     position: relative;
-    width: 6rem;
-    height: 6rem;
+    width: 5rem;
+    height: 5rem;
+}
+
+/* Posiciones orbitales — centro hub (2.5rem, 2.5rem), radio ~3.6rem, desde arriba */
+.sat-pos-energy  { position: absolute; top: -2.1rem; left:  1.1rem; } /* -100deg — arriba izquierda */
+.sat-pos-upgrade { position: absolute; top: -1.5rem; left:  4.1rem; } /* -50deg  — arriba derecha  */
+.sat-pos-repair  { position: absolute; top:  1.7rem; left:  5.25rem; } /*  10deg  — derecha         */
+
+/* Botón circular principal */
+.automine-hub {
+    position: relative;
+    width: 5rem;
+    height: 5rem;
     border-radius: 50%;
+    border: 2px solid rgba(255,210,80,0.35);
+    background: rgba(0,0,0,0.55);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
 }
 
-/* Sin cargas → sin fondo ni borde */
-.automine-button-pico:disabled {
-    background: transparent;
-    border-color: transparent;
+.automine-hub.is-active {
+    border-color: rgba(80,255,130,0.7);
+    box-shadow: 0 0 10px rgba(80,255,130,0.35);
+}
+
+.automine-hub:disabled {
     cursor: not-allowed;
+    opacity: 0.5;
 }
 
-.automine-button-pico:disabled img {
+.automine-hub:disabled img {
     filter: grayscale(100%);
 }
 
-/* Anillo exterior - carga 2 */
-.automine-button-pico::after {
+/* Anillos de progreso */
+.automine-hub::after {
     content: '';
     position: absolute;
-    inset: 5px;
+    inset: 4px;
     border-radius: 50%;
     background: conic-gradient(#FFD700 var(--progress2), transparent var(--progress2));
     z-index: -2;
+    pointer-events: none;
 }
 
-/* Anillo interior - carga 1 */
-.automine-button-pico::before {
+.automine-hub::before {
     content: '';
     position: absolute;
     inset: 8px;
     border-radius: 50%;
     background: conic-gradient(#4CAF50 var(--progress1), transparent var(--progress1));
     z-index: -1;
+    pointer-events: none;
 }
 
-.automine-button-pico img {
-    width: 80%;
-    height: 80%;
+.automine-hub img {
+    width: 72%;
+    height: 72%;
     object-fit: contain;
+    margin-left: 0.7rem;
+
 }
 
 .automine-charge-count {
     position: absolute;
-    font-size: 0.8rem !important;
-    font-size: 0.6rem;
-    color: rgb(255, 255, 255);
+    bottom: 0.3rem;
+    font-size: 0.65rem;
+    color: #fff;
     font-weight: bold;
-    top: 4rem;
     text-shadow: 1px 1px 2px black;
+}
+
+/* Columna de satélites */
+.automine-satellites {
+    display: flex;
+    gap: 0.28rem;
+
+}
+
+/* Base compartida: comportamiento genérico únicamente */
+.sat-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.sat-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.sat-poder.on-cd:disabled {
+    opacity: 1;
+}
+.sat-poder.on-cd:disabled .sat-poder-img {
+    opacity: 0.45;
+}
+
+.sat-sub {
+    font-size: 0.55rem;
+    color: rgba(255,210,80,0.9);
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* ---- Mejorar — circular ---- */
+.sat-upgrade {
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    border-color: rgba(80,220,100,0.5);
+}
+.sat-upgrade:not(:disabled):hover {
+    background: rgba(80,220,100,0.15);
+    border-color: rgba(80,220,100,0.85);
+}
+.sat-upgrade-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+.sat-upgrade-arrow { width: 2rem; height: 2rem; }
+.sat-upgrade-overlay {
+    position: absolute;
+    bottom: -0.1rem;
+    right: -0.1rem;
+    font-size: 0.45rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    pointer-events: none;
+}
+.sat-upgrade.at-max .sat-upgrade-arrow { color: rgba(100,255,160,0.6); }
+.sat-upgrade.at-max .sat-sub           { color: rgba(100,255,160,0.7); }
+.sat-upgrade.cant-afford               { opacity: 0.45; }
+
+/* ---- Poder — circular ---- */
+.sat-poder {
+    width: 1.7rem;
+    height: 1.7rem;
+    min-height: unset;
+    border-radius: 50%;
+    border-color: rgba(160,100,255,0.45);
+}
+.sat-poder:not(:disabled):hover {
+    background: rgba(160,100,255,0.15);
+    border-color: rgba(160,100,255,0.8);
+}
+.sat-poder.on-cd .sat-sub { color: rgba(200,160,255,0.85); }
+
+.sat-poder-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+.sat-poder-img {
+    width: 2rem;
+    height: 2rem;
+}
+.sat-poder-overlay {
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.sat-burst-bar-wrap {
+    position: absolute;
+    bottom: 0.25rem;
+    left: 15%;
+    width: 70%;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sat-burst-bar {
+    height: 100%;
+    background: linear-gradient(to right, #fde68a, #f59e0b);
+    border-radius: 2px;
+    transition: width 0.9s linear;
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.8);
+}
+
+/* ---- Reparar — circular ---- */
+.sat-repair {
+    width: 1.7rem;
+    height: 1.7rem;
+    min-height: unset;
+    border-radius: 50%;
+    border-color: rgba(80,180,255,0.4);
+}
+.sat-repair:not(:disabled):hover {
+    background: rgba(80,180,255,0.12);
+    border-color: rgba(80,180,255,0.75);
+}
+.sat-repair.broken {
+    border-color: rgba(255,80,80,0.6);
+    animation: blink-red 1s ease-in-out infinite;
+}
+
+.sat-repair img {
+    width: 2rem;
+    height: 2rem;
+}
+.sat-repair.needs-repair img {
+    animation: sat-repair-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes sat-repair-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.18); }
 }
 
 /* ============================================================
@@ -1190,8 +1377,8 @@ button:not(:disabled) .lock-price-badge img {
 
 .automine-hint-tooltip {
     position: fixed;
-    top: 29rem;
-    left: 4.5rem;
+    top: 16.5rem;
+    left: 3rem;
     width: 200px;
     background: rgba(10, 8, 5, 0.96);
     border: 1px solid rgba(240, 165, 0, 0.55);

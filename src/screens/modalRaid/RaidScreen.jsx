@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
@@ -57,7 +58,7 @@ const formatTime = (ms) => {
 };
 
 // ============================================================
-const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, tutorialRaidPhase, onTutorialRaidPhaseChange, onTutorialRaidSent }) => {
+const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
@@ -80,24 +81,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, tutorialRaidP
         return () => clearInterval(t);
     }, []);
 
-    // Auto-select forest + Druh during tutorial raid steps
+    // Auto-select forest + Druh during tutorial raid step
     useEffect(() => {
         if (!isOpen || tutorialStep !== 'hint_raids') return;
-        if (tutorialRaidPhase !== null && tutorialRaidPhase !== 'send2') return;
         const passiveRaids = gameState.raid?.passiveRaids ?? [];
         if (passiveRaids.some(r => r.raidId === 'forest')) return;
         setSelectedRaid('forest');
         setTeamDogIds([{ id: 'druh', isForge: false, isRented: true }]);
-    }, [isOpen, tutorialStep, tutorialRaidPhase]); // eslint-disable-line
-
-    // Detect when first tutorial raid is claimed → advance to send2
-    useEffect(() => {
-        if (tutorialStep !== 'hint_raids' || tutorialRaidPhase !== 'wait1') return;
-        const passiveRaids = gameState.raid?.passiveRaids ?? [];
-        if (!passiveRaids.some(r => r.raidId === 'forest')) {
-            onTutorialRaidPhaseChange?.('send2');
-        }
-    }, [gameState.raid?.passiveRaids, tutorialStep, tutorialRaidPhase]); // eslint-disable-line
+    }, [isOpen, tutorialStep]); // eslint-disable-line
 
     if (!isOpen) return null;
 
@@ -164,27 +155,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, tutorialRaidP
 
     };
 
+
     const handleSend = (raidId, minTeam) => {
         if (teamDogIds.length < minTeam) return;
-        if (tutorialStep === 'hint_raids' && raidId === 'forest') {
-            if (tutorialRaidPhase === null) {
-                handleSendPassiveRaid(raidId, teamDogIds, 10);
-                onTutorialRaidPhaseChange?.('wait1');
-                setTeamDogIds([]);
-                setSelectedRaid(null);
-                return;
-            }
-            if (tutorialRaidPhase === 'send2') {
-                handleSendPassiveRaid(raidId, teamDogIds);
-                setTeamDogIds([]);
-                setSelectedRaid(null);
-                onTutorialRaidSent?.();
-                return;
-            }
-        }
+        playSfx('sendRaid');
         handleSendPassiveRaid(raidId, teamDogIds);
         setTeamDogIds([]);
         setSelectedRaid(null);
+        if (tutorialStep === 'hint_raids') {
+            onTutorialRaidSent?.();
+        }
     };
 
     return (
@@ -312,7 +292,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, tutorialRaidP
                                                 <div className="rip-actions">
                                                     <button
                                                         className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
-                                                        onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id); }}
+                                                        onClick={e => { e.stopPropagation(); playSfx('freeInvoc'); handleClaimPassiveRaid(raid.id); }}
                                                         disabled={!canClaim}
                                                     >
                                                         {canClaim ? '🎁 Reclamar' : 'En camino...'}

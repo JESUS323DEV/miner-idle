@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../../styles/modals/UpgradeModal.css';
+import TutorialModalHint from './TutorialModalHint.jsx';
 
 import { X } from "lucide-react";
 
@@ -31,7 +32,7 @@ const UpgradeModal = ({
     tutorialStep0Active = false,
     tutorialPhase = null,      // 'upgrade' | 'snacks' | null
     onTutorialAction = null,
-    tutorialHintText = null,
+    tutorialHint = null,       // key de MODAL_HINTS: 'goldPerSecond' | 'stamina'
 
     // ===== IMÁGENES =====
     bgImage,
@@ -132,14 +133,7 @@ const UpgradeModal = ({
                         </div>
                     </div>
 
-                    {/* TEXTO TUTORIAL FASE UPGRADE */}
-                    {tutorialPhase === 'upgrade' && (
-                        <div className="tutorial-modal-hint">
-                            <p className="tutorial-modal-hint-text">
-                                {tutorialHintText ?? "El oro por segundo es el motor del juego. Cuanto más lo mejores, más rico serás sin hacer nada."}
-                            </p>
-                        </div>
-                    )}
+                    {tutorialPhase === 'upgrade' && <TutorialModalHint hint={tutorialHint} />}
 
                     {/* BOTÓN REFILL — solo stamina 
                     {showRefill && (
@@ -155,18 +149,60 @@ const UpgradeModal = ({
 
 
                     {/* SNACKS STAMINA — próximamente */}
-                    {showStaminaSnacks && (
+                    {showStaminaSnacks && !snacksData && (
                         <div className="cont-snack-stamina">
+                            <div className='snack1-stamina'><p>Snack Stamina (Próximamente)</p></div>
+                            <div className='snack2-repair'><p>Snack (Próximamente)</p></div>
+                        </div>
+                    )}
 
+                    {showStaminaSnacks && snacksData && (
+                        <div className="cont-snack-stamina">
                             <div className='snack1-stamina'>
-                                <p>Snack Stamina (Próximamente)</p>
+                                <div className='cont-cookie'>
+                                    <div className='cont-text-img'>
+                                        <p>Bebida Nv. {snacksData.drink?.level ?? 0}</p>
+                                    </div>
+                                </div>
+                                {!snacksData.drink?.unlocked ? (
+                                    <button
+                                        onClick={() => onUnlockSnack('drink')}
+                                        disabled={tavernCoins < 5}
+                                        style={{ opacity: tavernCoins < 5 ? 0.5 : 1 }}
+                                    >
+                                        <span><small>Desbloquear x5</small><img src={coinTavern} alt="coin" /></span>
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => onUseSnack('drink')}
+                                            disabled={tavernCoins < 1 || snacksData.drink?.active !== null || Object.values(snacksData).some(s => s.active !== null)}
+                                            style={{ opacity: (tavernCoins < 1 || snacksData.drink?.active !== null) ? 0.5 : 1 }}
+                                        >
+                                            {snacksData.drink?.active !== null && snacksData.drink?.active ? (() => {
+                                                const { startTime, duration } = snacksData.drink.active;
+                                                const remaining = Math.max(0, duration - Math.floor((Date.now() - startTime) / 1000));
+                                                const mins = Math.floor(remaining / 60);
+                                                const secs = remaining % 60;
+                                                return <span>{mins}:{secs.toString().padStart(2, '0')}</span>;
+                                            })() : <span>Usar x1 <img src={coinTavern} alt="usar" /></span>}
+                                        </button>
+                                        {snacksData.drink?.level < 3 && (
+                                            <button
+                                                onClick={() => onUpgradeSnack('drink')}
+                                                disabled={tavernCoins < (snacksData.drink.level === 1 ? 10 : 15)}
+                                                style={{ opacity: tavernCoins < (snacksData.drink.level === 1 ? 10 : 15) ? 0.5 : 1 }}
+                                            >
+                                                Mejorar x{snacksData.drink.level === 1 ? 10 : 15}
+                                                <img src={coinTavern} alt="coin" />
+                                            </button>
+                                        )}
+                                    </>
+                                )}
                             </div>
-
                             <div className='snack2-repair'>
                                 <p>Snack (Próximamente)</p>
                             </div>
-
-
                         </div>
                     )}
 
@@ -267,17 +303,7 @@ const UpgradeModal = ({
                         </div>
                     )}
 
-                    {/* TEXTO TUTORIAL FASE SNACKS */}
-                    {tutorialPhase === 'snacks' && (
-                        <div className="tutorial-modal-hint tutorial-modal-hint--top">
-                            <p className="tutorial-modal-hint-text">
-                                Las galletas dan un boost de oro por segundo durante un tiempo. Desbloquéalas con monedas de taberna cuando puedas.
-                            </p>
-                            <button className="tutorial-modal-hint-btn" onClick={onTutorialAction}>
-                                Entendido
-                            </button>
-                        </div>
-                    )}
+                    {tutorialPhase === 'snacks' && <TutorialModalHint hint="goldPerSecondSnacks" onAction={onTutorialAction} />}
 
                 </div>
             </div>

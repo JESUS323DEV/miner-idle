@@ -172,80 +172,23 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
 
             const updatedFragRewards = { ...next.rewards.fragmentRewards, [key]: { ...reward, claimed: true } };
 
-            // Si se acaban de reclamar todas las de set1, hacer visibles las de set2 + estrellas
-            const set1Keys = ['unlockTaverna', 'unlockMinas', 'unlockForja'];
-            const set1AllClaimed = set1Keys.every(k => updatedFragRewards[k]?.claimed);
-            if (set1AllClaimed) {
-                const set2Keys = ['goldPassive5', 'stamina2', 'set2IronMine', 'set2Iron300', 'set2ForgeBronze', 'set2Smelt50',
-                    'set4Miner1Star', 'set4Forge1Star'];
-                set2Keys.forEach(k => {
-                    if (updatedFragRewards[k]) updatedFragRewards[k] = { ...updatedFragRewards[k], visible: true };
-                });
-            }
+            const chains = [
+                ['set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star'],
+                ['set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star'],
+                ['goldPassive5','goldPassive10','goldPassive20','goldPassive30','goldPassive40','goldPassive50'],
+                ['stamina2','stamina5','stamina10','stamina20','stamina30','stamina50'],
+                ['unlockMineBronze','unlockMineIron','unlockMineDiamond'],
+                ['bronze300','iron300','diamond300'],
+                ['forgeUnlockBronze','forgeUnlockIron','forgeUnlockDiamond'],
+                ['smelt50Bronze','smelt50Iron','smelt50Diamond'],
+            ];
 
-
-            // Cadena minero: al reclamar estrella N, hacer visible estrella N+1
-            const minerChain = ['set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star'];
-            const minerIdx = minerChain.indexOf(key);
-            if (minerIdx >= 0 && minerIdx < minerChain.length - 1) {
-                const nextKey = minerChain[minerIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena forja: al reclamar estrella N, hacer visible estrella N+1
-            const forgeChain = ['set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star'];
-            const forgeIdx = forgeChain.indexOf(key);
-            if (forgeIdx >= 0 && forgeIdx < forgeChain.length - 1) {
-                const nextKey = forgeChain[forgeIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena oro pasivo
-            const goldPassiveChain = ['goldPassive5','goldPassive10','goldPassive20','goldPassive30','goldPassive40','goldPassive50'];
-            const gpIdx = goldPassiveChain.indexOf(key);
-            if (gpIdx >= 0 && gpIdx < goldPassiveChain.length - 1) {
-                const nextKey = goldPassiveChain[gpIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena stamina
-            const staminaChain = ['stamina2','stamina5','stamina10','stamina20','stamina30','stamina50'];
-            const stIdx = staminaChain.indexOf(key);
-            if (stIdx >= 0 && stIdx < staminaChain.length - 1) {
-                const nextKey = staminaChain[stIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena minas
-            const mineChain = ['set2IronMine','unlockMineIron','unlockMineDiamond'];
-            const mineIdx = mineChain.indexOf(key);
-            if (mineIdx >= 0 && mineIdx < mineChain.length - 1) {
-                const nextKey = mineChain[mineIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena menas
-            const menasChain = ['set2Iron300','iron300','diamond300'];
-            const menasIdx = menasChain.indexOf(key);
-            if (menasIdx >= 0 && menasIdx < menasChain.length - 1) {
-                const nextKey = menasChain[menasIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena hornos
-            const furnaceChain = ['set2ForgeBronze','forgeUnlockIron','forgeUnlockDiamond'];
-            const furnIdx = furnaceChain.indexOf(key);
-            if (furnIdx >= 0 && furnIdx < furnaceChain.length - 1) {
-                const nextKey = furnaceChain[furnIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
-            }
-
-            // Cadena lingotes
-            const ingotChain = ['set2Smelt50','smelt50Iron','smelt50Diamond'];
-            const ingotIdx = ingotChain.indexOf(key);
-            if (ingotIdx >= 0 && ingotIdx < ingotChain.length - 1) {
-                const nextKey = ingotChain[ingotIdx + 1];
-                if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
+            for (const chain of chains) {
+                const idx = chain.indexOf(key);
+                if (idx >= 0 && idx < chain.length - 1) {
+                    const nextKey = chain[idx + 1];
+                    if (updatedFragRewards[nextKey]) updatedFragRewards[nextKey] = { ...updatedFragRewards[nextKey], visible: true };
+                }
             }
 
             return { ...next, rewards: { ...next.rewards, fragmentRewards: updatedFragRewards } };

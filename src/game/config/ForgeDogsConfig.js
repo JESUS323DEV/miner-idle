@@ -9,7 +9,7 @@ export const ForgeDogsConfig = {
         unlockFragments: 50,
         starFragments: [80, 160, 240, 320, 400],
         forgeBonus: {
-            timeReduction: 1,
+            timeReduction: 0,
             doubleIngot: 0,
             biomeBonus: { bronze: 1, iron: 0, diamond: 0 }
         },
@@ -41,7 +41,7 @@ export const ForgeDogsConfig = {
         forgeBonus: {
             timeReduction: 0,
             doubleIngot: 0.08,
-            biomeBonus: { bronze: 0, iron: 0, diamond: 1 }
+            biomeBonus: { bronze: 1, iron: 1, diamond: 0 }
         },
         globalSlotBonus: { type: 'maxDurability', value: 1 },
     },
@@ -49,14 +49,14 @@ export const ForgeDogsConfig = {
         rarity: 'epic',
         id: 'rocky',
         name: 'Rocky',
-        unlockCost: { gold: 0, tavernCoins: 0 },
+        unlockCost: { gold: 40000, tavernCoins: 3 },
         starGoldCost: 8000,
         starBonus: 0.15,
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
-            timeReduction: 2,
-            doubleIngot: 0,
+            timeReduction: 1,
+            doubleIngot: 0.05,
             biomeBonus: { bronze: 2, iron: 0, diamond: 0 }
         },
         globalSlotBonus: { type: 'burstRecharge', chance: 0.05 },
@@ -95,7 +95,7 @@ export const ForgeDogsConfig = {
         rarity: 'legendary',
         id: 'rex',
         name: 'Rex',
-        unlockCost: { gold: 0, tavernCoins: 0 },
+        unlockCost: { gold: 200000, tavernCoins: 12 },
         starGoldCost: 20000,
         starBonus: 0.20,
         unlockFragments: 150,

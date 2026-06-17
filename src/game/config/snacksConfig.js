@@ -45,12 +45,14 @@ export const SnacksConfig = {
     },
 
     drink: {
-        name: "🥤 Bebida",
+        name: "🥤 Bebida energética",
         unlock: { cost: 5 },
         upgrade: { level2: 10, level3: 15 },
         use: { cost: 1 },
         effects: {
-            // TODO: Definir después
+            level1: { staminaBonus: 5,  duration: 90  },
+            level2: { staminaBonus: 10, duration: 150 },
+            level3: { staminaBonus: 15, duration: 210 },
         }
     },
 

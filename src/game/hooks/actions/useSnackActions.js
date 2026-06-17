@@ -55,7 +55,29 @@ export const useSnackActions = (gameState, setGameState) => {
             if (prevState.tavernCoins < useCost) return prevState;
 
             const effects = SnacksConfig[snackType].effects[`level${snack.level}`];
+            let newState = { ...prevState };
 
+            // ===== DRINK — bonus de stamina =====
+            if (snackType === 'drink') {
+                return {
+                    ...newState,
+                    tavernCoins: newState.tavernCoins - useCost,
+                    snacks: {
+                        ...newState.snacks,
+                        drink: {
+                            ...snack,
+                            active: {
+                                startTime: Date.now(),
+                                duration: effects.duration,
+                                effect: effects.staminaBonus,
+                                type: 'stamina',
+                            }
+                        }
+                    }
+                };
+            }
+
+            // ===== COOKIE — bonus de oro/segundo =====
             let goldBonus;
             if (effects.goldPerSecond.min !== undefined) {
                 goldBonus = Math.floor(
@@ -66,7 +88,6 @@ export const useSnackActions = (gameState, setGameState) => {
             }
 
             let bonusApplied = null;
-            let newState = { ...prevState };
 
             if (effects.bonus && Math.random() < effects.bonus.chance) {
                 const randomBonus = effects.bonus.options[
@@ -90,6 +111,7 @@ export const useSnackActions = (gameState, setGameState) => {
                             startTime: Date.now(),
                             duration: effects.duration,
                             effect: goldBonus,
+                            type: 'gold',
                             bonusApplied
                         }
                     }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
@@ -60,6 +61,7 @@ import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.png"
 import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.png"
 import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.png"
 import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.png"
+import forgeBadge from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.png"
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
@@ -150,47 +152,36 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const minerHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`miner_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
     const forgeHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`forge_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
 
-    const currentDogsData = dogTab === 'mineros' ? dogs : dogTab === 'forja' ? forgeDogs : {};
-    const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : dogTab === 'forja' ? ForgeDogsConfig : DogsConfig;
+    const currentDogsData = dogTab === 'mineros' ? dogs : forgeDogs;
+    const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : ForgeDogsConfig;
     const rarityHasAction = {};
-    if (dogTab === 'obtenidos') {
-        [...Object.values(dogs).filter(d => d?.hired).map(d => ({ dog: d, config: DogsConfig[d.id] })),
-         ...Object.values(forgeDogs).filter(d => d?.hired).map(d => ({ dog: d, config: ForgeDogsConfig[d.id] }))
-        ].forEach(({ dog, config }) => {
-            if (!config) return;
-            const stars = dog.stars ?? 0;
-            const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
-            const starGoldCost = config.starGoldCost ?? 0;
-            const fragForNext = stars < 5 ? config.starFragments?.[stars] : null;
-            if (fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost)
-                rarityHasAction[config.rarity] = true;
-        });
-    } else {
-        Object.values(currentDogsData).forEach(dog => {
-            if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
-            const config = currentDogsConfig[dog.id];
-            if (!config) return;
-            const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
-            const frags = dog.fragments ?? 0;
-            const stars = dog.stars ?? 0;
-            const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
-            const starGoldCost = config.starGoldCost ?? 0;
-            const fragForNext = dog.hired && stars < 5 ? config.starFragments?.[stars] : null;
-            const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
-            const canUpgrade = fragForNext !== null && frags >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
-            if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
-        });
-    }
-    const obtenidosHasUpgrade = [...Object.values(dogs), ...Object.values(forgeDogs)].some(dog => {
-        if (!dog?.hired) return false;
-        const config = DogsConfig[dog.id] ?? ForgeDogsConfig[dog.id];
-        if (!config) return false;
+    Object.values(currentDogsData).forEach(dog => {
+        if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
+        const config = currentDogsConfig[dog.id];
+        if (!config) return;
+        const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
+        const frags = dog.fragments ?? 0;
         const stars = dog.stars ?? 0;
-        const fragForNext = stars < 5 ? config.starFragments?.[stars] : null;
-        return fragForNext !== null && (dog.fragments ?? 0) >= fragForNext
-            && tavernCoins >= (STAR_COIN_COST_MAP[config.rarity] ?? 0)
-            && gameState.gold >= (config.starGoldCost ?? 0);
+        const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
+        const starGoldCost = config.starGoldCost ?? 0;
+        const fragForNext = dog.hired && stars < 5 ? config.starFragments?.[stars] : null;
+        const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
+        const canUpgrade = fragForNext !== null && frags >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
+        if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
     });
+    const _checkHiredUpgradeable = (dogsState, config) => Object.values(dogsState).some(dog => {
+        if (!dog?.hired) return false;
+        const cfg = config[dog.id];
+        if (!cfg) return false;
+        const stars = dog.stars ?? 0;
+        const fragForNext = stars < 5 ? cfg.starFragments?.[stars] : null;
+        return fragForNext !== null && (dog.fragments ?? 0) >= fragForNext
+            && tavernCoins >= (STAR_COIN_COST_MAP[cfg.rarity] ?? 0)
+            && gameState.gold >= (cfg.starGoldCost ?? 0);
+    });
+    const obtenidosHasUpgrade = dogTab === 'mineros'
+        ? _checkHiredUpgradeable(dogs, DogsConfig)
+        : _checkHiredUpgradeable(forgeDogs, ForgeDogsConfig);
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${bgTavern})` }}>
@@ -339,35 +330,31 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         <div className="dog-tabs">
                             <button
                                 className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'dog-tab-btn-pulse' : ''}`}
-                                onClick={() => setDogTab('mineros')}
+                                onClick={() => { setDogTab('mineros'); setRarityFilter(null); }}
                             >
                                 ⛏️ Mineros
                             </button>
                             <button
                                 className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'dog-tab-btn-pulse' : ''}`}
-                                onClick={() => setDogTab('forja')}
+                                onClick={() => { setDogTab('forja'); setRarityFilter(null); }}
                             >
                                 🔥 Forja
-                            </button>
-                            <button
-                                className={`dog-tab-btn ${dogTab === 'obtenidos' ? 'active' : ''} ${obtenidosHasUpgrade && dogTab !== 'obtenidos' ? 'dog-tab-btn-pulse' : ''}`}
-                                onClick={() => setDogTab('obtenidos')}
-                            >
-                                Obtenidos
                             </button>
                         </div>
 
                         {/* FILTRO RAREZA */}
                         <div className="rarity-filter-bar">
-                            {[null, 'legendary', 'epic', 'rare'].map(r => {
-                                const hasPulse = r ? rarityHasAction[r] && rarityFilter !== r : false;
+                            {['legendary', 'epic', 'rare', 'obtenidos'].map(r => {
+                                const hasPulse = r === 'obtenidos'
+                                    ? obtenidosHasUpgrade && rarityFilter !== 'obtenidos'
+                                    : rarityHasAction[r] && rarityFilter !== r;
                                 return (
                                     <button
-                                        key={r ?? 'all'}
-                                        className={`rarity-filter-btn${r ? ` rarity-filter-${r}` : ''}${rarityFilter === r ? ' rarity-filter-active' : ''}${hasPulse ? ' rarity-filter-pulse' : ''}`}
-                                        onClick={() => setRarityFilter(r)}
+                                        key={r}
+                                        className={`rarity-filter-btn${r !== 'obtenidos' ? ` rarity-filter-${r}` : ''}${rarityFilter === r ? ' rarity-filter-active' : ''}${hasPulse ? ' rarity-filter-pulse' : ''}`}
+                                        onClick={() => setRarityFilter(rarityFilter === r ? null : r)}
                                     >
-                                        {r === null ? 'Todas' : r === 'legendary' ? 'Legendaria' : r === 'epic' ? 'Épica' : 'Rara'}
+                                        {r === 'legendary' ? 'Legendaria' : r === 'epic' ? 'Épica' : r === 'rare' ? 'Rara' : 'Obtenidos'}
                                     </button>
                                 );
                             })}
@@ -378,15 +365,17 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             <div className="dogs-grid">
                                 {Object.values(dogs)
                                     .filter(d => d && typeof d === 'object' && !Array.isArray(d))
-                                    .filter(d => !rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter)
+                                    .filter(d => !rarityFilter || (rarityFilter === 'obtenidos' ? d.hired : DogsConfig[d.id]?.rarity === rarityFilter))
                                     .sort((a, b) => {
                                         const ca = DogsConfig[a.id];
                                         const cb = DogsConfig[b.id];
                                         const isGiftA = ca?.unlockCost?.gold === 0 && ca?.unlockCost?.tavernCoins === 0 ? 1 : 0;
                                         const isGiftB = cb?.unlockCost?.gold === 0 && cb?.unlockCost?.tavernCoins === 0 ? 1 : 0;
                                         if (isGiftA !== isGiftB) return isGiftA - isGiftB;
-                                        const order = { legendary: 0, epic: 1, rare: 2 };
-                                        return (order[ca?.rarity] ?? 3) - (order[cb?.rarity] ?? 3);
+                                        const rarityOrder = { legendary: 0, epic: 1, rare: 2 };
+                                        const rd = (rarityOrder[ca?.rarity] ?? 3) - (rarityOrder[cb?.rarity] ?? 3);
+                                        if (rd !== 0) return rd;
+                                        return (ca?.order ?? 99) - (cb?.order ?? 99);
                                     })
                                     .map(dog => {
                                         const config = DogsConfig[dog.id];
@@ -488,13 +477,15 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </div>
                         )}
 
-                        {/* OBTENIDOS */}
-                        {dogTab === 'obtenidos' && (() => {
+                        {/* OBTENIDOS — bloque eliminado, ahora es filtro de rareza */}
+                        {false && (() => {
                             const sortByRarity = (a, b) => {
-                                const order = { legendary: 0, epic: 1, rare: 2 };
+                                const rarityOrder = { legendary: 0, epic: 1, rare: 2 };
                                 const ca = DogsConfig[a.id] ?? ForgeDogsConfig[a.id];
                                 const cb = DogsConfig[b.id] ?? ForgeDogsConfig[b.id];
-                                return (order[ca?.rarity] ?? 3) - (order[cb?.rarity] ?? 3);
+                                const rd = (rarityOrder[ca?.rarity] ?? 3) - (rarityOrder[cb?.rarity] ?? 3);
+                                if (rd !== 0) return rd;
+                                return (ca?.order ?? 99) - (cb?.order ?? 99);
                             };
                             const hiredMineros = Object.values(dogs)
                                 .filter(d => d?.hired && (!rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter))
@@ -518,6 +509,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         <div className={`dog-card dog-card-front dog-rarity-${config.rarity} dog-hired`}>
                                             <button className="dog-info-btn" onClick={() => setFlippedDog(isFlipped ? null : dog.id)}>ℹ</button>
                                             <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
+                                            <img src={isForge ? forgeBadge : pickaxeStone} className="dog-type-badge" alt="" />
                                             <img src={assets[dog.id]} className="dog-portrait" alt={config.name} />
                                             <div className="dog-name">{config.name}</div>
                                             <div className="dog-stars-row">
@@ -624,22 +616,18 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 );
                             };
 
+                            const allHired = [
+                                ...hiredMineros.map(d => ({ d, isForge: false })),
+                                ...hiredForja.map(d => ({ d, isForge: true })),
+                            ].sort((a, b) => sortByRarity(a.d, b.d));
+
                             return (
                                 <div className="dogs-obtenidos">
-                                    {hiredMineros.length === 0 && hiredForja.length === 0 && (
+                                    {allHired.length === 0 && (
                                         <p className="dogs-empty-msg">Aún no tienes ayudantes contratados.</p>
                                     )}
-                                    {hiredMineros.length > 0 && (
-                                        <>
-                                            <div className="dogs-section-title">Mineros</div>
-                                            <div className="dogs-grid">{hiredMineros.map(d => renderCard(d, false))}</div>
-                                        </>
-                                    )}
-                                    {hiredForja.length > 0 && (
-                                        <>
-                                            <div className="dogs-section-title">Forja</div>
-                                            <div className="dogs-grid">{hiredForja.map(d => renderCard(d, true))}</div>
-                                        </>
+                                    {allHired.length > 0 && (
+                                        <div className="dogs-grid">{allHired.map(({ d, isForge }) => renderCard(d, isForge))}</div>
                                     )}
                                 </div>
                             );
@@ -650,7 +638,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             <div className="dogs-grid">
                                 {Object.values(forgeDogs)
                                     .filter(d => d && typeof d === 'object')
-                                    .filter(d => !rarityFilter || ForgeDogsConfig[d.id]?.rarity === rarityFilter)
+                                    .filter(d => !rarityFilter || (rarityFilter === 'obtenidos' ? d.hired : ForgeDogsConfig[d.id]?.rarity === rarityFilter))
                                     .sort((a, b) => {
                                         const isGiftA = (ForgeDogsConfig[a.id]?.unlockCost?.gold === 0 && ForgeDogsConfig[a.id]?.unlockCost?.tavernCoins === 0);
                                         const isGiftB = (ForgeDogsConfig[b.id]?.unlockCost?.gold === 0 && ForgeDogsConfig[b.id]?.unlockCost?.tavernCoins === 0);
@@ -841,9 +829,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 <button
                                                     className={`pack-open-btn ${!canOpen ? 'locked' : ''}`}
                                                     disabled={!canOpen}
-                                                    onClick={() => onOpenPack(pack.id, packTab === 'forja')}
+                                                    onClick={() => { playSfx('freeInvoc');onOpenPack(pack.id, packTab === 'forja'); }}
                                                 >
-                                                    Abrir — {pack.cost} 🪙
+                                                    Abrir — {pack.cost} <img src={coinTavern} alt="coin" style={{ width: 14, height: 14, verticalAlign: 'middle', marginLeft: 2 }} />
                                                 </button>
                                             </div>
                                         </div>
@@ -884,7 +872,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     <button
                                                         className={`pack-free-btn ${!freeReady ? 'locked' : ''}`}
                                                         disabled={!freeReady}
-                                                        onClick={() => onFreePull(pack.id, isForge)}
+                                                        onClick={() => { playSfx('freeInvoc');onFreePull(pack.id, isForge); }}
                                                     >
                                                         {freeReady ? '🎁 Gratis' : `⏱ ${freeLabel}`}
                                                     </button>

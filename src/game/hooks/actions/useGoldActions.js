@@ -210,7 +210,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
     const handleActivateBurst = () => {
         setGameState(prevState => {
             const burst = prevState.burst ?? { active: false, recharging: false, rechargeRemaining: 0 };
-            const maxStamina = prevState.maxStamina ?? 15;
+            const drinkBuff = prevState.snacks?.drink?.active?.type === 'stamina' ? (prevState.snacks.drink.active.effect ?? 0) : 0;
+            const maxStamina = (prevState.maxStamina ?? 15) + drinkBuff;
             if (burst.active || burst.recharging) return prevState;
             return {
                 ...prevState,

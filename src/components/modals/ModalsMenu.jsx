@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2, VolumeX } from "lucide-react";
 import "../../styles/modals/ModalsMenu.css";
 
-const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, onMusicToggle, onMusicVolume, sfxEnabled, sfxVolume, onSfxToggle, onSfxVolume }) => {
+const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume, sfxVolume, onSfxVolume }) => {
     const [view, setView] = useState("main");
     if (!isOpen) return null;
 
@@ -26,51 +26,35 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, 
                 {view === "main" && (
                     <div className="settings-list">
                         <div className="settings-item settings-item-music">
-                            <span className="settings-item-icon">
-                                {musicEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-                            </span>
+                            <span className="settings-item-icon"><Volume2 size={18} /></span>
                             <span className="settings-item-label">Música</span>
-                            <button
-                                className={`music-toggle ${musicEnabled ? 'music-toggle-on' : ''}`}
-                                onClick={() => onMusicToggle(!musicEnabled)}
+                        </div>
+                        <div className="settings-item settings-item-volume">
+                            <input
+                                type="range"
+                                min={0}
+                                max={0.5}
+                                step={0.01}
+                                value={musicVolume}
+                                onChange={e => onMusicVolume(parseFloat(e.target.value))}
+                                className="volume-slider"
                             />
                         </div>
-                        {musicEnabled && (
-                            <div className="settings-item settings-item-volume">
-                                <input
-                                    type="range"
-                                    min={0.01}
-                                    max={0.5}
-                                    step={0.01}
-                                    value={musicVolume}
-                                    onChange={e => onMusicVolume(parseFloat(e.target.value))}
-                                    className="volume-slider"
-                                />
-                            </div>
-                        )}
                         <div className="settings-item settings-item-music">
-                            <span className="settings-item-icon">
-                                {sfxEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-                            </span>
+                            <span className="settings-item-icon"><Volume2 size={18} /></span>
                             <span className="settings-item-label">Efectos</span>
-                            <button
-                                className={`music-toggle ${sfxEnabled ? 'music-toggle-on' : ''}`}
-                                onClick={() => onSfxToggle(!sfxEnabled)}
+                        </div>
+                        <div className="settings-item settings-item-volume">
+                            <input
+                                type="range"
+                                min={0}
+                                max={1}
+                                step={0.01}
+                                value={sfxVolume}
+                                onChange={e => onSfxVolume(parseFloat(e.target.value))}
+                                className="volume-slider"
                             />
                         </div>
-                        {sfxEnabled && (
-                            <div className="settings-item settings-item-volume">
-                                <input
-                                    type="range"
-                                    min={0.01}
-                                    max={1}
-                                    step={0.01}
-                                    value={sfxVolume}
-                                    onChange={e => onSfxVolume(parseFloat(e.target.value))}
-                                    className="volume-slider"
-                                />
-                            </div>
-                        )}
                         <button className="settings-item" onClick={() => setView("confirm")}>
                             <span className="settings-item-icon"><RefreshCw size={18} /></span>
                             <span className="settings-item-label">Nuevo juego</span>
@@ -148,6 +132,7 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, 
                                 <span className="about-tag">Sobres</span>
                                 <span className="about-tag">Raids</span>
                                 <span className="about-tag">Recompensas</span>
+                                <span className="about-tag">Y más por descubrir...</span>
                             </div>
                         </div>
 
@@ -184,11 +169,11 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, 
                                     <span className="feature-desc">Pulido visual, animaciones y mejoras generales de experiencia.</span>
                                 </div>
                             </div>
-                            <div className="feature-item">
+                            <div className="feature-item feature-item-done">
                                 <span className="feature-icon"><WifiOff size={20} /></span>
                                 <div className="feature-info">
-                                    <span className="feature-name">Recompensas offline</span>
-                                    <span className="feature-desc">Gana recursos mientras no juegas.</span>
+                                    <span className="feature-name feature-name-done">Recompensas offline</span>
+                                    <span className="feature-desc feature-desc-done">Gana recursos mientras no juegas.</span>
                                 </div>
                             </div>
                             <div className="feature-item">
@@ -212,8 +197,20 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicEnabled, musicVolume, 
                                     <span className="feature-desc">Efectos de sonido y música para la experiencia de juego.</span>
                                 </div>
                             </div>
-
-
+                            <div className="feature-item">
+                                <span className="feature-icon"><PawPrint size={20} /></span>
+                                <div className="feature-info">
+                                    <span className="feature-name">Sinergias</span>
+                                    <span className="feature-desc">Combinaciones entre mascotas que potencian habilidades únicas.</span>
+                                </div>
+                            </div>
+                            <div className="feature-item">
+                                <span className="feature-icon"><Layers size={20} /></span>
+                                <div className="feature-info">
+                                    <span className="feature-name">Clasificaciones</span>
+                                    <span className="feature-desc">Compite con otros jugadores y escala en el ranking global.</span>
+                                </div>
+                            </div>
                         </div>
 
                     </div>

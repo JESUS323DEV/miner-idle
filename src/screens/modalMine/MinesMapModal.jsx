@@ -57,7 +57,7 @@ const biomeHudAssets = {
     diamond: diamondHud,
 };
 
-const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, onEnterMine }) => {
+const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, onEnterMine, set1Complete = true }) => {
     const {
         gameState,
         setGameState,
@@ -150,8 +150,13 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
                         return (
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
-                                <button className="btn-enter-mine" onClick={() => onEnterMine(type)}>
-                                    Entrar
+                                <button
+                                    className={`btn-enter-mine${!set1Complete ? ' locked' : ''}`}
+                                    onClick={() => set1Complete && onEnterMine(type)}
+                                    disabled={!set1Complete}
+                                    title={!set1Complete ? 'Reclama todas las recompensas de bienvenida primero' : undefined}
+                                >
+                                    {set1Complete ? 'Entrar' : '🔒'}
                                 </button>
                             </div>
                         );

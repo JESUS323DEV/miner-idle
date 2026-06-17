@@ -442,8 +442,8 @@
 }
 
 .dog-card.dog-hired {
-    border-color: rgba(0, 255, 0, 0.5);
-    background: rgba(19, 42, 0, 0.847);
+    border-color: rgba(0, 255, 0, 0.25);
+    background: rgba(19, 42, 0, 0.45);
 }
 
 
@@ -511,6 +511,17 @@
     letter-spacing: 0.08em;
     opacity: 0.9;
     margin-bottom: 1rem;
+}
+
+.dog-type-badge {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    object-fit: contain;
+    opacity: 0.75;
+    pointer-events: none;
 }
 
 .dog-name {
@@ -635,6 +646,13 @@
 .dog-card-back.dog-card-back-druh {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
         url('../../assets/backgrounds/bg-tavern/bg-back-cards/druh-fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+
+.dog-card-back.dog-card-back-nupito {
+    background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/nupito-fondo.png');
     background-size: cover;
     background-position: center;
 }

@@ -130,13 +130,13 @@ const GoldMine = ({ elevated = false }) => {
                 </div>
             )}
             {/* IMAGEN DE LA MENA (clickeable) */}
-            <img
-                src={menaGold}
-                alt="Gold Mine"
-                className={`gold-mine ${isShaking ? 'shake' : ''} ${!canMine ? 'disabled' : ''}`}
-                data-gold-mine="true"
-                onClick={handleClick}
-            />
+            <div className="gold-mine-hitbox" onClick={handleClick} data-gold-mine="true">
+                <img
+                    src={menaGold}
+                    alt="Gold Mine"
+                    className={`gold-mine ${isShaking ? 'shake' : ''} ${!canMine ? 'disabled' : ''}`}
+                />
+            </div>
 
             {floats.map(f => {
                 if (f.type === 'warning')   return <div key={f.id} className="floating-warning-gold" style={{ left: `${f.x}px`, top: `${f.y}px` }}>{f.msg}</div>;
