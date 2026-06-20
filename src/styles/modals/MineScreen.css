@@ -714,10 +714,57 @@
     border-radius: 10px;
 }
 
+@keyframes floatUpIngot {
+    0%   { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1.2) drop-shadow(0 0 6px rgba(255,180,0,0.9)); }
+    40%  { opacity: 1; transform: translateY(-22px) scale(1.1); filter: brightness(1.5) drop-shadow(0 0 12px rgba(255,200,0,1)); }
+    100% { opacity: 0; transform: translateY(-50px) scale(0.9); filter: brightness(1) drop-shadow(0 0 2px rgba(255,180,0,0.3)); }
+}
+
 .floating-ingot {
     color: #ffd740;
     font-size: 16px;
-    text-shadow: 0 0 8px rgba(255, 150, 0, 0.9);
+    animation: floatUpIngot 3s ease-out forwards;
+}
+
+.floating-earth {
+    color: #c8a96e;
+    font-size: 15px;
+    font-weight: 800;
+    text-shadow: 0 0 6px rgba(139, 90, 20, 0.9);
+}
+
+@keyframes earth-flash {
+    0%   { box-shadow: 0 0 0px rgba(180, 120, 30, 0); background: rgba(180, 120, 30, 0); }
+    25%  { box-shadow: 0 0 20px rgba(180, 120, 30, 0.85); background: rgba(180, 120, 30, 0.2); }
+    100% { box-shadow: 0 0 0px rgba(180, 120, 30, 0); background: rgba(180, 120, 30, 0); }
+}
+
+.vein-earth-flash {
+    animation: earth-flash 0.6s ease-out;
+    border-radius: 10px;
+}
+
+/* ========== NOTIFICACIÓN ULT GLOBAL ========== */
+
+.ult-global-notif {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 6px 12px;
+    border: 1px solid;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    animation: notif-pop 2.5s ease-out forwards;
+    pointer-events: none;
+    letter-spacing: 0.04em;
+}
+
+@keyframes notif-pop {
+    0%   { opacity: 0; transform: scale(0.85); }
+    15%  { opacity: 1; transform: scale(1.05); }
+    30%  { transform: scale(1); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.95); }
 }
 
 /* ========== COMPANION PANEL ========== */

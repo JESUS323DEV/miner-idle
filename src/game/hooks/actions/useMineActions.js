@@ -387,7 +387,19 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                             eventsTriggered: mine.eventsTriggered,
                             companion: mine.companion,
                             veins: updatedVeins,
-                            powers: { ...powers, ultUsed: true }
+                            powers: {
+                                ...powers,
+                                ultUsed: true,
+                                earthquakeTrigger: (powers.earthquakeTrigger ?? 0) + 1,
+                                earthquakeVeinData: Object.fromEntries(
+                                    updatedVeins.map((v, i) => {
+                                        const orig = mine.veins[i];
+                                        const hitsRemoved = orig.remaining - v.remaining;
+                                        return [v.id, hitsRemoved];
+                                    })
+                                ),
+                                earthquakeLoot: totalLoot,
+                            }
                         }
                     }
                 };
@@ -409,6 +421,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                                 electricActive: true,
                                 electricMin: eMin,
                                 electricMax: eMax,
+                                electricTrigger: (powers.electricTrigger ?? 0) + 1,
                             }
                         }
                     }
@@ -430,6 +443,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                                 ...powers,
                                 ultUsed: true,
                                 waterMult,
+                                waterTrigger: (powers.waterTrigger ?? 0) + 1,
                             }
                         }
                     }
@@ -451,6 +465,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                                 ultActive: true,
                                 ultUntil: now + cfg.duration,
                                 furyBonus: fury,
+                                furyTrigger: (powers.furyTrigger ?? 0) + 1,
+                                furyPercent: Math.round(fury * 100),
                             }
                         }
                     }

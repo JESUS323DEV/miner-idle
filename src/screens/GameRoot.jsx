@@ -1152,12 +1152,21 @@ function GameRoot() {
   // ===== RENDER =====
   const [debugOpen, setDebugOpen] = useState(false);
   const MINER_DOGS = ['lady','tokio','tuka','muna','chihuahua','bully','smoke','nupito','boxer','druh','gordo','zeus'];
+  const FORGE_DOGS  = ['pip','koda','milo','rocky','bruno','max','rex','toby','buddy'];
   const handleDebugSetStars = (dogId, delta) => {
     setGameState(prev => {
       const dog = prev.dogs[dogId];
       if (!dog) return prev;
       const newStars = Math.min(5, Math.max(0, (dog.stars ?? 0) + delta));
       return { ...prev, dogs: { ...prev.dogs, [dogId]: { ...dog, hired: true, fragments: 999, stars: newStars } } };
+    });
+  };
+  const handleDebugSetForgeStars = (dogId, delta) => {
+    setGameState(prev => {
+      const dog = prev.forgeDogs?.[dogId];
+      if (!dog) return prev;
+      const newStars = Math.min(5, Math.max(0, (dog.stars ?? 0) + delta));
+      return { ...prev, forgeDogs: { ...prev.forgeDogs, [dogId]: { ...dog, hired: true, fragments: 999, stars: newStars } } };
     });
   };
 
@@ -1172,23 +1181,41 @@ function GameRoot() {
           DEV
         </button>
         {debugOpen && (
-          <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160 }}>
+          <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
+            {/* MINEROS */}
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>MINEROS</span>
             <button
               onClick={() => setGameState(prev => {
                 const updated = { ...prev.dogs };
-                MINER_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], stars: 0 }; });
+                MINER_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], hired: true, fragments: 999, stars: 0 }; });
                 return { ...prev, dogs: updated };
               })}
-              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer', marginBottom:2 }}
-            >
-              resetear todas a 0★
-            </button>
+              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer' }}
+            >desbloquear + 0★</button>
             {MINER_DOGS.map(id => (
               <div key={id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:'#fff' }}>
                 <span style={{ width:70 }}>{id}</span>
-                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{'★'.repeat(gameState.dogs[id]?.stars ?? 0)}{gameState.dogs[id]?.stars === 0 ? '0' : ''}</span>
+                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{gameState.dogs[id]?.stars ?? 0}</span>
                 <button onClick={() => handleDebugSetStars(id, -1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>-</button>
-                <button onClick={() => handleDebugSetStars(id, 1)}  style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
+                <button onClick={() => handleDebugSetStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
+              </div>
+            ))}
+            {/* FORJA */}
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>FORJA</span>
+            <button
+              onClick={() => setGameState(prev => {
+                const updated = { ...prev.forgeDogs };
+                FORGE_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], hired: true, fragments: 999, stars: 0 }; });
+                return { ...prev, forgeDogs: updated };
+              })}
+              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer' }}
+            >desbloquear + 0★</button>
+            {FORGE_DOGS.map(id => (
+              <div key={id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:'#fff' }}>
+                <span style={{ width:70 }}>{id}</span>
+                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{gameState.forgeDogs?.[id]?.stars ?? 0}</span>
+                <button onClick={() => handleDebugSetForgeStars(id, -1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>-</button>
+                <button onClick={() => handleDebugSetForgeStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
               </div>
             ))}
           </div>

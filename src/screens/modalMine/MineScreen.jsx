@@ -83,6 +83,8 @@ const MineScreen = ({ isOpen, onClose }) => {
   const [now, setNow] = useState(Date.now());
   const [animTriggers, setAnimTriggers] = useState({});
   const [ultFireTriggers, setUltFireTriggers] = useState({});
+  const [earthTriggers, setEarthTriggers] = useState({});
+  const [ultNotif, setUltNotif] = useState(null); // { text, color, count }
   const automineRef = useRef(null);
   const mineContentRef = useRef(null);
   const currentMineRef = useRef(currentMine);
@@ -114,6 +116,47 @@ const MineScreen = ({ isOpen, onClose }) => {
     setUltFireTriggers(prev => ({ ...prev, [veinId]: { count: (prev[veinId]?.count || 0) + 1, isIngot } }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMine?.powers?.ultFireTrigger]);
+
+  // ULT tierra: flash marrón + loot flotante en cada vena afectada
+  useEffect(() => {
+    const trigger = currentMine?.powers?.earthquakeTrigger;
+    const veinData = currentMine?.powers?.earthquakeVeinData;
+    if (!trigger || !veinData) return;
+    const updated = {};
+    Object.entries(veinData).forEach(([id, hits]) => {
+      if (hits > 0) updated[id] = { count: (earthTriggers[id]?.count || 0) + 1, hits };
+    });
+    setEarthTriggers(prev => ({ ...prev, ...updated }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.earthquakeTrigger]);
+
+  // ULT eléctrico: notificación de activación
+  useEffect(() => {
+    if (!currentMine?.powers?.electricTrigger) return;
+    const range = `+${currentMine.powers.electricMin}-${currentMine.powers.electricMax}/golpe`;
+    setUltNotif({ text: `⚡ ${range}`, color: '#00e5ff' });
+    const t = setTimeout(() => setUltNotif(null), 2500);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.electricTrigger]);
+
+  // ULT agua: notificación del multiplicador
+  useEffect(() => {
+    if (!currentMine?.powers?.waterTrigger) return;
+    setUltNotif({ text: `x${currentMine.powers.waterMult} materiales`, color: '#4dd0e1' });
+    const t = setTimeout(() => setUltNotif(null), 2500);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.waterTrigger]);
+
+  // ULT oscuro timed: notificación de velocidad
+  useEffect(() => {
+    if (!currentMine?.powers?.furyTrigger) return;
+    setUltNotif({ text: `+${currentMine.powers.furyPercent}% velocidad`, color: '#ce93d8' });
+    const t = setTimeout(() => setUltNotif(null), 2500);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.furyTrigger]);
 
   // Automine siempre activo. Velocidad = 166ms / (1 + furyBonus)
   useEffect(() => {
@@ -199,7 +242,14 @@ const MineScreen = ({ isOpen, onClose }) => {
           onActivateUlt={handleActivateMineUlt}
         />
 
-        {/* VENAS (solo visuales, sin click) */}
+        {/* NOTIFICACIÓN ULT GLOBAL (eléctrico / agua / oscuro) */}
+        {ultNotif && (
+          <div className="ult-global-notif" style={{ color: ultNotif.color, borderColor: ultNotif.color }}>
+            {ultNotif.text}
+          </div>
+        )}
+
+        {/* VENAS */}
         <div className="veins-container">
           {currentMine.veins.map((vein) => (
             <Vein
@@ -210,6 +260,7 @@ const MineScreen = ({ isOpen, onClose }) => {
               ingotImg={ingotAssets[baseMineType]}
               animTrigger={animTriggers[vein.id] || 0}
               ultTrigger={ultFireTriggers[vein.id] || null}
+              earthTrigger={earthTriggers[vein.id] || null}
             />
           ))}
         </div>
@@ -334,18 +385,19 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
 
 // ===================== VENA (solo visual, no clickeable) =====================
 
-const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger }) => {
+const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [isFireFlash, setIsFireFlash] = useState(false);
+  const [isEarthFlash, setIsEarthFlash] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [floatingIngots, setFloatingIngots] = useState([]);
+  const [floatingEarth, setFloatingEarth] = useState([]);
   const veinRef = useRef(null);
 
   useEffect(() => {
     if (animTrigger === 0) return;
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 150);
-
     const rect = veinRef.current?.getBoundingClientRect();
     const x = rect ? rect.width / 2 : 40;
     const y = rect ? rect.height / 2 : 40;
@@ -358,7 +410,6 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger }) => {
     if (!ultTrigger) return;
     setIsFireFlash(true);
     setTimeout(() => setIsFireFlash(false), 500);
-
     const rect = veinRef.current?.getBoundingClientRect();
     const x = rect ? rect.width / 2 + 8 : 48;
     const y = rect ? rect.height / 2 : 40;
@@ -369,12 +420,24 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger }) => {
     }
   }, [ultTrigger?.count]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!earthTrigger) return;
+    setIsEarthFlash(true);
+    setTimeout(() => setIsEarthFlash(false), 600);
+    const rect = veinRef.current?.getBoundingClientRect();
+    const x = rect ? rect.width / 2 : 40;
+    const y = rect ? rect.height / 2 : 40;
+    const earthId = Date.now() + Math.random();
+    setFloatingEarth(prev => [...prev, { id: earthId, x, y, hits: earthTrigger.hits }]);
+    setTimeout(() => setFloatingEarth(prev => prev.filter(n => n.id !== earthId)), 1100);
+  }, [earthTrigger?.count]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isDepleted = vein.remaining === 0;
 
   return (
     <div
       ref={veinRef}
-      className={`vein vein-auto${isShaking ? " shake" : ""}${isDepleted ? " depleted" : ""}${isFireFlash ? " vein-fire-flash" : ""}`}
+      className={`vein vein-auto${isShaking ? ' shake' : ''}${isDepleted ? ' depleted' : ''}${isFireFlash ? ' vein-fire-flash' : ''}${isEarthFlash ? ' vein-earth-flash' : ''}`}
     >
       <div className="vein-icon">
         <img src={menaImg} alt="mena" className="vein-img" />
@@ -389,6 +452,11 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger }) => {
       {floatingIngots.map((ing) => (
         <div key={ing.id} className="floating-number floating-ingot" style={{ left: `${ing.x}px`, top: `${ing.y}px` }}>
           +<img src={ingotImg} alt="lingote" className="mena-floating-icon" />
+        </div>
+      ))}
+      {floatingEarth.map((e) => (
+        <div key={e.id} className="floating-number floating-earth" style={{ left: `${e.x}px`, top: `${e.y}px` }}>
+          -{e.hits}
         </div>
       ))}
     </div>
