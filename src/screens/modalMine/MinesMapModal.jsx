@@ -430,6 +430,14 @@ const YacimientoSlotActivo = ({
 };
 
 const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSelectCompanion, onConfirm, onCancel }) => {
+    const selectedDog = selectedCompanion && selectedCompanion !== '__none__'
+        ? availableCompanions.find(d => d.id === selectedCompanion)
+        : null;
+    const selectedCfg = selectedDog ? DogsConfig[selectedDog.id] : null;
+    const selectedCompCfg = selectedDog ? MineCompanionConfig[selectedDog.id] : null;
+    const selectedRarityColor = selectedCfg ? (RARITY_COLORS[selectedCfg.rarity] ?? '#aaa') : 'rgba(255,165,0,0.4)';
+    const selectedElemColor = selectedCompCfg ? ELEMENT_COLORS[selectedCompCfg.element] : '#aaa';
+    const noCompanion = !selectedCompanion || selectedCompanion === '__none__';
 
     return (
         <div className="pre-entry-overlay">
@@ -439,14 +447,40 @@ const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSe
                     {mineType.replace('_lvl2',' II').replace('_lvl3',' III').replace('bronze','Bronce').replace('iron','Hierro').replace('diamond','Diamante')}
                 </p>
 
-                <div className="pre-entry-dogs">
-                    {/* Sin ayudante */}
+                {/* SLOT EQUIPADO */}
+                <div className="pre-entry-slot-wrap">
+                    <div className="pre-entry-slot" style={{ borderColor: selectedRarityColor }}>
+                        {selectedDog ? (
+                            <>
+                                {dogAssets[selectedDog.id] && (
+                                    <img src={dogAssets[selectedDog.id]} alt={selectedCfg?.name} className="pre-entry-slot-img" />
+                                )}
+                                <span className="pre-entry-slot-name">{selectedCfg?.name ?? selectedDog.id}</span>
+                                {selectedCompCfg && (
+                                    <span className="pre-entry-slot-elem" style={{ color: selectedElemColor }}>
+                                        {selectedCompCfg.element}
+                                    </span>
+                                )}
+                            </>
+                        ) : (
+                            <span className="pre-entry-slot-empty">?</span>
+                        )}
+                    </div>
+                    {noCompanion && (
+                        <p className="pre-entry-warning">Sin ayudante: automine base activo, sin poderes.</p>
+                    )}
+                </div>
+
+                {/* GRID DE PERROS */}
+                <div className="pre-entry-dogs-grid">
                     <button
-                        className={`pre-entry-dog-btn${selectedCompanion === '__none__' ? ' selected' : ''}`}
+                        className={`pre-entry-dog-circle${selectedCompanion === '__none__' ? ' selected' : ''}`}
                         onClick={() => onSelectCompanion('__none__')}
                     >
-                        <span className="pre-entry-dog-empty">?</span>
-                        <span className="pre-entry-dog-name">Sin ayudante</span>
+                        <div className="pre-entry-circle-icon pre-entry-circle-none">
+                            <span>?</span>
+                        </div>
+                        <span className="pre-entry-circle-name">Ninguno</span>
                     </button>
 
                     {availableCompanions.map(dog => {
@@ -458,35 +492,22 @@ const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSe
                         return (
                             <button
                                 key={dog.id}
-                                className={`pre-entry-dog-btn${selectedCompanion === dog.id ? ' selected' : ''}`}
+                                className={`pre-entry-dog-circle${selectedCompanion === dog.id ? ' selected' : ''}`}
                                 onClick={() => onSelectCompanion(dog.id)}
-                                style={{ '--elem-color': rarityColor }}
                             >
-                                {icon && (
-                                    <img
-                                        src={icon}
-                                        alt={cfg?.name ?? dog.id}
-                                        className="pre-entry-dog-icon"
-                                        style={{ borderColor: rarityColor }}
-                                    />
-                                )}
-                                <span className="pre-entry-dog-name">{cfg?.name ?? dog.id}</span>
+                                <div className="pre-entry-circle-icon" style={{ borderColor: rarityColor }}>
+                                    {icon && <img src={icon} alt={cfg?.name} className="pre-entry-circle-img" />}
+                                </div>
+                                <span className="pre-entry-circle-name">{cfg?.name ?? dog.id}</span>
                                 {compCfg && (
-                                    <span className="pre-entry-dog-elem" style={{ color: elemColor }}>
+                                    <span className="pre-entry-circle-elem" style={{ color: elemColor }}>
                                         {compCfg.element}
                                     </span>
-                                )}
-                                {compCfg && (
-                                    <span className="pre-entry-dog-ult">{compCfg.ult.name}</span>
                                 )}
                             </button>
                         );
                     })}
                 </div>
-
-                {(selectedCompanion === '__none__' || (availableCompanions.length === 0 && !selectedCompanion)) && (
-                    <p className="pre-entry-warning">Sin ayudante: automine base activo, sin poderes.</p>
-                )}
 
                 <div className="pre-entry-actions">
                     <button className="pre-entry-cancel" onClick={onCancel}>Cancelar</button>
