@@ -48,7 +48,7 @@ const MinesConfig = {
         requiresStars: { mineType: 'bronze', stars: 2 },
 
         baseVeinsCount: { min: 2, max: 4 },
-        baseVeinCapacity: { min: 40, max: 40 },
+        baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
             stone: { min: 0, max: 1 },
@@ -75,7 +75,7 @@ const MinesConfig = {
         requiresStars: { mineType: 'bronze_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 70, max: 70 },
+        baseVeinCapacity: { min: 40, max: 40 },
 
         yields: {
             stone: { min: 0, max: 1 },
@@ -154,7 +154,7 @@ const MinesConfig = {
         requiresStars: { mineType: 'iron_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 30, max: 30 },
+        baseVeinCapacity: { min: 40, max: 40 },
 
         yields: {
             stone: { min: 0, max: 0 },
@@ -234,7 +234,7 @@ const MinesConfig = {
         requiresStars: { mineType: 'diamond_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 20, max: 20 },
+        baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
             stone: { min: 0, max: 0 },

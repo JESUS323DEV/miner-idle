@@ -3,7 +3,7 @@ import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
 import { DogsConfig, RARITY_COLORS } from "../../game/config/DogsConfig.js";
-import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL } from "../../game/config/MineCompanionConfig.js";
+import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL, RARITY_AUTOMINE_INTERVAL } from "../../game/config/MineCompanionConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
 import { playSfx } from "../../game/utils/sfx.js";
 
@@ -84,7 +84,8 @@ const MineScreen = ({ isOpen, onClose }) => {
   const [animTriggers, setAnimTriggers] = useState({});
   const [ultFireTriggers, setUltFireTriggers] = useState({});
   const [earthTriggers, setEarthTriggers] = useState({});
-  const [ultNotif, setUltNotif] = useState(null); // { text, color, count }
+  const [electricVeinTrigger, setElectricVeinTrigger] = useState(null);
+  const [waterVeinTrigger, setWaterVeinTrigger] = useState(null);
   const automineRef = useRef(null);
   const mineContentRef = useRef(null);
   const currentMineRef = useRef(currentMine);
@@ -107,15 +108,25 @@ const MineScreen = ({ isOpen, onClose }) => {
     }
   }, [totalRemaining, isOpen, currentMine]);
 
-  // ULT fuego: detecta disparo y anima la vena objetivo
+  // Resetea todos los triggers al entrar a una mina nueva
   useEffect(() => {
-    const trigger = currentMine?.powers?.ultFireTrigger;
-    const veinId = currentMine?.powers?.ultLastVeinId;
-    const isIngot = currentMine?.powers?.ultLastIngot;
-    if (!trigger || !veinId) return;
-    setUltFireTriggers(prev => ({ ...prev, [veinId]: { count: (prev[veinId]?.count || 0) + 1, isIngot } }));
+    if (!currentMine) return;
+    setAnimTriggers({});
+    setUltFireTriggers({});
+    setEarthTriggers({});
+    setElectricVeinTrigger(null);
+    setWaterVeinTrigger(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMine?.powers?.ultFireTrigger]);
+  }, [currentMine?.mineType]);
+
+  // Fuego: flash rojo + lingote flotante por tick de automine
+  useEffect(() => {
+    const t = currentMine?.powers?.fireVeinTrigger;
+    if (!t) return;
+    setUltFireTriggers(prev => ({ ...prev, [t.veinId]: { count: (prev[t.veinId]?.count || 0) + 1, amount: t.amount } }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.fireVeinTrigger?.seq]);
+
 
   // ULT tierra: flash marrón + loot flotante en cada vena afectada
   useEffect(() => {
@@ -130,53 +141,47 @@ const MineScreen = ({ isOpen, onClose }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMine?.powers?.earthquakeTrigger]);
 
-  // ULT eléctrico: notificación de activación
+  // Eléctrico: floating por hit de automine
   useEffect(() => {
-    if (!currentMine?.powers?.electricTrigger) return;
-    const range = `+${currentMine.powers.electricMin}-${currentMine.powers.electricMax}/golpe`;
-    setUltNotif({ text: `⚡ ${range}`, color: '#00e5ff' });
-    const t = setTimeout(() => setUltNotif(null), 2500);
-    return () => clearTimeout(t);
+    const t = currentMine?.powers?.electricVeinTrigger;
+    if (!t) return;
+    setElectricVeinTrigger(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMine?.powers?.electricTrigger]);
+  }, [currentMine?.powers?.electricVeinTrigger?.seq]);
 
-  // ULT agua: notificación del multiplicador
+  // Agua: floating +N por hit de automine
   useEffect(() => {
-    if (!currentMine?.powers?.waterTrigger) return;
-    setUltNotif({ text: `x${currentMine.powers.waterMult} materiales`, color: '#4dd0e1' });
-    const t = setTimeout(() => setUltNotif(null), 2500);
-    return () => clearTimeout(t);
+    const t = currentMine?.powers?.waterVeinTrigger;
+    if (!t) return;
+    setWaterVeinTrigger(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMine?.powers?.waterTrigger]);
+  }, [currentMine?.powers?.waterVeinTrigger?.seq]);
 
-  // ULT oscuro timed: notificación de velocidad
-  useEffect(() => {
-    if (!currentMine?.powers?.furyTrigger) return;
-    setUltNotif({ text: `+${currentMine.powers.furyPercent}% velocidad`, color: '#ce93d8' });
-    const t = setTimeout(() => setUltNotif(null), 2500);
-    return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMine?.powers?.furyTrigger]);
 
-  // Automine siempre activo. Velocidad = 166ms / (1 + furyBonus)
+  // Automine con delay inicial al entrar
   useEffect(() => {
     clearInterval(automineRef.current);
     if (!isOpen || !currentMine) return;
 
+    const cId = currentMine.companion?.dogId ?? null;
+    const rarity = cId ? DogsConfig[cId]?.rarity : null;
+    const baseInterval = RARITY_AUTOMINE_INTERVAL[rarity] ?? MINE_AUTOMINE_INTERVAL;
     const furyBonus = currentMine.powers?.furyBonus ?? 0;
-    const interval = Math.max(50, Math.round(MINE_AUTOMINE_INTERVAL / (1 + furyBonus)));
+    const interval = Math.max(50, Math.round(baseInterval / (1 + furyBonus)));
 
-    automineRef.current = setInterval(() => {
-      const mine = currentMineRef.current;
-      if (!mine) return;
-      const available = mine.veins.filter(v => v.remaining > 0);
-      if (available.length === 0) return;
-      const vein = available[Math.floor(Math.random() * available.length)];
-      handleMineVein(vein.id, true);
-      setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
-    }, interval);
+    const delay = setTimeout(() => {
+      automineRef.current = setInterval(() => {
+        const mine = currentMineRef.current;
+        if (!mine) return;
+        const available = mine.veins.filter(v => v.remaining > 0);
+        if (available.length === 0) return;
+        const vein = available[Math.floor(Math.random() * available.length)];
+        handleMineVein(vein.id, true);
+        setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
+      }, interval);
+    }, 1000);
 
-    return () => clearInterval(automineRef.current);
+    return () => { clearTimeout(delay); clearInterval(automineRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, currentMine?.powers?.furyBonus, currentMine?.mineType]);
 
@@ -242,12 +247,7 @@ const MineScreen = ({ isOpen, onClose }) => {
           onActivateUlt={handleActivateMineUlt}
         />
 
-        {/* NOTIFICACIÓN ULT GLOBAL (eléctrico / agua / oscuro) */}
-        {ultNotif && (
-          <div className="ult-global-notif" style={{ color: ultNotif.color, borderColor: ultNotif.color }}>
-            {ultNotif.text}
-          </div>
-        )}
+
 
         {/* VENAS */}
         <div className="veins-container">
@@ -261,6 +261,8 @@ const MineScreen = ({ isOpen, onClose }) => {
               animTrigger={animTriggers[vein.id] || 0}
               ultTrigger={ultFireTriggers[vein.id] || null}
               earthTrigger={earthTriggers[vein.id] || null}
+              electricTrigger={electricVeinTrigger?.veinId === vein.id ? electricVeinTrigger : null}
+              waterTrigger={waterVeinTrigger?.veinId === vein.id ? waterVeinTrigger : null}
             />
           ))}
         </div>
@@ -286,28 +288,33 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
   const ultCooldownSecs = ultOnCooldown ? Math.ceil((powers.ultCooldownUntil - now) / 1000) : 0;
   const ultTimedActive = powers.ultActive && powers.ultUntil && now < powers.ultUntil;
   const ultTimedSecs = ultTimedActive ? Math.ceil((powers.ultUntil - now) / 1000) : 0;
+  const fireTimedActive = powers.fireActive && powers.fireUntil && now < powers.fireUntil;
+  const fireTimedSecs = fireTimedActive ? Math.ceil((powers.fireUntil - now) / 1000) : 0;
   const ultUsed = powers.ultUsed;
   const isSessionSpeed = ultType === 'session_speed';
 
   const getUltLabel = () => {
     if (!ultCfg) return null;
     if (ultOnCooldown) return `${ultCooldownSecs}s`;
+    if (ultType === 'timed_ingots' && fireTimedActive) return `${fireTimedSecs}s`;
     if (ultTimedActive) return `${ultTimedSecs}s activo`;
-    if (ultUsed && ultType !== 'cooldown_ingots' && ultType !== 'timed_speed') return 'Usada';
+    if (ultUsed && ultType !== 'timed_speed') return 'Usada';
     return ultCfg.name;
   };
 
   const ultDisabled = !companionId || !ultCfg || isSessionSpeed
     || ultOnCooldown
-    || (ultUsed && ultType !== 'cooldown_ingots' && ultType !== 'timed_speed')
-    || ultTimedActive;
+    || (ultUsed && ultType !== 'timed_speed')
+    || ultTimedActive
+    || fireTimedActive;
 
   // Pasiva 2: biome bonus del perro
   const biomeBonus = companionId ? (companionCfg?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
 
   // Pasiva 1: automine interval en ms
   const furyBonus = powers.furyBonus ?? 0;
-  const automineMs = Math.max(50, Math.round(MINE_AUTOMINE_INTERVAL / (1 + furyBonus)));
+  const baseInterval = companionId ? (RARITY_AUTOMINE_INTERVAL[companionCfg?.rarity] ?? MINE_AUTOMINE_INTERVAL) : MINE_AUTOMINE_INTERVAL;
+  const automineMs = Math.max(50, Math.round(baseInterval / (1 + furyBonus)));
 
   return (
     <div className="companion-panel">
@@ -351,7 +358,7 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
         <div className="companion-ult-row">
           {!isSessionSpeed ? (
             <button
-              className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${ultType === 'cooldown_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
+              className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${(ultType === 'timed_ingots') ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
               style={{ '--ult-color': elemColor }}
               onClick={onActivateUlt}
               disabled={ultDisabled}
@@ -365,6 +372,11 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
           )}
 
           {/* Estado electrico / agua activo */}
+          {powers.fireActive && (
+            <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.fuego }}>
+              +{powers.fireMin === powers.fireMax ? powers.fireMin : `${powers.fireMin}-${powers.fireMax}`} lingote/golpe
+            </span>
+          )}
           {powers.electricActive && (
             <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.electrico }}>
               +{powers.electricMin}-{powers.electricMax} por golpe
@@ -385,13 +397,15 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
 
 // ===================== VENA (solo visual, no clickeable) =====================
 
-const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthTrigger }) => {
+const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthTrigger, electricTrigger, waterTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
-  const [isFireFlash, setIsFireFlash] = useState(false);
   const [isEarthFlash, setIsEarthFlash] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
   const [floatingIngots, setFloatingIngots] = useState([]);
   const [floatingEarth, setFloatingEarth] = useState([]);
+  const [floatingElectric, setFloatingElectric] = useState([]);
+  const [floatingWater, setFloatingWater] = useState([]);
+  const electricTimeoutRef = useRef(null);
   const veinRef = useRef(null);
 
   useEffect(() => {
@@ -407,17 +421,13 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthT
   }, [animTrigger]);
 
   useEffect(() => {
-    if (!ultTrigger) return;
-    setIsFireFlash(true);
-    setTimeout(() => setIsFireFlash(false), 500);
+    if (!ultTrigger?.amount) return;
     const rect = veinRef.current?.getBoundingClientRect();
     const x = rect ? rect.width / 2 + 8 : 48;
     const y = rect ? rect.height / 2 : 40;
     const ingotId = Date.now() + Math.random();
-    if (ultTrigger.isIngot) {
-      setFloatingIngots(prev => [...prev, { id: ingotId, x, y }]);
-      setTimeout(() => setFloatingIngots(prev => prev.filter(n => n.id !== ingotId)), 1000);
-    }
+    setFloatingIngots(prev => [...prev, { id: ingotId, x, y }]);
+    setTimeout(() => setFloatingIngots(prev => prev.filter(n => n.id !== ingotId)), 4200);
   }, [ultTrigger?.count]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -429,15 +439,36 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthT
     const y = rect ? rect.height / 2 : 40;
     const earthId = Date.now() + Math.random();
     setFloatingEarth(prev => [...prev, { id: earthId, x, y, hits: earthTrigger.hits }]);
-    setTimeout(() => setFloatingEarth(prev => prev.filter(n => n.id !== earthId)), 1100);
+    setTimeout(() => setFloatingEarth(prev => prev.filter(n => n.id !== earthId)), 4200);
   }, [earthTrigger?.count]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!electricTrigger) return;
+    if (electricTimeoutRef.current) clearTimeout(electricTimeoutRef.current);
+    const rect = veinRef.current?.getBoundingClientRect();
+    const x = rect ? rect.width / 2 + 8 : 48;
+    const y = rect ? rect.height / 2 : 40;
+    const elecId = Date.now() + Math.random();
+    setFloatingElectric([{ id: elecId, x, y }]);
+    electricTimeoutRef.current = setTimeout(() => setFloatingElectric([]), 4200);
+  }, [electricTrigger?.seq]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!waterTrigger) return;
+    const rect = veinRef.current?.getBoundingClientRect();
+    const x = rect ? rect.width / 2 + 8 : 48;
+    const y = rect ? rect.height / 2 : 40;
+    const waterId = Date.now() + Math.random();
+    setFloatingWater(prev => [...prev, { id: waterId, x, y, bonus: waterTrigger.bonus }]);
+    setTimeout(() => setFloatingWater(prev => prev.filter(n => n.id !== waterId)), 4200);
+  }, [waterTrigger?.seq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDepleted = vein.remaining === 0;
 
   return (
     <div
       ref={veinRef}
-      className={`vein vein-auto${isShaking ? ' shake' : ''}${isDepleted ? ' depleted' : ''}${isFireFlash ? ' vein-fire-flash' : ''}${isEarthFlash ? ' vein-earth-flash' : ''}`}
+      className={`vein vein-auto${isShaking ? ' shake' : ''}${isDepleted ? ' depleted' : ''}${isEarthFlash ? ' vein-earth-flash' : ''}`}
     >
       <div className="vein-icon">
         <img src={menaImg} alt="mena" className="vein-img" />
@@ -456,7 +487,17 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthT
       ))}
       {floatingEarth.map((e) => (
         <div key={e.id} className="floating-number floating-earth" style={{ left: `${e.x}px`, top: `${e.y}px` }}>
-          -{e.hits}
+          +<img src={hudImg} alt="mat" className="mena-floating-icon-earth" />
+        </div>
+      ))}
+      {floatingElectric.map((e) => (
+        <div key={e.id} className="floating-number floating-electric" style={{ left: `${e.x}px`, top: `${e.y}px` }}>
+          +<img src={hudImg} alt="mat" className="mena-floating-icon" />
+        </div>
+      ))}
+      {floatingWater.map((w) => (
+        <div key={w.id} className="floating-number floating-water" style={{ left: `${w.x}px`, top: `${w.y}px` }}>
+          +{w.bonus}<img src={hudImg} alt="mat" className="mena-floating-icon" />
         </div>
       ))}
     </div>

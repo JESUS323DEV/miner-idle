@@ -7,7 +7,6 @@ import {
     getEarthquakeDamage,
     getElectricRange,
     getWaterRange,
-    getFuegoCooldown,
 } from '../../config/MineCompanionConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
@@ -223,6 +222,12 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 ? powers.electricMin + Math.floor(Math.random() * (powers.electricMax - powers.electricMin + 1))
                 : 0;
 
+            // Fire ingot (timed_ingots activo y dentro del tiempo)
+            const ingotKey = BIOME_INGOT_KEY[baseMineType];
+            const fireIngot = (fromAutomine && powers.fireActive && now < (powers.fireUntil ?? 0))
+                ? powers.fireMin + Math.floor(Math.random() * (powers.fireMax - powers.fireMin + 1))
+                : 0;
+
             // Water multiplier (once_water activo toda sesión)
             const waterMult = powers.waterMult ?? 1;
 
@@ -230,6 +235,9 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             const bonusMult = (powers.bonusActive && powers.bonusUntil && now < powers.bonusUntil) ? 2 : 1;
 
             const materialGained = Math.round((baseGain + burstBonus + electricExtra) * biomeBonus * waterMult * bonusMult);
+            const waterBonus = (fromAutomine && waterMult > 1)
+                ? materialGained - Math.round((baseGain + burstBonus + electricExtra) * biomeBonus * bonusMult)
+                : 0;
 
             const updatedVeins = [...mine.veins];
             updatedVeins[veinIndex] = {
@@ -237,8 +245,16 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 remaining: Math.max(0, vein.remaining - Math.ceil(miningPower))
             };
 
+            const newPowers = (electricExtra > 0 || fireIngot > 0 || waterBonus > 0) ? {
+                ...powers,
+                ...(electricExtra > 0 ? { electricVeinTrigger: { seq: (powers.electricVeinTrigger?.seq ?? 0) + 1, veinId } } : {}),
+                ...(fireIngot > 0 ? { fireVeinTrigger: { seq: (powers.fireVeinTrigger?.seq ?? 0) + 1, veinId, amount: fireIngot } } : {}),
+                ...(waterBonus > 0 ? { waterVeinTrigger: { seq: (powers.waterVeinTrigger?.seq ?? 0) + 1, veinId, bonus: waterBonus } } : {}),
+            } : powers;
+
             return {
                 ...prevState,
+                ...(fireIngot > 0 ? { [ingotKey]: (prevState[ingotKey] ?? 0) + fireIngot } : {}),
                 pickaxe: skipDurability ? prevState.pickaxe : { ...prevState.pickaxe, durability: prevState.pickaxe.durability - 1 },
                 mines: {
                     ...prevState.mines,
@@ -250,6 +266,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                             [baseMineType]: mine.resourcesGathered[baseMineType] + materialGained
                         },
                         clicksCount: mine.clicksCount + 1,
+                        powers: newPowers,
                     }
                 }
             };
@@ -300,51 +317,24 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             const mineType = mine.mineType;
             const baseMineType = mineType.replace('_lvl2', '').replace('_lvl3', '');
 
-            // cooldown_ingots (fuego): 1 hit inmediato → puede dar lingote, luego cooldown
-            if (cfg.type === 'cooldown_ingots') {
-                if (powers.ultCooldownUntil && now < powers.ultCooldownUntil) return prevState;
-
-                const cooldown = getFuegoCooldown(companionId, stars);
-                const availableVeins = mine.veins.filter(v => v.remaining > 0);
-                if (availableVeins.length === 0) return prevState;
-
-                const targetVein = availableVeins[Math.floor(Math.random() * availableVeins.length)];
-                const veinIndex = mine.veins.findIndex(v => v.id === targetVein.id);
-                const pickaxeMaterial = prevState.pickaxe.material;
-                const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
-                const materialGained = yieldRange
-                    ? Math.floor(Math.random() * (yieldRange.max - yieldRange.min + 1)) + yieldRange.min
-                    : 1;
-                const miningPower = prevState.pickaxe.miningPowerByMaterial?.[pickaxeMaterial] || 1;
-                const biomeBonus = DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0;
-                const finalMat = Math.round(materialGained * biomeBonus);
-
-                const ingotProc = Math.random() < cfg.chance;
-                const ingotKey = BIOME_INGOT_KEY[baseMineType];
-
-                const updatedVeins = mine.veins.map((v, idx) =>
-                    idx === veinIndex ? { ...v, remaining: Math.max(0, v.remaining - Math.ceil(miningPower)) } : v
-                );
-
+            // timed_ingots (fuego): +1 lingote por tick durante X segundos, una vez por sesión
+            if (cfg.type === 'timed_ingots') {
+                if (powers.ultUsed) return prevState;
+                const duration = cfg.starDurations?.[Math.min(5, stars)] ?? 3000;
+                const [fMin, fMax] = cfg.starRanges?.[Math.min(5, stars)] ?? [1, 1];
                 return {
                     ...prevState,
-                    ...(ingotProc ? { [ingotKey]: (prevState[ingotKey] ?? 0) + finalMat } : {}),
                     mines: {
                         ...prevState.mines,
                         currentMine: {
                             ...mine,
-                            veins: updatedVeins,
-                            clicksCount: mine.clicksCount + 1,
-                            resourcesGathered: {
-                                ...mine.resourcesGathered,
-                                [baseMineType]: mine.resourcesGathered[baseMineType] + (ingotProc ? 0 : finalMat),
-                            },
                             powers: {
                                 ...powers,
-                                ultCooldownUntil: now + cooldown,
-                                ultLastVeinId: targetVein.id,
-                                ultFireTrigger: (powers.ultFireTrigger ?? 0) + 1,
-                                ultLastIngot: ingotProc,
+                                ultUsed: true,
+                                fireActive: true,
+                                fireUntil: now + duration,
+                                fireMin: fMin,
+                                fireMax: fMax,
                             }
                         }
                     }

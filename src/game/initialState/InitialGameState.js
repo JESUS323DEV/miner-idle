@@ -18,9 +18,9 @@ const InitialGameState = {
     diamond: 5,
 
     // ========== LINGOTES ==========
-    bronzeIngot: 10000,
-    ironIngot: 50000,
-    diamondIngot:10000,
+    bronzeIngot: 10,
+    ironIngot: 5,
+    diamondIngot: 0,
 
     // ========== BURST (antes Stamina) ==========
     stamina: 15,                      // segundos restantes del burst activo (UI: X/maxStamina)
@@ -41,8 +41,8 @@ const InitialGameState = {
 
     // ========== SNACKS DE MINA ==========
     mineSnacks: {
-        automine:  { charges: 2, activeUntil: null, remainingMs: 0 },
-        dynamite:  { charges: 2 },
+        automine: { charges: 2, activeUntil: null, remainingMs: 0 },
+        dynamite: { charges: 2 },
         toughness: { charges: 2, activeUntil: null, remainingMs: 0 },
     },
 
@@ -81,7 +81,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 10000,
+    tavernCoins: 1,
     tavernUnlocked: false,
 
     // ========== MINAS ==========

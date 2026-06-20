@@ -1,10 +1,16 @@
-export const MINE_AUTOMINE_INTERVAL = 500;
+export const MINE_AUTOMINE_INTERVAL = 500; // sin companion
+
+export const RARITY_AUTOMINE_INTERVAL = {
+    legendary: 200,
+    epic:      300,
+    rare:      400,
+};
 
 export const ELEMENT_COLORS = {
     fuego:    '#ff5252',
-    electrico: '#00e5ff',
+    electrico: '#ffd740',
     tierra:   '#c8a96e',
-    agua:     '#4dd0e1',
+    agua:     '#2979ff',
     oscuro:   '#ce93d8',
 };
 
@@ -15,9 +21,9 @@ export const BIOME_INGOT_KEY = {
 };
 
 // Ult types:
-//  cooldown_ingots  — fuego: 1 hit on click, high chance of ingot, goes on cooldown
+//  timed_ingots     — fuego: 1 activation, +1 lingote por automine hit durante X segundos (3s→7s)
 //  session_bounce   — electrico: 1 activation, bonus material on every automine hit whole session
-//  once_earthquake  — tierra: 1 use, reduces all vein remaining by damage%, no loot for removed hits
+//  once_earthquake  — tierra: 1 use, reduces all vein remaining by damage%, gives loot for removed hits
 //  once_water       — agua: 1 use, random multiplier to all material gains for whole session
 //  session_speed    — oscuro legendary: speed boost auto-applied from session start, no button
 //  timed_speed      — oscuro epic/rare: activatable speed boost for X seconds
@@ -27,11 +33,10 @@ export const MineCompanionConfig = {
     lady: {
         element: 'fuego',
         ult: {
-            type: 'cooldown_ingots',
+            type: 'timed_ingots',
             name: 'Pelota de Fuego',
-            baseCooldown: 10000,
-            starReduction: 1000, // -1s per star → 5s at 5★
-            chance: 0.85,
+            starDurations: [3000, 3000, 4000, 5000, 6000, 7000],
+            starRanges: [[1,1],[1,1],[1,1],[1,1],[1,1],[1,2]],
         },
     },
     tokio: {
@@ -84,11 +89,10 @@ export const MineCompanionConfig = {
     smoke: {
         element: 'fuego',
         ult: {
-            type: 'cooldown_ingots',
+            type: 'timed_ingots',
             name: 'Pelota de Fuego',
-            baseCooldown: 20000,
-            starReduction: 2000, // → 10s at 5★ (matches Lady base)
-            chance: 0.70,
+            starDurations: [3000, 3000, 4000, 5000, 6000, 7000],
+            starRanges: [[1,1],[1,1],[1,1],[1,1],[1,1],[1,2]],
         },
     },
     nupito: {
