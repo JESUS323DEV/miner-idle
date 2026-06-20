@@ -3,8 +3,9 @@ import '../../styles/modals/MinesMapModal.css';
 import '../../styles/modals/MineScreen.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
-import { DogsConfig } from '../../game/config/DogsConfig.js';
-import { SESSION_DURATION } from '../../game/initialState/InitialYacimientosState.js';
+import { DogsConfig, RARITY_COLORS } from '../../game/config/DogsConfig.js';
+import { SESSION_DURATION, COOLDOWN_DURATION } from '../../game/initialState/InitialYacimientosState.js';
+import { MineCompanionConfig, ELEMENT_COLORS } from '../../game/config/MineCompanionConfig.js';
 
 const BIOME_INTRO = {
     bronze:  { title: "Mina de Bronce",   text: "Explora minas de extracción para conseguir materiales con tu pico y desbloquea puestos mineros donde tus mascotas trabajarán por ti incluso cuando no estés minando. Después, convierte las menas en valiosos lingotes en la forja para mejorar tu equipo y seguir avanzando." },
@@ -63,7 +64,6 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         setGameState,
         handleUnlockMineType: onUnlockType,
         handleUnlockYacimientoSlot: onUnlockYacimientoSlot,
-        handleActivateYacimiento: onActivateYacimiento,
         handleAssignDog: onAssignDog,
         handleUnassignDog: onUnassignDog,
     } = useGameContext();
@@ -73,6 +73,8 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
     const [showIntro, setShowIntro] = useState(false);
     const [dogMenuSlot, setDogMenuSlot] = useState(null);
+    const [preEntryMine, setPreEntryMine] = useState(null);
+    const [selectedCompanion, setSelectedCompanion] = useState(null);
 
     useEffect(() => {
         if (!isOpen || !selectedBiome) return;
@@ -101,6 +103,10 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
         return num;
     };
+
+    const getAvailableCompanions = () => Object.values(dogs).filter(d =>
+        d && d.hired && (d.assignedTo === null || d.assignedTo?.globalSlot !== undefined)
+    );
 
     const filteredUnlocked = unlockedTypes
         .filter(type => type !== 'gold')
@@ -152,7 +158,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                             <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
                                 <button
                                     className={`btn-enter-mine${!set1Complete ? ' locked' : ''}`}
-                                    onClick={() => set1Complete && onEnterMine(type)}
+                                    onClick={() => { if (set1Complete) { setPreEntryMine(type); setSelectedCompanion(null); } }}
                                     disabled={!set1Complete}
                                     title={!set1Complete ? 'Reclama todas las recompensas de bienvenida primero' : undefined}
                                 >
@@ -191,13 +197,27 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                         );
                     })}
 
+                    {preEntryMine && (
+                        <PreEntryScreen
+                            mineType={preEntryMine}
+                            availableCompanions={getAvailableCompanions()}
+                            selectedCompanion={selectedCompanion}
+                            onSelectCompanion={setSelectedCompanion}
+                            onConfirm={() => {
+                                onEnterMine(preEntryMine, selectedCompanion);
+                                setPreEntryMine(null);
+                                setSelectedCompanion(null);
+                            }}
+                            onCancel={() => { setPreEntryMine(null); setSelectedCompanion(null); }}
+                        />
+                    )}
+
                     {yacimientos && selectedBiome && (
                         <div className="yacimientos-section">
                             <div className="yacimientos-slots">
                                 {yacimientos[selectedBiome].slots.map(slot => {
                                     const dogAssigned = getDogAssigned(slot.id);
                                     const unlockCost = yacimientos[selectedBiome].unlockCost;
-                                    const rechargeCost = yacimientos[selectedBiome].rechargeCost;
 
                                     if (!slot.unlocked) {
                                         const canAffordSlot =
@@ -242,14 +262,9 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                             slot={slot}
                                             selectedBiome={selectedBiome}
                                             dogAssigned={dogAssigned}
-                                            rechargeCost={rechargeCost}
-                                            currentGold={currentGold}
                                             dogMenuOpen={dogMenuSlot === slot.id}
                                             availableDogs={getAvailableDogs()}
-                                            formatNumber2={formatNumber2}
-                                            iconGold={iconGold}
                                             menaAsset={menaIntactAssets[selectedBiome]}
-                                            onActivate={() => onActivateYacimiento(slot.id, selectedBiome)}
                                             onAssignDog={onAssignDog}
                                             onUnassignDog={onUnassignDog}
                                             onToggleDogMenu={() => setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id)}
@@ -268,28 +283,48 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
 
 const YacimientoSlotActivo = ({
-    slot, selectedBiome, dogAssigned, rechargeCost, currentGold,
-    dogMenuOpen, availableDogs, formatNumber2, iconGold, menaAsset,
-    onActivate, onAssignDog, onUnassignDog, onToggleDogMenu,
+    slot, selectedBiome, dogAssigned,
+    dogMenuOpen, availableDogs, menaAsset,
+    onAssignDog, onUnassignDog, onToggleDogMenu,
 }) => {
     const [secondsLeft, setSecondsLeft] = useState(0);
     const [slotFlipped, setSlotFlipped] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
+    const [floats, setFloats] = useState([]);
+    const lastTickRef = useRef(null);
 
     const session = slot.session;
-    const isActive = session?.active === true;
-    const isExpired = session && !session.active;
+    const phase = session?.phase;
+    const isMining = phase === 'mining';
+    const isCooldown = phase === 'cooldown';
 
     useEffect(() => {
-        if (!isActive) { setSecondsLeft(0); return; }
-        const update = () => {
-            const elapsed = Date.now() - session.startedAt;
-            const remaining = Math.max(0, Math.ceil((SESSION_DURATION - elapsed) / 1000));
-            setSecondsLeft(remaining);
-        };
+        if (!session?.endsAt) { setSecondsLeft(0); return; }
+        const update = () => setSecondsLeft(Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000)));
         update();
         const interval = setInterval(update, 1000);
         return () => clearInterval(interval);
-    }, [isActive, session?.startedAt]); // eslint-disable-line
+    }, [session?.endsAt]); // eslint-disable-line
+
+    // Trigger shake + float cuando cambia lastTick
+    useEffect(() => {
+        const tick = session?.lastTick;
+        if (!tick || tick === lastTickRef.current) return;
+        lastTickRef.current = tick;
+
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 150);
+
+        const dogConfig = dogAssigned ? DogsConfig[dogAssigned.id] : null;
+        const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dogAssigned?.stars ?? 0);
+        const baseYield = dogConfig?.yacimientoYield ?? 1;
+        const biomeMult = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const displayYield = Math.round(baseYield * biomeMult * starMult);
+
+        const floatId = Date.now();
+        setFloats(prev => [...prev, { id: floatId, value: displayYield }]);
+        setTimeout(() => setFloats(prev => prev.filter(f => f.id !== floatId)), 900);
+    }, [session?.lastTick]); // eslint-disable-line
 
     const formatTime = (s) => {
         const m = Math.floor(s / 60);
@@ -297,54 +332,43 @@ const YacimientoSlotActivo = ({
         return `${m}:${sec.toString().padStart(2, '0')}`;
     };
 
-    const canAffordRecharge = currentGold >= rechargeCost.gold;
-
-    const sessionLabel = () => {
-        if (!dogAssigned) return null;
-        if (isActive) return <span className="yacimiento-timer">{formatTime(secondsLeft)}</span>;
-        if (isExpired) return (
-            <button
-                className={`yacimiento-activate-btn recharge ${!canAffordRecharge ? 'disabled' : ''}`}
-                disabled={!canAffordRecharge}
-                onClick={(e) => { e.stopPropagation(); onActivate(); }}
-            >
-                <img src={iconGold} alt="gold" />
-                {formatNumber2(rechargeCost.gold)} Recargar
-            </button>
-        );
-        return (
-            <button
-                className={`yacimiento-activate-btn ${!canAffordRecharge ? 'disabled' : ''}`}
-                disabled={!canAffordRecharge}
-                onClick={(e) => { e.stopPropagation(); onActivate(); }}
-            >
-                <img src={iconGold} alt="gold" />
-                {formatNumber2(rechargeCost.gold)} Activar
-            </button>
-        );
-    };
-
     return (
-        <div className={`yacimiento-slot active${isActive ? ' session-active' : ''}`}>
-            <div className="yacimiento-mena-wrapper">
-                <img src={menaAsset} alt={selectedBiome} className={`yacimiento-mena-img${isActive ? ' mena-mining' : ''}`} />
+        <div className={`yacimiento-slot active${isMining ? ' session-mining' : ''}${isCooldown ? ' session-cooldown' : ''}`}>
+            <div className={`yacimiento-mena-wrapper${isShaking ? ' mena-shake' : ''}`}>
+                <img
+                    src={menaAsset}
+                    alt={selectedBiome}
+                    className={`yacimiento-mena-img${isMining ? ' mena-mining' : ''}${isCooldown ? ' mena-cooldown' : ''}`}
+                />
+                {floats.map(f => (
+                    <div key={f.id} className="mena-floating">
+                        +{f.value} <img src={biomeHudAssets[selectedBiome]} alt="" className="mena-floating-icon" />
+                    </div>
+                ))}
                 <div className="yacimiento-mena-overlay">
-                    {!dogAssigned ? (
+                    {!dogAssigned && (
                         <span className="yacimiento-no-dog">Asigna un perro</span>
-                    ) : (
-                        sessionLabel()
                     )}
                 </div>
             </div>
 
             <div
-                className={`dog-slot-box${dogAssigned ? ` dog-rarity-${DogsConfig[dogAssigned.id]?.rarity}` : ''}`}
+                className={`dog-slot-box${dogAssigned ? ` dog-rarity-${DogsConfig[dogAssigned.id]?.rarity}` : ''}${isCooldown ? ' slot-cooldown' : ''}`}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (isMining) return;
                     if (dogAssigned) setSlotFlipped(f => !f);
                     onToggleDogMenu();
                 }}
             >
+                {/* Timer superpuesto sobre el perro */}
+                {dogAssigned && (isMining || isCooldown) && (
+                    <div className="dog-slot-timer-overlay">
+                        <span className={isCooldown ? 'yacimiento-cooldown-timer' : 'yacimiento-timer'}>
+                            {formatTime(secondsLeft)}
+                        </span>
+                    </div>
+                )}
                 <div className={`dog-slot-flip${slotFlipped && dogAssigned ? ' flipped' : ''}`}>
                     <div className="dog-slot-front">
                         {dogAssigned ? (
@@ -353,9 +377,11 @@ const YacimientoSlotActivo = ({
                                     ? <img src={dogAssets[dogAssigned.id]} className="dog-slot-img" alt={dogAssigned.id} />
                                     : <span className="dog-slot-emoji">🐕</span>
                                 }
-                                <button className="dog-slot-unassign"
-                                    onClick={(e) => { e.stopPropagation(); setSlotFlipped(false); onUnassignDog(dogAssigned.id); }}
-                                >✖</button>
+                                {!isMining && (
+                                    <button className="dog-slot-unassign"
+                                        onClick={(e) => { e.stopPropagation(); setSlotFlipped(false); onUnassignDog(dogAssigned.id); }}
+                                    >✖</button>
+                                )}
                             </>
                         ) : (
                             <>
@@ -366,16 +392,20 @@ const YacimientoSlotActivo = ({
                     </div>
                     {dogAssigned && (() => {
                         const cfg = DogsConfig[dogAssigned.id];
+                        const starMult = 1 + (cfg?.starBonus ?? 0) * (dogAssigned.stars ?? 0);
+                        const yieldPerHit = Math.round((cfg?.yacimientoYield ?? 1) * (cfg?.biomeBonus?.[selectedBiome] ?? 1) * starMult);
+                        const stats = cfg ? { miningSpeed: cfg.miningSpeed / starMult } : null;
+                        const secsPerHit = stats ? (stats.miningSpeed * 2).toFixed(1) : '2.0';
                         return (
                             <div className="dog-slot-back">
-                                <span>+{cfg?.yacimientoYield ?? 1}/tick</span>
-                                <span>2s por tick</span>
+                                <span>+{yieldPerHit}/golpe</span>
+                                <span>{secsPerHit}s/golpe</span>
                             </div>
                         );
                     })()}
                 </div>
 
-                {dogMenuOpen && (
+                {dogMenuOpen && !isMining && (
                     <div className="dog-menu">
                         {availableDogs.length === 0
                             ? <span className="dog-menu-empty">Sin mascotas libres</span>
@@ -395,6 +425,80 @@ const YacimientoSlotActivo = ({
             <span className="dog-slot-label">
                 {dogAssigned ? (DogsConfig[dogAssigned.id]?.name ?? dogAssigned.id) : 'mascota'}
             </span>
+        </div>
+    );
+};
+
+const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSelectCompanion, onConfirm, onCancel }) => {
+
+    return (
+        <div className="pre-entry-overlay">
+            <div className="pre-entry-panel">
+                <h3 className="pre-entry-title">Elige tu ayudante</h3>
+                <p className="pre-entry-sub">
+                    {mineType.replace('_lvl2',' II').replace('_lvl3',' III').replace('bronze','Bronce').replace('iron','Hierro').replace('diamond','Diamante')}
+                </p>
+
+                <div className="pre-entry-dogs">
+                    {/* Sin ayudante */}
+                    <button
+                        className={`pre-entry-dog-btn${selectedCompanion === '__none__' ? ' selected' : ''}`}
+                        onClick={() => onSelectCompanion('__none__')}
+                    >
+                        <span className="pre-entry-dog-empty">?</span>
+                        <span className="pre-entry-dog-name">Sin ayudante</span>
+                    </button>
+
+                    {availableCompanions.map(dog => {
+                        const cfg = DogsConfig[dog.id];
+                        const compCfg = MineCompanionConfig[dog.id];
+                        const elemColor = compCfg ? ELEMENT_COLORS[compCfg.element] : '#aaa';
+                        const rarityColor = RARITY_COLORS[cfg?.rarity] ?? '#aaa';
+                        const icon = dogAssets[dog.id];
+                        return (
+                            <button
+                                key={dog.id}
+                                className={`pre-entry-dog-btn${selectedCompanion === dog.id ? ' selected' : ''}`}
+                                onClick={() => onSelectCompanion(dog.id)}
+                                style={{ '--elem-color': rarityColor }}
+                            >
+                                {icon && (
+                                    <img
+                                        src={icon}
+                                        alt={cfg?.name ?? dog.id}
+                                        className="pre-entry-dog-icon"
+                                        style={{ borderColor: rarityColor }}
+                                    />
+                                )}
+                                <span className="pre-entry-dog-name">{cfg?.name ?? dog.id}</span>
+                                {compCfg && (
+                                    <span className="pre-entry-dog-elem" style={{ color: elemColor }}>
+                                        {compCfg.element}
+                                    </span>
+                                )}
+                                {compCfg && (
+                                    <span className="pre-entry-dog-ult">{compCfg.ult.name}</span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {(selectedCompanion === '__none__' || (availableCompanions.length === 0 && !selectedCompanion)) && (
+                    <p className="pre-entry-warning">Sin ayudante: automine base activo, sin poderes.</p>
+                )}
+
+                <div className="pre-entry-actions">
+                    <button className="pre-entry-cancel" onClick={onCancel}>Cancelar</button>
+                    <button
+                        className="pre-entry-confirm"
+                        onClick={onConfirm}
+                        disabled={!selectedCompanion}
+                    >
+                        Entrar
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

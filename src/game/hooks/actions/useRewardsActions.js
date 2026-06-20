@@ -173,14 +173,23 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
             const updatedFragRewards = { ...next.rewards.fragmentRewards, [key]: { ...reward, claimed: true } };
 
             const chains = [
-                ['set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star'],
-                ['set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star'],
                 ['goldPassive5','goldPassive10','goldPassive20','goldPassive30','goldPassive40','goldPassive50'],
                 ['stamina2','stamina5','stamina10','stamina20','stamina30','stamina50'],
                 ['unlockMineBronze','unlockMineIron','unlockMineDiamond'],
                 ['bronze300','iron300','diamond300'],
                 ['forgeUnlockBronze','forgeUnlockIron','forgeUnlockDiamond'],
                 ['smelt50Bronze','smelt50Iron','smelt50Diamond'],
+                ['miner1Star','miner2Star','miner3Star','miner4Star','miner5Star'],
+                ['forge1Star','forge2Star','forge3Star','forge4Star','forge5Star'],
+                ['picoMaterialBronze','picoMaterialIron','picoMaterialDiamond'],
+                ['burst5','burst15','burst30','burst60'],
+                ['automineLevel2','automineLevel3'],
+                ['passiveRaids5','passiveRaids10','passiveRaids20','passiveRaids40','passiveRaids60'],
+                ['dogs1','dogs2','dogs3','dogs4','dogs5','dogs6','dogs7','dogs8','dogs9','dogs10',
+                 'dogs11','dogs12','dogs13','dogs14','dogs15','dogs16','dogs17','dogs18','dogs19','dogs20','dogs21'],
+                ['summons3','summons5','summons10','summons15','summons20','summons25','summons30','summons35',
+                 'summons40','summons45','summons50','summons55','summons60','summons65','summons70','summons75',
+                 'summons80','summons85','summons90','summons95','summons100'],
             ];
 
             for (const chain of chains) {

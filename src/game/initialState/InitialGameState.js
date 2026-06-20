@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 3000,
+    gold: 100000000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo
@@ -18,9 +18,9 @@ const InitialGameState = {
     diamond: 5,
 
     // ========== LINGOTES ==========
-    bronzeIngot: 10,
-    ironIngot: 5,
-    diamondIngot: 0,
+    bronzeIngot: 10000,
+    ironIngot: 50000,
+    diamondIngot:10000,
 
     // ========== BURST (antes Stamina) ==========
     stamina: 15,                      // segundos restantes del burst activo (UI: X/maxStamina)
@@ -81,7 +81,7 @@ const InitialGameState = {
     },
 
     // ========== TABERNA ==========
-    tavernCoins: 1,
+    tavernCoins: 10000,
     tavernUnlocked: false,
 
     // ========== MINAS ==========
@@ -116,6 +116,8 @@ const InitialGameState = {
     totalRefills: 0,
     totalExchanges: 0,
     totalSummons: 0,
+    totalBurstUses: 0,
+    totalPassiveRaids: 0,
     totalBronzeMined: 0,
     totalIronMined: 0,
     totalDiamondMined: 0,

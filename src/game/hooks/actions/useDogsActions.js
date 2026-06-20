@@ -43,11 +43,33 @@ export const useDogsActions = (gameState, setGameState) => {
             );
             if (slotTaken) return prevState;
 
+            const now = Date.now();
+            const SESSION_DURATION_MS = 10 * 60 * 1000;
+            const existingSession = slot.session;
+
+            // Si hay cooldown activo aún, el perro entra pero el cooldown sigue
+            // Si el cooldown ya expiró o no hay sesión, arranca a minar
+            let newSession;
+            if (existingSession?.phase === 'cooldown' && now < existingSession.endsAt) {
+                newSession = existingSession; // cooldown sigue en el slot
+            } else {
+                newSession = { phase: 'mining', startedAt: now, endsAt: now + SESSION_DURATION_MS, lastTick: null };
+            }
+
             return {
                 ...prevState,
                 dogs: {
                     ...prevState.dogs,
                     [dogId]: { ...dog, assignedTo: { biome, slotId } }
+                },
+                yacimientos: {
+                    ...prevState.yacimientos,
+                    [biome]: {
+                        ...prevState.yacimientos[biome],
+                        slots: prevState.yacimientos[biome].slots.map(s =>
+                            s.id === slotId ? { ...s, session: newSession } : s
+                        )
+                    }
                 }
             };
         });
@@ -59,12 +81,19 @@ export const useDogsActions = (gameState, setGameState) => {
             const dog = prevState.dogs[dogId];
             if (!dog || dog.assignedTo === null) return prevState;
 
+            const { biome, slotId } = dog.assignedTo;
+            const slot = prevState.yacimientos[biome]?.slots?.find(s => s.id === slotId);
+
+            // Bloqueado durante minado activo; en cooldown se puede sacar
+            if (slot?.session?.phase === 'mining') return prevState;
+
             return {
                 ...prevState,
                 dogs: {
                     ...prevState.dogs,
                     [dogId]: { ...dog, assignedTo: null }
-                }
+                },
+                // El slot conserva su sesión de cooldown aunque no haya perro
             };
         });
     };
@@ -78,12 +107,14 @@ export const useDogsActions = (gameState, setGameState) => {
 
             const { biome, slotId } = dog.assignedTo;
             const slot = prevState.yacimientos[biome]?.slots?.find(s => s.id === slotId);
-            if (!slot?.session?.active) return prevState;
+            if (!slot?.unlocked) return prevState;
 
             const now = Date.now();
-            const SESSION_DURATION = 10 * 60 * 1000;
+            const SESSION_DURATION_MS = 10 * 60 * 1000;
+            const COOLDOWN_DURATION_MS = 3 * 60 * 1000;
 
-            if (now - slot.session.startedAt >= SESSION_DURATION) {
+            // Auto-start si hay perro asignado pero sin sesión
+            if (!slot.session) {
                 return {
                     ...prevState,
                     yacimientos: {
@@ -91,22 +122,82 @@ export const useDogsActions = (gameState, setGameState) => {
                         [biome]: {
                             ...prevState.yacimientos[biome],
                             slots: prevState.yacimientos[biome].slots.map(s =>
-                                s.id === slotId ? { ...s, session: { ...s.session, active: false } } : s
+                                s.id === slotId
+                                    ? { ...s, session: { phase: 'mining', startedAt: now, endsAt: now + SESSION_DURATION_MS, lastTick: null } }
+                                    : s
                             )
                         }
                     }
                 };
             }
 
-            const materialGained = DogsConfig[dog.id]?.yacimientoYield ?? 1;
+            const { phase, endsAt } = slot.session;
 
-            return {
-                ...prevState,
-                [biome]: (prevState[biome] ?? 0) + materialGained,
-                ...(biome === 'bronze'  ? { totalBronzeMined:  (prevState.totalBronzeMined  ?? 0) + materialGained } : {}),
-                ...(biome === 'iron'    ? { totalIronMined:    (prevState.totalIronMined    ?? 0) + materialGained } : {}),
-                ...(biome === 'diamond' ? { totalDiamondMined: (prevState.totalDiamondMined ?? 0) + materialGained } : {}),
-            };
+            if (phase === 'mining') {
+                if (now >= endsAt) {
+                    return {
+                        ...prevState,
+                        yacimientos: {
+                            ...prevState.yacimientos,
+                            [biome]: {
+                                ...prevState.yacimientos[biome],
+                                slots: prevState.yacimientos[biome].slots.map(s =>
+                                    s.id === slotId
+                                        ? { ...s, session: { phase: 'cooldown', startedAt: now, endsAt: now + COOLDOWN_DURATION_MS, lastTick: null } }
+                                        : s
+                                )
+                            }
+                        }
+                    };
+                }
+
+                const dogConfig = DogsConfig[dogId];
+                const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dog.stars ?? 0);
+                const baseYield = dogConfig?.yacimientoYield ?? 1;
+                const biomeMult = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const materialGained = Math.round(baseYield * biomeMult * starMult);
+
+                return {
+                    ...prevState,
+                    [biome]: (prevState[biome] ?? 0) + materialGained,
+                    ...(biome === 'bronze'  ? { totalBronzeMined:  (prevState.totalBronzeMined  ?? 0) + materialGained } : {}),
+                    ...(biome === 'iron'    ? { totalIronMined:    (prevState.totalIronMined    ?? 0) + materialGained } : {}),
+                    ...(biome === 'diamond' ? { totalDiamondMined: (prevState.totalDiamondMined ?? 0) + materialGained } : {}),
+                    yacimientos: {
+                        ...prevState.yacimientos,
+                        [biome]: {
+                            ...prevState.yacimientos[biome],
+                            slots: prevState.yacimientos[biome].slots.map(s =>
+                                s.id === slotId
+                                    ? { ...s, session: { ...s.session, lastTick: now } }
+                                    : s
+                            )
+                        }
+                    }
+                };
+            }
+
+            if (phase === 'cooldown') {
+                if (now >= endsAt) {
+                    return {
+                        ...prevState,
+                        yacimientos: {
+                            ...prevState.yacimientos,
+                            [biome]: {
+                                ...prevState.yacimientos[biome],
+                                slots: prevState.yacimientos[biome].slots.map(s =>
+                                    s.id === slotId
+                                        ? { ...s, session: { phase: 'mining', startedAt: now, endsAt: now + SESSION_DURATION_MS, lastTick: null } }
+                                        : s
+                                )
+                            }
+                        }
+                    };
+                }
+                return prevState;
+            }
+
+            return prevState;
         });
     };
 
@@ -222,7 +313,8 @@ export const useDogsActions = (gameState, setGameState) => {
     };
 
     // ========== SUBIR ESTRELLA ==========
-    const STAR_COIN_COST = { legendary: 3, epic: 2, rare: 1 };
+    const STAR_GOLD_BASE = { rare: 5000, epic: 10000, legendary: 15000 };
+    const STAR_COIN_BASE = { rare: 1, epic: 2, legendary: 3 };
 
     const handleUpgradeStar = (dogId, isForge = false) => {
         setGameState(prevState => {
@@ -234,10 +326,10 @@ export const useDogsActions = (gameState, setGameState) => {
             if (stars >= 5) return prevState;
             const needed = config.starFragments[stars];
             if ((dog.fragments ?? 0) < needed) return prevState;
-            const coinCost = STAR_COIN_COST[config.rarity] ?? 0;
-            if (prevState.tavernCoins < coinCost) return prevState;
-            const goldCost = config.starGoldCost ?? 0;
+            const goldCost = (STAR_GOLD_BASE[config.rarity] ?? 0) + stars * 5000;
+            const coinCost = (STAR_COIN_BASE[config.rarity] ?? 0) + stars;
             if (prevState.gold < goldCost) return prevState;
+            if (prevState.tavernCoins < coinCost) return prevState;
 
             return {
                 ...prevState,

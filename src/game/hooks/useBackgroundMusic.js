@@ -35,7 +35,6 @@ export const useBackgroundMusic = (volume = 0.010) => {
         audio.src = PLAYLIST[index];
         audio.volume = volumeRef.current;
         audio.currentTime = 0;
-        audio.load();
         audio.play().catch(() => {});
         currentTrackIndex.current = index;
     }, []);

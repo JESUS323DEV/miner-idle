@@ -261,7 +261,6 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const hasUnclaimedGold = goldRewardsList.some(({ key }) => isClaimable(key));
 
     const fragmentRewards = rewards.fragmentRewards ?? {};
-    const isGroupClosed = (group) => Object.values(fragmentRewards).some(r => r.group === group && r.groupCloser && r.claimed);
     const hasUnclaimedFragments = Object.values(fragmentRewards).some(r => r.visible !== false && r.unlocked && !r.claimed);
 
     const allDone = !hasUnclaimedGold && !hasUnclaimedCoins && !hasUnclaimedFragments;
@@ -416,6 +415,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                             if (r.visible === false) return false;
                             return !r.claimed;
                         }).sort(([, a], [, b]) => {
+                            if (a.oneTime && !b.oneTime) return -1;
+                            if (!a.oneTime && b.oneTime) return 1;
                             if (a.unlocked && !b.unlocked) return -1;
                             if (!a.unlocked && b.unlocked) return 1;
                             return 0;

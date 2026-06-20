@@ -39,6 +39,7 @@ export const useRaidActions = (gameState, setGameState) => {
                 ...prevState,
                 dogs: updatedDogs,
                 forgeDogs: updatedForgeDogs,
+                totalPassiveRaids: (prevState.totalPassiveRaids ?? 0) + 1,
                 raid: {
                     ...prevState.raid,
                     passiveRaids: [

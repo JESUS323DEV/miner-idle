@@ -216,7 +216,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
             return {
                 ...prevState,
                 stamina: maxStamina,
-                burst: { active: true, recharging: false, rechargeRemaining: 0 }
+                burst: { active: true, recharging: false, rechargeRemaining: 0 },
+                totalBurstUses: (prevState.totalBurstUses ?? 0) + 1,
             };
         });
     };

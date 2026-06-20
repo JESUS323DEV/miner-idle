@@ -20,6 +20,7 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
             const newGoldSpent = prevState.totalGoldSpent + AutomineConfig.unlockCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const fragReward = prevState.rewards.fragmentRewards?.unlockAutomine;
             return {
                 ...prevState,
                 gold: prevState.gold - AutomineConfig.unlockCost,
@@ -35,6 +36,12 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    fragmentRewards: {
+                        ...prevState.rewards.fragmentRewards,
+                        unlockAutomine: fragReward && !fragReward.unlocked
+                            ? { ...fragReward, unlocked: true }
+                            : fragReward,
+                    },
                 }
             };
         });

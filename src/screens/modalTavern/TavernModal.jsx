@@ -133,7 +133,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     const currentMaterials = { bronzeIngot, ironIngot, diamondIngot };
 
-    const STAR_COIN_COST_MAP = { legendary: 3, epic: 2, rare: 1 };
+    const STAR_GOLD_BASE = { rare: 5000, epic: 10000, legendary: 15000 };
+    const STAR_COIN_BASE = { rare: 1, epic: 2, legendary: 3 };
+    const getStarGoldCost = (rarity, stars) => (STAR_GOLD_BASE[rarity] ?? 0) + stars * 5000;
+    const getStarCoinCost = (rarity, stars) => (STAR_COIN_BASE[rarity] ?? 0) + stars;
     const FREE_PULL_COOLDOWNS = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
     const _dogHasAction = (dogsState, config) => Object.values(dogsState).some(dog => {
         if (!dog || typeof dog !== 'object') return false;
@@ -142,9 +145,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const frags = dog.fragments ?? 0;
         const stars = dog.stars ?? 0;
         const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = cfg.unlockCost ?? {};
-        const starCoinCost = STAR_COIN_COST_MAP[cfg.rarity] ?? 0;
         const canUnlock = !dog.hired && frags >= cfg.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
-        const canUpgrade = dog.hired && stars < 5 && frags >= (cfg.starFragments?.[stars] ?? Infinity) && tavernCoins >= starCoinCost;
+        const canUpgrade = dog.hired && stars < 5 && frags >= (cfg.starFragments?.[stars] ?? Infinity)
+            && tavernCoins >= getStarCoinCost(cfg.rarity, stars)
+            && gameState.gold >= getStarGoldCost(cfg.rarity, stars);
         return canUnlock || canUpgrade;
     });
     const minerHasAction = _dogHasAction(dogs, DogsConfig);
@@ -162,11 +166,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = config.unlockCost ?? {};
         const frags = dog.fragments ?? 0;
         const stars = dog.stars ?? 0;
-        const starCoinCost = STAR_COIN_COST_MAP[config.rarity] ?? 0;
-        const starGoldCost = config.starGoldCost ?? 0;
         const fragForNext = dog.hired && stars < 5 ? config.starFragments?.[stars] : null;
         const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
-        const canUpgrade = fragForNext !== null && frags >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
+        const canUpgrade = fragForNext !== null && frags >= fragForNext
+            && tavernCoins >= getStarCoinCost(config.rarity, stars)
+            && gameState.gold >= getStarGoldCost(config.rarity, stars);
         if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
     });
     const _checkHiredUpgradeable = (dogsState, config) => Object.values(dogsState).some(dog => {
@@ -176,8 +180,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const stars = dog.stars ?? 0;
         const fragForNext = stars < 5 ? cfg.starFragments?.[stars] : null;
         return fragForNext !== null && (dog.fragments ?? 0) >= fragForNext
-            && tavernCoins >= (STAR_COIN_COST_MAP[cfg.rarity] ?? 0)
-            && gameState.gold >= (cfg.starGoldCost ?? 0);
+            && tavernCoins >= getStarCoinCost(cfg.rarity, stars)
+            && gameState.gold >= getStarGoldCost(cfg.rarity, stars);
     });
     const obtenidosHasUpgrade = dogTab === 'mineros'
         ? _checkHiredUpgradeable(dogs, DogsConfig)
@@ -385,9 +389,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             && tavernCoins >= coinCost;
                                         const stars = dog.stars ?? 0;
                                         const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars] : null;
-                                        const STAR_COIN_COST = { legendary: 3, epic: 2, rare: 1 };
-                                        const starCoinCost = STAR_COIN_COST[config.rarity] ?? 0;
-                                        const starGoldCost = config.starGoldCost ?? 0;
+                                        const starCoinCost = getStarCoinCost(config.rarity, stars);
+                                        const starGoldCost = getStarGoldCost(config.rarity, stars);
                                         const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
                                         const isFlipped = flippedDog === dog.id;
                                         return (
@@ -408,11 +411,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                     <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
                                                                     </span>
-                                                                    {starGoldCost > 0 && (
-                                                                        <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                            <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${starGoldCost / 1000}k` : starGoldCost}
-                                                                        </span>
-                                                                    )}
+                                                                    <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
+                                                                        <img src={iconGold} alt="gold" className="cost-icon" />{`${starGoldCost / 1000}k`}
+                                                                    </span>
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id)} disabled={!canUpgrade}>⬆ Mejorar</button>
                                                             </>
@@ -654,8 +655,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             && tavernCoins >= coinCostF;
                                         const starsF = dog.stars ?? 0;
                                         const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF] : null;
-                                        const starCoinCostF = { legendary: 3, epic: 2, rare: 1 }[config.rarity] ?? 0;
-                                        const starGoldCostF = config.starGoldCost ?? 0;
+                                        const starCoinCostF = getStarCoinCost(config.rarity, starsF);
+                                        const starGoldCostF = getStarGoldCost(config.rarity, starsF);
                                         const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF && gameState.gold >= starGoldCostF;
                                         const isFlipped = flippedDog === dog.id;
 
@@ -674,11 +675,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                             <>
                                                                 <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNextF}</div>
                                                                 <div className="dog-unlock-cost">
-                                                                    {starGoldCostF > 0 && (
-                                                                        <span className={gameState.gold < starGoldCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                            <img src={iconGold} alt="oro" className="cost-icon" />{starGoldCostF >= 1000 ? (starGoldCostF / 1000).toFixed(0) + 'k' : starGoldCostF}
-                                                                        </span>
-                                                                    )}
+                                                                    <span className={gameState.gold < starGoldCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                        <img src={iconGold} alt="oro" className="cost-icon" />{`${starGoldCostF / 1000}k`}
+                                                                    </span>
                                                                     <span className={tavernCoins < starCoinCostF ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCostF}
                                                                     </span>

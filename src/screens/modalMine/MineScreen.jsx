@@ -1,16 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
-
-const fmt = (num) => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
-  return num;
-};
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
-import MineSnacksConfig from "../../game/config/MineSnacksConfig.js";
+import { DogsConfig, RARITY_COLORS } from "../../game/config/DogsConfig.js";
+import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL } from "../../game/config/MineCompanionConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
-import { playBuffer, playSfx } from "../../game/utils/sfx.js";
+import { playSfx } from "../../game/utils/sfx.js";
 
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
@@ -19,408 +14,308 @@ import bgInsideDiamond from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg
 import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze1.png";
 import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png";
 import menaBronze3 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png";
-
 import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron1.png";
 import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png";
 import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png";
-
 import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png";
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png";
 import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png";
 
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png";
 import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png";
 import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png";
 import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png";
 
-const hudAssets = {
-  bronze: bronzeHud,
-  iron: ironHud,
-  diamond: diamondHud,
+import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png";
+import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png";
+import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png";
+import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png";
+import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png";
+import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png";
+import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png";
+import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png";
+import zeusIcon   from "../../assets/ui/icons-pets/mineros/zeus-icon.png";
+import boxerIcon  from "../../assets/ui/icons-pets/mineros/boxer-icon.png";
+import bullyIcon  from "../../assets/ui/icons-pets/mineros/bully-icon.png";
+import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png";
+
+const dogAssets = {
+  lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
+  muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
+  smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
+  boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
 };
 
+const fmt = (num) => {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+  return num;
+};
+
+const hudAssets = { bronze: bronzeHud, iron: ironHud, diamond: diamondHud };
 const menaAssets = {
   bronze: [menaBronze1, menaBronze2, menaBronze3],
-  iron: [menaIron1, menaIron2, menaIron3],
-  diamond: [menaDiamond1, menaDiamond2, menaDiamond3],
+  iron:   [menaIron1,   menaIron2,   menaIron3],
+  diamond:[menaDiamond1,menaDiamond2,menaDiamond3],
+};
+const bgAssets = { bronze: bgInsideBronze, iron: bgInsideIron, diamond: bgInsideDiamond };
+
+const mineNames = {
+  bronze: "Mina Bronce", bronze_lvl2: "Mina Bronce II", bronze_lvl3: "Mina Bronce III",
+  iron: "Mina Hierro",   iron_lvl2:   "Mina Hierro II", iron_lvl3:   "Mina Hierro III",
+  diamond: "Mina Diamante", diamond_lvl2: "Mina Diamante II", diamond_lvl3: "Mina Diamante III",
 };
 
-/**
- * COMPONENTE: MineScreen
- *
- * Pantalla de mina (modal) donde el jugador mina venas individuales.
- *
- * @param {Boolean} isOpen - Si la pantalla está abierta
- * @param {Function} onClose - Función para salir de la mina
- * @param {Object} currentMine - Estado de la mina actual
- * @param {Function} onMineVein - Función que ejecuta al clickear una vena
- * @param {String} pickaxeMaterial - Material del pico actual
- * @param {Boolean} canMine - Si puede minar (stamina > 0 && durability > 0)
- */
 const MineScreen = ({ isOpen, onClose }) => {
   const {
     gameState,
-    handleMineVein: onMineVein,
-    handleBuyMineSnack,
-    handleUseMineSnack,
-    handleDynamiteMine,
+    handleMineVein,
+    handleActivateMineUlt,
   } = useGameContext();
 
   const currentMine = gameState.mines.currentMine;
-  const mineSnacks = gameState.mineSnacks;
-
-  const canMine = gameState.pickaxe.durability > 0;
 
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState(Date.now());
-  const [openInfo, setOpenInfo] = useState(null);
   const [animTriggers, setAnimTriggers] = useState({});
-  const [mineWarnings, setMineWarnings] = useState([]);
   const automineRef = useRef(null);
-  const snackLastUsed = useRef({});
   const mineContentRef = useRef(null);
+  const currentMineRef = useRef(currentMine);
+  useEffect(() => { currentMineRef.current = currentMine; }, [currentMine]);
 
-  const addMineWarning = (clientX, clientY, msg) => {
-    const rect = mineContentRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = Math.min(Math.max(clientX - rect.left, 60), rect.width - 110);
-    const y = clientY - rect.top;
-    const wId = Date.now() + Math.random();
-    setMineWarnings(prev => [...prev, { id: wId, x, y, msg }]);
-    setTimeout(() => setMineWarnings(prev => prev.filter(w => w.id !== wId)), 1200);
-  };
+  const totalRemaining = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
 
-  const totalRemainingEarly = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
-
-  // Ticker para countdowns
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 500);
+    const t = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(t);
   }, []);
 
-  // Delay pantalla completada
   useEffect(() => {
     if (!isOpen || !currentMine) return;
-    if (totalRemainingEarly === 0) {
+    if (totalRemaining === 0) {
       const t = setTimeout(() => { setShowCompleted(true); playSfx('finalMina'); }, 800);
       return () => clearTimeout(t);
     } else {
       setShowCompleted(false);
     }
-  }, [totalRemainingEarly, isOpen, currentMine]);
+  }, [totalRemaining, isOpen, currentMine]);
 
-  // Automine interval
+  // Automine siempre activo. Velocidad = 166ms / (1 + furyBonus)
   useEffect(() => {
     clearInterval(automineRef.current);
-    if (!mineSnacks?.automine?.activeUntil || now > mineSnacks.automine.activeUntil) return;
+    if (!isOpen || !currentMine) return;
+
+    const furyBonus = currentMine.powers?.furyBonus ?? 0;
+    const interval = Math.max(50, Math.round(MINE_AUTOMINE_INTERVAL / (1 + furyBonus)));
+
     automineRef.current = setInterval(() => {
-      if (!currentMine) return;
-      const available = currentMine.veins.filter(v => v.remaining > 0);
+      const mine = currentMineRef.current;
+      if (!mine) return;
+      const available = mine.veins.filter(v => v.remaining > 0);
       if (available.length === 0) return;
       const vein = available[Math.floor(Math.random() * available.length)];
-      onMineVein(vein.id, true);
+      handleMineVein(vein.id, true);
       setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
-    }, 166);
-    return () => clearInterval(automineRef.current);
-  }, [mineSnacks?.automine?.activeUntil, now]); // eslint-disable-line
+    }, interval);
 
-  // Si no está abierto o no hay mina actual, no renderiza
+    return () => clearInterval(automineRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, currentMine?.powers?.furyBonus, currentMine?.mineType]);
+
   if (!isOpen || !currentMine) return null;
 
-  const baseMineType = currentMine.mineType
-    .replace("_lvl2", "")
-    .replace("_lvl3", "");
-
-  const level = currentMine.mineType.includes("_lvl3")
-    ? 2
-    : currentMine.mineType.includes("_lvl2")
-      ? 1
-      : 0;
-
+  const baseMineType = currentMine.mineType.replace("_lvl2","").replace("_lvl3","");
+  const level = currentMine.mineType.includes("_lvl3") ? 2 : currentMine.mineType.includes("_lvl2") ? 1 : 0;
   const menaImg = menaAssets[baseMineType][level];
+  const hudImg = hudAssets[baseMineType];
 
-  const bgImages = {
-    bronze: bgInsideBronze,
-    iron: bgInsideIron,
-    diamond: bgInsideDiamond,
-  };
-
-  /**
-   * HELPER: getMineIcon
-   * Devuelve el emoji según el tipo de mina
-   */
-  const getMineIcon = (mineType) => {
-    const icons = {
-      bronze: "🟤",
-      iron: "⚙️",
-      diamond: "💎",
-    };
-    return icons[mineType] || "🪨";
-  };
-
-  /**
-   * HELPER: getMineColor
-   * Devuelve el color según el tipo de mina
-   */
-  const getMineColor = (mineType) => {
-    const colors = {
-      bronze: "#CD7F32",
-      iron: "#808080",
-      diamond: "#B9F2FF",
-    };
-    return colors[mineType] || "#888";
-  };
-
-  const mineNames = {
-    bronze: "Mina Bronze",
-    bronze_lvl2: "Mina Bronze II",
-    bronze_lvl3: "Mina Bronze III",
-    iron: "Mina Hierro",
-    iron_lvl2: "Mina Hierro II",
-    iron_lvl3: "Mina Hierro III",
-    diamond: "Mina Diamante",
-    diamond_lvl2: "Mina Diamante II",
-    diamond_lvl3: "Mina Diamante III",
-  };
-
-  // Calcula total de venas restantes
+  const companionId = currentMine.companion?.dogId ?? null;
+  const companionDog = companionId ? gameState.dogs[companionId] : null;
+  const companionCfg = companionId ? DogsConfig[companionId] : null;
+  const companionCompCfg = companionId ? MineCompanionConfig[companionId] : null;
+  const elemColor = companionCompCfg ? ELEMENT_COLORS[companionCompCfg.element] : '#aaa';
+  const rarityColor = RARITY_COLORS[companionCfg?.rarity] ?? '#aaa';
+  const stars = companionDog?.stars ?? 0;
+  const powers = currentMine.powers ?? {};
 
   return (
     <div
       className="modal-overlay2"
       onClick={onClose}
-      style={{ backgroundImage: `url(${bgImages[baseMineType]})` }}
+      style={{ backgroundImage: `url(${bgAssets[baseMineType]})` }}
     >
       <div className="mine-screen-content" ref={mineContentRef} onClick={(e) => e.stopPropagation()}>
-        {mineWarnings.map(w => (
-          <div key={w.id} className="floating-warning" style={{ left: `${w.x}px`, top: `${w.y}px` }}>{w.msg}</div>
-        ))}
+
         {/* HEADER */}
         <div className="mine-screen-header">
           <div className="mine-title">
-            <h2>
-              {getMineIcon(baseMineType)}{" "}
-              {mineNames[currentMine.mineType] || currentMine.mineType}
-            </h2>
+            <h2>{mineNames[currentMine.mineType] || currentMine.mineType}</h2>
           </div>
-          <button className="btn-exit-mine" onClick={onClose}>
-            <X />
-          </button>
+          <button className="btn-exit-mine" onClick={onClose}><X /></button>
         </div>
 
         {/* STATS */}
         <div className="mine-stats">
           <div className="stat-item">
-            <span>Materiales obtenidos:</span>
+            <span>Obtenido</span>
             <span className="stat-value">
-              {currentMine.resourcesGathered[baseMineType]}
+              {fmt(currentMine.resourcesGathered[baseMineType])}
+              <img src={hudImg} alt="" className="stat-hud-icon" />
             </span>
           </div>
           <div className="stat-item">
-            <span>Clicks totales:</span>
+            <span>Golpes</span>
             <span className="stat-value">{currentMine.clicksCount}</span>
           </div>
         </div>
 
-        {/* SNACK BAR */}
-        <div className="mine-snacks-bar">
-          {(() => {
-          const anySnackActive = Object.values(mineSnacks ?? {}).some(s => s.activeUntil && now < s.activeUntil);
-          return Object.values(MineSnacksConfig).map(cfg => {
-            const snack = mineSnacks?.[cfg.id] ?? { charges: 0 };
-            const activeUntil = snack.activeUntil ?? null;
-            const isActive = activeUntil && now < activeUntil;
-            const secsLeft = isActive ? Math.ceil((activeUntil - now) / 1000) : 0;
-            const hasCharges = snack.charges > 0;
+        {/* PANEL COMPANION */}
+        <CompanionPanel
+          companionId={companionId}
+          companionCfg={companionCfg}
+          companionCompCfg={companionCompCfg}
+          elemColor={elemColor}
+          rarityColor={rarityColor}
+          stars={stars}
+          powers={powers}
+          now={now}
+          baseMineType={baseMineType}
+          onActivateUlt={handleActivateMineUlt}
+        />
 
-            return (
-              <div key={cfg.id} className={`mine-snack-item ${cfg.id === 'dynamite' ? 'snack-locked' : ''} ${isActive ? 'snack-active' : ''} ${!hasCharges && !isActive && cfg.id !== 'dynamite' ? 'snack-locked' : ''} ${anySnackActive && !isActive ? 'snack-blocked' : ''}`}>
-
-                {/* EMOJI = botón usar */}
-                <button
-                  className={`mine-snack-emoji-btn ${isActive && cfg.id === 'automine' ? 'snack-anim-spin' : ''} ${isActive && cfg.id === 'toughness' ? 'snack-anim-pulse' : ''}`}
-                  onClick={() => {
-                    if (cfg.id === 'dynamite') return;
-                    const now2 = Date.now();
-                    if (!hasCharges || anySnackActive) return;
-                    if (now2 - (snackLastUsed.current[cfg.id] || 0) < 500) return;
-                    snackLastUsed.current[cfg.id] = now2;
-                    handleUseMineSnack(cfg.id);
-                  }}
-                  disabled={cfg.id === 'dynamite' || !hasCharges || anySnackActive}
-                >
-                  {cfg.id === 'dynamite'
-                    ? <span className="snack-proximamente">Próx.</span>
-                    : isActive ? <span className="snack-timer">{secsLeft}s</span> : cfg.emoji
-                  }
-                  {/* BADGE de cargas */}
-                  {cfg.id !== 'dynamite' && !isActive && hasCharges && (
-                    <span className="snack-charges-badge">x{snack.charges}</span>
-                  )}
-                </button>
-
-                {/* "+" = botón comprar */}
-                <button
-                  className={`snack-buy-btn ${snack.charges > 0 || isActive ? 'snack-buy-full' : ''}`}
-                  onClick={() => handleBuyMineSnack(cfg.id)}
-                  disabled={snack.charges > 0 || isActive || gameState.gold < cfg.costGold}
-                >
-                  <span className="snack-buy-plus">+</span>
-                  <span className="snack-buy-price">
-                    {fmt(cfg.costGold)}<img src={iconGold} alt="gold" className="snack-gold-icon" />
-                  </span>
-                </button>
-
-                {/* "i" = botón info */}
-                <button
-                  className="snack-info-btn"
-                  onClick={(e) => { e.stopPropagation(); setOpenInfo(openInfo === cfg.id ? null : cfg.id); }}
-                >
-                  ℹ
-                </button>
-
-                {/* POPUP INFO */}
-                {openInfo === cfg.id && (
-                  <div className="snack-info-popup">
-                    <div className="snack-info-name">{cfg.name}</div>
-                    <div className="snack-info-desc">{cfg.description}</div>
-                  </div>
-                )}
-
-              </div>
-            );
-          });
-        })()}
-        </div>
-
-        {/* VENAS (MENAS CLICKEABLES) */}
+        {/* VENAS (solo visuales, sin click) */}
         <div className="veins-container">
           {currentMine.veins.map((vein) => (
             <Vein
               key={vein.id}
               vein={vein}
-              onMineVein={onMineVein}
-              canMine={canMine && vein.remaining > 0}
-              stamina={gameState.stamina}
-              pickaxeDurability={gameState.pickaxe.durability}
-              onWarning={addMineWarning}
-              mineType={currentMine.mineType}
-              mineColor={getMineColor(currentMine.mineType)}
               menaImg={menaImg}
-              hudImg={hudAssets[baseMineType]}
+              hudImg={hudImg}
               animTrigger={animTriggers[vein.id] || 0}
-              burstActive={gameState.burst?.active ?? false}
-              burstLevel={gameState.maxStaminaLevel ?? 0}
             />
           ))}
         </div>
 
-        {/* MENSAJE SI COMPLETÓ TODAS */}
-        {showCompleted &&
-          (() => {
-            const materialsGathered =
-              currentMine.resourcesGathered[baseMineType];
-            const config = MinesConfig[currentMine.mineType];
-            const { starThresholds, starBonuses } = config;
-
-            let speedBonus = 0;
-
-            if (materialsGathered >= starThresholds.perfect) {
-              speedBonus = Math.floor(materialsGathered * starBonuses.perfect);
-            } else if (materialsGathered >= starThresholds.good) {
-              speedBonus = Math.floor(materialsGathered * starBonuses.good);
-            }
-
-            const total = materialsGathered + speedBonus;
-
-            const hudImg = hudAssets[baseMineType];
-            const stars = materialsGathered >= starThresholds.perfect ? 3
-              : materialsGathered >= starThresholds.good ? 2
-                : materialsGathered >= starThresholds.basic ? 1 : 0;
-
-            return (
-              <div className="mine-completed">
-                <h3>¡MINA COMPLETADA!</h3>
-
-                {/* ESTRELLAS CON UMBRALES */}
-                <div className="mc-stars-row">
-                  {[
-                    { threshold: starThresholds.basic },
-                    { threshold: starThresholds.good },
-                    { threshold: starThresholds.perfect },
-                  ].map((s, i) => (
-                    <div key={i} className={`mc-star-col ${i < stars ? "mc-star-reached" : "mc-star-locked"}`}>
-                      <span className="mc-star-icon">{i < stars ? "⭐" : "☆"}</span>
-                      <span className="mc-star-threshold">
-                        <span className="mc-threshold-val">
-                          {fmt(s.threshold)} <img src={hudImg} alt="" className="mc-hud-icon" />
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* STATS */}
-                <div className="mc-stats">
-                  <div className="mc-stat-row">
-                    <span>Clicks</span>
-                    <span className="mc-stat-val">{fmt(currentMine.clicksCount)}</span>
-                  </div>
-                  <div className="mc-stat-row">
-                    <span>Obtenido</span>
-                    <span className="mc-stat-val">
-                      {fmt(materialsGathered)} <img src={hudImg} alt="" className="mc-hud-icon" />
-                    </span>
-                  </div>
-                  {speedBonus > 0 && (
-                    <div className="mc-stat-row mc-bonus">
-                      <span>Bonus</span>
-                      <span className="mc-stat-val">
-                        +{fmt(speedBonus)} <img src={hudImg} alt="" className="mc-hud-icon" />
-                      </span>
-                    </div>
-                  )}
-                  <div className="mc-stat-row mc-total">
-                    <span>Total</span>
-                    <span className="mc-stat-val">
-                      {fmt(total)} <img src={hudImg} alt="" className="mc-hud-icon" />
-                    </span>
-                  </div>
-                </div>
-
-                <button className="btn-exit-completed" onClick={onClose}>
-                  SALIR Y RECLAMAR
-                </button>
-              </div>
-            );
-          })()}
+        {/* PANTALLA COMPLETADA */}
+        {showCompleted && <MineCompleted currentMine={currentMine} baseMineType={baseMineType} hudImg={hudImg} onClose={onClose} />}
       </div>
     </div>
   );
 };
 
-/**
- * COMPONENTE: Vein (Vena individual clickeable)
- * Con números flotantes y partículas como GoldMine
- */
-const calcBurstBonus = (level) => {
-  let bMin = 0, bMax = 1;
-  if (level <= 1) { bMin = 0; bMax = 1; }
-  else if (level <= 5) { bMin = 0; bMax = level; }
-  else if (level <= 15) { bMin = 0; bMax = 5; }
-  else if (level <= 25) { bMin = 1; bMax = 1; }
-  else { bMin = 1; bMax = Math.min(2 + (level - 26), 5); }
-  return bMin + Math.floor(Math.random() * (bMax - bMin + 1));
+// ===================== COMPANION PANEL =====================
+
+const BIOME_LABEL = { bronze: 'Bronce', iron: 'Hierro', diamond: 'Diamante' };
+
+const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor, rarityColor, stars, powers, now, baseMineType, onActivateUlt }) => {
+  const ultCfg = companionCompCfg?.ult;
+  const ultType = ultCfg?.type;
+
+  // ULT button state
+  const ultOnCooldown = powers.ultCooldownUntil && now < powers.ultCooldownUntil;
+  const ultCooldownSecs = ultOnCooldown ? Math.ceil((powers.ultCooldownUntil - now) / 1000) : 0;
+  const ultTimedActive = powers.ultActive && powers.ultUntil && now < powers.ultUntil;
+  const ultTimedSecs = ultTimedActive ? Math.ceil((powers.ultUntil - now) / 1000) : 0;
+  const ultUsed = powers.ultUsed;
+  const isSessionSpeed = ultType === 'session_speed';
+
+  const getUltLabel = () => {
+    if (!ultCfg) return null;
+    if (ultOnCooldown) return `${ultCooldownSecs}s`;
+    if (ultTimedActive) return `${ultTimedSecs}s activo`;
+    if (ultUsed && ultType !== 'cooldown_ingots' && ultType !== 'timed_speed') return 'Usada';
+    return ultCfg.name;
+  };
+
+  const ultDisabled = !companionId || !ultCfg || isSessionSpeed
+    || ultOnCooldown
+    || (ultUsed && ultType !== 'cooldown_ingots' && ultType !== 'timed_speed')
+    || ultTimedActive;
+
+  // Pasiva 2: biome bonus del perro
+  const biomeBonus = companionId ? (companionCfg?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
+
+  // Pasiva 1: automine interval en ms
+  const furyBonus = powers.furyBonus ?? 0;
+  const automineMs = Math.max(50, Math.round(MINE_AUTOMINE_INTERVAL / (1 + furyBonus)));
+
+  return (
+    <div className="companion-panel">
+      {/* DOG INFO */}
+      <div className="companion-dog-info">
+        {companionId ? (
+          <>
+            <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
+              {dogAssets[companionId] && (
+                <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
+              )}
+            </div>
+            <div className="companion-dog-meta">
+              <span className="companion-dog-name">{companionCfg?.name ?? companionId}</span>
+              <span className="companion-dog-elem" style={{ color: elemColor }}>
+                {companionCompCfg?.element}
+              </span>
+              {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}
+            </div>
+          </>
+        ) : (
+          <div className="companion-dog-meta">
+            <span className="companion-dog-name">Sin ayudante</span>
+          </div>
+        )}
+
+        {/* PASIVAS */}
+        <div className="companion-passives">
+          <span className="passive-badge">
+            Automine {automineMs}ms
+          </span>
+          {companionId && (
+            <span className="passive-badge passive-biome" style={{ color: elemColor }}>
+              x{biomeBonus.toFixed(1)} {BIOME_LABEL[baseMineType]}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ULT */}
+      <div className="companion-ult-row">
+        {!isSessionSpeed ? (
+          <button
+            className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${ultType === 'cooldown_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
+            style={{ '--ult-color': elemColor }}
+            onClick={onActivateUlt}
+            disabled={ultDisabled}
+          >
+            <span className="power-btn-label">{getUltLabel()}</span>
+          </button>
+        ) : (
+          <div className="power-btn power-btn-fury power-active">
+            <span className="power-btn-label">Furia activa ({automineMs}ms)</span>
+          </div>
+        )}
+
+        {/* Estado electrico / agua activo */}
+        {powers.electricActive && (
+          <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.electrico }}>
+            +{powers.electricMin}-{powers.electricMax} por golpe
+          </span>
+        )}
+        {powers.waterMult > 1 && (
+          <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.agua }}>
+            x{powers.waterMult} materiales
+          </span>
+        )}
+      </div>
+    </div>
+  );
 };
 
-const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning, menaImg, hudImg, animTrigger, burstActive = false, burstLevel = 0 }) => {
+// ===================== VENA (solo visual, no clickeable) =====================
+
+const Vein = ({ vein, menaImg, hudImg, animTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
-  const [burstFloats, setBurstFloats] = useState([]);
-  const [particles, setParticles] = useState([]);
   const veinRef = useRef(null);
 
-  // Automine animation trigger
   useEffect(() => {
     if (animTrigger === 0) return;
     setIsShaking(true);
@@ -429,107 +324,88 @@ const Vein = ({ vein, onMineVein, canMine, stamina, pickaxeDurability, onWarning
     const rect = veinRef.current?.getBoundingClientRect();
     const x = rect ? rect.width / 2 : 40;
     const y = rect ? rect.height / 2 : 40;
-
-    const numId = Date.now();
+    const numId = Date.now() + Math.random();
     setFloatingNumbers(prev => [...prev, { id: numId, x, y }]);
-    setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 1000);
+    setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 900);
   }, [animTrigger]);
-
-  const handleClick = (e) => {
-    if (!canMine) {
-      if (vein.remaining > 0) {
-        playBuffer('blocked');
-        const msg = '⛏️ Pico roto';
-        onWarning(e.clientX, e.clientY, msg);
-      }
-      return;
-    }
-
-    playBuffer('hit');
-
-    // Ejecuta la lógica de minado
-    onMineVein(vein.id);
-
-    // Animación de shake
-    setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 150);
-
-    // Calcula posición del click
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const numId = Date.now();
-    setFloatingNumbers((prev) => [...prev, { id: numId, x, y }]);
-    setTimeout(() => setFloatingNumbers((prev) => prev.filter((n) => n.id !== numId)), 1000);
-
-    if (burstActive) {
-      const bonus = Math.max(1, calcBurstBonus(burstLevel));
-      const burstId = numId + 1;
-      setBurstFloats((prev) => [...prev, { id: burstId, x, y, value: bonus }]);
-      setTimeout(() => setBurstFloats((prev) => prev.filter((n) => n.id !== burstId)), 1000);
-    }
-
-    // ✅ Genera partículas
-    const newParticles = Array.from({ length: 6 }, (_, i) => ({
-      id: Date.now() + i,
-      x: x,
-      y: y,
-      angle: Math.random() * 360,
-      distance: 50 + Math.random() * 30,
-    }));
-    setParticles((prev) => [...prev, ...newParticles]);
-
-    setTimeout(() => {
-      setParticles((prev) =>
-        prev.filter((p) => !newParticles.find((np) => np.id === p.id)),
-      );
-    }, 800);
-  };
 
   const isDepleted = vein.remaining === 0;
 
   return (
     <div
       ref={veinRef}
-      className={`vein ${isShaking ? "shake" : ""} ${isDepleted ? "depleted" : ""} ${!canMine ? "disabled" : ""}`}
-      onClick={handleClick}
+      className={`vein vein-auto${isShaking ? " shake" : ""}${isDepleted ? " depleted" : ""}`}
     >
       <div className="vein-icon">
         <img src={menaImg} alt="mena" className="vein-img" />
       </div>
+      <div className="vein-counter">{vein.remaining}/{vein.max}</div>
 
-      <div
-        className="vein-counter"
-      >
-        {vein.remaining}/{vein.max}
-      </div>
-
-      {/* ✅ NÚMEROS FLOTANTES */}
       {floatingNumbers.map((num) => (
         <div key={num.id} className="floating-number" style={{ left: `${num.x}px`, top: `${num.y}px` }}>
-          + <img src={hudImg} alt="mat" className="mena-floating-icon" />
+          +<img src={hudImg} alt="mat" className="mena-floating-icon" />
         </div>
       ))}
-      {burstFloats.map((num) => (
-        <div key={num.id} className="floating-number-burst" style={{ left: `${num.x}px`, top: `${num.y}px` }}>
-          +{num.value}
-        </div>
-      ))}
+    </div>
+  );
+};
 
-      {/* ✅ PARTÍCULAS */}
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="particle"
-          style={{
-            left: `${particle.x}px`,
-            top: `${particle.y}px`,
-            "--angle": `${particle.angle}deg`,
-            "--distance": `${particle.distance}px`,
-          }}
-        />
-      ))}
+// ===================== PANTALLA COMPLETADA =====================
+
+const MineCompleted = ({ currentMine, baseMineType, hudImg, onClose }) => {
+  const materialsGathered = currentMine.resourcesGathered[baseMineType];
+  const config = MinesConfig[currentMine.mineType];
+  const { starThresholds, starBonuses } = config;
+
+  let speedBonus = 0;
+  if (materialsGathered >= starThresholds.perfect) {
+    speedBonus = Math.floor(materialsGathered * starBonuses.perfect);
+  } else if (materialsGathered >= starThresholds.good) {
+    speedBonus = Math.floor(materialsGathered * starBonuses.good);
+  }
+
+  const total = materialsGathered + speedBonus;
+  const stars = materialsGathered >= starThresholds.perfect ? 3
+    : materialsGathered >= starThresholds.good ? 2
+    : materialsGathered >= starThresholds.basic ? 1 : 0;
+
+  return (
+    <div className="mine-completed">
+      <h3>MINA COMPLETADA</h3>
+
+      <div className="mc-stars-row">
+        {[starThresholds.basic, starThresholds.good, starThresholds.perfect].map((threshold, i) => (
+          <div key={i} className={`mc-star-col ${i < stars ? "mc-star-reached" : "mc-star-locked"}`}>
+            <span className="mc-star-icon">{i < stars ? "★" : "☆"}</span>
+            <span className="mc-star-threshold">
+              {fmt(threshold)} <img src={hudImg} alt="" className="mc-hud-icon" />
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mc-stats">
+        <div className="mc-stat-row">
+          <span>Golpes</span>
+          <span className="mc-stat-val">{fmt(currentMine.clicksCount)}</span>
+        </div>
+        <div className="mc-stat-row">
+          <span>Obtenido</span>
+          <span className="mc-stat-val">{fmt(materialsGathered)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
+        </div>
+        {speedBonus > 0 && (
+          <div className="mc-stat-row mc-bonus">
+            <span>Bonus</span>
+            <span className="mc-stat-val">+{fmt(speedBonus)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
+          </div>
+        )}
+        <div className="mc-stat-row mc-total">
+          <span>Total</span>
+          <span className="mc-stat-val">{fmt(total)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
+        </div>
+      </div>
+
+      <button className="btn-exit-completed" onClick={onClose}>SALIR Y RECLAMAR</button>
     </div>
   );
 };

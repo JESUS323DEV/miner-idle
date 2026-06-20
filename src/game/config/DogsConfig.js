@@ -12,11 +12,11 @@ export const DogsConfig = {
     //CHIHUAHUA LEGENDARIA DE REGALO
     chihuahua: {
         rarity: 'legendary',
+        element: 'oscuro',
         order: 0,
         id: 'chihuahua',
         name: 'Chihuahua',
         unlockCost: { gold: 150000, tavernCoins: 10 },
-        starGoldCost: 20000,
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
@@ -25,8 +25,8 @@ export const DogsConfig = {
         miningSpeed: 1,
         biomeBonus: {
             bronze: 2.0,
-            iron: 2.0,
-            diamond: 2.0,
+            iron: 1.0,
+            diamond: 1.0,
         },
         goldMineBonus: {
             type: 'doubleHit',
@@ -37,6 +37,7 @@ export const DogsConfig = {
     //TUKA LEGENDARIA PARA MINA DE IRON
     tuka: {
         rarity: 'legendary',
+        element: 'tierra',
         order: 3,
         id: 'tuka',
         name: 'Tuka',
@@ -61,11 +62,11 @@ export const DogsConfig = {
     //MUNA LEGENDARIA — EN MEMORIA DE LA PERRA REAL
     muna: {
         rarity: 'legendary',
+        element: 'agua',
         order: 2,
         id: 'muna',
         name: 'Muna',
         unlockCost: { gold: 1000000, tavernCoins: 40 },
-        starGoldCost: 20000,
         starBonus: 0.20,
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
@@ -86,6 +87,7 @@ export const DogsConfig = {
     //LADY LEGENDARIA PARA MINA DE DIAMANTE
     lady: {
         rarity: 'legendary',
+        element: 'fuego',
         order: 1,
         id: 'lady',
         name: 'Lady',
@@ -107,36 +109,10 @@ export const DogsConfig = {
         }
     },
 
-
-    //================================ÉPICAS
-
-    //BULLY ÉPICA DE REGALO
-    bully: {
-        rarity: 'epic',
-        id: 'bully',
-        name: 'Bully',
-        unlockCost: { gold: 30000, tavernCoins: 3 },
-        starGoldCost: 8000,
-        starBonus: 0.15,
-        unlockFragments: 100,
-        starFragments: [150, 300, 450, 600, 750],
-        yacimientoYield: 3,
-        miningPower: 2,
-        miningSpeed: 2,
-        biomeBonus: {
-            bronze: 1.5,
-            iron: 1.5,
-            diamond: 1.5,
-        },
-        goldMineBonus: {
-            type: 'extraGold',
-            value: 1
-        }
-    },
-
-    //TOKIO LEGENDARIA PARA MINA DE BRONZE
+ //TOKIO LEGENDARIA PARA MINA DE BRONZE
     tokio: {
         rarity: 'legendary',
+        element: 'electrico',
         order: 4,
         id: 'tokio',
         name: 'Tokio',
@@ -157,10 +133,38 @@ export const DogsConfig = {
             chance: 0.20
         }
     },
+    //================================ÉPICAS
+
+    //BULLY ÉPICA DE REGALO
+    bully: {
+        rarity: 'epic',
+        element: 'tierra',
+        id: 'bully',
+        name: 'Bully',
+        unlockCost: { gold: 30000, tavernCoins: 3 },
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
+        yacimientoYield: 3,
+        miningPower: 2,
+        miningSpeed: 2,
+        biomeBonus: {
+            bronze: 1.3,
+            iron: 1.0,
+            diamond: 1.0,
+        },
+        goldMineBonus: {
+            type: 'extraGold',
+            value: 1
+        }
+    },
+
+   
 
     //SMOKE ÉPICA PARA MINA DE IRON
     smoke: {
         rarity: 'epic',
+        element: 'fuego',
         id: 'smoke',
         name: 'Smoke',
         unlockCost: { gold: 800000, tavernCoins: 30 },
@@ -185,6 +189,7 @@ export const DogsConfig = {
     //NUPITO ÉPICA PARA MINA DE DIAMANTE
     nupito: {
         rarity: 'epic',
+        element: 'oscuro',
         id: 'nupito',
         name: 'Nupito',
         unlockCost: { gold: 1200000, tavernCoins: 45 },
@@ -210,10 +215,10 @@ export const DogsConfig = {
     //BOXER RARA DE REGALO
     boxer: {
         rarity: 'rare',
+        element: 'agua',
         id: 'boxer',
         name: 'Boxer',
         unlockCost: { gold: 0, tavernCoins: 0 },
-        starGoldCost: 3000,
         starBonus: 0.10,
         unlockFragments: 50,
         starFragments: [100, 200, 300, 400, 500],
@@ -235,6 +240,7 @@ export const DogsConfig = {
     druh: {
         combatReward: false,
         rarity: 'rare',
+        element: 'electrico',
         id: 'druh',
         name: 'Druh',
         unlockCost: { gold: 10000, tavernCoins: 3 },
@@ -259,6 +265,7 @@ export const DogsConfig = {
     //GORDO RARA PARA MINA DE IRON
     gordo: {
         rarity: 'rare',
+        element: 'tierra',
         id: 'gordo',
         name: 'Gordo',
         unlockCost: { gold: 100000, tavernCoins: 5 },
@@ -270,7 +277,7 @@ export const DogsConfig = {
         miningSpeed: 5,
         biomeBonus: {
             bronze: 1.0,
-            iron: 1.5,
+            iron: 2.5,
             diamond: 1.0,
         },
         goldMineBonus: {
@@ -284,6 +291,7 @@ export const DogsConfig = {
     //ZEUS RARA PARA MINA DE DIAMANTE
     zeus: {
         rarity: 'rare',
+        element: 'oscuro',
         id: 'zeus',
         name: 'Zeus',
         unlockCost: { gold: 200000, tavernCoins: 8 },

@@ -96,9 +96,6 @@ import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante
 import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.png";
 import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png";
 
-// ===== ASSETS: AUTOMINE =====
-import stopMine from "../assets/ui/icons-auto-mine/stop-mine.png";
-
 // ===== ASSETS: ICONOS PANTALLAS =====
 import mineModal from "../assets/ui/icon-mine1.png";
 import iconTavern from "../assets/ui/icon-tavern1.png";
@@ -218,10 +215,24 @@ function GameRoot() {
       // Añade entradas nuevas de fragmentRewards que no existen en el save
       const savedFR = loaded.rewards?.fragmentRewards ?? {};
       const mergedFR = { ...savedFR };
+      // Eliminar claves obsoletas del diseño anterior
+      const obsoleteFRKeys = [
+        'set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star',
+        'set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star',
+        'set3FurnaceBronze2','set3FurnaceBronze3','set3FurnaceIron2','set3FurnaceIron3',
+        'set3FurnaceDiamond2','set3FurnaceDiamond3',
+      ];
+      obsoleteFRKeys.forEach(k => delete mergedFR[k]);
       Object.keys(InitialRewardsState.fragmentRewards).forEach(k => {
         if (!(k in mergedFR)) mergedFR[k] = InitialRewardsState.fragmentRewards[k];
       });
-      ['set4Miner1Star', 'set4Forge1Star'].forEach(k => {
+      // Asegurar que los líderes de cadena sean visibles
+      const chainLeaders = [
+        'goldPassive5','stamina2','unlockMineBronze','bronze300','forgeUnlockBronze','smelt50Bronze',
+        'miner1Star','forge1Star','picoTier1','picoMaterialBronze','burst5','automineLevel2',
+        'passiveRaids5','dogs1','summons3',
+      ];
+      chainLeaders.forEach(k => {
         if (mergedFR[k] && !mergedFR[k].claimed) mergedFR[k] = { ...mergedFR[k], visible: true };
       });
 
@@ -235,7 +246,23 @@ function GameRoot() {
       // Migración yacimientos: si el save tiene la estructura antigua (con slotConfig o mena), resetea al estado inicial
       const savedYac = loaded.yacimientos;
       const yacNeedsReset = !savedYac || Object.values(savedYac).some(b => b.slotConfig || b.slots?.some(s => s.mena !== undefined));
-      const migratedYac = yacNeedsReset ? InitialYacimientosState : savedYac;
+      let migratedYac = yacNeedsReset ? InitialYacimientosState : savedYac;
+      // Migrar sesiones con formato antiguo (active: bool) al nuevo (phase: string)
+      // También limpiar sesiones con phase pero sin endsAt (now >= undefined es siempre false)
+      if (!yacNeedsReset) {
+        migratedYac = Object.fromEntries(Object.entries(migratedYac).map(([biome, biomeData]) => [
+          biome,
+          {
+            ...biomeData,
+            slots: biomeData.slots.map(s => {
+              if (!s.session) return s;
+              if ('active' in s.session && !('phase' in s.session)) return { ...s, session: null };
+              if (s.session.phase && !s.session.endsAt) return { ...s, session: null };
+              return s;
+            })
+          }
+        ]));
+      }
 
       return {
         ...InitialGameState,
@@ -243,6 +270,8 @@ function GameRoot() {
         yacimientos: migratedYac,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,
+        totalBurstUses: loaded.totalBurstUses ?? 0,
+        totalPassiveRaids: loaded.totalPassiveRaids ?? 0,
         totalBronzeMined: loaded.totalBronzeMined ?? 0,
         totalIronMined: loaded.totalIronMined ?? 0,
         totalIngotsSmelted: loaded.totalIngotsSmelted ?? 0,
@@ -282,45 +311,103 @@ function GameRoot() {
     }
   }, [gameState, isResetting]);
 
-  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET2 =====
+  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS DE FRAGMENTOS =====
   useEffect(() => {
     const fr = gameState.rewards?.fragmentRewards;
     if (!fr) return;
+
     const bronzeMineUnlocked = gameState.mines?.unlockedBiomes?.includes('bronze') ?? false;
-    const ironMineUnlocked = gameState.mines?.unlockedBiomes?.includes('iron') ?? false;
-    const diamondMineUnlocked = gameState.mines?.unlockedBiomes?.includes('diamond') ?? false;
+    const ironMineUnlocked   = gameState.mines?.unlockedBiomes?.includes('iron')   ?? false;
+    const diamondMineUnlocked= gameState.mines?.unlockedBiomes?.includes('diamond')  ?? false;
+    const maxMinerStars = Math.max(0, ...Object.values(gameState.dogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
+    const maxForgeStars = Math.max(0, ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
+    const totalDogs = Object.values(gameState.dogs ?? {}).filter(d => d?.hired).length
+                    + Object.values(gameState.forgeDogs ?? {}).filter(d => d?.hired).length;
+    const totalSummons = gameState.totalSummons ?? 0;
+
     const checks = {
-      // cadena oro pasivo
-      goldPassive5: gameState.goldPerSecondLevel >= 5,
+      // Cadena 1: Oro pasivo
+      goldPassive5:  gameState.goldPerSecondLevel >= 5,
       goldPassive10: gameState.goldPerSecondLevel >= 10,
       goldPassive20: gameState.goldPerSecondLevel >= 20,
       goldPassive30: gameState.goldPerSecondLevel >= 30,
       goldPassive40: gameState.goldPerSecondLevel >= 40,
       goldPassive50: gameState.goldPerSecondLevel >= 50,
-      // cadena stamina
-      stamina2: gameState.maxStaminaLevel >= 2,
-      stamina5: gameState.maxStaminaLevel >= 5,
+      // Cadena 2: Stamina
+      stamina2:  gameState.maxStaminaLevel >= 2,
+      stamina5:  gameState.maxStaminaLevel >= 5,
       stamina10: gameState.maxStaminaLevel >= 10,
       stamina20: gameState.maxStaminaLevel >= 20,
       stamina30: gameState.maxStaminaLevel >= 30,
       stamina50: gameState.maxStaminaLevel >= 50,
-      // cadena minas
-      unlockMineBronze: bronzeMineUnlocked,
-      unlockMineIron: ironMineUnlocked,
+      // Cadena 3: Minas
+      unlockMineBronze:  bronzeMineUnlocked,
+      unlockMineIron:    ironMineUnlocked,
       unlockMineDiamond: diamondMineUnlocked,
-      // cadena menas
-      bronze300: (gameState.totalBronzeMined ?? 0) >= 300,
-      iron300: (gameState.totalIronMined ?? 0) >= 300,
+      // Cadena 4: Menas
+      bronze300:  (gameState.totalBronzeMined ?? 0) >= 300,
+      iron300:    (gameState.totalIronMined ?? 0) >= 300,
       diamond300: (gameState.totalDiamondMined ?? 0) >= 300,
-      // cadena hornos
-      forgeUnlockBronze: gameState.furnaces?.bronze?.unlocked === true,
-      forgeUnlockIron: gameState.furnaces?.iron?.unlocked === true,
+      // Cadena 5: Hornos
+      forgeUnlockBronze:  gameState.furnaces?.bronze?.unlocked === true,
+      forgeUnlockIron:    gameState.furnaces?.iron?.unlocked === true,
       forgeUnlockDiamond: gameState.furnaces?.diamond?.unlocked === true,
-      // cadena lingotes
-      smelt50Bronze: (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
-      smelt50Iron: (gameState.totalIronIngotsSmelted ?? 0) >= 50,
+      // Cadena 6: Lingotes
+      smelt50Bronze:  (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
+      smelt50Iron:    (gameState.totalIronIngotsSmelted ?? 0) >= 50,
       smelt50Diamond: (gameState.totalDiamondIngotsSmelted ?? 0) >= 50,
+      // Cadena 7: Estrellas mineros
+      miner1Star: maxMinerStars >= 1,
+      miner2Star: maxMinerStars >= 2,
+      miner3Star: maxMinerStars >= 3,
+      miner4Star: maxMinerStars >= 4,
+      miner5Star: maxMinerStars >= 5,
+      // Cadena 8: Estrellas forja
+      forge1Star: maxForgeStars >= 1,
+      forge2Star: maxForgeStars >= 2,
+      forge3Star: maxForgeStars >= 3,
+      forge4Star: maxForgeStars >= 4,
+      forge5Star: maxForgeStars >= 5,
+      // Cadena 9: Pico material
+      picoMaterialBronze:  gameState.pickaxe?.material !== 'stone',
+      picoMaterialIron:    gameState.pickaxe?.material === 'metal' || gameState.pickaxe?.material === 'diamond',
+      picoMaterialDiamond: gameState.pickaxe?.material === 'diamond',
+      // Cadena 11: Burst
+      burst5:  (gameState.totalBurstUses ?? 0) >= 5,
+      burst15: (gameState.totalBurstUses ?? 0) >= 15,
+      burst30: (gameState.totalBurstUses ?? 0) >= 30,
+      burst60: (gameState.totalBurstUses ?? 0) >= 60,
+      // Cadena 12: Automine mejora
+      automineLevel2: (gameState.automineUpgradeLevel ?? 0) >= 1,
+      automineLevel3: (gameState.automineUpgradeLevel ?? 0) >= 2,
+      // Cadena 13: Raids pasivas
+      passiveRaids5:  (gameState.totalPassiveRaids ?? 0) >= 5,
+      passiveRaids10: (gameState.totalPassiveRaids ?? 0) >= 10,
+      passiveRaids20: (gameState.totalPassiveRaids ?? 0) >= 20,
+      passiveRaids40: (gameState.totalPassiveRaids ?? 0) >= 40,
+      passiveRaids60: (gameState.totalPassiveRaids ?? 0) >= 60,
+      // Cadena 14: Perros desbloqueados
+      dogs1: totalDogs >= 1,   dogs2: totalDogs >= 2,   dogs3: totalDogs >= 3,
+      dogs4: totalDogs >= 4,   dogs5: totalDogs >= 5,   dogs6: totalDogs >= 6,
+      dogs7: totalDogs >= 7,   dogs8: totalDogs >= 8,   dogs9: totalDogs >= 9,
+      dogs10: totalDogs >= 10, dogs11: totalDogs >= 11, dogs12: totalDogs >= 12,
+      dogs13: totalDogs >= 13, dogs14: totalDogs >= 14, dogs15: totalDogs >= 15,
+      dogs16: totalDogs >= 16, dogs17: totalDogs >= 17, dogs18: totalDogs >= 18,
+      dogs19: totalDogs >= 19, dogs20: totalDogs >= 20, dogs21: totalDogs >= 21,
+      // Cadena 15: Invocaciones
+      summons3: totalSummons >= 3,   summons5: totalSummons >= 5,
+      summons10: totalSummons >= 10, summons15: totalSummons >= 15,
+      summons20: totalSummons >= 20, summons25: totalSummons >= 25,
+      summons30: totalSummons >= 30, summons35: totalSummons >= 35,
+      summons40: totalSummons >= 40, summons45: totalSummons >= 45,
+      summons50: totalSummons >= 50, summons55: totalSummons >= 55,
+      summons60: totalSummons >= 60, summons65: totalSummons >= 65,
+      summons70: totalSummons >= 70, summons75: totalSummons >= 75,
+      summons80: totalSummons >= 80, summons85: totalSummons >= 85,
+      summons90: totalSummons >= 90, summons95: totalSummons >= 95,
+      summons100: totalSummons >= 100,
     };
+
     const needsUpdate = Object.entries(checks).some(
       ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
     );
@@ -332,7 +419,7 @@ function GameRoot() {
           updated[k] = { ...updated[k], unlocked: true };
         }
       });
-      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
+      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated } };
     });
   }, [
     gameState.goldPerSecondLevel,
@@ -347,52 +434,13 @@ function GameRoot() {
     gameState.totalBronzeIngotsSmelted,
     gameState.totalIronIngotsSmelted,
     gameState.totalDiamondIngotsSmelted,
-    gameState.rewards?.fragmentRewards,
-  ]);
-
-  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS SET4 (estrellas + hornos) =====
-  useEffect(() => {
-    const fr = gameState.rewards?.fragmentRewards;
-    if (!fr) return;
-    const maxMinerStars = Math.max(0, ...Object.values(gameState.dogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
-    const maxForgeStars = Math.max(0, ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
-    const checks = {
-      set4Miner1Star: maxMinerStars >= 1,
-      set4Miner2Star: maxMinerStars >= 2,
-      set4Miner3Star: maxMinerStars >= 3,
-      set4Miner4Star: maxMinerStars >= 4,
-      set4Miner5Star: maxMinerStars >= 5,
-      set4Forge1Star: maxForgeStars >= 1,
-      set4Forge2Star: maxForgeStars >= 2,
-      set4Forge3Star: maxForgeStars >= 3,
-      set4Forge4Star: maxForgeStars >= 4,
-      set4Forge5Star: maxForgeStars >= 5,
-      set3FurnaceBronze2: (gameState.furnaces?.bronze?.level ?? 1) >= 2,
-      set3FurnaceBronze3: (gameState.furnaces?.bronze?.level ?? 1) >= 3,
-      set3FurnaceIron2: (gameState.furnaces?.iron?.level ?? 1) >= 2,
-      set3FurnaceIron3: (gameState.furnaces?.iron?.level ?? 1) >= 3,
-      set3FurnaceDiamond2: (gameState.furnaces?.diamond?.level ?? 1) >= 2,
-      set3FurnaceDiamond3: (gameState.furnaces?.diamond?.level ?? 1) >= 3,
-    };
-    const needsUpdate = Object.entries(checks).some(
-      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
-    );
-    if (!needsUpdate) return;
-    setGameState(prev => {
-      const updated = { ...prev.rewards.fragmentRewards };
-      Object.entries(checks).forEach(([k, met]) => {
-        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
-          updated[k] = { ...updated[k], unlocked: true };
-        }
-      });
-      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated, hasUnclaimed: true } };
-    });
-  }, [
     gameState.dogs,
     gameState.forgeDogs,
-    gameState.furnaces?.bronze?.level,
-    gameState.furnaces?.iron?.level,
-    gameState.furnaces?.diamond?.level,
+    gameState.pickaxe?.material,
+    gameState.totalBurstUses,
+    gameState.automineUpgradeLevel,
+    gameState.totalPassiveRaids,
+    gameState.totalSummons,
     gameState.rewards?.fragmentRewards,
   ]);
 
@@ -432,6 +480,8 @@ function GameRoot() {
     handleDiscardMine,
     handleMineVein,
     handleExitMine,
+    handleActivateMineBonus,
+    handleActivateMineUlt,
     handleUnlockTutorialFeature,
     handleUnlockSnack,
     handleUpgradeSnack,
@@ -500,6 +550,8 @@ function GameRoot() {
     handleDiscardMine,
     handleMineVein,
     handleExitMine,
+    handleActivateMineBonus,
+    handleActivateMineUlt,
     handleUnlockTutorialFeature,
     handleUnlockSnack,
     handleUpgradeSnack,
@@ -1055,13 +1107,24 @@ function GameRoot() {
     const packId = key.split('_')[1];
     return Date.now() - (gameState.lastFreePull?.[key] ?? 0) >= FREE_PULL_COOLDOWNS[packId];
   });
+  const STAR_GOLD_BASE_CHECK = { rare: 5000, epic: 10000, legendary: 15000 };
+  const STAR_COIN_BASE_CHECK = { rare: 1, epic: 2, legendary: 3 };
   const _checkDogsPending = (dogsState, config) =>
     Object.entries(dogsState).some(([id, dog]) => {
       const cfg = config[id];
       if (!cfg) return false;
       const frags = dog.fragments ?? 0;
-      if (!dog.hired) return frags >= cfg.unlockFragments;
-      if ((dog.stars ?? 0) < 5) return frags >= (cfg.starFragments?.[dog.stars ?? 0] ?? Infinity);
+      const stars = dog.stars ?? 0;
+      if (!dog.hired) {
+        const { gold: goldCost = 0, tavernCoins: coinCost = 0 } = cfg.unlockCost ?? {};
+        return frags >= cfg.unlockFragments && gameState.gold >= goldCost && gameState.tavernCoins >= coinCost;
+      }
+      if (stars < 5) {
+        const needed = cfg.starFragments?.[stars] ?? Infinity;
+        const starGold = (STAR_GOLD_BASE_CHECK[cfg.rarity] ?? 0) + stars * 5000;
+        const starCoin = (STAR_COIN_BASE_CHECK[cfg.rarity] ?? 0) + stars;
+        return frags >= needed && gameState.gold >= starGold && gameState.tavernCoins >= starCoin;
+      }
       return false;
     });
   const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
@@ -1572,9 +1635,9 @@ function GameRoot() {
           onClose={() => setMinesModalOpen(false)}
           selectedBiome={selectedBiome}
           bgImage={getMinesBg(selectedBiome)}
-          set1Complete={['welcomeBoxer','welcomePip','unlockTaverna','unlockMinas','unlockForja'].every(k => gameState.rewards?.fragmentRewards?.[k]?.claimed)}
-          onEnterMine={(type) => {
-            handleEnterMine(type);
+          set1Complete={true}
+          onEnterMine={(type, companionId) => {
+            handleEnterMine(type, companionId === '__none__' ? null : companionId);
             setTimeout(() => {
               setGameState((prev) => {
                 if (prev.mines.currentMine?.mineType === type) {
