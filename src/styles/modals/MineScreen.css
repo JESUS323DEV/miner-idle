@@ -459,6 +459,11 @@
     line-height: 1;
 }
 
+.mc-star-reached .mc-star-icon {
+    color: #ffd740;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
 .mc-star-locked .mc-star-icon {
     filter: grayscale(1) brightness(0.55);
     color: white;
@@ -698,6 +703,23 @@
     transform: none;
 }
 
+@keyframes fire-flash {
+    0%   { box-shadow: 0 0 0px rgba(255, 80, 0, 0); background: rgba(255, 80, 0, 0); }
+    30%  { box-shadow: 0 0 18px rgba(255, 80, 0, 0.8); background: rgba(255, 80, 0, 0.18); }
+    100% { box-shadow: 0 0 0px rgba(255, 80, 0, 0); background: rgba(255, 80, 0, 0); }
+}
+
+.vein-fire-flash {
+    animation: fire-flash 0.5s ease-out;
+    border-radius: 10px;
+}
+
+.floating-ingot {
+    color: #ffd740;
+    font-size: 16px;
+    text-shadow: 0 0 8px rgba(255, 150, 0, 0.9);
+}
+
 /* ========== COMPANION PANEL ========== */
 
 .companion-panel {
@@ -714,7 +736,15 @@
 .companion-dog-info {
     display: flex;
     align-items: center;
+    justify-content: space-around;
     gap: 8px;
+}
+
+.companion-dog-wrap {
+
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .companion-dog-avatar {
@@ -835,23 +865,13 @@
 
 /* ========== PASIVAS ========== */
 
-.companion-passives {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    margin-left: auto;
-    align-items: flex-end;
-}
+
 
 .passive-badge {
     font-size: 10px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    padding: 2px 6px;
-    white-space: nowrap;
+ 
 }
 
 .passive-biome {
@@ -860,12 +880,7 @@
 
 /* ========== ULT ROW ========== */
 
-.companion-ult-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 2px;
-}
+
 
 .companion-ult-row .power-btn {
     flex: 1;

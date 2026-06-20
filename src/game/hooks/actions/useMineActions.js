@@ -339,30 +339,49 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                                 ...mine.resourcesGathered,
                                 [baseMineType]: mine.resourcesGathered[baseMineType] + (ingotProc ? 0 : finalMat),
                             },
-                            powers: { ...powers, ultCooldownUntil: now + cooldown }
+                            powers: {
+                                ...powers,
+                                ultCooldownUntil: now + cooldown,
+                                ultLastVeinId: targetVein.id,
+                                ultFireTrigger: (powers.ultFireTrigger ?? 0) + 1,
+                                ultLastIngot: ingotProc,
+                            }
                         }
                     }
                 };
             }
 
-            // once_earthquake (tierra): reduce remaining de todas las venas, sin loot
+            // once_earthquake (tierra): reduce remaining de todas las venas, da loot por golpes eliminados
             if (cfg.type === 'once_earthquake') {
                 if (powers.ultUsed) return prevState;
                 const dmg = getEarthquakeDamage(companionId, stars);
+                const pickaxeMaterial = prevState.pickaxe.material;
+                const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
+                const avgYield = yieldRange ? (yieldRange.min + yieldRange.max) / 2 : 1;
+                const biomeBonus = DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0;
+                const waterMult = powers.waterMult ?? 1;
+
+                let totalLoot = 0;
                 const updatedVeins = mine.veins.map(v => {
                     const threshold = v.max * dmg;
                     const newRemaining = v.remaining <= threshold
                         ? 0
                         : Math.max(0, Math.floor(v.remaining * (1 - dmg)));
+                    const hitsRemoved = v.remaining - newRemaining;
+                    totalLoot += Math.round(hitsRemoved * avgYield * biomeBonus * waterMult);
                     return { ...v, remaining: newRemaining };
                 });
+
                 return {
                     ...prevState,
                     mines: {
                         ...prevState.mines,
                         currentMine: {
                             mineType: mine.mineType,
-                            resourcesGathered: mine.resourcesGathered,
+                            resourcesGathered: {
+                                ...mine.resourcesGathered,
+                                [baseMineType]: mine.resourcesGathered[baseMineType] + totalLoot,
+                            },
                             clicksCount: mine.clicksCount,
                             enteredAt: mine.enteredAt,
                             eventsTriggered: mine.eventsTriggered,

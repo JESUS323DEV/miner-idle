@@ -25,17 +25,22 @@ import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png";
 import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png";
 import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png";
 
-import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png";
-import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png";
-import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png";
-import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png";
-import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png";
-import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png";
-import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png";
+import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png";
+import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png";
+import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png";
+const ingotAssets = { bronze: ingotBronze, iron: ingotIron, diamond: ingotDiamond };
+
+import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.png";
+import tokyoIcon from "../../assets/ui/icons-pets/mineros/tokyo-icon.png";
+import tukaIcon from "../../assets/ui/icons-pets/mineros/tuka-icon.png";
+import munaIcon from "../../assets/ui/icons-pets/mineros/muna-icon.png";
+import gordoIcon from "../../assets/ui/icons-pets/mineros/gordo-icon.png";
+import druhIcon from "../../assets/ui/icons-pets/mineros/druh-icon.png";
+import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.png";
 import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png";
-import zeusIcon   from "../../assets/ui/icons-pets/mineros/zeus-icon.png";
-import boxerIcon  from "../../assets/ui/icons-pets/mineros/boxer-icon.png";
-import bullyIcon  from "../../assets/ui/icons-pets/mineros/bully-icon.png";
+import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png";
+import boxerIcon from "../../assets/ui/icons-pets/mineros/boxer-icon.png";
+import bullyIcon from "../../assets/ui/icons-pets/mineros/bully-icon.png";
 import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png";
 
 const dogAssets = {
@@ -54,14 +59,14 @@ const fmt = (num) => {
 const hudAssets = { bronze: bronzeHud, iron: ironHud, diamond: diamondHud };
 const menaAssets = {
   bronze: [menaBronze1, menaBronze2, menaBronze3],
-  iron:   [menaIron1,   menaIron2,   menaIron3],
-  diamond:[menaDiamond1,menaDiamond2,menaDiamond3],
+  iron: [menaIron1, menaIron2, menaIron3],
+  diamond: [menaDiamond1, menaDiamond2, menaDiamond3],
 };
 const bgAssets = { bronze: bgInsideBronze, iron: bgInsideIron, diamond: bgInsideDiamond };
 
 const mineNames = {
   bronze: "Mina Bronce", bronze_lvl2: "Mina Bronce II", bronze_lvl3: "Mina Bronce III",
-  iron: "Mina Hierro",   iron_lvl2:   "Mina Hierro II", iron_lvl3:   "Mina Hierro III",
+  iron: "Mina Hierro", iron_lvl2: "Mina Hierro II", iron_lvl3: "Mina Hierro III",
   diamond: "Mina Diamante", diamond_lvl2: "Mina Diamante II", diamond_lvl3: "Mina Diamante III",
 };
 
@@ -77,6 +82,7 @@ const MineScreen = ({ isOpen, onClose }) => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [animTriggers, setAnimTriggers] = useState({});
+  const [ultFireTriggers, setUltFireTriggers] = useState({});
   const automineRef = useRef(null);
   const mineContentRef = useRef(null);
   const currentMineRef = useRef(currentMine);
@@ -99,6 +105,16 @@ const MineScreen = ({ isOpen, onClose }) => {
     }
   }, [totalRemaining, isOpen, currentMine]);
 
+  // ULT fuego: detecta disparo y anima la vena objetivo
+  useEffect(() => {
+    const trigger = currentMine?.powers?.ultFireTrigger;
+    const veinId = currentMine?.powers?.ultLastVeinId;
+    const isIngot = currentMine?.powers?.ultLastIngot;
+    if (!trigger || !veinId) return;
+    setUltFireTriggers(prev => ({ ...prev, [veinId]: { count: (prev[veinId]?.count || 0) + 1, isIngot } }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMine?.powers?.ultFireTrigger]);
+
   // Automine siempre activo. Velocidad = 166ms / (1 + furyBonus)
   useEffect(() => {
     clearInterval(automineRef.current);
@@ -118,12 +134,12 @@ const MineScreen = ({ isOpen, onClose }) => {
     }, interval);
 
     return () => clearInterval(automineRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, currentMine?.powers?.furyBonus, currentMine?.mineType]);
 
   if (!isOpen || !currentMine) return null;
 
-  const baseMineType = currentMine.mineType.replace("_lvl2","").replace("_lvl3","");
+  const baseMineType = currentMine.mineType.replace("_lvl2", "").replace("_lvl3", "");
   const level = currentMine.mineType.includes("_lvl3") ? 2 : currentMine.mineType.includes("_lvl2") ? 1 : 0;
   const menaImg = menaAssets[baseMineType][level];
   const hudImg = hudAssets[baseMineType];
@@ -140,7 +156,6 @@ const MineScreen = ({ isOpen, onClose }) => {
   return (
     <div
       className="modal-overlay2"
-      onClick={onClose}
       style={{ backgroundImage: `url(${bgAssets[baseMineType]})` }}
     >
       <div className="mine-screen-content" ref={mineContentRef} onClick={(e) => e.stopPropagation()}>
@@ -150,7 +165,9 @@ const MineScreen = ({ isOpen, onClose }) => {
           <div className="mine-title">
             <h2>{mineNames[currentMine.mineType] || currentMine.mineType}</h2>
           </div>
-          <button className="btn-exit-mine" onClick={onClose}><X /></button>
+          {totalRemaining === 0 && (
+            <button className="btn-exit-mine" onClick={onClose}><X /></button>
+          )}
         </div>
 
         {/* STATS */}
@@ -190,7 +207,9 @@ const MineScreen = ({ isOpen, onClose }) => {
               vein={vein}
               menaImg={menaImg}
               hudImg={hudImg}
+              ingotImg={ingotAssets[baseMineType]}
               animTrigger={animTriggers[vein.id] || 0}
+              ultTrigger={ultFireTriggers[vein.id] || null}
             />
           ))}
         </div>
@@ -205,6 +224,7 @@ const MineScreen = ({ isOpen, onClose }) => {
 // ===================== COMPANION PANEL =====================
 
 const BIOME_LABEL = { bronze: 'Bronce', iron: 'Hierro', diamond: 'Diamante' };
+const BIOME_COLOR = { bronze: '#cd7f32', iron: '#a8bfc9', diamond: '#80deea' };
 
 const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor, rarityColor, stars, powers, now, baseMineType, onActivateUlt }) => {
   const ultCfg = companionCompCfg?.ult;
@@ -242,78 +262,83 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
     <div className="companion-panel">
       {/* DOG INFO */}
       <div className="companion-dog-info">
-        {companionId ? (
-          <>
-            <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
-              {dogAssets[companionId] && (
-                <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
-              )}
-            </div>
-            <div className="companion-dog-meta">
-              <span className="companion-dog-name">{companionCfg?.name ?? companionId}</span>
-              <span className="companion-dog-elem" style={{ color: elemColor }}>
-                {companionCompCfg?.element}
-              </span>
-              {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}
-            </div>
-          </>
-        ) : (
-          <div className="companion-dog-meta">
-            <span className="companion-dog-name">Sin ayudante</span>
-          </div>
-        )}
+        <div className="companion-dog-wrap">
+          {companionId ? (
+            <>
+              <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
+                {dogAssets[companionId] && (
+                  <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
+                )}
+              </div>
 
-        {/* PASIVAS */}
-        <div className="companion-passives">
-          <span className="passive-badge">
-            Automine {automineMs}ms
-          </span>
-          {companionId && (
-            <span className="passive-badge passive-biome" style={{ color: elemColor }}>
-              x{biomeBonus.toFixed(1)} {BIOME_LABEL[baseMineType]}
+              <div className="companion-dog-meta">
+                <span className="companion-dog-name">{companionCfg?.name ?? companionId}</span>
+                <span className="companion-dog-elem" style={{ color: elemColor }}>
+                  {companionCompCfg?.element}
+                </span>
+                {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}
+                {/* PASIVAS */}
+                <div className="companion-passives">
+
+                  {companionId && (
+                    <span className="passive-badge passive-biome" style={{ color: BIOME_COLOR[baseMineType] ?? elemColor }}>
+                      x{biomeBonus.toFixed(1)} {BIOME_LABEL[baseMineType]}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+            </>
+          ) : (
+            <div className="companion-dog-meta">
+              <span className="companion-dog-name">Sin ayudante</span>
+            </div>
+          )}
+
+        </div>
+        {/* ULT */}
+        <div className="companion-ult-row">
+          {!isSessionSpeed ? (
+            <button
+              className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${ultType === 'cooldown_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
+              style={{ '--ult-color': elemColor }}
+              onClick={onActivateUlt}
+              disabled={ultDisabled}
+            >
+              <span className="power-btn-label">{getUltLabel()}</span>
+            </button>
+          ) : (
+            <div className="power-btn power-btn-fury power-active">
+              <span className="power-btn-label">Furia activa ({automineMs}ms)</span>
+            </div>
+          )}
+
+          {/* Estado electrico / agua activo */}
+          {powers.electricActive && (
+            <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.electrico }}>
+              +{powers.electricMin}-{powers.electricMax} por golpe
+            </span>
+          )}
+          {powers.waterMult > 1 && (
+            <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.agua }}>
+              x{powers.waterMult} materiales
             </span>
           )}
         </div>
       </div>
 
-      {/* ULT */}
-      <div className="companion-ult-row">
-        {!isSessionSpeed ? (
-          <button
-            className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${ultType === 'cooldown_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
-            style={{ '--ult-color': elemColor }}
-            onClick={onActivateUlt}
-            disabled={ultDisabled}
-          >
-            <span className="power-btn-label">{getUltLabel()}</span>
-          </button>
-        ) : (
-          <div className="power-btn power-btn-fury power-active">
-            <span className="power-btn-label">Furia activa ({automineMs}ms)</span>
-          </div>
-        )}
 
-        {/* Estado electrico / agua activo */}
-        {powers.electricActive && (
-          <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.electrico }}>
-            +{powers.electricMin}-{powers.electricMax} por golpe
-          </span>
-        )}
-        {powers.waterMult > 1 && (
-          <span className="ult-active-badge" style={{ color: ELEMENT_COLORS.agua }}>
-            x{powers.waterMult} materiales
-          </span>
-        )}
-      </div>
     </div>
   );
 };
 
 // ===================== VENA (solo visual, no clickeable) =====================
 
-const Vein = ({ vein, menaImg, hudImg, animTrigger }) => {
+const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger }) => {
   const [isShaking, setIsShaking] = useState(false);
+  const [isFireFlash, setIsFireFlash] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
+  const [floatingIngots, setFloatingIngots] = useState([]);
   const veinRef = useRef(null);
 
   useEffect(() => {
@@ -329,12 +354,27 @@ const Vein = ({ vein, menaImg, hudImg, animTrigger }) => {
     setTimeout(() => setFloatingNumbers(prev => prev.filter(n => n.id !== numId)), 900);
   }, [animTrigger]);
 
+  useEffect(() => {
+    if (!ultTrigger) return;
+    setIsFireFlash(true);
+    setTimeout(() => setIsFireFlash(false), 500);
+
+    const rect = veinRef.current?.getBoundingClientRect();
+    const x = rect ? rect.width / 2 + 8 : 48;
+    const y = rect ? rect.height / 2 : 40;
+    const ingotId = Date.now() + Math.random();
+    if (ultTrigger.isIngot) {
+      setFloatingIngots(prev => [...prev, { id: ingotId, x, y }]);
+      setTimeout(() => setFloatingIngots(prev => prev.filter(n => n.id !== ingotId)), 1000);
+    }
+  }, [ultTrigger?.count]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isDepleted = vein.remaining === 0;
 
   return (
     <div
       ref={veinRef}
-      className={`vein vein-auto${isShaking ? " shake" : ""}${isDepleted ? " depleted" : ""}`}
+      className={`vein vein-auto${isShaking ? " shake" : ""}${isDepleted ? " depleted" : ""}${isFireFlash ? " vein-fire-flash" : ""}`}
     >
       <div className="vein-icon">
         <img src={menaImg} alt="mena" className="vein-img" />
@@ -344,6 +384,11 @@ const Vein = ({ vein, menaImg, hudImg, animTrigger }) => {
       {floatingNumbers.map((num) => (
         <div key={num.id} className="floating-number" style={{ left: `${num.x}px`, top: `${num.y}px` }}>
           +<img src={hudImg} alt="mat" className="mena-floating-icon" />
+        </div>
+      ))}
+      {floatingIngots.map((ing) => (
+        <div key={ing.id} className="floating-number floating-ingot" style={{ left: `${ing.x}px`, top: `${ing.y}px` }}>
+          +<img src={ingotImg} alt="lingote" className="mena-floating-icon" />
         </div>
       ))}
     </div>
@@ -367,7 +412,7 @@ const MineCompleted = ({ currentMine, baseMineType, hudImg, onClose }) => {
   const total = materialsGathered + speedBonus;
   const stars = materialsGathered >= starThresholds.perfect ? 3
     : materialsGathered >= starThresholds.good ? 2
-    : materialsGathered >= starThresholds.basic ? 1 : 0;
+      : materialsGathered >= starThresholds.basic ? 1 : 0;
 
   return (
     <div className="mine-completed">

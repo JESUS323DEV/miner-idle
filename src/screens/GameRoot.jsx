@@ -1150,12 +1150,50 @@ function GameRoot() {
   };
 
   // ===== RENDER =====
+  const [debugOpen, setDebugOpen] = useState(false);
+  const MINER_DOGS = ['lady','tokio','tuka','muna','chihuahua','bully','smoke','nupito','boxer','druh','gordo','zeus'];
+  const handleDebugSetStars = (dogId, delta) => {
+    setGameState(prev => {
+      const dog = prev.dogs[dogId];
+      if (!dog) return prev;
+      const newStars = Math.min(5, Math.max(0, (dog.stars ?? 0) + delta));
+      return { ...prev, dogs: { ...prev.dogs, [dogId]: { ...dog, hired: true, fragments: 999, stars: newStars } } };
+    });
+  };
+
   return (
     <GameContext.Provider value={contextValue}>
       <div
         className="game-container"
         style={{ backgroundImage: `url(${bgMain})` }}
       >
+        {/* DEBUG */}
+        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
+          DEV
+        </button>
+        {debugOpen && (
+          <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160 }}>
+            <button
+              onClick={() => setGameState(prev => {
+                const updated = { ...prev.dogs };
+                MINER_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], stars: 0 }; });
+                return { ...prev, dogs: updated };
+              })}
+              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer', marginBottom:2 }}
+            >
+              resetear todas a 0★
+            </button>
+            {MINER_DOGS.map(id => (
+              <div key={id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:'#fff' }}>
+                <span style={{ width:70 }}>{id}</span>
+                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{'★'.repeat(gameState.dogs[id]?.stars ?? 0)}{gameState.dogs[id]?.stars === 0 ? '0' : ''}</span>
+                <button onClick={() => handleDebugSetStars(id, -1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>-</button>
+                <button onClick={() => handleDebugSetStars(id, 1)}  style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* OVERLAY OSCURO DURANTE TUTORIAL */}
         {tutorialStep !== null && tutorialStep !== 'done' && openModal === null && !rewardsOpen && !rentalModalOpen && !raidOpen && (
           <div
