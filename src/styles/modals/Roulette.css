@@ -1,0 +1,257 @@
+/* ========== RULETA DE ORO ========== */
+
+.roulette-gold-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0 1.5rem;
+}
+
+/* ---- Wheel ---- */
+.roulette-wheel-area {
+    position: relative;
+    width: 230px;
+    height: 230px;
+    margin-top: 20px;
+}
+
+.roulette-pointer {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 26px solid #FFD700;
+    z-index: 10;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.9));
+}
+
+.roulette-wheel {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    border: 5px solid #FFD700;
+    box-shadow:
+        0 0 24px rgba(255,215,0,0.45),
+        inset 0 0 16px rgba(0,0,0,0.6);
+    position: relative;
+}
+
+/* Sector icon/text items (inside rotating wheel) */
+.roulette-sector-item {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    gap: 1px;
+}
+
+.roulette-sector-mult {
+    font-size: 11px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 5px #000, 0 0 5px #000;
+    line-height: 1;
+}
+
+.roulette-sector-icon {
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.95));
+}
+
+.roulette-sector-text {
+    font-size: 7px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 3px #000, 0 0 3px #000;
+    line-height: 1;
+}
+
+/* Center hub */
+.roulette-hub {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffe066, #c8900a);
+    box-shadow: 0 0 12px rgba(255,215,0,0.9);
+    z-index: 5;
+}
+
+/* ---- Result ---- */
+.roulette-result-area {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.roulette-result-msg {
+    font-size: 0.92rem;
+    font-weight: 800;
+    padding: 0.3rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.roulette-win {
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.12);
+    border: 1px solid rgba(46, 204, 113, 0.35);
+}
+
+.roulette-lose {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.35);
+}
+
+/* ---- Bet selector ---- */
+.roulette-bet-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.roulette-bet-label {
+    font-size: 0.68rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.roulette-bet-btns {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.roulette-bet-btn {
+    padding: 0.28rem 0.7rem;
+    border-radius: 6px;
+    border: 2px solid #444;
+    background: rgba(255,255,255,0.05);
+    color: #bbb;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.roulette-bet-btn.rbet-active {
+    border-color: #FFD700;
+    color: #FFD700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.roulette-bet-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.roulette-current-bet {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    color: #FFD700;
+    font-weight: 600;
+}
+
+.roulette-ico {
+    width: 14px;
+    height: 14px;
+}
+
+/* ---- Coste fijo ---- */
+.roulette-cost-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.82rem;
+    color: #FFD700;
+    font-weight: 600;
+}
+
+.roulette-cost-label {
+    opacity: 0.85;
+}
+
+/* ---- Spin button ---- */
+.roulette-spin-btn {
+    padding: 0.6rem 2.5rem;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #8b0000, #c0392b);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 16px rgba(192, 57, 43, 0.5);
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+}
+
+.roulette-spin-btn:not(:disabled):hover {
+    transform: scale(1.03);
+}
+
+.roulette-spin-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.roulette-warn {
+    font-size: 0.72rem;
+    color: #e74c3c;
+    margin: 0;
+}
+
+/* ========== TABS (Oro / Shards) ========== */
+
+.roulette-tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #333;
+    margin-bottom: 0.25rem;
+}
+
+.roulette-tab {
+    flex: 1;
+    padding: 0.5rem 0;
+    border: none;
+    background: none;
+    color: #666;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.roulette-tab.rtab-active {
+    color: #FFD700;
+    border-bottom-color: #FFD700;
+}
+
+.roulette-coming-soon {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #555;
+    font-size: 0.85rem;
+    font-style: italic;
+}

@@ -112,7 +112,7 @@ export const MineCompanionConfig = {
         ult: {
             type: 'once_water',
             name: 'Pistola de Agua',
-            starRanges: [[1,2],[1,2],[1,2],[1,3],[2,3],[2,3]],
+            starRanges: [[1,1],[1,2],[2,2],[2,3],[2,4],[3,4]],
         },
     },
     druh: {

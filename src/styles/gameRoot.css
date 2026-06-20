@@ -540,6 +540,7 @@ button:not(:disabled) .lock-price-badge img {
     width: 72%;
     height: 72%;
     object-fit: contain;
+    margin-left: 0.6rem;
 }
 
 .automine-button.unlock span {

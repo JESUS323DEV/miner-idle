@@ -50,7 +50,7 @@ export const DogsConfig = {
         miningSpeed: 0.5,
         biomeBonus: {
             bronze: 3.0,
-            iron: 5.0,
+            iron: 4.0,
             diamond: 2,
         },
         goldMineBonus: {
@@ -101,7 +101,7 @@ export const DogsConfig = {
         biomeBonus: {
             bronze: 3.0,
             iron: 3.0,
-            diamond: 5.0,
+            diamond: 4.0,
         },
         goldMineBonus: {
             type: 'extraGold',
@@ -124,7 +124,7 @@ export const DogsConfig = {
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
-            bronze: 5.0,
+            bronze: 4.0,
             iron: 2,
             diamond: 3,
         },

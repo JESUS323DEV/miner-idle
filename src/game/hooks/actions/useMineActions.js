@@ -115,6 +115,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                         veins,
                         resourcesGathered: { bronze: 0, iron: 0, diamond: 0 },
                         clicksCount: 0,
+                        automineGained: 0,
+                        fireIngotGained: 0,
                         enteredAt: Date.now(),
                         eventsTriggered: [],
                         companion: {
@@ -266,6 +268,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                             [baseMineType]: mine.resourcesGathered[baseMineType] + materialGained
                         },
                         clicksCount: mine.clicksCount + 1,
+                        automineGained: (mine.automineGained ?? 0) + (fromAutomine ? materialGained : 0),
+                        fireIngotGained: (mine.fireIngotGained ?? 0) + fireIngot,
                         powers: newPowers,
                     }
                 }
@@ -497,10 +501,10 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             const totalMaterials = materialsGathered + speedBonus;
             const currentBest = prevState.mines.bestScores?.[mineType] || 0;
 
-            // Restaurar el companion a su asignación original
+            // Restaurar el companion a su asignación original (solo si es perro propio, no alquilado)
             const companionId = currentMine.companion?.dogId;
             const originalAssignment = currentMine.companion?.originalAssignment ?? null;
-            const newDogs = companionId ? {
+            const newDogs = (companionId && prevState.dogs[companionId]) ? {
                 ...prevState.dogs,
                 [companionId]: { ...prevState.dogs[companionId], assignedTo: originalAssignment }
             } : prevState.dogs;

@@ -1064,6 +1064,9 @@
     font-size: 0.8rem;
     font-weight: bold;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pack-open-btn.locked {

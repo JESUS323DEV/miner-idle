@@ -1,0 +1,88 @@
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes prizeIconReveal {
+    0%   { transform: scale(0.1);  opacity: 0; }
+    60%  { transform: scale(1.25); opacity: 1; }
+    80%  { transform: scale(0.92); opacity: 1; }
+    100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes prizeTextIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.prize-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: overlayFadeIn 0.25s ease forwards;
+}
+
+.prize-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 2rem 2.5rem;
+    border-radius: 18px;
+    background: rgba(20, 20, 30, 0.96);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    min-width: 200px;
+}
+
+.prize-icon-anim {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: prizeIconReveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.6));
+}
+
+.prize-icon-lose {
+    filter: drop-shadow(0 0 8px rgba(180, 40, 40, 0.5)) grayscale(0.4);
+}
+
+.prize-main-label {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 0.5px;
+    animation: prizeTextIn 0.4s 0.3s ease both;
+}
+
+.prize-label-win  { color: #FFD700; }
+.prize-label-lose { color: #e74c3c; }
+
+.prize-sub-label {
+    font-size: 0.82rem;
+    color: #aaa;
+    margin: 0;
+    animation: prizeTextIn 0.4s 0.45s ease both;
+}
+
+.prize-accept-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1.8rem;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #8b6914, #c8900a);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 10px rgba(200, 144, 10, 0.4);
+    animation: prizeTextIn 0.4s 0.6s ease both;
+    transition: transform 0.1s;
+}
+
+.prize-accept-btn:hover { transform: scale(1.04); }

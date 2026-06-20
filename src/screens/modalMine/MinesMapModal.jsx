@@ -58,6 +58,13 @@ const biomeHudAssets = {
     diamond: diamondHud,
 };
 
+const fmtRentalTime = (ms) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+};
+
 const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, onEnterMine, set1Complete = true }) => {
     const {
         gameState,
@@ -104,9 +111,16 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         return num;
     };
 
-    const getAvailableCompanions = () => Object.values(dogs).filter(d =>
-        d && d.hired && (d.assignedTo === null || d.assignedTo?.globalSlot !== undefined)
-    );
+    const getAvailableCompanions = () => {
+        const owned = Object.values(dogs).filter(d =>
+            d && d.hired && (d.assignedTo === null || d.assignedTo?.globalSlot !== undefined)
+        );
+        const rented = (gameState.rental?.active ?? [])
+            .filter(r => r.destination === 'slot' && r.remainingMs > 0)
+            .map(r => ({ id: r.dogId, stars: 0, isRented: true, remainingMs: r.remainingMs }));
+        return [...owned, ...rented];
+    };
+
 
     const filteredUnlocked = unlockedTypes
         .filter(type => type !== 'gold')
@@ -503,6 +517,9 @@ const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSe
                                     <span className="pre-entry-circle-elem" style={{ color: elemColor }}>
                                         {compCfg.element}
                                     </span>
+                                )}
+                                {dog.isRented && (
+                                    <span className="pre-entry-circle-rental">{fmtRentalTime(dog.remainingMs)}</span>
                                 )}
                             </button>
                         );

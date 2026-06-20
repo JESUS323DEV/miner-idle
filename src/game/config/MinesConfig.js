@@ -22,9 +22,9 @@ const MinesConfig = {
         //MATERIALES OBTENIDOS AL MINAR CADA MINA
         yields: {
             stone: { min: 1, max: 3 },
-            bronze: { min: 4, max: 6 },
-            metal: { min: 10, max: 15 },
-            diamond: { min: 15, max: 20 },
+            bronze: { min: 3, max: 6 },
+            metal: { min: 6, max: 8 },
+            diamond: { min: 10, max: 15 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -48,13 +48,13 @@ const MinesConfig = {
         requiresStars: { mineType: 'bronze', stars: 2 },
 
         baseVeinsCount: { min: 2, max: 4 },
-        baseVeinCapacity: { min: 30, max: 30 },
+        baseVeinCapacity: { min: 25, max: 25 },
 
         yields: {
-            stone: { min: 0, max: 1 },
-            bronze: { min: 4, max: 9 },
-            metal: { min: 8, max: 11 },
-            diamond: { min: 12, max: 14 },
+            stone: { min: 1, max: 3 },
+            bronze: { min: 3, max: 7 },
+            metal: { min: 6, max: 9 },
+            diamond: { min: 10, max: 15 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -75,13 +75,13 @@ const MinesConfig = {
         requiresStars: { mineType: 'bronze_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 40, max: 40 },
+        baseVeinCapacity: { min: 30, max: 30 },
 
         yields: {
-            stone: { min: 0, max: 1 },
-            bronze: { min: 3, max: 11 },
-            metal: { min: 9, max: 15 },
-            diamond: { min: 12, max: 15 },
+            stone: { min: 1, max: 3 },
+            bronze: { min: 3, max: 8 },
+            metal: { min: 6, max: 10 },
+            diamond: { min: 10, max: 15 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -107,8 +107,8 @@ const MinesConfig = {
         yields: {
             stone: { min: 0, max: 1 },
             bronze: { min: 0, max: 5 },
-            metal: { min: 5, max: 10 },
-            diamond: { min: 10, max: 12 },
+            metal: { min: 4, max: 6 },
+            diamond: { min: 8, max: 10 },
         },
 
         starThresholds: { perfect: 220, good: 150, basic: 80 },
@@ -130,13 +130,13 @@ const MinesConfig = {
         requiresStars: { mineType: 'iron', stars: 2 },
 
         baseVeinsCount: { min: 2, max: 4 },
-        baseVeinCapacity: { min: 25, max: 25 },
+        baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 5 },
-            metal: { min: 8, max: 12 },
-            diamond: { min: 18, max: 20 },
+            metal: { min: 4, max: 7 },
+            diamond: { min: 8, max: 12 },
         },
 
         starThresholds: { perfect: 450, good: 360, basic: 200 },
@@ -154,13 +154,13 @@ const MinesConfig = {
         requiresStars: { mineType: 'iron_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 40, max: 40 },
+        baseVeinCapacity: { min: 25, max: 25 },
 
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 5 },
-            metal: { min: 8, max: 12 },
-            diamond: { min: 20, max: 24 },
+            metal: { min: 4, max: 9 },
+            diamond: { min: 8, max: 14 },
         },
 
         starThresholds: { perfect: 500, good: 400, basic: 250 },
@@ -182,8 +182,8 @@ const MinesConfig = {
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 9 },
-            diamond: { min: 10, max: 18 },
+            metal: { min: 0, max: 5 },
+            diamond: { min: 10, max: 13 },
         },
 
         starThresholds: { perfect: 205, good: 120, basic: 60 },
@@ -212,8 +212,8 @@ const MinesConfig = {
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 10 },
-            diamond: { min: 10, max: 18 },
+            metal: { min: 0, max: 5 },
+            diamond: { min: 10, max: 15 },
         },
 
         starThresholds: { perfect: 430, good: 350, basic: 200 },
@@ -234,13 +234,13 @@ const MinesConfig = {
         requiresStars: { mineType: 'diamond_lvl2', stars: 2 },
 
         baseVeinsCount: { min: 3, max: 4 },
-        baseVeinCapacity: { min: 30, max: 30 },
+        baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 0 },
-            metal: { min: 0, max: 10 },
-            diamond: { min: 10, max: 18 },
+            metal: { min: 0, max: 5 },
+            diamond: { min: 10, max: 16 },
         },
 
         starThresholds: { perfect: 520, good: 420, basic: 250 },

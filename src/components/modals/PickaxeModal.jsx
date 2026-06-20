@@ -119,9 +119,9 @@ const PickaxeModal = ({
                                     {tierIngotCost && (
                                         <>
                                             {tierIngotCost.amount}
+                                            <img src={getLingoteIcon(tierIngotCost.type)} alt="lingote" />
                                         </>
                                     )}
-                                    <img src={getLingoteIcon(tierIngotCost.type)} alt="lingote" />
                                 </span>
 
                             </button>

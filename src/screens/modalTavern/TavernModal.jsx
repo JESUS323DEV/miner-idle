@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
-import { X, ArrowLeft } from 'lucide-react';
+import { X, ArrowLeft, Coins } from 'lucide-react';
+import RouletteGold from './RouletteGold.jsx';
+import '../../styles/modals/Roulette.css';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/ForgeModal.css';
@@ -106,6 +108,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
     const [showSobresIntro, setShowSobresIntro] = useState(false);
     const [view, setView] = useState('main');
+    const [rouletteTab, setRouletteTab] = useState('gold');
     const [flippedDog, setFlippedDog] = useState(null);
     const [dogTab, setDogTab] = useState('mineros');
     const [rarityFilter, setRarityFilter] = useState(null);
@@ -223,6 +226,15 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 <div className="tavern-card-info">
                                     <span className="tavern-card-name">Invocación</span>
                                     <span className="tavern-card-desc">Abre sobres y consigue fragmentos</span>
+                                </div>
+                                <span className="tavern-card-arrow">›</span>
+                            </button>
+
+                            <button className="tavern-menu-card" onClick={() => setView('ruleta')}>
+                                <Coins className="tavern-card-icon" style={{ width: 40, height: 40, color: '#FFD700' }} />
+                                <div className="tavern-card-info">
+                                    <span className="tavern-card-name">Ruleta</span>
+                                    <span className="tavern-card-desc">Apuesta oro y gana premios</span>
                                 </div>
                                 <span className="tavern-card-arrow">›</span>
                             </button>
@@ -889,6 +901,36 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             );
                         })()}
 
+                    </div>
+                )}
+
+                {/* RULETA */}
+                {view === 'ruleta' && (
+                    <div className="tavern-cambista">
+                        <button className="tavern-back-btn" onClick={() => setView('main')}>
+                            <ArrowLeft /> Volver
+                        </button>
+                        <h2 className="tavern-title">Ruleta</h2>
+
+                        <div className="roulette-tabs">
+                            <button
+                                className={`roulette-tab ${rouletteTab === 'gold' ? 'rtab-active' : ''}`}
+                                onClick={() => setRouletteTab('gold')}
+                            >
+                                Oro
+                            </button>
+                            <button
+                                className={`roulette-tab ${rouletteTab === 'shards' ? 'rtab-active' : ''}`}
+                                onClick={() => setRouletteTab('shards')}
+                            >
+                                Shards
+                            </button>
+                        </div>
+
+                        {rouletteTab === 'gold' && <RouletteGold />}
+                        {rouletteTab === 'shards' && (
+                            <p className="roulette-coming-soon">Proximamente</p>
+                        )}
                     </div>
                 )}
 

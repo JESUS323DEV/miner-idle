@@ -6,7 +6,7 @@
 
 export const AutomineConfig = {
     // ===== DESBLOQUEO =====
-    unlockCost: 1500,
+    unlockCost: 2000,
 
     // ===== CARGAS =====
     maxCharges: 2,

@@ -118,7 +118,7 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
             const ingotType = upgradeCost?.ingot?.type;
             const ingotAmount = upgradeCost?.ingot?.amount || 0;
 
-            if (prevState.gold < goldCost || prevState[ingotType] < ingotAmount) return prevState;
+            if (prevState.gold < goldCost || (prevState[ingotType] ?? 0) < ingotAmount) return prevState;
 
             const newGoldSpent = prevState.totalGoldSpent + goldCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);

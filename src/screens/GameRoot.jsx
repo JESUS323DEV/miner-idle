@@ -676,7 +676,7 @@ function GameRoot() {
   const canAffordMaterialUpgrade =
     gameState.pickaxe.tier === 5 &&
     gameState.gold >= (materialUpgradeCost?.gold || 0) &&
-    gameState[materialUpgradeCost?.ingot?.type] >=
+    (gameState[materialUpgradeCost?.ingot?.type] ?? 0) >=
     (materialUpgradeCost?.ingot?.amount || 0);
 
   // Devuelve imagen del pico según material y tier actual
@@ -1182,6 +1182,20 @@ function GameRoot() {
         </button>
         {debugOpen && (
           <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
+            {/* RECURSOS */}
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>RECURSOS</span>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, gold: prev.gold + 100000 }))}
+              style={{ fontSize:10, padding:'2px 4px', background:'#332200', color:'#ffd740', border:'1px solid #ffd740', borderRadius:3, cursor:'pointer' }}
+            >+100k oro</button>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins + 500 }))}
+              style={{ fontSize:10, padding:'2px 4px', background:'#002233', color:'#4dd0e1', border:'1px solid #4dd0e1', borderRadius:3, cursor:'pointer' }}
+            >+500 tavern</button>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, completed: true, currentStep: 3, staminaUnlocked: true, pickaxeUnlocked: true, minesUnlocked: true, goldPerSecondBought: true, pickaxeUpgradeDone: true, introDone: true, minesHinted: true, snacksHinted: true, automineHinted: true, forgeIntroDone: true, tavernIntroDone: true, cambistaIntroDone: true, dogsIntroDone: true, raidIntroDone: true, rentalTutorialStep: 3, sobreIntroDone: true, mineIntroBronzeDone: true, mineIntroIronDone: true, mineIntroDiamondDone: true } }))}
+              style={{ fontSize:10, padding:'2px 4px', background:'#002200', color:'#69f080', border:'1px solid #69f080', borderRadius:3, cursor:'pointer' }}
+            >skip tutorial</button>
             {/* MINEROS */}
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>MINEROS</span>
             <button
@@ -1603,7 +1617,7 @@ function GameRoot() {
                 className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
               >
                 <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
-                <span>{AutomineConfig.unlockCost} oro</span>
+                <span>{formatNumber(AutomineConfig.unlockCost)} oro</span>
               </button>
             ) : (
               <button

@@ -268,7 +268,7 @@ const MineScreen = ({ isOpen, onClose }) => {
         </div>
 
         {/* PANTALLA COMPLETADA */}
-        {showCompleted && <MineCompleted currentMine={currentMine} baseMineType={baseMineType} hudImg={hudImg} onClose={onClose} />}
+        {showCompleted && <MineCompleted currentMine={currentMine} baseMineType={baseMineType} hudImg={hudImg} ingotImg={ingotAssets[baseMineType]} onClose={onClose} />}
       </div>
     </div>
   );
@@ -323,10 +323,13 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
         <div className="companion-dog-wrap">
           {companionId ? (
             <>
-              <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
-                {dogAssets[companionId] && (
-                  <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
-                )}
+              <div className="companion-dog-avatar-wrap">
+                <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
+                  {dogAssets[companionId] && (
+                    <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
+                  )}
+                </div>
+                {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}
               </div>
 
               <div className="companion-dog-meta">
@@ -334,7 +337,6 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
                 <span className="companion-dog-elem" style={{ color: elemColor }}>
                   {companionCompCfg?.element}
                 </span>
-                {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}
                 {/* PASIVAS */}
                 <div className="companion-passives">
 
@@ -506,7 +508,7 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthT
 
 // ===================== PANTALLA COMPLETADA =====================
 
-const MineCompleted = ({ currentMine, baseMineType, hudImg, onClose }) => {
+const MineCompleted = ({ currentMine, baseMineType, hudImg, ingotImg, onClose }) => {
   const materialsGathered = currentMine.resourcesGathered[baseMineType];
   const config = MinesConfig[currentMine.mineType];
   const { starThresholds, starBonuses } = config;
@@ -543,13 +545,19 @@ const MineCompleted = ({ currentMine, baseMineType, hudImg, onClose }) => {
           <span>Golpes</span>
           <span className="mc-stat-val">{fmt(currentMine.clicksCount)}</span>
         </div>
+        {(currentMine.fireIngotGained ?? 0) > 0 && (
+          <div className="mc-stat-row mc-bonus">
+            <span>Poder de fuego</span>
+            <span className="mc-stat-val">+{fmt(currentMine.fireIngotGained)} <img src={ingotImg} alt="" className="mc-hud-icon" /></span>
+          </div>
+        )}
         <div className="mc-stat-row">
-          <span>Obtenido</span>
-          <span className="mc-stat-val">{fmt(materialsGathered)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
+          <span>Autominado</span>
+          <span className="mc-stat-val">{fmt(currentMine.automineGained ?? 0)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
         </div>
         {speedBonus > 0 && (
           <div className="mc-stat-row mc-bonus">
-            <span>Bonus</span>
+            <span>Bonus estrellas</span>
             <span className="mc-stat-val">+{fmt(speedBonus)} <img src={hudImg} alt="" className="mc-hud-icon" /></span>
           </div>
         )}
