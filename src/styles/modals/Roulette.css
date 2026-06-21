@@ -255,3 +255,19 @@
     font-size: 0.85rem;
     font-style: italic;
 }
+
+/* ========== RULETA DE SHARDS ========== */
+
+.rs-dog-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid;
+    object-fit: cover;
+    filter: drop-shadow(0 1px 5px rgba(0,0,0,0.9));
+}
+
+
+.rs-cost-purple {
+    color: #b45cff;
+}

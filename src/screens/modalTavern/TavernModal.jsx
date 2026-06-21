@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft, Coins } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
+import RouletteShards from './RouletteShards.jsx';
+import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/Roulette.css';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
@@ -113,8 +115,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const [dogTab, setDogTab] = useState('mineros');
     const [rarityFilter, setRarityFilter] = useState(null);
     const [packTab, setPackTab] = useState('mineros');
-    const [packResult, setPackResult] = useState(null);
-    const [resultStreak, setResultStreak] = useState({ dogId: null, count: 0 });
+    const [invocPrizeData, setInvocPrizeData] = useState(null);
+    const pendingSfxRef = useRef('rewardShards');
+
     useEffect(() => {
         if (view === 'ayudantes' && !gameState.tutorial?.dogsIntroDone) setShowDogsIntro(true);
         if (view === 'cambista' && !gameState.tutorial?.cambistaIntroDone) setShowCambistaIntro(true);
@@ -122,15 +125,19 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     }, [view]); // eslint-disable-line
 
     useEffect(() => {
-        if (!gameState.lastPackResult) return;
-        setPackResult(gameState.lastPackResult);
-        setResultStreak(prev => ({
-            dogId: gameState.lastPackResult.dogId,
-            count: prev.dogId === gameState.lastPackResult.dogId ? prev.count + 1 : 1
-        }));
-        const t = setTimeout(() => setPackResult(null), 10000);
-        return () => clearTimeout(t);
-    }, [gameState.lastPackResult]);
+        const r = gameState.lastPackResult;
+        if (!r) return;
+        const dogIcon = r.isForge ? forgeDogAssets[r.dogId] : dogAssets[r.dogId];
+        const dogName = r.isForge ? ForgeDogsConfig[r.dogId]?.name : DogsConfig[r.dogId]?.name;
+        const rarityLabel = { rare: 'Raro', epic: 'Epico', legendary: 'Legendario' }[r.rarity] ?? r.rarity;
+        setInvocPrizeData({
+            icon: dogIcon,
+            label: dogName,
+            sublabel: `${rarityLabel} · +${r.fragments} fragmentos`,
+            isWin: true,
+            sfx: pendingSfxRef.current,
+        });
+    }, [gameState.lastPackResult]); // eslint-disable-line
 
     if (!isOpen) return null;
 
@@ -768,7 +775,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/* SOBRES */}
                 {view === 'sobres' && (
                     <div className="tavern-cambista">
-                        <button className="tavern-back-btn" onClick={() => { setView('main'); setPackResult(null); }}>
+                        <button className="tavern-back-btn" onClick={() => { setView('main'); setInvocPrizeData(null); }}>
                             <ArrowLeft /> Volver
                         </button>
                         <h2 className="tavern-title">Invocación</h2>
@@ -792,25 +799,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             <button className={`dog-tab-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('gratis')}>🎁 Gratis</button>
                         </div>
 
-                        {packResult && (
-                            <div className={`pack-result-mini pack-result-mini-${packResult.rarity}`}>
-                                <img
-                                    src={packResult.isForge ? forgeDogAssets[packResult.dogId] : dogAssets[packResult.dogId]}
-                                    className="pack-result-mini-img"
-                                    alt={packResult.dogId}
-                                />
-                                <div className="pack-result-mini-info">
-                                    <span className="pack-result-mini-name">
-                                        {packResult.isForge ? ForgeDogsConfig[packResult.dogId]?.name : DogsConfig[packResult.dogId]?.name}
-                                    </span>
-                                    <span className={`dog-rarity-badge dog-rarity-${packResult.rarity}`}>{packResult.rarity}</span>
-                                </div>
-                                <div className="pack-result-mini-frags">+{packResult.fragments} 🧩</div>
-                            {resultStreak.count > 1 && (
-                                <div className="pack-result-streak">x{resultStreak.count}</div>
-                            )}
-                            </div>
-                        )}
+                        <PrizeOverlay
+                            prizeData={invocPrizeData}
+                            onAccept={() => setInvocPrizeData(null)}
+                        />
 
                         {(packTab === 'mineros' || packTab === 'forja') && (
                             <div className="packs-grid">
@@ -840,7 +832,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 <button
                                                     className={`pack-open-btn ${!canOpen ? 'locked' : ''}`}
                                                     disabled={!canOpen}
-                                                    onClick={() => { playSfx('freeInvoc');onOpenPack(pack.id, packTab === 'forja'); }}
+                                                    onClick={() => { pendingSfxRef.current = 'rewardShards'; onOpenPack(pack.id, packTab === 'forja'); }}
                                                 >
                                                     Abrir — {pack.cost} <img src={coinTavern} alt="coin" style={{ width: 14, height: 14, verticalAlign: 'middle', marginLeft: 2 }} />
                                                 </button>
@@ -883,7 +875,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     <button
                                                         className={`pack-free-btn ${!freeReady ? 'locked' : ''}`}
                                                         disabled={!freeReady}
-                                                        onClick={() => { playSfx('freeInvoc');onFreePull(pack.id, isForge); }}
+                                                        onClick={() => { pendingSfxRef.current = 'freeInvoc'; onFreePull(pack.id, isForge); }}
                                                     >
                                                         {freeReady ? '🎁 Gratis' : `⏱ ${freeLabel}`}
                                                     </button>
@@ -928,9 +920,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         </div>
 
                         {rouletteTab === 'gold' && <RouletteGold />}
-                        {rouletteTab === 'shards' && (
-                            <p className="roulette-coming-soon">Proximamente</p>
-                        )}
+                        {rouletteTab === 'shards' && <RouletteShards />}
                     </div>
                 )}
 

@@ -2,27 +2,19 @@ import { useState, useRef } from 'react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png";
+import iconGold   from "../../assets/ui/icons-hud/hud-principal/oro1.png";
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png";
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png";
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png";
 
 const SECTORS = [
-    { pct: 15, color: '#6b0000', type: 'gold_mult', mult: 0,   label: 'x0' },
     { pct: 30, color: '#0d4a1a', type: 'gold_mult', mult: 1.5, label: 'x1.5' },
-    { pct: 20, color: '#0a2060', type: 'gold_mult', mult: 2,   label: 'x2' },
-    { pct: 10, color: '#6b5000', type: 'gold_mult', mult: 3,   label: 'x3' },
-    { pct: 10, color: '#4a0066', type: 'coin',                  label: 'Coin' },
-    { pct: 8,  color: '#5a2a00', type: 'ingot', ingot: 'bronzeIngot',  label: 'Bronce' },
-    { pct: 5,  color: '#1e1e1e', type: 'ingot', ingot: 'ironIngot',    label: 'Hierro' },
-    { pct: 2,  color: '#004a38', type: 'ingot', ingot: 'diamondIngot', label: 'Diam.' },
+    { pct: 20, color: '#6b0000', type: 'gold_mult', mult: 0,   label: 'x0'   },
+    { pct: 15, color: '#4a0066', type: 'coin',                  label: 'Coin' },
+    { pct: 15, color: '#2a005a', type: 'coin',                  label: 'Coin' },
+    { pct: 13, color: '#0a2060', type: 'gold_mult', mult: 2,   label: 'x2'   },
+    { pct: 7,  color: '#6b5000', type: 'gold_mult', mult: 3,   label: 'x3'   },
 ];
 
-const SPIN_COST = 5000;
-const INGOT_AMOUNTS = { bronzeIngot: 15, ironIngot: 10, diamondIngot: 5 };
-const INGOT_ICONS   = { bronzeIngot: ingotBronze, ironIngot: ingotIron, diamondIngot: ingotDiamond };
-const INGOT_NAMES   = { bronzeIngot: 'bronce', ironIngot: 'hierro', diamondIngot: 'diamante' };
+const BET_OPTIONS = [5000, 10000, 15000];
 
 const N = SECTORS.length;
 const SECTOR_DEG = 360 / N;
@@ -51,7 +43,6 @@ const rollResult = () => {
 
 const getSectorIcon = (s) => {
     if (s.type === 'coin') return coinTavern;
-    if (s.type === 'ingot') return INGOT_ICONS[s.ingot];
     return null;
 };
 
@@ -61,25 +52,21 @@ const fmt = (n) => {
     return String(n);
 };
 
-const getPrizeData = (sector) => {
+const getPrizeData = (sector, bet) => {
     if (sector.type === 'gold_mult') {
         if (sector.mult === 0) return {
             icon: iconGold, isWin: false, sfx: 'blocked',
-            label: 'Sin suerte', sublabel: `Pierdes ${fmt(SPIN_COST)} oro`,
+            label: 'Sin suerte', sublabel: `Pierdes ${fmt(bet)} oro`,
         };
-        const net = Math.floor(SPIN_COST * sector.mult) - SPIN_COST;
+        const win = Math.floor(bet * sector.mult);
         return {
             icon: iconGold, isWin: true, sfx: 'rewardGold',
-            label: `+${fmt(net)} oro`, sublabel: sector.label,
+            label: `+${fmt(win)} oro`, sublabel: sector.label,
         };
     }
     if (sector.type === 'coin') return {
         icon: coinTavern, isWin: true, sfx: 'rewardCoin',
-        label: '+1 moneda', sublabel: 'de taberna',
-    };
-    if (sector.type === 'ingot') return {
-        icon: INGOT_ICONS[sector.ingot], isWin: true, sfx: 'rewardGold',
-        label: `+${INGOT_AMOUNTS[sector.ingot]} lingotes`, sublabel: `de ${INGOT_NAMES[sector.ingot]}`,
+        label: '+3 monedas', sublabel: 'de taberna',
     };
     return null;
 };
@@ -99,18 +86,20 @@ const resetWheel = (rotRef, setWheelTransition, setRotation) => {
 
 export default function RouletteGold() {
     const { gameState, setGameState } = useGameContext();
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [rotation, setRotation] = useState(0);
+    const [isSpinning, setIsSpinning]         = useState(false);
+    const [rotation, setRotation]             = useState(0);
     const [wheelTransition, setWheelTransition] = useState('none');
-    const [prizeData, setPrizeData] = useState(null);
+    const [prizeData, setPrizeData]           = useState(null);
+    const [bet, setBet]                       = useState(5000);
     const rotRef = useRef(0);
 
-    const canAfford = gameState.gold >= SPIN_COST;
+    const canAfford = gameState.gold >= bet;
 
     const spin = () => {
         if (isSpinning || !canAfford) return;
 
-        setGameState(prev => ({ ...prev, gold: prev.gold - SPIN_COST }));
+        const currentBet = bet;
+        setGameState(prev => ({ ...prev, gold: prev.gold - currentBet }));
         setPrizeData(null);
         setIsSpinning(true);
         setWheelTransition('transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)');
@@ -130,12 +119,11 @@ export default function RouletteGold() {
         setTimeout(() => {
             setIsSpinning(false);
             setGameState(prev => {
-                if (winner.type === 'gold_mult') return { ...prev, gold: prev.gold + Math.floor(SPIN_COST * winner.mult) };
-                if (winner.type === 'coin') return { ...prev, tavernCoins: prev.tavernCoins + 1 };
-                if (winner.type === 'ingot') return { ...prev, [winner.ingot]: (prev[winner.ingot] ?? 0) + INGOT_AMOUNTS[winner.ingot] };
-                return prev;
+                if (winner.type === 'gold_mult') return { ...prev, gold: prev.gold + (winner.mult === 0 ? 0 : currentBet + Math.floor(currentBet * winner.mult)) };
+                if (winner.type === 'coin') return { ...prev, tavernCoins: prev.tavernCoins + 3 };
+return prev;
             });
-            const prize = getPrizeData(winner);
+            const prize = getPrizeData(winner, currentBet);
             setPrizeData(prize);
             playSfx(prize.sfx);
         }, 4100);
@@ -183,9 +171,20 @@ export default function RouletteGold() {
                 <div className="roulette-hub" />
             </div>
 
-            <div className="roulette-cost-row">
-                <img src={iconGold} className="roulette-ico" alt="" />
-                <span className="roulette-cost-label">{fmt(SPIN_COST)} oro por tirada</span>
+            <div className="roulette-bet-area">
+                <span className="roulette-bet-label">Apuesta</span>
+                <div className="roulette-bet-btns">
+                    {BET_OPTIONS.map(opt => (
+                        <button
+                            key={opt}
+                            className={`roulette-bet-btn ${bet === opt ? 'rbet-active' : ''}`}
+                            onClick={() => setBet(opt)}
+                            disabled={isSpinning}
+                        >
+                            {fmt(opt)}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <button
