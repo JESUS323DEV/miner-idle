@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
-import { X, ArrowLeft, Coins } from 'lucide-react';
+import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -11,6 +11,7 @@ import '../../styles/modals/ForgeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
+import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
 import { PACK_TYPES } from '../../game/config/GachaConfig';
 
 import tutorialPrincipal from "../../assets/tutorial/mascotas/principal.png"
@@ -66,6 +67,14 @@ import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.png"
 import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.png"
 import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.png"
 import forgeBadge from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.png"
+
+const ELEMENT_ICON = {
+    fuego:    { Icon: Flame,     color: '#ff6b35' },
+    electrico:{ Icon: Zap,       color: '#FFD700' },
+    agua:     { Icon: Droplets,  color: '#4fc3f7' },
+    tierra:   { Icon: Mountain,  color: '#8b6914' },
+    oscuro:   { Icon: Moon,      color: '#b45cff' },
+};
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
@@ -417,6 +426,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canUnlock && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
                                                     <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
+                                                    {config.element && ELEMENT_ICON[config.element] && (() => {
+                                                        const { Icon, color } = ELEMENT_ICON[config.element];
+                                                        return <span className="dog-element-icon"><Icon size={15} color={color} /></span>;
+                                                    })()}
                                                     <img src={dogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                     <div className="dog-name">{config.name}</div>
                                                     <div className="dog-stars-row">
@@ -490,6 +503,18 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         {config.goldMineBonus.type === 'doubleHit' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
                                                         {config.goldMineBonus.type === 'saveDurability' && <><b>{config.goldMineBonus.chance * 100}%</b> de prob. de no gastar durabilidad al picar</>}
                                                     </div>
+                                                    {MineCompanionConfig[dog.id]?.ult && config.element && ELEMENT_ICON[config.element] && (() => {
+                                                        const { Icon, color } = ELEMENT_ICON[config.element];
+                                                        return (
+                                                            <>
+                                                                <div className="dog-stat-divider">Activa</div>
+                                                                <div className="dog-stat-activa">
+                                                                    <span className="dog-activa-icon"><Icon size={13} color={color} /></span>
+                                                                    {MineCompanionConfig[dog.id].ult.name}
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         );
@@ -684,6 +709,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canUnlockF && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
                                                     <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
+                                                    {config.element && ELEMENT_ICON[config.element] && (() => {
+                                                        const { Icon, color } = ELEMENT_ICON[config.element];
+                                                        return <span className="dog-element-icon"><Icon size={15} color={color} /></span>;
+                                                    })()}
                                                     <img src={forgeDogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                     <div className="dog-name">{config.name}</div>
                                                     <div className="dog-stars-row">

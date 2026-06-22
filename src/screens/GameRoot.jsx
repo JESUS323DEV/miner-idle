@@ -1177,9 +1177,9 @@ function GameRoot() {
         style={{ backgroundImage: `url(${bgMain})` }}
       >
         {/* DEBUG */}
-        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
+        {false && <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
           DEV
-        </button>
+        </button>}
         {debugOpen && (
           <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
             {/* RECURSOS */}

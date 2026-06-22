@@ -7,6 +7,12 @@ import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL, RARITY_AUT
 import { useGameContext } from "../../game/context/GameContext.jsx";
 import { playSfx } from "../../game/utils/sfx.js";
 
+import powerFuria    from "../../assets/ui/power-pets/furia.png";
+import powerFire     from "../../assets/ui/power-pets/pelota-fire.png";
+import powerElectric from "../../assets/ui/power-pets/pelota-electic.png";
+import powerWater    from "../../assets/ui/power-pets/pistola-agua.png";
+import powerEarth    from "../../assets/ui/power-pets/terremoto.png";
+
 import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
 import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
 import bgInsideDiamond from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-diamond.png";
@@ -358,17 +364,23 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
         </div>
         {/* ULT */}
         <div className="companion-ult-row">
-          {!isSessionSpeed ? (
-            <button
-              className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${(ultType === 'timed_ingots') ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth'}`}
-              style={{ '--ult-color': elemColor }}
-              onClick={onActivateUlt}
-              disabled={ultDisabled}
-            >
-              <span className="power-btn-label">{getUltLabel()}</span>
-            </button>
-          ) : (
+          {!isSessionSpeed ? (() => {
+            const pwType = ultType === 'timed_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth';
+            const pwIcon = { fire: powerFire, electric: powerElectric, water: powerWater, earth: powerEarth }[pwType];
+            return (
+              <button
+                className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${pwType}`}
+                style={{ '--ult-color': elemColor }}
+                onClick={onActivateUlt}
+                disabled={ultDisabled}
+              >
+                <img src={pwIcon} className="power-btn-icon" alt="" />
+                <span className="power-btn-label">{getUltLabel()}</span>
+              </button>
+            );
+          })() : (
             <div className="power-btn power-btn-fury power-active">
+              <img src={powerFuria} className="power-btn-icon" alt="" />
               <span className="power-btn-label">Furia activa ({automineMs}ms)</span>
             </div>
           )}

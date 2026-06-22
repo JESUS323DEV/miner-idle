@@ -665,6 +665,19 @@
     transform: rotateY(0deg);
 }
 
+.dog-element-icon {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .dog-info-btn {
     position: absolute;
     top: 5px;
@@ -765,6 +778,21 @@
 
 .dog-stat-passive b {
     color: #ffd740;
+}
+
+.dog-stat-activa {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.85);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dog-activa-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .dog-tabs {

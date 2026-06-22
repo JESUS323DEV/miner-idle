@@ -902,8 +902,22 @@
     transition: all 0.18s;
     text-align: center;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 3px;
+}
+
+.power-btn-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7));
+}
+
+.power-btn.power-disabled .power-btn-icon,
+.power-btn:disabled .power-btn-icon {
+    filter: grayscale(0.6) drop-shadow(0 1px 4px rgba(0,0,0,0.5));
 }
 
 .power-btn:hover:not(:disabled):not(.power-disabled) {
