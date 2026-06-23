@@ -12,6 +12,7 @@ import { TavernConfig } from '../../game/config/TavernConfig';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
+import { formatNumber2 } from '../../game/utils/formatters.js';
 import { PACK_TYPES } from '../../game/config/GachaConfig';
 
 import tutorialPrincipal from "../../assets/tutorial/mascotas/principal.png"
@@ -95,12 +96,6 @@ const ingotAssets = {
     diamondIngot: ingotDiamond,
 };
 
-// Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
-const formatNumber2 = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-    return num;
-};
 
 const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogAction = false }) => {
     const {

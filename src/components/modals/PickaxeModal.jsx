@@ -11,15 +11,7 @@ import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond
 // ===== ASSETS: ORO =====
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
-/**
- * Formatea números grandes para mostrarlos más legibles
- * 1000 → 1k | 1000000 → 1M
- */
-const formatNumber = (num) => {
-    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
-    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
-    return num;
-};
+import { formatNumber } from '../../game/utils/formatters.js';
 
 /**
  * Mapea el tipo de lingote a su imagen correspondiente

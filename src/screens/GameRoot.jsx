@@ -5,9 +5,6 @@ import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.p
 import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.png";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
-import { getDogStats } from "../game/utils/getDogStats.js";
-import { RentalConfig } from "../game/config/RentalConfig.js";
-import { InitialRentalState } from "../game/initialState/InitialRentalState.js";
 
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
@@ -19,16 +16,20 @@ import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import useDogsAutomine from "../game/hooks/useDogsAutomine.js";
 import { useBackgroundMusic } from "../game/hooks/useBackgroundMusic.js";
 import { useFloatingNumbers } from "../game/hooks/useFloatingNumbers.js";
+import { useBurst } from "../game/hooks/useBurst.js";
+import { useGoldTrickle } from "../game/hooks/useGoldTrickle.js";
+import { useRentalTimer } from "../game/hooks/useRentalTimer.js";
+import { useFragmentRewardsUnlock } from "../game/hooks/useFragmentRewardsUnlock.js";
+import { useTutorialTriggers } from "../game/hooks/useTutorialTriggers.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
+import { formatNumber, formatNumber2, formatRentalTimer } from "../game/utils/formatters.js";
 import { InitialDogsState } from "../game/initialState/InitialDogsState.js";
 import { InitialForgeDogsState } from "../game/initialState/InitialForgeDogsState.js";
 
 // ===== ESTADOS INICIALES =====
 import InitialGameState from "../game/initialState/InitialGameState.js";
-import InitialPickaxeState from "../game/initialState/InitialPickaxeState.js";
-import InitialLadyState from "../game/initialState/lady/InitialLadyState.js";
 import InitialRewardsState from "../game/initialState/InitialRewardsState.js";
-import InitialYacimientosState from "../game/initialState/InitialYacimientosState.js";
+import { loadSavedState } from "../game/initialState/loadSavedState.js";
 
 // ===== COMPONENTES =====
 import UpgradeModal from "../components/modals/UpgradeModal.jsx";
@@ -44,6 +45,7 @@ import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 import RewardsModal from "../screens/RewardsModal.jsx";
 import RaidScreen from "../screens/modalRaid/RaidScreen.jsx";
+import GlobalDogSlots from "../components/GlobalDogSlots.jsx";
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
 import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png";
@@ -111,35 +113,6 @@ import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
 
 import ladyIcon from "../assets/ui/icons-pets/mineros/lady-icon.png";
-import tokyoIcon from "../assets/ui/icons-pets/mineros/tokyo-icon.png";
-import tukaIcon from "../assets/ui/icons-pets/mineros/tuka-icon.png";
-import munaIcon from "../assets/ui/icons-pets/mineros/muna-icon.png";
-import gordoIcon from "../assets/ui/icons-pets/mineros/gordo-icon.png";
-import druhIcon from "../assets/ui/icons-pets/mineros/druh-icon.png";
-import smokeIcon from "../assets/ui/icons-pets/mineros/smoke-icon.png";
-import nupitoIcon from "../assets/ui/icons-pets/mineros/nupito-icon.png";
-import zeusIcon from "../assets/ui/icons-pets/mineros/zeus-icon.png";
-import boxerIcon from "../assets/ui/icons-pets/mineros/boxer-icon.png";
-import bullyIcon from "../assets/ui/icons-pets/mineros/bully-icon.png";
-import chihuahuaIcon from "../assets/ui/icons-pets/mineros/chihuhua-icon.png";
-import forgeIcon1 from "../assets/ui/icons-pets/forge/forge-icon1.png";
-import forgeIcon2 from "../assets/ui/icons-pets/forge/forge-icon2.png";
-import forgeIcon3 from "../assets/ui/icons-pets/forge/forge-icon3.png";
-import forgeIcon4 from "../assets/ui/icons-pets/forge/forge-icon4.png";
-import forgeIcon5 from "../assets/ui/icons-pets/forge/forge-icon5.png";
-import forgeIcon6 from "../assets/ui/icons-pets/forge/forge-icon6.png";
-import forgeIcon7 from "../assets/ui/icons-pets/forge/forge-icon7.png";
-import forgeIcon8 from "../assets/ui/icons-pets/forge/forge-icon8.png";
-import forgeIcon9 from "../assets/ui/icons-pets/forge/forge-icon9.png";
-const dogAssets = {
-  lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
-  muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
-  smoke: smokeIcon, nupito: nupitoIcon, zeus: zeusIcon,
-  boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
-  pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
-  rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
-  rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
-};
 
 // ===== MINAS =====
 import InitialMinesState from "../game/initialState/InitialMinesState.js";
@@ -193,116 +166,12 @@ function GameRoot() {
   const [raidOpen, setRaidOpen] = useState(false);
   const [rentalModalOpen, setRentalModalOpen] = useState(false);
   const [combatOpen, setCombatOpen] = useState(false);
-  const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null); // índice del slot abierto
-  const [flippedSlot, setFlippedSlot] = useState(null); // índice del slot girado
   const [now, setNow] = useState(0);
 
 
-  const trickleRef = useRef([
-    { cooldown: 60, active: false, activeRemaining: 0 },
-    { cooldown: 60, active: false, activeRemaining: 0 },
-    { cooldown: 60, active: false, activeRemaining: 0 },
-  ]);
-  const globalSlotsRef = useRef([null, null, null]);
 
   // ===== GAME STATE — carga desde localStorage si existe =====
-  const [gameState, setGameState] = useState(() => {
-    const saved = localStorage.getItem("ladyHungryGame");
-    if (saved) {
-      const loaded = JSON.parse(saved);
-      const r = loaded.rental ?? InitialRentalState;
-
-      // Añade entradas nuevas de fragmentRewards que no existen en el save
-      const savedFR = loaded.rewards?.fragmentRewards ?? {};
-      const mergedFR = { ...savedFR };
-      // Eliminar claves obsoletas del diseño anterior
-      const obsoleteFRKeys = [
-        'set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star',
-        'set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star',
-        'set3FurnaceBronze2','set3FurnaceBronze3','set3FurnaceIron2','set3FurnaceIron3',
-        'set3FurnaceDiamond2','set3FurnaceDiamond3',
-      ];
-      obsoleteFRKeys.forEach(k => delete mergedFR[k]);
-      Object.keys(InitialRewardsState.fragmentRewards).forEach(k => {
-        if (!(k in mergedFR)) mergedFR[k] = InitialRewardsState.fragmentRewards[k];
-      });
-      // Asegurar que los líderes de cadena sean visibles
-      const chainLeaders = [
-        'goldPassive5','stamina2','unlockMineBronze','bronze300','forgeUnlockBronze','smelt50Bronze',
-        'miner1Star','forge1Star','picoTier1','picoMaterialBronze','burst5','automineLevel2',
-        'passiveRaids5','dogs1','summons3',
-      ];
-      chainLeaders.forEach(k => {
-        if (mergedFR[k] && !mergedFR[k].claimed) mergedFR[k] = { ...mergedFR[k], visible: true };
-      });
-
-      // Añade entradas nuevas de coinRewards que no existen en el save
-      const savedCR = loaded.rewards?.coinRewards ?? {};
-      const mergedCR = { ...savedCR };
-      Object.keys(InitialRewardsState.coinRewards).forEach(k => {
-        if (!(k in mergedCR)) mergedCR[k] = InitialRewardsState.coinRewards[k];
-      });
-
-      // Migración yacimientos: si el save tiene la estructura antigua (con slotConfig o mena), resetea al estado inicial
-      const savedYac = loaded.yacimientos;
-      const yacNeedsReset = !savedYac || Object.values(savedYac).some(b => b.slotConfig || b.slots?.some(s => s.mena !== undefined));
-      let migratedYac = yacNeedsReset ? InitialYacimientosState : savedYac;
-      // Migrar sesiones con formato antiguo (active: bool) al nuevo (phase: string)
-      // También limpiar sesiones con phase pero sin endsAt (now >= undefined es siempre false)
-      if (!yacNeedsReset) {
-        migratedYac = Object.fromEntries(Object.entries(migratedYac).map(([biome, biomeData]) => [
-          biome,
-          {
-            ...biomeData,
-            slots: biomeData.slots.map(s => {
-              if (!s.session) return s;
-              if ('active' in s.session && !('phase' in s.session)) return { ...s, session: null };
-              if (s.session.phase && !s.session.endsAt) return { ...s, session: null };
-              return s;
-            })
-          }
-        ]));
-      }
-
-      return {
-        ...InitialGameState,
-        ...loaded,
-        yacimientos: migratedYac,
-        totalExchanges: loaded.totalExchanges ?? 0,
-        totalSummons: loaded.totalSummons ?? 0,
-        totalBurstUses: loaded.totalBurstUses ?? 0,
-        totalPassiveRaids: loaded.totalPassiveRaids ?? 0,
-        totalBronzeMined: loaded.totalBronzeMined ?? 0,
-        totalIronMined: loaded.totalIronMined ?? 0,
-        totalIngotsSmelted: loaded.totalIngotsSmelted ?? 0,
-        totalBronzeIngotsSmelted: loaded.totalBronzeIngotsSmelted ?? 0,
-        tutorial: {
-          ...InitialGameState.tutorial,
-          ...(loaded.tutorial ?? {}),
-        },
-        rental: {
-          ...r,
-          active: Array.isArray(r.active) ? r.active : (r.active ? [r.active] : []),
-        },
-        rewards: {
-          ...loaded.rewards,
-          fragmentRewards: mergedFR,
-          coinRewards: mergedCR,
-        },
-      };
-    }
-    return {
-      ...InitialGameState,
-      lady: InitialLadyState,
-      pickaxe: InitialPickaxeState,
-      mines: InitialMinesState,
-      rewards: InitialRewardsState,
-      yacimientos: InitialYacimientosState,
-      dogs: InitialDogsState,
-      forgeDogs: InitialForgeDogsState,
-      rental: InitialRentalState,
-    };
-  });
+  const [gameState, setGameState] = useState(loadSavedState);
 
   // ===== AUTO-SAVE — guarda en localStorage en cada cambio =====
   useEffect(() => {
@@ -311,138 +180,7 @@ function GameRoot() {
     }
   }, [gameState, isResetting]);
 
-  // ===== DESBLOQUEO AUTOMÁTICO RECOMPENSAS DE FRAGMENTOS =====
-  useEffect(() => {
-    const fr = gameState.rewards?.fragmentRewards;
-    if (!fr) return;
-
-    const bronzeMineUnlocked = gameState.mines?.unlockedBiomes?.includes('bronze') ?? false;
-    const ironMineUnlocked   = gameState.mines?.unlockedBiomes?.includes('iron')   ?? false;
-    const diamondMineUnlocked= gameState.mines?.unlockedBiomes?.includes('diamond')  ?? false;
-    const maxMinerStars = Math.max(0, ...Object.values(gameState.dogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
-    const maxForgeStars = Math.max(0, ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object').map(d => d.stars ?? 0));
-    const totalDogs = Object.values(gameState.dogs ?? {}).filter(d => d?.hired).length
-                    + Object.values(gameState.forgeDogs ?? {}).filter(d => d?.hired).length;
-    const totalSummons = gameState.totalSummons ?? 0;
-
-    const checks = {
-      // Cadena 1: Oro pasivo
-      goldPassive5:  gameState.goldPerSecondLevel >= 5,
-      goldPassive10: gameState.goldPerSecondLevel >= 10,
-      goldPassive20: gameState.goldPerSecondLevel >= 20,
-      goldPassive30: gameState.goldPerSecondLevel >= 30,
-      goldPassive40: gameState.goldPerSecondLevel >= 40,
-      goldPassive50: gameState.goldPerSecondLevel >= 50,
-      // Cadena 2: Stamina
-      stamina2:  gameState.maxStaminaLevel >= 2,
-      stamina5:  gameState.maxStaminaLevel >= 5,
-      stamina10: gameState.maxStaminaLevel >= 10,
-      stamina20: gameState.maxStaminaLevel >= 20,
-      stamina30: gameState.maxStaminaLevel >= 30,
-      stamina50: gameState.maxStaminaLevel >= 50,
-      // Cadena 3: Minas
-      unlockMineBronze:  bronzeMineUnlocked,
-      unlockMineIron:    ironMineUnlocked,
-      unlockMineDiamond: diamondMineUnlocked,
-      // Cadena 4: Menas
-      bronze300:  (gameState.totalBronzeMined ?? 0) >= 300,
-      iron300:    (gameState.totalIronMined ?? 0) >= 300,
-      diamond300: (gameState.totalDiamondMined ?? 0) >= 300,
-      // Cadena 5: Hornos
-      forgeUnlockBronze:  gameState.furnaces?.bronze?.unlocked === true,
-      forgeUnlockIron:    gameState.furnaces?.iron?.unlocked === true,
-      forgeUnlockDiamond: gameState.furnaces?.diamond?.unlocked === true,
-      // Cadena 6: Lingotes
-      smelt50Bronze:  (gameState.totalBronzeIngotsSmelted ?? 0) >= 50,
-      smelt50Iron:    (gameState.totalIronIngotsSmelted ?? 0) >= 50,
-      smelt50Diamond: (gameState.totalDiamondIngotsSmelted ?? 0) >= 50,
-      // Cadena 7: Estrellas mineros
-      miner1Star: maxMinerStars >= 1,
-      miner2Star: maxMinerStars >= 2,
-      miner3Star: maxMinerStars >= 3,
-      miner4Star: maxMinerStars >= 4,
-      miner5Star: maxMinerStars >= 5,
-      // Cadena 8: Estrellas forja
-      forge1Star: maxForgeStars >= 1,
-      forge2Star: maxForgeStars >= 2,
-      forge3Star: maxForgeStars >= 3,
-      forge4Star: maxForgeStars >= 4,
-      forge5Star: maxForgeStars >= 5,
-      // Cadena 9: Pico material
-      picoMaterialBronze:  gameState.pickaxe?.material !== 'stone',
-      picoMaterialIron:    gameState.pickaxe?.material === 'metal' || gameState.pickaxe?.material === 'diamond',
-      picoMaterialDiamond: gameState.pickaxe?.material === 'diamond',
-      // Cadena 11: Burst
-      burst5:  (gameState.totalBurstUses ?? 0) >= 5,
-      burst15: (gameState.totalBurstUses ?? 0) >= 15,
-      burst30: (gameState.totalBurstUses ?? 0) >= 30,
-      burst60: (gameState.totalBurstUses ?? 0) >= 60,
-      // Cadena 12: Automine mejora
-      automineLevel2: (gameState.automineUpgradeLevel ?? 0) >= 1,
-      automineLevel3: (gameState.automineUpgradeLevel ?? 0) >= 2,
-      // Cadena 13: Raids pasivas
-      passiveRaids5:  (gameState.totalPassiveRaids ?? 0) >= 5,
-      passiveRaids10: (gameState.totalPassiveRaids ?? 0) >= 10,
-      passiveRaids20: (gameState.totalPassiveRaids ?? 0) >= 20,
-      passiveRaids40: (gameState.totalPassiveRaids ?? 0) >= 40,
-      passiveRaids60: (gameState.totalPassiveRaids ?? 0) >= 60,
-      // Cadena 14: Perros desbloqueados
-      dogs1: totalDogs >= 1,   dogs2: totalDogs >= 2,   dogs3: totalDogs >= 3,
-      dogs4: totalDogs >= 4,   dogs5: totalDogs >= 5,   dogs6: totalDogs >= 6,
-      dogs7: totalDogs >= 7,   dogs8: totalDogs >= 8,   dogs9: totalDogs >= 9,
-      dogs10: totalDogs >= 10, dogs11: totalDogs >= 11, dogs12: totalDogs >= 12,
-      dogs13: totalDogs >= 13, dogs14: totalDogs >= 14, dogs15: totalDogs >= 15,
-      dogs16: totalDogs >= 16, dogs17: totalDogs >= 17, dogs18: totalDogs >= 18,
-      dogs19: totalDogs >= 19, dogs20: totalDogs >= 20, dogs21: totalDogs >= 21,
-      // Cadena 15: Invocaciones
-      summons3: totalSummons >= 3,   summons5: totalSummons >= 5,
-      summons10: totalSummons >= 10, summons15: totalSummons >= 15,
-      summons20: totalSummons >= 20, summons25: totalSummons >= 25,
-      summons30: totalSummons >= 30, summons35: totalSummons >= 35,
-      summons40: totalSummons >= 40, summons45: totalSummons >= 45,
-      summons50: totalSummons >= 50, summons55: totalSummons >= 55,
-      summons60: totalSummons >= 60, summons65: totalSummons >= 65,
-      summons70: totalSummons >= 70, summons75: totalSummons >= 75,
-      summons80: totalSummons >= 80, summons85: totalSummons >= 85,
-      summons90: totalSummons >= 90, summons95: totalSummons >= 95,
-      summons100: totalSummons >= 100,
-    };
-
-    const needsUpdate = Object.entries(checks).some(
-      ([k, met]) => met && fr[k]?.visible === true && !fr[k]?.unlocked && !fr[k]?.claimed
-    );
-    if (!needsUpdate) return;
-    setGameState(prev => {
-      const updated = { ...prev.rewards.fragmentRewards };
-      Object.entries(checks).forEach(([k, met]) => {
-        if (met && updated[k]?.visible === true && !updated[k]?.unlocked && !updated[k]?.claimed) {
-          updated[k] = { ...updated[k], unlocked: true };
-        }
-      });
-      return { ...prev, rewards: { ...prev.rewards, fragmentRewards: updated } };
-    });
-  }, [
-    gameState.goldPerSecondLevel,
-    gameState.maxStaminaLevel,
-    gameState.mines?.unlockedBiomes,
-    gameState.totalBronzeMined,
-    gameState.totalIronMined,
-    gameState.totalDiamondMined,
-    gameState.furnaces?.bronze?.unlocked,
-    gameState.furnaces?.iron?.unlocked,
-    gameState.furnaces?.diamond?.unlocked,
-    gameState.totalBronzeIngotsSmelted,
-    gameState.totalIronIngotsSmelted,
-    gameState.totalDiamondIngotsSmelted,
-    gameState.dogs,
-    gameState.forgeDogs,
-    gameState.pickaxe?.material,
-    gameState.totalBurstUses,
-    gameState.automineUpgradeLevel,
-    gameState.totalPassiveRaids,
-    gameState.totalSummons,
-    gameState.rewards?.fragmentRewards,
-  ]);
+  useFragmentRewardsUnlock(gameState, setGameState);
 
   // ===== NUEVO JUEGO — borra save y recarga =====
   const handleNewGame = () => {
@@ -697,96 +435,8 @@ function GameRoot() {
     return icons[material]?.[assetMap[tier]] || pickAxeStone;
   };
 
-  // ===== RENTAL — helper para generar perro aleatorio =====
-  const getRentalDog = (currentDogs, currentActive) => {
-    const hiredIds = new Set(
-      Object.values(currentDogs)
-        .filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired)
-        .map(d => d.id)
-    );
-    const rentedIds = new Set((currentActive ?? []).map(r => r.dogId));
-    const rand = Math.random() * 100;
-    const rarity = rand < RentalConfig.rarityThresholds.legendary
-      ? 'legendary'
-      : rand < RentalConfig.rarityThresholds.epic
-        ? 'epic'
-        : 'rare';
-    const giftIds = new Set(['boxer', 'bully', 'chihuahua']);
-    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
-    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
-    if (pool.length === 0) return null;
-    const dog = pool[Math.floor(Math.random() * pool.length)];
-    return { dogId: dog.id, rarity: dog.rarity, cost: RentalConfig.costs[dog.rarity] };
-  };
+  useRentalTimer(setGameState);
 
-  // ===== RENTAL — timer de aparición y duración activa =====
-  useEffect(() => {
-    const t = setInterval(() => {
-      setGameState(prev => {
-        const rental = prev.rental;
-        if (!rental) return prev;
-
-        let changed = false;
-        let available = rental.available;
-        let appearanceRemainingMs = rental.appearanceRemainingMs;
-        const newSlots = [...(prev.dogs?.globalSlots ?? [null, null, null])];
-        let slotsChanged = false;
-
-        // Timer de aparición: corre siempre que no haya perro disponible
-        if (!available) {
-          const newMs = Math.max(0, appearanceRemainingMs - 1000);
-          if (newMs !== appearanceRemainingMs) {
-            changed = true;
-            if (newMs <= 0) {
-              const generated = getRentalDog(prev.dogs ?? {}, rental.active);
-              if (generated) {
-                available = generated;
-                appearanceRemainingMs = 0;
-              } else {
-                appearanceRemainingMs = 60 * 1000;
-              }
-            } else {
-              appearanceRemainingMs = newMs;
-            }
-          }
-        }
-
-        // Timers de alquileres activos (array)
-        const newActive = [];
-        for (const r of (rental.active ?? [])) {
-          const newMs = Math.max(0, r.remainingMs - 1000);
-          if (newMs <= 0) {
-            changed = true;
-            if (r.destination !== 'raid' && r.assignedSlot !== null && newSlots[r.assignedSlot] === r.dogId) {
-              newSlots[r.assignedSlot] = null;
-              slotsChanged = true;
-            }
-          } else {
-            if (newMs !== r.remainingMs) changed = true;
-            newActive.push({ ...r, remainingMs: newMs });
-          }
-        }
-
-        if (!changed) return prev;
-
-        return {
-          ...prev,
-          rental: { available, active: newActive, appearanceRemainingMs },
-          dogs: slotsChanged ? { ...prev.dogs, globalSlots: newSlots } : prev.dogs,
-        };
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const formatRentalTimer = (ms) => {
-    const totalSec = Math.ceil(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
 
   // ===== HOOKS DE SISTEMA =====
   useGoldPerSecond(gameState, setGameState); // Tick oro/segundo
@@ -796,46 +446,7 @@ function GameRoot() {
   useAutomineCooldown(gameState, setGameState); // Recupera cargas de automine
   useDogsAutomine(gameState, handleDogTick);
 
-  // Tick del burst: cuenta duración activa y recarga
-  useEffect(() => {
-    const t = setInterval(() => {
-      setGameState(prev => {
-        const burst = prev.burst ?? { active: false, recharging: false, rechargeRemaining: 0 };
-        if (!burst.active && !burst.recharging) return prev;
-        if (burst.active) {
-          const newStamina = prev.stamina - 1;
-          if (newStamina <= 0) {
-            const getRechargeTime = (lvl) => {
-              if (lvl <= 20) return Math.round(40 - lvl * 0.5);
-              if (lvl <= 40) return Math.round(30 - (lvl - 20) * 0.25);
-              if (lvl <= 55) return Math.round(25 - (lvl - 40) * (5 / 15));
-              return 20;
-            };
-            return {
-              ...prev,
-              stamina: 0,
-              burst: { active: false, recharging: true, rechargeRemaining: getRechargeTime(prev.maxStaminaLevel ?? 0) }
-            };
-          }
-          return { ...prev, stamina: newStamina };
-        }
-        if (burst.recharging) {
-          const newRecharge = burst.rechargeRemaining - 1;
-          if (newRecharge <= 0) {
-            const drinkBuffRecharge = prev.snacks?.drink?.active?.type === 'stamina' ? (prev.snacks.drink.active.effect ?? 0) : 0;
-            return {
-              ...prev,
-              stamina: prev.maxStamina + drinkBuffRecharge,
-              burst: { active: false, recharging: false, rechargeRemaining: 0 }
-            };
-          }
-          return { ...prev, burst: { ...burst, rechargeRemaining: newRecharge } };
-        }
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [setGameState]);
+  useBurst(setGameState);
 
   // Cargas disponibles de automine
   const availableCharges =
@@ -871,57 +482,9 @@ function GameRoot() {
   }, [gameState.automineUpgradeLevel]);
 
 
-  // Mantiene globalSlotsRef sincronizado
-  useEffect(() => {
-    globalSlotsRef.current = gameState.dogs?.globalSlots ?? [null, null, null];
-  }, [gameState.dogs?.globalSlots]); // eslint-disable-line
+  useGoldTrickle(gameState.dogs?.globalSlots, setGameState);
 
-  // goldTrickle: cada segundo tick, activa 10s cada 60s
-  useEffect(() => {
-    const t = setInterval(() => {
-      const slots = globalSlotsRef.current;
-      const trickle = trickleRef.current;
-      let goldGained = 0;
-      const newTrickle = trickle.map((timer, i) => {
-        const dogId = slots[i];
-        const bonus = dogId ? ForgeDogsConfig[dogId]?.globalSlotBonus : null;
-        if (!bonus || bonus.type !== 'goldTrickle') return { cooldown: 60, active: false, activeRemaining: 0 };
-        if (timer.active) {
-          goldGained += Math.floor(Math.random() * (bonus.max - bonus.min + 1)) + bonus.min;
-          const rem = timer.activeRemaining - 1;
-          return rem <= 0 ? { cooldown: 60, active: false, activeRemaining: 0 } : { ...timer, activeRemaining: rem };
-        }
-        const cd = timer.cooldown - 1;
-        return cd <= 0 ? { active: true, activeRemaining: 10, cooldown: 0 } : { ...timer, cooldown: cd };
-      });
-      trickleRef.current = newTrickle;
-      if (goldGained > 0) {
-        setGameState(prev => ({
-          ...prev,
-          gold: prev.gold + goldGained,
-          totalGoldEarned: prev.totalGoldEarned + goldGained,
-        }));
-      }
-    }, 1000);
-    return () => clearInterval(t);
-  }, []); // eslint-disable-line
-
-  // ===== TUTORIAL TRIGGERS =====
-  // Intro: muestra bienvenida si es la primera vez
-  useEffect(() => {
-    if (!gameState.tutorial?.completed && !gameState.tutorial?.introDone) {
-      setTimeout(() => setTutorialStep('intro'), 400);
-    }
-  }, [gameState.tutorial?.completed, gameState.tutorial?.introDone]);
-
-  // Paso 0: apunta a oro/segundo (solo tras ver intro)
-  useEffect(() => {
-    if (gameState.tutorial?.completed) return;
-    if (!gameState.tutorial?.introDone) return;
-    if (gameState.tutorial?.currentStep === 0) {
-      setTimeout(() => setTutorialStep(0), 500);
-    }
-  }, [gameState.tutorial?.currentStep, gameState.tutorial?.completed, gameState.tutorial?.introDone]);
+  useTutorialTriggers({ tutorialStep, setTutorialStep, gameState, setGameState, setOpenModal, setRentalModalOpen, handleUnlockTutorialFeature });
 
   // Sonido al gastar oro o monedas
   const prevGoldRef = useRef(null);
@@ -941,115 +504,6 @@ function GameRoot() {
     prevGoldRef.current = gold;
     prevCoinsRef.current = coins;
   }, [gameState.gold, gameState.tavernCoins]);
-
-  // Pasos de hint (taberna→mina→forja): tras completar el pico, cierra el modal
-  useEffect(() => {
-    if (gameState.tutorial?.currentStep === 3 && !gameState.tutorial?.minesHinted) {
-      setOpenModal(null);
-      setTutorialStep('hint_tavern');
-    }
-  }, [gameState.tutorial?.currentStep, gameState.tutorial?.minesHinted]);
-
-  // Paso 1: tras comprar oro/segundo, muestra snacks primero y luego stamina
-  useEffect(() => {
-    if (
-      gameState.tutorial?.goldPerSecondBought &&
-      gameState.tutorial?.currentStep === 1 &&
-      !gameState.tutorial?.staminaUnlocked
-    ) {
-      if (!gameState.tutorial?.snacksHinted) {
-        setTutorialStep('0_snacks');
-      } else {
-        setTutorialStep(1);
-        handleUnlockTutorialFeature("stamina");
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    gameState.tutorial?.goldPerSecondBought,
-    gameState.tutorial?.currentStep,
-    gameState.tutorial?.staminaUnlocked,
-    gameState.tutorial?.snacksHinted,
-  ]);
-
-  // Paso 2: desbloquea pico tras mejorar stamina
-  useEffect(() => {
-    if (
-      gameState.tutorial?.staminaUpgradeDone &&
-      gameState.tutorial?.currentStep === 2 &&
-      !gameState.tutorial?.pickaxeUnlocked
-    ) {
-      setTutorialStep(2);
-      handleUnlockTutorialFeature("pickaxe");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    gameState.tutorial?.staminaUpgradeDone,
-    gameState.tutorial?.currentStep,
-    gameState.tutorial?.pickaxeUnlocked,
-  ]);
-
-  // stamina_hint: burst activado → mine_tap
-  useEffect(() => {
-    if (tutorialStep === 'stamina_hint' && gameState.burst?.active) {
-      setTutorialStep('mine_tap');
-    }
-  }, [gameState.burst?.active, tutorialStep]);
-
-  // mine_tap: pico roto → repair_hint
-  useEffect(() => {
-    if (tutorialStep === 'mine_tap' && gameState.pickaxe.durability === 0) {
-      setTutorialStep('repair_hint');
-    }
-  }, [gameState.pickaxe.durability, tutorialStep]);
-
-  // repair_hint: reparado → automine_hint
-  useEffect(() => {
-    if (tutorialStep === 'repair_hint' && gameState.pickaxe.durability > 0) {
-      setTutorialStep('automine_hint');
-    }
-  }, [gameState.pickaxe.durability, tutorialStep]);
-
-  // hint_rewards: no hace nada automático, el jugador abre el modal
-
-  // hint_rental: inyecta Zeus cuando empieza el paso
-  useEffect(() => {
-    if (tutorialStep !== 'hint_rental') return;
-    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 0) return;
-    setGameState(prev => ({
-      ...prev,
-      rental: { ...prev.rental, available: { dogId: 'zeus', rarity: 'rare', cost: 0 } },
-    }));
-  }, [tutorialStep]); // eslint-disable-line
-
-  // hint_rental: Zeus alquilado → inyectar Druh
-  useEffect(() => {
-    if (tutorialStep !== 'hint_rental') return;
-    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 0) return;
-    const zeusRented = (gameState.rental?.active ?? []).some(r => r.dogId === 'zeus');
-    if (zeusRented && !gameState.rental?.available) {
-      setGameState(prev => ({
-        ...prev,
-        tutorial: { ...prev.tutorial, rentalTutorialStep: 1 },
-        rental: { ...prev.rental, available: { dogId: 'druh', rarity: 'rare', cost: 0 } },
-      }));
-    }
-  }, [gameState.rental?.active, gameState.rental?.available, tutorialStep, gameState.tutorial?.rentalTutorialStep]); // eslint-disable-line
-
-  // hint_rental: Druh alquilado → avanzar a raids
-  useEffect(() => {
-    if (tutorialStep !== 'hint_rental') return;
-    if ((gameState.tutorial?.rentalTutorialStep ?? 0) !== 1) return;
-    const druhRented = (gameState.rental?.active ?? []).some(r => r.dogId === 'druh');
-    if (druhRented) {
-      setGameState(prev => ({
-        ...prev,
-        tutorial: { ...prev.tutorial, rentalTutorialStep: 2 },
-      }));
-      setRentalModalOpen(false);
-      setTutorialStep('hint_raids');
-    }
-  }, [gameState.rental?.active, tutorialStep, gameState.tutorial?.rentalTutorialStep]); // eslint-disable-line
 
   // Pausa/reanuda snacks de mina según si la pantalla está abierta
   useEffect(() => {
@@ -1072,26 +526,6 @@ function GameRoot() {
       return { ...prev, mineSnacks: updated };
     });
   }, [isMineScreenOpen]);
-
-  // ===== TUTORIAL MODAL AUTO-OPEN (recuperación tras recarga) =====
-  // Solo para recovery tras recarga en fase '0_snacks' (modal bloqueado sin dialog)
-  useEffect(() => {
-    if (tutorialStep === '0_snacks' && openModal === null) {
-      setOpenModal('goldPerSecond');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorialStep]);
-
-  // Hint automine: primera vez que el jugador alcanza 1500 oro
-  useEffect(() => {
-    if (
-      !gameState.automine?.unlocked &&
-      !gameState.tutorial?.automineHinted &&
-      gameState.gold >= AutomineConfig.unlockCost
-    ) {
-      setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, automineHinted: true } }));
-    }
-  }, [gameState.gold]); // eslint-disable-line
 
   const drinkBuff = gameState.snacks?.drink?.active?.type === 'stamina' ? (gameState.snacks.drink.active.effect ?? 0) : 0;
   const effectiveMaxStamina = gameState.maxStamina + drinkBuff;
@@ -1129,19 +563,6 @@ function GameRoot() {
     });
   const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
 
-  // Formatea números grandes (10k, 1.5M...) PARA ORO GENERAL
-  const formatNumber = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + "k";
-    return num;
-  };
-
-  // Formatea números grandes (1k, 1.5M...) PARA INFO DEL HUD - MENAS LINGOTES
-  const formatNumber2 = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "k";
-    return num;
-  };
   const getMinesBg = (biome) => {
     if (biome === "bronze") return bgMineBronze;
     if (biome === "iron") return bgMineIron;
@@ -1761,124 +1182,11 @@ function GameRoot() {
         />
 
         {/* SLOTS PERROS GLOBALES */}
-        <div className="global-dog-slots" style={tutorialStep === 'hint_mine_dog' ? { zIndex: 600 } : undefined}>
-          {[0, 1, 2].map(i => {
-            const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
-            const assignedDog = assignedDogId ? (gameState.dogs[assignedDogId] ?? gameState.forgeDogs?.[assignedDogId] ?? null) : null;
-            const availableDogs = [
-              ...Object.values(gameState.dogs).filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null),
-              ...Object.values(gameState.forgeDogs ?? {}).filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired && d.assignedTo === null),
-            ];
-            const isMenuOpen = globalDogMenuOpen === i;
-            const isFlipped = flippedSlot === i;
-
-            const renderPassiveBack = () => {
-              if (!assignedDogId) return null;
-              const isForge = assignedDogId in ForgeDogsConfig;
-              const stars = assignedDog?.stars ?? 0;
-              const scaledConfig = getDogStats(assignedDogId, stars, isForge);
-              const bonus = isForge ? scaledConfig?.globalSlotBonus : scaledConfig?.goldMineBonus;
-              if (!bonus) return null;
-              if (bonus.type === 'extraGold') return <><span>+{bonus.value} oro</span><span>por picada</span></>;
-              if (bonus.type === 'saveDurability') return <><span>{Math.round(bonus.chance * 100)}%</span><span>sin gastar</span><span>durabilidad</span></>;
-              if (bonus.type === 'doubleHit') return <><span>{Math.round(bonus.chance * 100)}%</span><span>de doblar</span><span>el oro</span></>;
-              if (bonus.type === 'goldTrickle') return <><span>+{bonus.min === bonus.max ? bonus.min : `${bonus.min}-${bonus.max}`}</span><span>oro cada</span><span>60s</span></>;
-              if (bonus.type === 'burstRecharge') return <><span>{Math.round(bonus.chance * 100)}%</span><span>recarga</span><span>energía</span></>;
-              if (bonus.type === 'maxDurability') return <><span>+{bonus.value}</span><span>durabilidad</span><span>máx.</span></>;
-              return null;
-            };
-
-            const assignedRarity = assignedDogId ? (DogsConfig[assignedDogId]?.rarity ?? ForgeDogsConfig[assignedDogId]?.rarity ?? null) : null;
-            const rentalEntry = (gameState.rental?.active ?? []).find(r => r.assignedSlot === i && r.dogId === assignedDogId);
-            const isRentedSlot = !!rentalEntry;
-            const isZeusTutorialSlot = tutorialStep === 'hint_mine_dog' && assignedDogId === 'zeus';
-            return (
-              <div key={i} className={`global-dog-slot-wrapper${isRentedSlot ? ' global-dog-slot-rented' : ''}${isZeusTutorialSlot ? ' tutorial-highlight' : ''}`}>
-                <div
-                  className={`global-dog-slot${assignedRarity ? ` dog-rarity-${assignedRarity}` : ''}`}
-                  onClick={() => {
-                    if (isRentedSlot) {
-                      setFlippedSlot(isFlipped ? null : i);
-                      return;
-                    }
-                    if (assignedDog) {
-                      setFlippedSlot(isFlipped ? null : i);
-                      setGlobalDogMenuOpen(isMenuOpen ? null : i);
-                    } else {
-                      setGlobalDogMenuOpen(isMenuOpen ? null : i);
-                    }
-                  }}
-                >
-                  <div className={`global-slot-flip${isFlipped ? ' flipped' : ''}`}>
-                    {/* FRENTE: portrait */}
-                    <div className="global-slot-front">
-                      {assignedDog ? (
-                        <>
-                          {dogAssets[assignedDogId]
-                            ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
-                            : <span className="global-dog-slot-emoji">🐕</span>
-                          }
-                          {isRentedSlot && (
-                            <span className="global-dog-slot-rental-badge">{formatRentalTimer(rentalEntry.remainingMs)}</span>
-                          )}
-                          {!isRentedSlot && (
-                            <button className="global-dog-slot-unassign" onClick={e => {
-                              e.stopPropagation();
-                              setFlippedSlot(null);
-                              const isForge = assignedDogId in ForgeDogsConfig;
-                              setGameState(prev => {
-                                const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? null : id);
-                                if (isForge) {
-                                  return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [assignedDogId]: { ...prev.forgeDogs[assignedDogId], assignedTo: null } } };
-                                }
-                                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [assignedDogId]: { ...prev.dogs[assignedDogId], assignedTo: null } } };
-                              });
-                            }}>✖</button>
-                          )}
-                        </>
-                      ) : (
-                        <span className="global-dog-slot-plus">+</span>
-                      )}
-                    </div>
-                    {/* REVERSO: pasiva */}
-                    {assignedDog && (
-                      <div className="global-slot-back">
-                        {renderPassiveBack()}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Menú asignar / cambiar — bloqueado para slots alquilados */}
-                  {isMenuOpen && !isRentedSlot && (
-                    <div className="global-dog-menu">
-                      {availableDogs.length === 0
-                        ? <span className="global-dog-menu-empty">Sin mascotas libres</span>
-                        : availableDogs.map(dog => (
-                          <button key={dog.id} className="global-dog-menu-option" onClick={e => {
-                            e.stopPropagation();
-                            const isForge = dog.id in ForgeDogsConfig;
-                            setGameState(prev => {
-                              const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, idx) => idx === i ? dog.id : id);
-                              if (isForge) {
-                                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [dog.id]: { ...prev.forgeDogs[dog.id], assignedTo: { globalSlot: i } } } };
-                              }
-                              return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [dog.id]: { ...prev.dogs[dog.id], assignedTo: { globalSlot: i } } } };
-                            });
-                            setGlobalDogMenuOpen(null);
-                          }}>🐕 {DogsConfig[dog.id]?.name ?? ForgeDogsConfig[dog.id]?.name ?? dog.id}</button>
-                        ))
-                      }
-                      <button className="global-dog-menu-cancel" onClick={e => { e.stopPropagation(); setGlobalDogMenuOpen(null); setFlippedSlot(null); }}>✕</button>
-                    </div>
-                  )}
-                </div>
-                {assignedDog && (
-                  <span className="global-dog-slot-name">{DogsConfig[assignedDogId]?.name ?? ForgeDogsConfig[assignedDogId]?.name ?? assignedDogId}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <GlobalDogSlots
+          gameState={gameState}
+          setGameState={setGameState}
+          tutorialStep={tutorialStep}
+        />
 
         {/* SETTINGS */}
         <div

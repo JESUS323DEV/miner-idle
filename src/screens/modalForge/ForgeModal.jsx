@@ -49,12 +49,7 @@ import menaBronze from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png"
 import menaIron from "../../assets/ui/icons-forge/menas-hud/ironHud.png"
 import menaDiamond from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
 
-// Formatea números grandes (10k, 1.5M...)
-const formatNumber = (num) => {
-    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
-    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
-    return num;
-};
+import { formatNumber } from '../../game/utils/formatters.js';
 
 const MATERIALS = ['bronze', 'iron', 'diamond'];
 const ICONS = { bronze: '🟫', iron: '⚙️', diamond: '💎' };

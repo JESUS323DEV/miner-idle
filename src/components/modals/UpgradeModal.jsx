@@ -8,11 +8,7 @@ import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png
 import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.png"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
 
-const formatNumber = (num) => {
-    if (num >= 1000000) return Number((num / 1000000).toFixed(1)) + 'M';
-    if (num >= 1000) return Number((num / 1000).toFixed(1)) + 'k';
-    return num;
-};
+import { formatNumber } from '../../game/utils/formatters.js';
 /**
  * COMPONENTE: UpgradeModal
  * Modal reutilizable para oro/segundo y stamina

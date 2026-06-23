@@ -6,6 +6,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig, RARITY_COLORS } from '../../game/config/DogsConfig.js';
 import { SESSION_DURATION, COOLDOWN_DURATION } from '../../game/initialState/InitialYacimientosState.js';
 import { MineCompanionConfig, ELEMENT_COLORS } from '../../game/config/MineCompanionConfig.js';
+import { formatNumber2 } from '../../game/utils/formatters.js';
 
 const BIOME_INTRO = {
     bronze:  { title: "Mina de Bronce",   text: "Explora minas de extracción para conseguir materiales con tu pico y desbloquea puestos mineros donde tus mascotas trabajarán por ti incluso cuando no estés minando. Después, convierte las menas en valiosos lingotes en la forja para mejorar tu equipo y seguir avanzando." },
@@ -105,11 +106,6 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         );
     };
 
-    const formatNumber2 = (num) => {
-        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
-        return num;
-    };
 
     const getAvailableCompanions = () => {
         const owned = Object.values(dogs).filter(d =>
