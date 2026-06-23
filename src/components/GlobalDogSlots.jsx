@@ -25,7 +25,7 @@ const renderPassiveBack = (assignedDogId, assignedDog) => {
     return null;
 };
 
-export default function GlobalDogSlots({ gameState, setGameState, tutorialStep }) {
+export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, hidden }) {
     const [globalDogMenuOpen, setGlobalDogMenuOpen] = useState(null);
     const [flippedSlot, setFlippedSlot] = useState(null);
 
@@ -73,7 +73,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep }
 
     return (
         <>
-            <div className="global-dog-slots" style={tutorialStep === 'hint_mine_dog' ? { zIndex: 600 } : undefined}>
+            <div className="global-dog-slots" style={hidden ? { visibility: 'hidden' } : tutorialStep === 'hint_mine_dog' ? { zIndex: 600 } : undefined}>
                 {[0, 1, 2].map(i => {
                     const assignedDogId = (gameState.dogs.globalSlots ?? [null, null, null])[i] ?? null;
                     const assignedDog = assignedDogId ? (gameState.dogs[assignedDogId] ?? gameState.forgeDogs?.[assignedDogId] ?? null) : null;

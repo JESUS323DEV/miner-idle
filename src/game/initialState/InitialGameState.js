@@ -4,7 +4,7 @@ import InitialRaidState from "./InitialRaidState.js";
 const InitialGameState = {
 
     // ========== ORO ==========
-    gold: 2000,
+    gold: 3000,
     goldPerSecond: 0,
     passiveGoldBuffs: 0,        // Modificador pasivo de oro (eventos/powerups)
     goldBuffSnack: 0,            // Multiplicador de oro por snack activo

@@ -127,7 +127,7 @@ import "../styles/gameRoot.css";
 import { Settings } from "lucide-react";
 import CombatScreen from "./modalCombat/CombatScreen.jsx";
 
-function GameRoot() {
+function GameRoot({ onBack }) {
   const [musicVolume, setMusicVolume] = useState(() => {
     const saved = localStorage.getItem('music_volume');
     return saved === null ? 0.08 : parseFloat(saved);
@@ -412,10 +412,8 @@ function GameRoot() {
     ];
   const canAffordTierUpgrade = (gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed)
     ? false
-    : !gameState.tutorial?.pickaxeUpgradeDone
-      ? true
-      : gameState.gold >= (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
-        (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
+    : gameState.gold >= (gameState.pickaxe.tierUpgradeCosts?.[gameState.pickaxe.material] || 0) &&
+      (!tierIngotCost || gameState[tierIngotCost.type] >= tierIngotCost.amount);
 
   const materialUpgradeCost =
     gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material];
@@ -605,6 +603,9 @@ function GameRoot() {
         className="game-container"
         style={{ backgroundImage: `url(${bgMain})` }}
       >
+        {onBack && (
+          <button className="game-back-btn" onClick={onBack} title="Volver">‹</button>
+        )}
         {/* DEBUG */}
         {false && <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
           DEV
@@ -841,16 +842,15 @@ function GameRoot() {
             isOpen={openModal === "maxStamina"}
             onClose={() => { setOpenModal(null); setTutorialStep(null); }}
             currentLevel={`Nv. ${gameState.maxStaminaLevel} `}
-            cost={gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 1000}
+            cost={gameState.maxStaminaCost}
             coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
             onUpgrade={() => {
               handleBuyMaxStaminaUpgrade();
               if (!gameState.tutorial?.completed) setOpenModal(null);
             }}
             canAfford={
-              gameState.gold >= (gameState.tutorial?.staminaUpgradeDone ? gameState.maxStaminaCost : 1000) &&
-              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)) &&
-              !(gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed)
+              gameState.gold >= gameState.maxStaminaCost &&
+              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10))
             }
             tutorialPhase={!gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
             tutorialHint="stamina"
@@ -1216,7 +1216,8 @@ function GameRoot() {
         }>
           {/* AUTOMINE — posición absoluta relativa a mine-scene */}
           <div className="automine-container" style={
-            (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
+            tutorialStep === 'mine_tap' ? { visibility: 'hidden' }
+            : (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
               ? { zIndex: 600 }
               : undefined
           }>
@@ -1304,6 +1305,7 @@ function GameRoot() {
             gameState={gameState}
             setGameState={setGameState}
             tutorialStep={tutorialStep}
+            hidden={tutorialStep === 'mine_tap'}
           />
         </div>
 
@@ -1318,13 +1320,13 @@ function GameRoot() {
             'hint_tavern': { bottom: 'auto', top: '14rem' },
             'hint_mine': { bottom: 'auto', top: '14rem' },
             'hint_forge': { bottom: 'auto', top: '14rem' },
-            'automine_hint': { bottom: '2rem' },
-            'stamina_hint': { bottom: 'auto', top: '11rem' },
-            'repair_hint': { bottom: 'auto', top: '16.5rem', left: '12rem' },
-            'hint_rewards': { bottom: '12.5rem' },
-            'hint_rental': { bottom: '28rem' },
-            'hint_raids': { bottom: '31.5rem' },
-            'hint_mine_dog': { bottom: '10rem' },
+            'automine_hint': { bottom: '21rem' },
+            'stamina_hint': { bottom: 'auto', top: '7.5rem', left: '12rem' },
+            'repair_hint': { bottom: 'auto', top: '12.5rem', left: '12rem' },
+            'hint_rewards': { bottom: '18rem' },
+            'hint_rental': { bottom: '21.5rem' },
+            'hint_raids': { bottom: '25rem' },
+            'hint_mine_dog': { bottom: '7.5rem' },
             'done': { bottom: '2rem' },
           };
           const dialogStyle = DIALOG_POSITIONS[tutorialStep] ?? { bottom: '2rem' };

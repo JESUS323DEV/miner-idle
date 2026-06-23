@@ -46,16 +46,15 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
         setGameState(prevState => {
             if (prevState.pickaxe.tier >= 5) return prevState;
 
-            const isFree = !prevState.tutorial?.pickaxeUpgradeDone;
-            const cost = isFree ? 0 : (prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0);
+            const cost = prevState.pickaxe.tierUpgradeCosts?.[prevState.pickaxe.material] || 0;
             const currentTier = prevState.pickaxe.tier;
 
             const ingotCost = prevState.pickaxe.tierIngotCosts?.[prevState.pickaxe.material]?.[currentTier];
             const ingotType = ingotCost?.type;
             const ingotAmount = ingotCost?.amount || 0;
 
-            if (!isFree && prevState.gold < cost) return prevState;
-            if (!isFree && ingotType && prevState[ingotType] < ingotAmount) return prevState;
+            if (prevState.gold < cost) return prevState;
+            if (ingotType && prevState[ingotType] < ingotAmount) return prevState;
 
             const newTotalTiers = prevState.rewards.pickaxeMilestones.totalTiers + 1;
             const newGoldSpent = prevState.totalGoldSpent + cost;

@@ -1,0 +1,292 @@
+.landing-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    background: #0d0a07;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: y mandatory;
+    transform: translateY(0);
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing-slide-out {
+    transform: translateY(-100%);
+    pointer-events: none;
+}
+
+/* HERO */
+.landing-hero {
+    height: 100dvh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.landing-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #ffd966;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 0.25rem;
+}
+
+.landing-tagline {
+    font-size: 0.88rem;
+    color: #777;
+    text-align: center;
+    letter-spacing: 0.5px;
+    margin-bottom: 2rem;
+}
+
+.landing-play-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 24px;
+    position: relative;
+    filter: drop-shadow(0 0 22px rgba(255, 180, 50, 0.35));
+    transition: filter 0.2s;
+}
+
+.landing-play-btn:hover {
+    filter: drop-shadow(0 0 38px rgba(255, 180, 50, 0.65));
+}
+
+.landing-play-btn:active .landing-logo {
+    transform: scale(0.96);
+}
+
+.landing-logo {
+    width: 148px;
+    height: 148px;
+    object-fit: contain;
+    border-radius: 22px;
+    display: block;
+    animation: pulse-logo 2s ease-in-out infinite;
+}
+
+@keyframes pulse-logo {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.04); }
+}
+
+.landing-play-label {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 3px 12px;
+    border-radius: 20px;
+}
+
+/* FLECHA SCROLL */
+.landing-scroll-hint {
+    position: absolute;
+    bottom: 1.5rem;
+    color: rgba(255, 180, 50, 0.5);
+    animation: bounce-down 1.6s ease-in-out infinite;
+}
+
+@keyframes bounce-down {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%       { transform: translateY(6px); opacity: 1; }
+}
+
+.landing-scroll-hint-up {
+    color: rgba(255, 180, 50, 0.5);
+    animation: bounce-up 1.6s ease-in-out infinite;
+}
+
+@keyframes bounce-up {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%       { transform: translateY(-6px); opacity: 1; }
+}
+
+/* SECCIÓN GALERÍA */
+.landing-gallery-section {
+    height: 100dvh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0 1rem;
+    box-sizing: border-box;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.landing-section-title {
+    font-size: 0.72rem;
+    font-weight: bold;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+.landing-gallery {
+    position: relative;
+    width: 100%;
+    height: 65dvh;
+}
+
+.landing-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    color: #ccc;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    padding: 0;
+}
+
+.landing-arrow:first-child {
+    left: 0.6rem;
+}
+
+.landing-arrow:last-child {
+    right: 0.6rem;
+}
+
+.landing-arrow:hover {
+    background: rgba(255, 180, 50, 0.2);
+    color: #ffd966;
+    border-color: rgba(255, 180, 50, 0.4);
+}
+
+.landing-card {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 180, 50, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.landing-card-img {
+    width: 100%;
+    height: calc(100% - 70px);
+    object-fit: contain;
+    display: block;
+}
+
+.landing-card-info {
+    flex-shrink: 0;
+    padding: 0.6rem 0.8rem 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.landing-card-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #ffd966;
+    margin-bottom: 0.2rem;
+}
+
+.landing-card-desc {
+    font-size: 0.73rem;
+    color: #777;
+    line-height: 1.5;
+}
+
+.landing-dots {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.landing-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.landing-dot-active {
+    background: #ffd966;
+    transform: scale(1.25);
+}
+
+.landing-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    color: #3a3a3a;
+}
+
+.landing-footer a {
+    color: #555;
+    text-decoration: none;
+}
+
+.landing-footer a:hover {
+    color: #ffd966;
+}
+
+/* BOTÓN VOLVER EN EL JUEGO */
+.game-back-btn {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 180, 50, 0.25);
+    border-radius: 8px;
+    color: #aaa;
+    font-size: 1.1rem;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.game-back-btn:hover {
+    color: #ffd966;
+    border-color: rgba(255, 180, 50, 0.6);
+    background: rgba(0, 0, 0, 0.8);
+}
