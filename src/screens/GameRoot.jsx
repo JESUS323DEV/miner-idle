@@ -1023,101 +1023,6 @@ function GameRoot() {
           </div>
         </div>
 
-        {/* AUTOMINE — desbloqueable, 2 cargas con cooldown */}
-        <div className="automine-container" style={
-          (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
-            ? { zIndex: 600 }
-            : undefined
-        }>
-          <div className="automine-hub-wrap" style={!gameState.automine?.unlocked ? { width: 'auto', height: 'auto' } : undefined}>
-            {/* Hub — desbloquear o pico circular */}
-            {!gameState.automine?.unlocked ? (
-              <button
-                onClick={handleUnlockAutomine}
-                disabled={gameState.gold < AutomineConfig.unlockCost}
-                className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
-              >
-                <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
-                <span>{formatNumber(AutomineConfig.unlockCost)} oro</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleActivateAutomine}
-                disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive}
-                className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}`}
-                style={{
-                  "--progress1": chargeTimers[0]
-                    ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
-                    : "0deg",
-                  "--progress2": chargeTimers[1]
-                    ? `${Math.round((1 - chargeTimers[1] / effectiveRecoveryTime) * 100) * 3.6}deg`
-                    : "0deg",
-                }}
-              >
-                <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
-                <span className="automine-charge-count">{availableCharges}/2</span>
-              </button>
-            )}
-
-            {/* Satélite — Energía (siempre visible) */}
-            <button
-              className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
-              onClick={() => { playSfx('burst'); handleActivateBurst(); }}
-              disabled={gameState.burst?.active || gameState.burst?.recharging}
-              title={gameState.burst?.recharging ? `Recargando — ${gameState.burst.rechargeRemaining}s` : gameState.burst?.active ? 'Burst activo' : 'Activar Burst'}
-              style={tutorialStep === 'stamina_hint' ? { zIndex: 601 } : undefined}
-            >
-              <div className="sat-poder-inner">
-                <img src={satEnergy} alt="Burst" className="sat-poder-img" />
-                {gameState.burst?.active && (
-                  <div className="sat-burst-bar-wrap">
-                    <div
-                      className="sat-burst-bar"
-                      style={{ width: `${Math.max(0, (gameState.stamina / effectiveMaxStamina) * 100)}%` }}
-                    />
-                  </div>
-                )}
-                {gameState.burst?.recharging && (
-                  <span className="sat-poder-overlay">{gameState.burst.rechargeRemaining}s</span>
-                )}
-              </div>
-              {tutorialStep === 'stamina_hint' && <TutorialPointer step="stamina_hint" />}
-            </button>
-
-            {/* Satélite — Upgrade (bloqueado hasta desbloquear automine) */}
-            {(() => {
-              const level = gameState.automineUpgradeLevel ?? 0;
-              const atMax = level >= AutomineConfig.chargeUpgrades.length;
-              const next = atMax ? null : AutomineConfig.chargeUpgrades[level];
-              const lockedUpgrade = !gameState.automine?.unlocked;
-              return (
-                <button
-                  className={`sat-btn sat-upgrade sat-pos-upgrade${atMax ? ' at-max' : ''}${!atMax && !lockedUpgrade && gameState.gold < next.cost ? ' cant-afford' : ''}${lockedUpgrade ? ' locked-tutorial' : ''}`}
-                  onClick={handleAutomineUpgrade}
-                  disabled={lockedUpgrade || atMax || gameState.gold < next?.cost}
-                  title={lockedUpgrade ? 'Desbloquea el autominar primero' : atMax ? 'Mejora al máximo' : `Mejorar recarga (-${next.reductionSeconds}s) — ${next.cost} oro`}
-                >
-                  <div className="sat-upgrade-inner">
-                    <img src={satUpgrade} alt="Mejorar" className="sat-upgrade-arrow" />
-                    <span className="sat-upgrade-overlay">{atMax ? 'Max' : `${level}/${AutomineConfig.chargeUpgrades.length}`}</span>
-                  </div>
-                </button>
-              );
-            })()}
-
-            {/* Satélite — Reparar (siempre visible) */}
-            <button
-              className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
-              onClick={() => { skipUpgradeSoundRef.current = true; playSfx('repair'); handleRepairPickaxe(); }}
-              disabled={gameState.pickaxe.durability >= effectiveMaxDurability || gameState.automine?.isActive}
-              title="Reparar pico"
-              style={tutorialStep === 'repair_hint' ? { zIndex: 601 } : undefined}
-            >
-              <img src={satRepair} alt="Reparar" />
-              {tutorialStep === 'repair_hint' && <TutorialPointer step="repair_hint" />}
-            </button>
-          </div>
-        </div>
 
         <BiomeSelectorModal
           isOpen={biomeSelectorOpen}
@@ -1181,12 +1086,6 @@ function GameRoot() {
           onClose={() => setForgeModalOpen(false)}
         />
 
-        {/* SLOTS PERROS GLOBALES */}
-        <GlobalDogSlots
-          gameState={gameState}
-          setGameState={setGameState}
-          tutorialStep={tutorialStep}
-        />
 
         {/* SETTINGS */}
         <div
@@ -1301,8 +1200,100 @@ function GameRoot() {
           onBack={() => { setCombatOpen(false); setRaidOpen(true); }}
         />
 
-        {/* MENA DE ORO — elemento principal clickeable */}
-        <GoldMine elevated={tutorialStep === 'mine_tap'} />
+        {/* MENA DE ORO + AUTOMINE + SLOTS PERROS — posicionados juntos como unidad */}
+        <div className="mine-scene">
+          {/* AUTOMINE — posición absoluta relativa a mine-scene */}
+          <div className="automine-container" style={
+            (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
+              ? { zIndex: 600 }
+              : undefined
+          }>
+            <div className="automine-hub-wrap" style={!gameState.automine?.unlocked ? { width: 'auto', height: 'auto' } : undefined}>
+              {!gameState.automine?.unlocked ? (
+                <button
+                  onClick={handleUnlockAutomine}
+                  disabled={gameState.gold < AutomineConfig.unlockCost}
+                  className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
+                >
+                  <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                  <span>{formatNumber(AutomineConfig.unlockCost)} oro</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleActivateAutomine}
+                  disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive}
+                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}`}
+                  style={{
+                    "--progress1": chargeTimers[0]
+                      ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                      : "0deg",
+                    "--progress2": chargeTimers[1]
+                      ? `${Math.round((1 - chargeTimers[1] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                      : "0deg",
+                  }}
+                >
+                  <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                  <span className="automine-charge-count">{availableCharges}/2</span>
+                </button>
+              )}
+              <button
+                className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
+                onClick={() => { playSfx('burst'); handleActivateBurst(); }}
+                disabled={gameState.burst?.active || gameState.burst?.recharging}
+                title={gameState.burst?.recharging ? `Recargando — ${gameState.burst.rechargeRemaining}s` : gameState.burst?.active ? 'Burst activo' : 'Activar Burst'}
+                style={tutorialStep === 'stamina_hint' ? { zIndex: 601 } : undefined}
+              >
+                <div className="sat-poder-inner">
+                  <img src={satEnergy} alt="Burst" className="sat-poder-img" />
+                  {gameState.burst?.active && (
+                    <div className="sat-burst-bar-wrap">
+                      <div className="sat-burst-bar" style={{ width: `${Math.max(0, (gameState.stamina / effectiveMaxStamina) * 100)}%` }} />
+                    </div>
+                  )}
+                  {gameState.burst?.recharging && (
+                    <span className="sat-poder-overlay">{gameState.burst.rechargeRemaining}s</span>
+                  )}
+                </div>
+                {tutorialStep === 'stamina_hint' && <TutorialPointer step="stamina_hint" />}
+              </button>
+              {(() => {
+                const level = gameState.automineUpgradeLevel ?? 0;
+                const atMax = level >= AutomineConfig.chargeUpgrades.length;
+                const next = atMax ? null : AutomineConfig.chargeUpgrades[level];
+                const lockedUpgrade = !gameState.automine?.unlocked;
+                return (
+                  <button
+                    className={`sat-btn sat-upgrade sat-pos-upgrade${atMax ? ' at-max' : ''}${!atMax && !lockedUpgrade && gameState.gold < next.cost ? ' cant-afford' : ''}${lockedUpgrade ? ' locked-tutorial' : ''}`}
+                    onClick={handleAutomineUpgrade}
+                    disabled={lockedUpgrade || atMax || gameState.gold < next?.cost}
+                    title={lockedUpgrade ? 'Desbloquea el autominar primero' : atMax ? 'Mejora al máximo' : `Mejorar recarga (-${next.reductionSeconds}s) — ${next.cost} oro`}
+                  >
+                    <div className="sat-upgrade-inner">
+                      <img src={satUpgrade} alt="Mejorar" className="sat-upgrade-arrow" />
+                      <span className="sat-upgrade-overlay">{atMax ? 'Max' : `${level}/${AutomineConfig.chargeUpgrades.length}`}</span>
+                    </div>
+                  </button>
+                );
+              })()}
+              <button
+                className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
+                onClick={() => { skipUpgradeSoundRef.current = true; playSfx('repair'); handleRepairPickaxe(); }}
+                disabled={gameState.pickaxe.durability >= effectiveMaxDurability || gameState.automine?.isActive}
+                title="Reparar pico"
+                style={tutorialStep === 'repair_hint' ? { zIndex: 601 } : undefined}
+              >
+                <img src={satRepair} alt="Reparar" />
+                {tutorialStep === 'repair_hint' && <TutorialPointer step="repair_hint" />}
+              </button>
+            </div>
+          </div>
+          <GoldMine elevated={tutorialStep === 'mine_tap'} />
+          <GlobalDogSlots
+            gameState={gameState}
+            setGameState={setGameState}
+            tutorialStep={tutorialStep}
+          />
+        </div>
 
         {/* TUTORIAL DIALOG */}
         {/* ── Posiciones por paso: ajusta top según donde caiga el botón en pantalla ── */}

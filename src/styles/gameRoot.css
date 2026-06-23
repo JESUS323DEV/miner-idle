@@ -419,8 +419,17 @@
 }
 
 @keyframes notifyPulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.06); filter: brightness(1.35); }
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+        filter: brightness(1.35);
+    }
 }
 
 .notify-pulse {
@@ -497,8 +506,15 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 @keyframes forge-pulse {
-    0%, 100% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
-    50%       { filter: brightness(1.4) drop-shadow(0 0 8px #ff9500); }
+
+    0%,
+    100% {
+        filter: brightness(1) drop-shadow(0 0 0px transparent);
+    }
+
+    50% {
+        filter: brightness(1.4) drop-shadow(0 0 8px #ff9500);
+    }
 }
 
 .forge-btn-ready {
@@ -513,9 +529,9 @@ button:not(:disabled) .lock-price-badge img {
    AUTOMINE - botón + cargas + timers
    ============================================================ */
 .automine-container {
-    position: fixed;
-    top: clamp(20rem, 72dvh, 37rem);
-    left: 0.1rem;
+    position: absolute;
+    left: -4rem;
+    bottom: 12rem;
     padding: 0.9rem;
     display: flex;
     flex-direction: column;
@@ -552,7 +568,7 @@ button:not(:disabled) .lock-price-badge img {
     font-size: 0.6rem;
     font-weight: 700;
     white-space: nowrap;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .automine-button.unlock:disabled {
@@ -569,18 +585,36 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 /* Posiciones orbitales — centro hub (2.5rem, 2.5rem), radio ~3.6rem, desde arriba */
-.sat-pos-energy  { position: absolute; top: -2.1rem; left:  1.1rem; } /* -100deg — arriba izquierda */
-.sat-pos-upgrade { position: absolute; top: -1.5rem; left:  4.1rem; } /* -50deg  — arriba derecha  */
-.sat-pos-repair  { position: absolute; top:  1.7rem; left:  5.25rem; } /*  10deg  — derecha         */
+.sat-pos-energy {
+    position: absolute;
+    top: -1.9rem;
+    left: 1.1rem;
+}
+
+/* -100deg — arriba izquierda */
+.sat-pos-upgrade {
+    position: absolute;
+    top: -1.5rem;
+    left: 4.1rem;
+}
+
+/* -50deg  — arriba derecha  */
+.sat-pos-repair {
+    position: absolute;
+    top: 1rem;
+    left: 6.55rem;
+}
+
+/*  10deg  — derecha         */
 
 /* Botón circular principal */
 .automine-hub {
     position: relative;
-    width: 5rem;
-    height: 5rem;
+    width: 6.5rem;
+    height: 6.5rem;
     border-radius: 50%;
-    border: 2px solid rgba(255,210,80,0.35);
-    background: rgba(0,0,0,0.55);
+    border: 2px solid rgba(255, 210, 80, 0.35);
+    background: rgb(27, 27, 27);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -591,8 +625,8 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 .automine-hub.is-active {
-    border-color: rgba(80,255,130,0.7);
-    box-shadow: 0 0 10px rgba(80,255,130,0.35);
+    border-color: rgba(80, 255, 130, 0.7);
+    box-shadow: 0 0 10px rgba(80, 255, 130, 0.35);
 }
 
 .automine-hub:disabled {
@@ -600,9 +634,7 @@ button:not(:disabled) .lock-price-badge img {
     opacity: 0.5;
 }
 
-.automine-hub:disabled img {
-    filter: grayscale(100%);
-}
+
 
 /* Anillos de progreso */
 .automine-hub::after {
@@ -661,20 +693,23 @@ button:not(:disabled) .lock-price-badge img {
     cursor: pointer;
     transition: opacity 0.2s;
 }
+
 .sat-btn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
+
 .sat-poder.on-cd:disabled {
     opacity: 1;
 }
+
 .sat-poder.on-cd:disabled .sat-poder-img {
     opacity: 0.45;
 }
 
 .sat-sub {
     font-size: 0.55rem;
-    color: rgba(255,210,80,0.9);
+    color: rgba(255, 210, 80, 0.9);
     font-weight: 600;
     line-height: 1;
 }
@@ -684,12 +719,14 @@ button:not(:disabled) .lock-price-badge img {
     width: 1.7rem;
     height: 1.7rem;
     border-radius: 50%;
-    border-color: rgba(80,220,100,0.5);
+    border-color: rgba(80, 220, 100, 0.5);
 }
+
 .sat-upgrade:not(:disabled):hover {
-    background: rgba(80,220,100,0.15);
-    border-color: rgba(80,220,100,0.85);
+    background: rgba(80, 220, 100, 0.15);
+    border-color: rgba(80, 220, 100, 0.85);
 }
+
 .sat-upgrade-inner {
     position: relative;
     display: flex;
@@ -697,7 +734,12 @@ button:not(:disabled) .lock-price-badge img {
     justify-content: center;
     line-height: 0;
 }
-.sat-upgrade-arrow { width: 2rem; height: 2rem; }
+
+.sat-upgrade-arrow {
+    width: 2rem;
+    height: 2rem;
+}
+
 .sat-upgrade-overlay {
     position: absolute;
     bottom: -0.1rem;
@@ -705,12 +747,21 @@ button:not(:disabled) .lock-price-badge img {
     font-size: 0.45rem;
     font-weight: 700;
     color: #fff;
-    text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
     pointer-events: none;
 }
-.sat-upgrade.at-max .sat-upgrade-arrow { color: rgba(100,255,160,0.6); }
-.sat-upgrade.at-max .sat-sub           { color: rgba(100,255,160,0.7); }
-.sat-upgrade.cant-afford               { opacity: 0.45; }
+
+.sat-upgrade.at-max .sat-upgrade-arrow {
+    color: rgba(100, 255, 160, 0.6);
+}
+
+.sat-upgrade.at-max .sat-sub {
+    color: rgba(100, 255, 160, 0.7);
+}
+
+.sat-upgrade.cant-afford {
+    opacity: 0.45;
+}
 
 /* ---- Poder — circular ---- */
 .sat-poder {
@@ -718,13 +769,17 @@ button:not(:disabled) .lock-price-badge img {
     height: 1.7rem;
     min-height: unset;
     border-radius: 50%;
-    border-color: rgba(160,100,255,0.45);
+    border-color: rgba(160, 100, 255, 0.45);
 }
+
 .sat-poder:not(:disabled):hover {
-    background: rgba(160,100,255,0.15);
-    border-color: rgba(160,100,255,0.8);
+    background: rgba(160, 100, 255, 0.15);
+    border-color: rgba(160, 100, 255, 0.8);
 }
-.sat-poder.on-cd .sat-sub { color: rgba(200,160,255,0.85); }
+
+.sat-poder.on-cd .sat-sub {
+    color: rgba(200, 160, 255, 0.85);
+}
 
 .sat-poder-inner {
     position: relative;
@@ -733,10 +788,12 @@ button:not(:disabled) .lock-price-badge img {
     justify-content: center;
     line-height: 0;
 }
+
 .sat-poder-img {
     width: 2rem;
     height: 2rem;
 }
+
 .sat-poder-overlay {
     position: absolute;
     top: -0.55rem;
@@ -745,7 +802,7 @@ button:not(:disabled) .lock-price-badge img {
     font-size: 0.5rem;
     font-weight: 700;
     color: #fff;
-    text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
     white-space: nowrap;
     pointer-events: none;
 }
@@ -756,7 +813,7 @@ button:not(:disabled) .lock-price-badge img {
     left: 15%;
     width: 70%;
     height: 4px;
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
     overflow: hidden;
     pointer-events: none;
@@ -776,14 +833,16 @@ button:not(:disabled) .lock-price-badge img {
     height: 1.7rem;
     min-height: unset;
     border-radius: 50%;
-    border-color: rgba(80,180,255,0.4);
+    border-color: rgba(80, 180, 255, 0.4);
 }
+
 .sat-repair:not(:disabled):hover {
-    background: rgba(80,180,255,0.12);
-    border-color: rgba(80,180,255,0.75);
+    background: rgba(80, 180, 255, 0.12);
+    border-color: rgba(80, 180, 255, 0.75);
 }
+
 .sat-repair.broken {
-    border-color: rgba(255,80,80,0.6);
+    border-color: rgba(255, 80, 80, 0.6);
     animation: blink-red 1s ease-in-out infinite;
 }
 
@@ -791,13 +850,21 @@ button:not(:disabled) .lock-price-badge img {
     width: 2rem;
     height: 2rem;
 }
+
 .sat-repair.needs-repair img {
     animation: sat-repair-pulse 1.8s ease-in-out infinite;
 }
 
 @keyframes sat-repair-pulse {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.18); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.18);
+    }
 }
 
 /* ============================================================
@@ -891,7 +958,7 @@ button:not(:disabled) .lock-price-badge img {
 .hud-top-right {
     position: fixed;
     top: 15rem;
-    left: 1rem;
+    right: 1rem;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -916,19 +983,27 @@ button:not(:disabled) .lock-price-badge img {
     border-radius: 5px;
 }
 
-.global-dog-slots {
+.mine-scene {
     position: fixed;
-    top: 15rem;
-    right: 1rem;
+    top: clamp(15rem, 63dvh, 38rem);
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
     z-index: 0;
 }
 
+.global-dog-slots {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 6px;
+}
+
 .global-dog-slot {
-    width: 54px;
-    height: 54px;
+    width: 68px;
+    height: 68px;
     border-radius: 8px;
     border: 1px dashed rgb(255, 179, 0);
     background: rgba(0, 0, 0, 0.45);
@@ -991,8 +1066,11 @@ button:not(:disabled) .lock-price-badge img {
 
 .global-dog-menu {
     position: absolute;
-    top: 0;
-    right: calc(100% + 6px);
+    bottom: calc(100% + 6px);
+    top: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     background: rgba(15, 10, 5, 0.95);
     border: 1px solid rgba(255, 165, 0, 0.3);
     border-radius: 6px;
@@ -1178,8 +1256,15 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 @keyframes raid-dogs-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,64,0.5); }
-    50%       { box-shadow: 0 0 0 8px rgba(255,215,64,0); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 64, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 215, 64, 0);
+    }
 }
 
 .btn-combat {
@@ -1203,16 +1288,38 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 @keyframes raid-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(224,80,80,0.7); transform: scale(1); }
-    50%  { box-shadow: 0 0 0 8px rgba(224,80,80,0); transform: scale(1.1); }
-    100% { box-shadow: 0 0 0 0 rgba(224,80,80,0); transform: scale(1); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(224, 80, 80, 0.7);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(224, 80, 80, 0);
+        transform: scale(1.1);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(224, 80, 80, 0);
+        transform: scale(1);
+    }
 }
 
 
 @keyframes pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.7); transform: scale(1); }
-    50%  { box-shadow: 0 0 0 8px rgba(240, 165, 0, 0); transform: scale(1.1); }
-    100% { box-shadow: 0 0 0 0 rgba(240, 165, 0, 0); transform: scale(1); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.7);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(240, 165, 0, 0);
+        transform: scale(1.1);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(240, 165, 0, 0);
+        transform: scale(1);
+    }
 }
 
 /* ===== BOTÓN ALQUILER ===== */
@@ -1280,9 +1387,20 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 @keyframes rental-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); transform: scale(1); }
-    50%  { box-shadow: 0 0 0 8px rgba(168, 85, 247, 0); transform: scale(1.1); }
-    100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); transform: scale(1); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(168, 85, 247, 0);
+        transform: scale(1.1);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+        transform: scale(1);
+    }
 }
 
 /* Slot alquilado en pantalla principal */
