@@ -271,6 +271,10 @@ function GameRoot() {
     showTavernGain,
   );
 
+  // ===== MINE CLICK COUNT — GlobalDogSlots escucha este contador para disparar floats de slots =====
+  const [mineClickCount, setMineClickCount] = useState(0);
+  const notifyMineClick = () => setMineClickCount(c => c + 1);
+
   // ===== CONTEXT VALUE =====
   const contextValue = {
     gameState,
@@ -335,6 +339,8 @@ function GameRoot() {
     showGoldGain,
     showTavernCost,
     showTavernGain,
+    mineClickCount,
+    notifyMineClick,
   };
 
   // ===== TUTORIAL HANDLERS =====
@@ -380,6 +386,8 @@ function GameRoot() {
         tutorial: { ...prev.tutorial, minesHinted: true }
       }));
       setTutorialStep('stamina_hint');
+    } else if (tutorialStep === 'automine_hint') {
+      setTutorialStep('hint_rewards');
     } else if (tutorialStep === 'hint_mine_dog') {
       setTutorialStep('done');
     } else if (tutorialStep === 'done') {
@@ -1201,7 +1209,11 @@ function GameRoot() {
         />
 
         {/* MENA DE ORO + AUTOMINE + SLOTS PERROS — posicionados juntos como unidad */}
-        <div className="mine-scene">
+        <div className="mine-scene" style={
+          (tutorialStep === 'stamina_hint' || tutorialStep === 'automine_hint' || tutorialStep === 'repair_hint' || tutorialStep === 'hint_mine_dog')
+            ? { zIndex: 600 }
+            : undefined
+        }>
           {/* AUTOMINE — posición absoluta relativa a mine-scene */}
           <div className="automine-container" style={
             (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
@@ -1306,12 +1318,13 @@ function GameRoot() {
             'hint_tavern': { bottom: 'auto', top: '14rem' },
             'hint_mine': { bottom: 'auto', top: '14rem' },
             'hint_forge': { bottom: 'auto', top: '14rem' },
-            'stamina_hint': { bottom: 'auto', top: '17.5rem' },
-            'repair_hint': { bottom: 'auto', top: '23.5rem', left: '12rem' },
-            'hint_rewards': { bottom: '19rem' },
-            'hint_rental': { bottom: '22rem' },
-            'hint_raids': { bottom: '25.5rem' },
-            'hint_mine_dog': { bottom: '2rem' },
+            'automine_hint': { bottom: '2rem' },
+            'stamina_hint': { bottom: 'auto', top: '11rem' },
+            'repair_hint': { bottom: 'auto', top: '16.5rem', left: '12rem' },
+            'hint_rewards': { bottom: '12.5rem' },
+            'hint_rental': { bottom: '28rem' },
+            'hint_raids': { bottom: '31.5rem' },
+            'hint_mine_dog': { bottom: '10rem' },
             'done': { bottom: '2rem' },
           };
           const dialogStyle = DIALOG_POSITIONS[tutorialStep] ?? { bottom: '2rem' };
@@ -1331,12 +1344,6 @@ function GameRoot() {
           );
         })()}
 
-        {tutorialStep === 'automine_hint' && (
-          <div className="automine-hint-tooltip">
-            <p>El autominado golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo. Usa el botón de mejora para reducir el tiempo de recarga. ¡Desbloquéalo cuando puedas!</p>
-            <button onClick={() => setTutorialStep('hint_rewards')}>Entendido</button>
-          </div>
-        )}
 
       </div>
     </GameContext.Provider>

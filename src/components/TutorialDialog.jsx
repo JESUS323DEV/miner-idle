@@ -2,9 +2,9 @@ import "../styles/tutorial.css";
 
 const STEPS = {
     intro: {
-        title: "¡Bienvenido a Lady Hungry!",
+        title: "¡Bienvenido a Pata y Pico!",
         text: "Comienza tu aventura minera. Consigue oro, extrae materiales, mejora tu equipo y recluta poderosas mascotas que trabajarán a tu lado para aumentar tu producción.",
-        subtext: "Lady Hungry se encuentra actualmente en desarrollo, por lo que algunas funciones pueden cambiar y es posible que encuentres algún error durante tu aventura. ¡Gracias por probar el juego!",
+        subtext: "Pata y Pico se encuentra actualmente en desarrollo, por lo que algunas funciones pueden cambiar y es posible que encuentres algún error durante tu aventura. ¡Gracias por probar el juego!",
         action: "¡Empezar!",
         counter: null,
         showSkip: true,
@@ -90,6 +90,13 @@ const STEPS = {
         title: "¡Envía una raid!",
         text: "Selecciona el Bosque Antiguo, añade a Druh al equipo y envíalo. Vuelve cuando regrese para recoger las recompensas.",
         action: null,
+        counter: null,
+        showSkip: false,
+    },
+    automine_hint: {
+        title: "El Autominado",
+        text: "Golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo. Usa el botón de mejora para reducir el tiempo de recarga. ¡Desblóquealo cuando puedas!",
+        action: "Entendido",
         counter: null,
         showSkip: false,
     },

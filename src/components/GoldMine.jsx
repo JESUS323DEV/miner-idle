@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
@@ -6,7 +6,6 @@ import menaGold from '../assets/scenes/mining/mena-gold5.png';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { playBuffer } from '../game/utils/sfx.js';
 import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';
-import { DogsConfig } from '../game/config/DogsConfig.js';
 
 const calcBurstBonus = (level) => {
     let bMin = 0, bMax = 1;
@@ -19,7 +18,7 @@ const calcBurstBonus = (level) => {
 };
 
 const GoldMine = ({ elevated = false }) => {
-    const { gameState, handleMineClick: onMineClick } = useGameContext();
+    const { gameState, handleMineClick: onMineClick, notifyMineClick } = useGameContext();
     const { pickaxe, comboCount: currentCombo, comboMilestones } = gameState;
     const goldPerMine = pickaxe.goldPerMine;
     const canMine = pickaxe.durability > 0;
@@ -30,16 +29,6 @@ const GoldMine = ({ elevated = false }) => {
     const [isShaking, setIsShaking] = useState(false);
 
     const lastHandledRef = useRef(0);
-    const lastMineBonusRef = useRef(null);
-
-    useEffect(() => {
-        const bonus = gameState.lastMineBonus;
-        if (!bonus || bonus === lastMineBonusRef.current) return;
-        lastMineBonusRef.current = bonus;
-        if (bonus.doubleHitCount > 0) add('doubleHit', { multiplier: 1 + bonus.doubleHitCount }, 900);
-        if (bonus.savedDurability) add('saveDurability', {}, 1000);
-        if (bonus.burstReduced > 0) add('burstRecharge', { value: bonus.burstReduced }, 1000);
-    }, [gameState.lastMineBonus]); // eslint-disable-line
 
     const handleClick = (e) => {
         const now = Date.now();
@@ -58,6 +47,7 @@ const GoldMine = ({ elevated = false }) => {
 
         playBuffer('hit');
         onMineClick();
+        notifyMineClick();
 
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 150);
@@ -68,13 +58,6 @@ const GoldMine = ({ elevated = false }) => {
         const safeX = Math.min(x, rect.width - 100);
 
         add('gold', { value: goldPerMine, x, y }, 1000);
-
-        const extraGoldTotal = (gameState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
-            if (!dogId) return sum;
-            const bonus = DogsConfig[dogId]?.goldMineBonus;
-            return bonus?.type === 'extraGold' ? sum + bonus.value : sum;
-        }, 0);
-        if (extraGoldTotal > 0) add('extraGold', { value: extraGoldTotal, x, y }, 1000);
 
         if (burstActive) {
             add('burst', { value: calcBurstBonus(burstLevel), x, y }, 1000);
@@ -111,7 +94,7 @@ const GoldMine = ({ elevated = false }) => {
     const content = (
         <div
             className="gold-mine-container"
-            style={elevated ? { position: 'fixed', zIndex: 1500 } : {}}
+            style={elevated ? { position: 'fixed', top: 'clamp(15rem, 63dvh, 38rem)', left: '50%', transform: 'translateX(-50%)', zIndex: 1500 } : {}}
         >
             {elevated && (
                 <div style={{
@@ -141,11 +124,7 @@ const GoldMine = ({ elevated = false }) => {
             {floats.map(f => {
                 if (f.type === 'warning')   return <div key={f.id} className="floating-warning-gold" style={{ left: `${f.x}px`, top: `${f.y}px` }}>{f.msg}</div>;
                 if (f.type === 'gold')      return <div key={f.id} className="floating-number-gold" style={{ left: `${f.x}px`, top: `${f.y}px` }}>+{f.value}</div>;
-                if (f.type === 'extraGold') return <div key={f.id} className="floating-number-extra-gold" style={{ left: `${f.x - 40}px`, top: `${f.y}px` }}>+{f.value}</div>;
                 if (f.type === 'burst')     return <div key={f.id} className="floating-number-burst-gold" style={{ left: `${f.x + 50}px`, top: `${f.y}px` }}>+{f.value}</div>;
-                if (f.type === 'doubleHit')     return <div key={f.id} className="floating-double-hit">x{f.multiplier}!</div>;
-                if (f.type === 'saveDurability') return <div key={f.id} className="floating-save-durability">🛡️</div>;
-                if (f.type === 'burstRecharge')  return <div key={f.id} className="floating-burst-recharge">⚡-{f.value}s</div>;
                 if (f.type === 'combo')     return <div key={f.id} className="floating-combo" style={{ left: `${Math.min(f.x, 200)}px`, top: `${f.y}px` }}>Combo x{f.value}</div>;
                 if (f.type === 'bonus')     return <div key={f.id} className="floating-bonus-wrapper" style={{ left: `${Math.min(f.x, 180)}px`, top: `${f.y}px` }}><div className="floating-bonus-combo">🔥 COMBO {f.combo}!</div><div className="floating-bonus-gold">+{f.bonus} ORO ✨</div></div>;
                 if (f.type === 'particle')  return <div key={f.id} className="particle" style={{ left: `${f.x}px`, top: `${f.y}px`, '--angle': `${f.angle}deg`, '--distance': `${f.distance}px` }} />;
