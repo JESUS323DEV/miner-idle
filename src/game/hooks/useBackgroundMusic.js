@@ -56,13 +56,22 @@ export const useBackgroundMusic = (volume = 0.010) => {
             document.removeEventListener('touchstart', handleFirstInteraction);
         };
 
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && startedRef.current) {
+                const audio = getAudio();
+                if (audio.paused) audio.play().catch(() => {});
+            }
+        };
+
         document.addEventListener('click', handleFirstInteraction);
         document.addEventListener('touchstart', handleFirstInteraction);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             audio.removeEventListener('ended', handleEnded);
             document.removeEventListener('click', handleFirstInteraction);
             document.removeEventListener('touchstart', handleFirstInteraction);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, [playTrack]);
 };
