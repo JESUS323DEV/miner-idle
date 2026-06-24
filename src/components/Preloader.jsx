@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { sfxReady } from '../game/utils/sfx.js';
 
 // ===== FONDOS =====
 import bgTavern from "../assets/backgrounds/bg-tavern/bg-tavern1.png"
@@ -225,12 +226,15 @@ export const usePreloader = () => {
     useEffect(() => {
         let done = 0;
         const total = IMAGES.length;
+        const onImageDone = () => {
+            done++;
+            if (done === total) {
+                sfxReady.then(() => setLoaded(true));
+            }
+        };
         IMAGES.forEach(src => {
             const img = new Image();
-            img.onload = img.onerror = () => {
-                done++;
-                if (done === total) setLoaded(true);
-            };
+            img.onload = img.onerror = onImageDone;
             img.src = src;
         });
     }, []);

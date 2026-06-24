@@ -48,16 +48,18 @@ const ensureCtx = () => {
 };
 
 const loadBuffer = async (key, url) => {
-    const ctx = ensureCtx();
     if (buffers[key]) return;
     try {
+        const ctx = ensureCtx();
         const res = await fetch(url);
         const data = await res.arrayBuffer();
         buffers[key] = await ctx.decodeAudioData(data);
-    } catch (_) { /* silencioso */ }
+    } catch (_) { }
 };
 
-Object.entries(SFX_SOURCES).forEach(([key, url]) => loadBuffer(key, url));
+export const sfxReady = Promise.all(
+    Object.entries(SFX_SOURCES).map(([key, url]) => loadBuffer(key, url))
+).catch(() => {});
 
 export const playBuffer = (key) => {
     if (!audioCtx || !buffers[key]) return;
