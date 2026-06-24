@@ -159,6 +159,13 @@ import picando1 from "../assets/scenes/mining/picando1.png"
 import picando2 from "../assets/scenes/mining/picando2.png"
 import mineroDescanso from "../assets/scenes/mining/minero-descanso.png"
 
+// ===== PODERES =====
+import powerFuria from "../assets/ui/power-pets/furia.png"
+import powerFire from "../assets/ui/power-pets/pelota-fire.png"
+import powerElectric from "../assets/ui/power-pets/pelota-electic.png"
+import powerWater from "../assets/ui/power-pets/pistola-agua.png"
+import powerEarth from "../assets/ui/power-pets/terremoto.png"
+
 // ===== TUTORIAL =====
 import tutorialPrincipal from "../assets/tutorial/mascotas/principal.png"
 import tutorialMina from "../assets/tutorial/mascotas/mina.png"
@@ -216,6 +223,8 @@ const IMAGES = [
     // escenas
     menaGold, menaGold2, menaGold3, menaGold4, menaGold5,
     picando1, picando2, mineroDescanso,
+    // poderes
+    powerFuria, powerFire, powerElectric, powerWater, powerEarth,
     // tutorial
     tutorialPrincipal, tutorialMina, tutorialForja,
 ];
