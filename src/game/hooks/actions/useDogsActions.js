@@ -16,13 +16,19 @@ export const useDogsActions = (gameState, setGameState) => {
             if (prevState.gold < cost.gold) return prevState;
             if (prevState.tavernCoins < cost.tavernCoins) return prevState;
 
+            const globalSlots = prevState.dogs.globalSlots ?? [null, null, null];
+            const emptyIdx = globalSlots.findIndex(id => id === null);
+            const newSlots = emptyIdx !== -1 ? globalSlots.map((id, i) => i === emptyIdx ? dogId : id) : globalSlots;
+            const assignedTo = emptyIdx !== -1 ? { globalSlot: emptyIdx } : null;
+
             return {
                 ...prevState,
                 gold: prevState.gold - cost.gold,
                 tavernCoins: prevState.tavernCoins - cost.tavernCoins,
                 dogs: {
                     ...prevState.dogs,
-                    [dogId]: { ...dog, hired: true }
+                    globalSlots: newSlots,
+                    [dogId]: { ...dog, hired: true, assignedTo }
                 }
             };
         });
@@ -300,13 +306,28 @@ export const useDogsActions = (gameState, setGameState) => {
             if (prevState.gold < goldCost) return prevState;
             if (prevState.tavernCoins < coinCost) return prevState;
 
+            let extraDogState = {};
+            if (!isForge) {
+                const globalSlots = prevState.dogs.globalSlots ?? [null, null, null];
+                const emptyIdx = globalSlots.findIndex(id => id === null);
+                if (emptyIdx !== -1) {
+                    extraDogState = { globalSlots: globalSlots.map((id, i) => i === emptyIdx ? dogId : id) };
+                }
+            }
+            const assignedTo = !isForge && (() => {
+                const globalSlots = prevState.dogs.globalSlots ?? [null, null, null];
+                const emptyIdx = globalSlots.findIndex(id => id === null);
+                return emptyIdx !== -1 ? { globalSlot: emptyIdx } : null;
+            })();
+
             return {
                 ...prevState,
                 gold: prevState.gold - goldCost,
                 tavernCoins: prevState.tavernCoins - coinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
-                    [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments }
+                    ...extraDogState,
+                    [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments, assignedTo: isForge ? null : assignedTo }
                 }
             };
         });

@@ -4,13 +4,25 @@ import { RaidConfig, generateRaidLoot } from '../../config/RaidConfig.js';
 const markDogs = (prevState, dogEntries, assignedTo) => {
     const updatedDogs = { ...prevState.dogs };
     const updatedForgeDogs = { ...prevState.forgeDogs };
+    const globalSlots = [...(prevState.dogs.globalSlots ?? [null, null, null])];
+
     for (const { id, isForge } of dogEntries) {
         if (isForge) {
-            if (updatedForgeDogs[id]) updatedForgeDogs[id] = { ...updatedForgeDogs[id], assignedTo };
+            if (updatedForgeDogs[id]) {
+                if (updatedForgeDogs[id].assignedTo?.globalSlot !== undefined)
+                    globalSlots[updatedForgeDogs[id].assignedTo.globalSlot] = null;
+                updatedForgeDogs[id] = { ...updatedForgeDogs[id], assignedTo };
+            }
         } else {
-            if (updatedDogs[id]) updatedDogs[id] = { ...updatedDogs[id], assignedTo };
+            if (updatedDogs[id]) {
+                if (updatedDogs[id].assignedTo?.globalSlot !== undefined)
+                    globalSlots[updatedDogs[id].assignedTo.globalSlot] = null;
+                updatedDogs[id] = { ...updatedDogs[id], assignedTo };
+            }
         }
     }
+
+    updatedDogs.globalSlots = globalSlots;
     return { updatedDogs, updatedForgeDogs };
 };
 
@@ -29,7 +41,9 @@ export const useRaidActions = (gameState, setGameState) => {
             for (const { id, isForge, isRented } of dogEntries) {
                 if (isRented) continue;
                 const dog = isForge ? prevState.forgeDogs?.[id] : prevState.dogs?.[id];
-                if (!dog || !dog.hired || dog.assignedTo) return prevState;
+                if (!dog || !dog.hired) return prevState;
+                // Bloquear si está en yacimiento o en otra raid, pero permitir slot global
+                if (dog.assignedTo && dog.assignedTo.globalSlot === undefined) return prevState;
             }
 
             const { updatedDogs, updatedForgeDogs } = markDogs(prevState, dogEntries, { type: 'raid' });

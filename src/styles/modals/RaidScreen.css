@@ -234,6 +234,17 @@
     line-height: 1.2;
 }
 
+.rdc-mining-badge {
+    display: flex;
+    align-items: center;
+    background: rgba(251, 191, 36, 0.2);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #fbbf24;
+    border-radius: 4px;
+    padding: 1px 4px;
+    line-height: 1;
+}
+
 /* Rareza en dog cards */
 .raid-dog-card.dog-rarity-legendary { border-color: rgba(245,200,66,0.4); }
 .raid-dog-card.dog-rarity-epic      { border-color: rgba(180,92,255,0.4); }

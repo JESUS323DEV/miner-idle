@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Pickaxe } from 'lucide-react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
@@ -121,10 +121,10 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
             hired: true,
             assignedTo: null,
         })),
-        ...Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired && !d.assignedTo)
-            .map(d => ({ ...d, isForge: false })),
-        ...Object.values(forgeDogs).filter(d => d && typeof d === 'object' && d.hired && !d.assignedTo)
-            .map(d => ({ ...d, isForge: true })),
+        ...Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired && (!d.assignedTo || d.assignedTo?.globalSlot !== undefined))
+            .map(d => ({ ...d, isForge: false, inGlobalSlot: d.assignedTo?.globalSlot !== undefined })),
+        ...Object.values(forgeDogs).filter(d => d && typeof d === 'object' && d.hired && (!d.assignedTo || d.assignedTo?.globalSlot !== undefined))
+            .map(d => ({ ...d, isForge: true, inGlobalSlot: d.assignedTo?.globalSlot !== undefined })),
     ];
 
     const getDogConfig = (dogId, isForge) => isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
@@ -385,6 +385,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                             </span>
                                                             {dog.isForge && <span className="rdc-forge-badge">🔥</span>}
                                                             {dog.isRented && <span className="rdc-rented-badge">{formatRentalMs(dog.remainingMs)}</span>}
+                                                            {dog.inGlobalSlot && <span className="rdc-mining-badge"><Pickaxe size={10} /></span>}
                                                         </button>
                                                     );
                                                 })}
