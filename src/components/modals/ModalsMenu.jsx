@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2, VolumeX, Palette, Monitor, Sparkles, ImagePlay, Flame, Loader } from "lucide-react";
+import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2, VolumeX, Palette, Monitor, Sparkles, ImagePlay, Flame, Loader, Smartphone } from "lucide-react";
 import "../../styles/modals/ModalsMenu.css";
 
 const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume, sfxVolume, onSfxVolume }) => {
@@ -278,6 +278,13 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume,
                                         <div className="feature-info">
                                             <span className="feature-name">Recompensas offline</span>
                                             <span className="feature-desc">Gana recursos mientras no juegas.</span>
+                                        </div>
+                                    </div>
+                                    <div className="feature-item">
+                                        <span className="feature-icon"><Smartphone size={18} /></span>
+                                        <div className="feature-info">
+                                            <span className="feature-name">Instalar como app</span>
+                                            <span className="feature-desc">Añade el juego a tu pantalla de inicio y juega sin abrir el navegador.</span>
                                         </div>
                                     </div>
                                 </div>
