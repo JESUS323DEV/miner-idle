@@ -48,30 +48,53 @@ export const useBackgroundMusic = (volume = 0.010) => {
 
         audio.addEventListener('ended', handleEnded);
 
+        const startMusic = () => {
+            startedRef.current = true;
+            sessionStorage.setItem('musicStarted', '1');
+            playTrack(currentTrackIndex.current);
+        };
+
         const handleFirstInteraction = () => {
             if (startedRef.current) return;
-            startedRef.current = true;
-            playTrack(0);
+            startMusic();
             document.removeEventListener('click', handleFirstInteraction);
             document.removeEventListener('touchstart', handleFirstInteraction);
         };
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible' && startedRef.current) {
-                const audio = getAudio();
-                if (audio.paused) audio.play().catch(() => {});
+                const a = getAudio();
+                if (a.paused) a.play().catch(() => {});
             }
         };
+
+        const handlePageShow = (e) => {
+            if (e.persisted && startedRef.current) {
+                const a = getAudio();
+                if (a.paused) a.play().catch(() => {});
+            }
+        };
+
+        if (sessionStorage.getItem('musicStarted') && !startedRef.current) {
+            const a = getAudio();
+            a.src = PLAYLIST[currentTrackIndex.current];
+            a.volume = volumeRef.current;
+            a.play()
+                .then(() => { startedRef.current = true; })
+                .catch(() => {});
+        }
 
         document.addEventListener('click', handleFirstInteraction);
         document.addEventListener('touchstart', handleFirstInteraction);
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pageshow', handlePageShow);
 
         return () => {
             audio.removeEventListener('ended', handleEnded);
             document.removeEventListener('click', handleFirstInteraction);
             document.removeEventListener('touchstart', handleFirstInteraction);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pageshow', handlePageShow);
         };
     }, [playTrack]);
 };

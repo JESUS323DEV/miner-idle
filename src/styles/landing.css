@@ -265,7 +265,7 @@
 
 /* BOTÓN VOLVER EN EL JUEGO */
 .game-back-btn {
-    position: fixed;
+    position: absolute;
     top: 0.5rem;
     left: 0.5rem;
     z-index: 9999;

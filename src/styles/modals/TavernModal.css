@@ -1,4 +1,4 @@
-/* ===== OVERLAY Y CONTENIDO PRINCIPAL ===== */
+﻿/* ===== OVERLAY Y CONTENIDO PRINCIPAL ===== */
 .tavern-overlay {
     background-position: center;
     background-repeat: no-repeat;
@@ -610,49 +610,49 @@
 /* Fondos card back por perro — van después de .dog-card-back para no ser pisados */
 .dog-card-back.dog-card-back-lady {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/lady-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/lady-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-tokio {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/tokyo-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/tokyo-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-tuka {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/tuka-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/tuka-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-muna {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/muna-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/muna-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-gordo {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/gordo-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/gordo-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-druh {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/druh-fondo.jpeg');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/druh-fondo.webp');
     background-size: cover;
     background-position: center;
 }
 
 .dog-card-back.dog-card-back-nupito {
     background: linear-gradient(rgba(0, 0, 0, 0.738), rgba(0, 0, 0, 0.864)),
-        url('../../assets/backgrounds/bg-tavern/bg-back-cards/nupito-fondo.png');
+        url('../../assets/backgrounds/bg-tavern/bg-back-cards/nupito-fondo.webp');
     background-size: cover;
     background-position: center;
 }

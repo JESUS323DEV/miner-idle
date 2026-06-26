@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { ForgeConfig } from '../../game/config/ForgeConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import ForgeDogModal from './ForgeDogModal';
 import '../../styles/modals/ForgeModal.css';
 
-import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.png";
-import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.png";
-import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.png";
-import forgeIcon4 from "../../assets/ui/icons-pets/forge/forge-icon4.png";
-import forgeIcon5 from "../../assets/ui/icons-pets/forge/forge-icon5.png";
-import forgeIcon6 from "../../assets/ui/icons-pets/forge/forge-icon6.png";
-import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.png";
-import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.png";
-import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.png";
+import forgeIcon1 from "../../assets/ui/icons-pets/forge/forge-icon1.webp";
+import forgeIcon2 from "../../assets/ui/icons-pets/forge/forge-icon2.webp";
+import forgeIcon3 from "../../assets/ui/icons-pets/forge/forge-icon3.webp";
+import forgeIcon4 from "../../assets/ui/icons-pets/forge/forge-icon4.webp";
+import forgeIcon5 from "../../assets/ui/icons-pets/forge/forge-icon5.webp";
+import forgeIcon6 from "../../assets/ui/icons-pets/forge/forge-icon6.webp";
+import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.webp";
+import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.webp";
+import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.webp";
 
 const forgeDogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
@@ -23,31 +24,31 @@ const forgeDogAssets = {
 
 
 //ASSETS FORJA LVL 1
-import forgeBronze from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.png"
-import forgeIron from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-iron.png"
-import forgeDiamond from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-diamond.png"
+import forgeBronze from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.webp"
+import forgeIron from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-iron.webp"
+import forgeDiamond from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-diamond.webp"
 
 //ASSETS FORJA LVL 2
-import forgeBronze2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-bronze2.png"
-import forgeIron2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-iron2.png"
-import forgeDiamond2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-diamond2.png"
+import forgeBronze2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-bronze2.webp"
+import forgeIron2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-iron2.webp"
+import forgeDiamond2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-diamond2.webp"
 
 //ASSETS FORJA LVL 3
-import forgeBronze3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-bronze3.png"
-import forgeIron3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-iron3.png"
-import forgeDiamond3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-diamond3.png"
+import forgeBronze3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-bronze3.webp"
+import forgeIron3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-iron3.webp"
+import forgeDiamond3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
 
-import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.png"
+import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
 
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
+import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
+import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp"
+import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
 
-import menaBronze from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png"
-import menaIron from "../../assets/ui/icons-forge/menas-hud/ironHud.png"
-import menaDiamond from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
+import menaBronze from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp"
+import menaIron from "../../assets/ui/icons-forge/menas-hud/ironHud.webp"
+import menaDiamond from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 
@@ -90,7 +91,17 @@ const ForgeModal = ({ isOpen, onClose }) => {
 
     const [showIntro, setShowIntro] = useState(false);
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
-    const [dogMenuOpen, setDogMenuOpen] = useState(null);
+    const [dogModalTarget, setDogModalTarget] = useState(null);
+
+    const handleForgeAssign = (dogId) => {
+        const currentEntry = Object.entries(forgeDogs).find(([, d]) => d?.assignedTo === dogModalTarget);
+        if (currentEntry && currentEntry[0] !== dogId) {
+            onUnassignForgeDog(currentEntry[0]);
+        }
+        if (!currentEntry || currentEntry[0] !== dogId) {
+            onAssignForgeDog(dogId, dogModalTarget);
+        }
+    };
 
     useEffect(() => {
         if (isOpen && !gameState.tutorial?.forgeIntroDone) {
@@ -143,11 +154,6 @@ const ForgeModal = ({ isOpen, onClose }) => {
                         const assignedDog = Object.values(forgeDogs).find(
                             d => d && typeof d === 'object' && d.hired && d.assignedTo === mat
                         );
-                        const availableDogs = Object.values(forgeDogs).filter(
-                            d => d && typeof d === 'object' && d.hired && d.assignedTo === null
-                        );
-
-                        const isMenuOpen = dogMenuOpen === mat;
 
                         return (
                             <div key={mat} className={`forge-furnace forge-furnace-${mat} ${!furnace.unlocked ? 'locked' : ''}`}>
@@ -165,34 +171,16 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                         <div className="forge-dog-slot-wrap">
                                             <div
                                                 className={`forge-dog-slot${assignedDog ? ` dog-rarity-${ForgeDogsConfig[assignedDog.id].rarity}` : ''}`}
-                                                onClick={() => setDogMenuOpen(isMenuOpen ? null : mat)}
+                                                onClick={() => setDogModalTarget(mat)}
                                             >
                                                 {assignedDog ? (
-                                                    <>
-                                                        <img src={forgeDogAssets[assignedDog.id]} className="forge-dog-slot-img" alt={assignedDog.id} />
-                                                        <button className="forge-dog-slot-unassign" onClick={e => { e.stopPropagation(); onUnassignForgeDog(assignedDog.id); }}>✖</button>
-                                                    </>
+                                                    <img src={forgeDogAssets[assignedDog.id]} className="forge-dog-slot-img" alt={assignedDog.id} />
                                                 ) : (
                                                     <span className="forge-dog-slot-plus">+</span>
                                                 )}
                                             </div>
                                             {assignedDog && (
                                                 <span className="forge-dog-slot-name">{ForgeDogsConfig[assignedDog.id].name}</span>
-                                            )}
-
-                                            {isMenuOpen && (
-                                                <div className="forge-dog-menu">
-                                                    {availableDogs.length === 0
-                                                        ? <span className="forge-dog-menu-empty">Sin mascotas libres</span>
-                                                        : availableDogs.map(d => (
-                                                            <button key={d.id} className="forge-dog-menu-option" onClick={e => { e.stopPropagation(); onAssignForgeDog(d.id, mat); setDogMenuOpen(null); }}>
-                                                                <img src={forgeDogAssets[d.id]} className="forge-dog-menu-img" alt={d.id} />
-                                                                {ForgeDogsConfig[d.id].name}
-                                                            </button>
-                                                        ))
-                                                    }
-                                                    <button className="forge-dog-menu-cancel" onClick={e => { e.stopPropagation(); setDogMenuOpen(null); }}>✕</button>
-                                                </div>
                                             )}
                                         </div>
                                     )}
@@ -257,6 +245,16 @@ const ForgeModal = ({ isOpen, onClose }) => {
                         );
                     })}
                 </div>
+
+                <ForgeDogModal
+                    isOpen={dogModalTarget !== null}
+                    onClose={() => setDogModalTarget(null)}
+                    targetMaterial={dogModalTarget}
+                    setTarget={setDogModalTarget}
+                    forgeDogs={forgeDogs}
+                    onAssign={handleForgeAssign}
+                    onUnassign={onUnassignForgeDog}
+                />
 
                 {showIntro && (
                     <div className="forge-intro-overlay">

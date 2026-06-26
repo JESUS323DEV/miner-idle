@@ -111,6 +111,26 @@ export const useDogsActions = (gameState, setGameState) => {
             if (!dog || !dog.hired || !dog.assignedTo) return prevState;
             if (dog.assignedTo.globalSlot !== undefined) return prevState;
 
+            if (dog.assignedTo.mineComp !== undefined) {
+                const biome = dog.assignedTo.mineComp;
+                const dogConfig = DogsConfig[dogId];
+                const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dog.stars ?? 0);
+                const baseYield = dogConfig?.yacimientoYield ?? 1;
+                const biomeMult = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const materialGained = Math.round(baseYield * biomeMult * starMult);
+                return {
+                    ...prevState,
+                    [biome]: (prevState[biome] ?? 0) + materialGained,
+                    ...(biome === 'bronze'  ? { totalBronzeMined:  (prevState.totalBronzeMined  ?? 0) + materialGained } : {}),
+                    ...(biome === 'iron'    ? { totalIronMined:    (prevState.totalIronMined    ?? 0) + materialGained } : {}),
+                    ...(biome === 'diamond' ? { totalDiamondMined: (prevState.totalDiamondMined ?? 0) + materialGained } : {}),
+                    dogs: {
+                        ...prevState.dogs,
+                        [dogId]: { ...dog, mineCompLastTick: Date.now() },
+                    },
+                };
+            }
+
             const { biome, slotId } = dog.assignedTo;
             const slot = prevState.yacimientos[biome]?.slots?.find(s => s.id === slotId);
             if (!slot?.unlocked) return prevState;
@@ -471,6 +491,60 @@ export const useDogsActions = (gameState, setGameState) => {
         });
     };
 
+    const MINE_COMP_DURATION_S = 10 * 60;
+
+    // ========== ASIGNAR PERRO A MINA PASIVA ==========
+    const handleAssignMineDog = (dogId, mineId) => {
+        setGameState(prevState => {
+            const dog = prevState.dogs[dogId];
+            if (!dog || !dog.hired) return prevState;
+            if (dog.assignedTo !== null) return prevState;
+
+            const slotTaken = Object.values(prevState.dogs).some(
+                d => d && typeof d === 'object' && !Array.isArray(d) && d.assignedTo?.mineComp === mineId
+            );
+            if (slotTaken) return prevState;
+
+            const currentRemaining = dog.mineCompTimer?.remaining ?? 0;
+            const newRemaining = currentRemaining > 0 ? currentRemaining : MINE_COMP_DURATION_S;
+
+            return {
+                ...prevState,
+                dogs: {
+                    ...prevState.dogs,
+                    [dogId]: {
+                        ...dog,
+                        assignedTo: { mineComp: mineId },
+                        mineCompTimer: { remaining: newRemaining, activeFrom: Date.now() },
+                    },
+                },
+            };
+        });
+    };
+
+    // ========== DESASIGNAR PERRO DE MINA PASIVA ==========
+    const handleUnassignMineDog = (dogId) => {
+        setGameState(prevState => {
+            const dog = prevState.dogs[dogId];
+            if (!dog || dog.assignedTo?.mineComp === undefined) return prevState;
+
+            return {
+                ...prevState,
+                dogs: {
+                    ...prevState.dogs,
+                    [dogId]: {
+                        ...dog,
+                        assignedTo: null,
+                        mineCompTimer: {
+                            remaining: dog.mineCompTimer?.remaining ?? 0,
+                            activeFrom: null,
+                        },
+                    },
+                },
+            };
+        });
+    };
+
     return {
         handleHireDog,
         handleAssignDog,
@@ -483,5 +557,7 @@ export const useDogsActions = (gameState, setGameState) => {
         handleUpgradeStar,
         handleOpenPack,
         handleFreePull,
+        handleAssignMineDog,
+        handleUnassignMineDog,
     };
 };

@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import '../styles/landing.css';
-import logo from '../assets/landing-pico-pata/logo.png';
-import ayudantes from '../assets/landing-pico-pata/ayudantes.png';
-import minas from '../assets/landing-pico-pata/minas.png';
-import picos from '../assets/landing-pico-pata/picos.png';
-import produccionOro from '../assets/landing-pico-pata/produccion-oro.png';
+import logo from '../assets/landing-pico-pata/logo.webp';
+import ayudantes from '../assets/landing-pico-pata/ayudantes.webp';
+import minas from '../assets/landing-pico-pata/minas.webp';
+import picos from '../assets/landing-pico-pata/picos.webp';
+import produccionOro from '../assets/landing-pico-pata/produccion-oro.webp';
 
 const CARDS = [
     { img: picos, title: 'Tu pico', desc: 'Mejóralo para extraer más materiales y avanzar en los biomas.' },

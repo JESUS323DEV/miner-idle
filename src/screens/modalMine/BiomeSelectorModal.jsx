@@ -1,16 +1,16 @@
-import { X } from "lucide-react";
+﻿import { X } from "lucide-react";
 
 import "../../styles/modals/BiomeSelectorModal.css"
 import { useGameContext } from "../../game/context/GameContext.jsx";
 
-import bgBronze   from "../../assets/backgrounds/bg-mines/bg-mine-bronze.png";
-import bgIron     from "../../assets/backgrounds/bg-mines/bg-mine-iron.png";
-import bgDiamond  from "../../assets/backgrounds/bg-mines/bg-mine-diamond.png";
+import bgBronze   from "../../assets/backgrounds/bg-mines/bg-mine-bronze.webp";
+import bgIron     from "../../assets/backgrounds/bg-mines/bg-mine-iron.webp";
+import bgDiamond  from "../../assets/backgrounds/bg-mines/bg-mine-diamond.webp";
 
-import picoStone   from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
-import picoBronze  from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png";
-import picoIron    from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png";
-import picoDiamond from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png";
+import picoStone   from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.webp";
+import picoBronze  from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.webp";
+import picoIron    from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.webp";
+import picoDiamond from "../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.webp";
 
 const fmt = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import '../../styles/modals/MinesMapModal.css';
 import '../../styles/modals/MineScreen.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
@@ -20,23 +20,23 @@ const INTRO_FLAG = {
     diamond: 'mineIntroDiamondDone',
 };
 
-import menaBronze3   from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png"
-import menaIron3     from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png"
-import menaDiamond3  from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png"
+import menaBronze3   from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.webp"
+import menaIron3     from "../../assets/ui/icons-menas/menas-iron/mena-iron3.webp"
+import menaDiamond3  from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp"
 const menaIntactAssets = { bronze: menaBronze3, iron: menaIron3, diamond: menaDiamond3 };
 
-import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.png"
-import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.png"
-import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.png"
-import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.png"
-import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.png"
-import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.png"
-import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.png"
-import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png"
-import zeusIcon      from "../../assets/ui/icons-pets/mineros/zeus-icon.png"
-import boxerIcon     from "../../assets/ui/icons-pets/mineros/boxer-icon.png"
-import bullyIcon     from "../../assets/ui/icons-pets/mineros/bully-icon.png"
-import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png"
+import ladyIcon   from "../../assets/ui/icons-pets/mineros/lady-icon.webp"
+import tokyoIcon  from "../../assets/ui/icons-pets/mineros/tokyo-icon.webp"
+import tukaIcon   from "../../assets/ui/icons-pets/mineros/tuka-icon.webp"
+import munaIcon   from "../../assets/ui/icons-pets/mineros/muna-icon.webp"
+import gordoIcon  from "../../assets/ui/icons-pets/mineros/gordo-icon.webp"
+import druhIcon   from "../../assets/ui/icons-pets/mineros/druh-icon.webp"
+import smokeIcon  from "../../assets/ui/icons-pets/mineros/smoke-icon.webp"
+import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.webp"
+import zeusIcon      from "../../assets/ui/icons-pets/mineros/zeus-icon.webp"
+import boxerIcon     from "../../assets/ui/icons-pets/mineros/boxer-icon.webp"
+import bullyIcon     from "../../assets/ui/icons-pets/mineros/bully-icon.webp"
+import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.webp"
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
@@ -44,14 +44,15 @@ const dogAssets = {
     boxer: boxerIcon, bully: bullyIcon, chihuahua: chihuahuaIcon,
 };
 
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
-import iconCoin from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
+import iconCoin from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
 
-import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png"
-import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png"
-import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png"
+import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp"
+import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.webp"
+import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp"
 
-import { X } from 'lucide-react';
+import { X, PawPrint } from 'lucide-react';
+import MineDogModal from './MineDogModal.jsx';
 
 const biomeHudAssets = {
     bronze: bronzeHud,
@@ -72,17 +73,19 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         setGameState,
         handleUnlockMineType: onUnlockType,
         handleUnlockYacimientoSlot: onUnlockYacimientoSlot,
-        handleAssignDog: onAssignDog,
-        handleUnassignDog: onUnassignDog,
+        handleAssignMineDog,
+        handleUnassignMineDog,
     } = useGameContext();
     const { gold: currentGold, tavernCoins, mines, yacimientos, dogs = {} } = gameState;
     const { unlockedTypes, bestScores } = mines;
     const minesConfig = MinesConfig;
 
     const [showIntro, setShowIntro] = useState(false);
-    const [dogMenuSlot, setDogMenuSlot] = useState(null);
+    const [compAnimTick, setCompAnimTick] = useState(0);
+    const lastCompTickRef = useRef(null);
     const [preEntryMine, setPreEntryMine] = useState(null);
     const [selectedCompanion, setSelectedCompanion] = useState(null);
+    const [mineCompModalOpen, setMineCompModalOpen] = useState(false);
 
     useEffect(() => {
         if (!isOpen || !selectedBiome) return;
@@ -92,20 +95,24 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         }
     }, [isOpen, selectedBiome]); // eslint-disable-line
 
+    useEffect(() => {
+        if (!isOpen || !selectedBiome) return;
+        const compDog = Object.values(dogs).find(
+            d => d && typeof d === 'object' && !Array.isArray(d) && d.assignedTo?.mineComp === selectedBiome
+        );
+        const tick = compDog?.mineCompLastTick;
+        if (!tick || tick === lastCompTickRef.current) return;
+        lastCompTickRef.current = tick;
+        setCompAnimTick(n => n + 1);
+    }, [dogs, isOpen, selectedBiome]); // eslint-disable-line
+
     if (!isOpen) return null;
 
-    const getDogAssigned = (slotId) => {
-        return Object.values(dogs).find(
-            d => d && typeof d === 'object' && d.assignedTo?.biome === selectedBiome && d.assignedTo?.slotId === slotId
-        ) || null;
-    };
-
-    const getAvailableDogs = () => {
-        return Object.values(dogs).filter(
-            d => d && typeof d === 'object' && d.hired && d.assignedTo === null
-        );
-    };
-
+    const mineCompDog = selectedBiome
+        ? Object.values(dogs).find(d => d && typeof d === 'object' && !Array.isArray(d) && d.assignedTo?.mineComp === selectedBiome) || null
+        : null;
+    const mineCompLocked = (mineCompDog?.mineCompTimer?.remaining ?? 0) > 0;
+    const fmtTimer = (s) => { const m = Math.floor(s / 60); const sec = s % 60; return `${m}:${sec.toString().padStart(2, '0')}`; };
 
     const getAvailableCompanions = () => {
         const owned = Object.values(dogs).filter(d =>
@@ -226,7 +233,6 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                         <div className="yacimientos-section">
                             <div className="yacimientos-slots">
                                 {yacimientos[selectedBiome].slots.map(slot => {
-                                    const dogAssigned = getDogAssigned(slot.id);
                                     const unlockCost = yacimientos[selectedBiome].unlockCost;
 
                                     if (!slot.unlocked) {
@@ -266,42 +272,72 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                         );
                                     }
 
+                                    const dogAssigned = Object.values(dogs).find(
+                                        d => d && typeof d === 'object' && d.assignedTo?.biome === selectedBiome && d.assignedTo?.slotId === slot.id
+                                    ) || null;
                                     return (
                                         <YacimientoSlotActivo
                                             key={slot.id}
                                             slot={slot}
                                             selectedBiome={selectedBiome}
-                                            dogAssigned={dogAssigned}
-                                            dogMenuOpen={dogMenuSlot === slot.id}
-                                            availableDogs={getAvailableDogs()}
                                             menaAsset={menaIntactAssets[selectedBiome]}
-                                            onAssignDog={onAssignDog}
-                                            onUnassignDog={onUnassignDog}
-                                            onToggleDogMenu={() => setDogMenuSlot(dogMenuSlot === slot.id ? null : slot.id)}
+                                            dogAssigned={dogAssigned}
+                                            compAnimTick={compAnimTick}
+                                            compDogAssigned={mineCompDog}
                                         />
                                     );
                                 })}
+                            </div>
+
+                            {/* SLOT COMPAÑERO DE MINA */}
+                            <div className="mdc-companion-row" style={{ position: 'relative' }}>
+                                <div
+                                    className={`dog-slot-box${mineCompDog ? ` dog-rarity-${DogsConfig[mineCompDog.id]?.rarity}` : ''}`}
+                                    onClick={() => setMineCompModalOpen(true)}
+                                >
+                                    {mineCompDog ? (
+                                        <>
+                                            <img src={dogAssets[mineCompDog.id]} className="dog-slot-img" alt={mineCompDog.id} />
+                                            {mineCompLocked && (
+                                                <div className="dog-slot-timer-overlay">
+                                                    <span className="mdc-slot-timer">{fmtTimer(mineCompDog.mineCompTimer.remaining)}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <span className="dog-slot-plus">+</span>
+                                    )}
+                                </div>
+                                <span className="dog-slot-label">
+                                    {mineCompDog ? (DogsConfig[mineCompDog.id]?.name ?? mineCompDog.id) : 'compañero'}
+                                </span>
                             </div>
                         </div>
                     )}
 
                 </div>
             </div>
+
+            {mineCompModalOpen && selectedBiome && (
+                <MineDogModal
+                    isOpen={mineCompModalOpen}
+                    onClose={() => setMineCompModalOpen(false)}
+                    mineId={selectedBiome}
+                    dogs={dogs}
+                    onAssign={handleAssignMineDog}
+                    onUnassign={handleUnassignMineDog}
+                />
+            )}
         </div>
     );
 };
 
 
-const YacimientoSlotActivo = ({
-    slot, selectedBiome, dogAssigned,
-    dogMenuOpen, availableDogs, menaAsset,
-    onAssignDog, onUnassignDog, onToggleDogMenu,
-}) => {
-    const [secondsLeft, setSecondsLeft] = useState(0);
-    const [slotFlipped, setSlotFlipped] = useState(false);
+const YacimientoSlotActivo = ({ slot, selectedBiome, menaAsset, dogAssigned, compAnimTick, compDogAssigned }) => {
     const [isShaking, setIsShaking] = useState(false);
     const [floats, setFloats] = useState([]);
     const lastTickRef = useRef(null);
+    const lastCompTickRef = useRef(0);
 
     const session = slot.session;
     const phase = session?.phase;
@@ -309,19 +345,9 @@ const YacimientoSlotActivo = ({
     const isCooldown = phase === 'cooldown';
 
     useEffect(() => {
-        if (!session?.endsAt) { setSecondsLeft(0); return; }
-        const update = () => setSecondsLeft(Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000)));
-        update();
-        const interval = setInterval(update, 1000);
-        return () => clearInterval(interval);
-    }, [session?.endsAt]); // eslint-disable-line
-
-    // Trigger shake + float cuando cambia lastTick
-    useEffect(() => {
         const tick = session?.lastTick;
         if (!tick || tick === lastTickRef.current) return;
         lastTickRef.current = tick;
-
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 150);
 
@@ -336,11 +362,20 @@ const YacimientoSlotActivo = ({
         setTimeout(() => setFloats(prev => prev.filter(f => f.id !== floatId)), 900);
     }, [session?.lastTick]); // eslint-disable-line
 
-    const formatTime = (s) => {
-        const m = Math.floor(s / 60);
-        const sec = s % 60;
-        return `${m}:${sec.toString().padStart(2, '0')}`;
-    };
+    useEffect(() => {
+        if (!compAnimTick || compAnimTick === lastCompTickRef.current) return;
+        lastCompTickRef.current = compAnimTick;
+
+        const dogConfig = compDogAssigned ? DogsConfig[compDogAssigned.id] : null;
+        const starMult = 1 + (dogConfig?.starBonus ?? 0) * (compDogAssigned?.stars ?? 0);
+        const baseYield = dogConfig?.yacimientoYield ?? 1;
+        const biomeMult = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const displayYield = Math.round(baseYield * biomeMult * starMult);
+
+        const floatId = Date.now() + Math.random();
+        setFloats(prev => [...prev, { id: floatId, value: displayYield }]);
+        setTimeout(() => setFloats(prev => prev.filter(f => f.id !== floatId)), 900);
+    }, [compAnimTick]); // eslint-disable-line
 
     return (
         <div className={`yacimiento-slot active${isMining ? ' session-mining' : ''}${isCooldown ? ' session-cooldown' : ''}`}>
@@ -355,86 +390,7 @@ const YacimientoSlotActivo = ({
                         +{f.value} <img src={biomeHudAssets[selectedBiome]} alt="" className="mena-floating-icon" />
                     </div>
                 ))}
-                <div className="yacimiento-mena-overlay">
-                    {!dogAssigned && (
-                        <span className="yacimiento-no-dog">Asigna un perro</span>
-                    )}
-                </div>
             </div>
-
-            <div
-                className={`dog-slot-box${dogAssigned ? ` dog-rarity-${DogsConfig[dogAssigned.id]?.rarity}` : ''}${isCooldown ? ' slot-cooldown' : ''}`}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (isMining) return;
-                    if (dogAssigned) setSlotFlipped(f => !f);
-                    onToggleDogMenu();
-                }}
-            >
-                {/* Timer superpuesto sobre el perro */}
-                {dogAssigned && (isMining || isCooldown) && (
-                    <div className="dog-slot-timer-overlay">
-                        <span className={isCooldown ? 'yacimiento-cooldown-timer' : 'yacimiento-timer'}>
-                            {formatTime(secondsLeft)}
-                        </span>
-                    </div>
-                )}
-                <div className={`dog-slot-flip${slotFlipped && dogAssigned ? ' flipped' : ''}`}>
-                    <div className="dog-slot-front">
-                        {dogAssigned ? (
-                            <>
-                                {dogAssets[dogAssigned.id]
-                                    ? <img src={dogAssets[dogAssigned.id]} className="dog-slot-img" alt={dogAssigned.id} />
-                                    : <span className="dog-slot-emoji">🐕</span>
-                                }
-                                {!isMining && (
-                                    <button className="dog-slot-unassign"
-                                        onClick={(e) => { e.stopPropagation(); setSlotFlipped(false); onUnassignDog(dogAssigned.id); }}
-                                    >✖</button>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <span className="dog-slot-hint">🐕</span>
-                                <span className="dog-slot-plus">+</span>
-                            </>
-                        )}
-                    </div>
-                    {dogAssigned && (() => {
-                        const cfg = DogsConfig[dogAssigned.id];
-                        const starMult = 1 + (cfg?.starBonus ?? 0) * (dogAssigned.stars ?? 0);
-                        const yieldPerHit = Math.round((cfg?.yacimientoYield ?? 1) * (cfg?.biomeBonus?.[selectedBiome] ?? 1) * starMult);
-                        const stats = cfg ? { miningSpeed: cfg.miningSpeed / starMult } : null;
-                        const secsPerHit = stats ? (stats.miningSpeed * 2).toFixed(1) : '2.0';
-                        return (
-                            <div className="dog-slot-back">
-                                <span>+{yieldPerHit}/golpe</span>
-                                <span>{secsPerHit}s/golpe</span>
-                            </div>
-                        );
-                    })()}
-                </div>
-
-                {dogMenuOpen && !isMining && (
-                    <div className="dog-menu">
-                        {availableDogs.length === 0
-                            ? <span className="dog-menu-empty">Sin mascotas libres</span>
-                            : availableDogs.map(dog => (
-                                <button key={dog.id} className="dog-menu-option"
-                                    onClick={(e) => { e.stopPropagation(); onAssignDog(dog.id, selectedBiome, slot.id); onToggleDogMenu(); }}
-                                >{DogsConfig[dog.id]?.name ?? dog.id}</button>
-                            ))
-                        }
-                        <button className="dog-menu-cancel"
-                            onClick={(e) => { e.stopPropagation(); onToggleDogMenu(); }}
-                        >Cancelar</button>
-                    </div>
-                )}
-            </div>
-
-            <span className="dog-slot-label">
-                {dogAssigned ? (DogsConfig[dogAssigned.id]?.name ?? dogAssigned.id) : 'mascota'}
-            </span>
         </div>
     );
 };

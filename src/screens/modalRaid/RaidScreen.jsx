@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X, Pickaxe } from 'lucide-react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -8,31 +8,31 @@ import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import '../../styles/modals/RaidScreen.css';
 import '../../styles/modals/ForgeModal.css';
 
-import iconGold   from '../../assets/ui/icons-hud/hud-principal/oro1.png';
-import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.png';
+import iconGold   from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
+import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 
-import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.png';
-import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.png';
-import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.png';
-import munaIcon   from '../../assets/ui/icons-pets/mineros/muna-icon.png';
-import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.png';
-import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.png';
-import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.png';
-import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.png';
-import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
-import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.png';
-import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.png';
-import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.png';
+import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
+import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
+import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
+import munaIcon   from '../../assets/ui/icons-pets/mineros/muna-icon.webp';
+import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
+import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.webp';
+import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.webp';
+import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.webp';
+import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.webp';
+import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.webp';
+import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.webp';
+import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.webp';
 
-import forgeIcon1 from '../../assets/ui/icons-pets/forge/forge-icon1.png';
-import forgeIcon2 from '../../assets/ui/icons-pets/forge/forge-icon2.png';
-import forgeIcon3 from '../../assets/ui/icons-pets/forge/forge-icon3.png';
-import forgeIcon4 from '../../assets/ui/icons-pets/forge/forge-icon4.png';
-import forgeIcon5 from '../../assets/ui/icons-pets/forge/forge-icon5.png';
-import forgeIcon6 from '../../assets/ui/icons-pets/forge/forge-icon6.png';
-import forgeIcon7 from '../../assets/ui/icons-pets/forge/forge-icon7.png';
-import forgeIcon8 from '../../assets/ui/icons-pets/forge/forge-icon8.png';
-import forgeIcon9 from '../../assets/ui/icons-pets/forge/forge-icon9.png';
+import forgeIcon1 from '../../assets/ui/icons-pets/forge/forge-icon1.webp';
+import forgeIcon2 from '../../assets/ui/icons-pets/forge/forge-icon2.webp';
+import forgeIcon3 from '../../assets/ui/icons-pets/forge/forge-icon3.webp';
+import forgeIcon4 from '../../assets/ui/icons-pets/forge/forge-icon4.webp';
+import forgeIcon5 from '../../assets/ui/icons-pets/forge/forge-icon5.webp';
+import forgeIcon6 from '../../assets/ui/icons-pets/forge/forge-icon6.webp';
+import forgeIcon7 from '../../assets/ui/icons-pets/forge/forge-icon7.webp';
+import forgeIcon8 from '../../assets/ui/icons-pets/forge/forge-icon8.webp';
+import forgeIcon9 from '../../assets/ui/icons-pets/forge/forge-icon9.webp';
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,

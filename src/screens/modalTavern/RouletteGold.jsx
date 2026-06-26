@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 
-import iconGold   from "../../assets/ui/icons-hud/hud-principal/oro1.png";
-import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
+import iconGold   from "../../assets/ui/icons-hud/hud-principal/oro1.webp";
+import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
 
 const SECTORS = [
     { pct: 30, color: '#0d4a1a', type: 'gold_mult', mult: 1.5, label: 'x1.5' },

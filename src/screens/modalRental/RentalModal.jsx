@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
@@ -6,24 +6,24 @@ import { RentalConfig } from '../../game/config/RentalConfig.js';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/RentalModal.css';
 
-import ladyIcon from '../../assets/ui/icons-pets/mineros/lady-icon.png';
-import tokyoIcon from '../../assets/ui/icons-pets/mineros/tokyo-icon.png';
-import tukaIcon from '../../assets/ui/icons-pets/mineros/tuka-icon.png';
-import munaIcon from '../../assets/ui/icons-pets/mineros/muna-icon.png';
-import gordoIcon from '../../assets/ui/icons-pets/mineros/gordo-icon.png';
-import druhIcon from '../../assets/ui/icons-pets/mineros/druh-icon.png';
-import smokeIcon from '../../assets/ui/icons-pets/mineros/smoke-icon.png';
-import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.png';
-import zeusIcon from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
+import ladyIcon from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
+import tokyoIcon from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
+import tukaIcon from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
+import munaIcon from '../../assets/ui/icons-pets/mineros/muna-icon.webp';
+import gordoIcon from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
+import druhIcon from '../../assets/ui/icons-pets/mineros/druh-icon.webp';
+import smokeIcon from '../../assets/ui/icons-pets/mineros/smoke-icon.webp';
+import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.webp';
+import zeusIcon from '../../assets/ui/icons-pets/mineros/zeus-icon.webp';
 
-import iconGold from '../../assets/ui/icons-hud/hud-principal/oro1.png';
-import staminaIcon from '../../assets/ui/icons-hud/hud-principal/stamina-1.png';
-import pickaxeStone from '../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png';
-import menaBronze from '../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png';
-import menaIron from '../../assets/ui/icons-menas/menas-iron/mena-iron3.png';
-import menaDiamond from '../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png';
+import iconGold from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
+import staminaIcon from '../../assets/ui/icons-hud/hud-principal/stamina-1.webp';
+import pickaxeStone from '../../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.webp';
+import menaBronze from '../../assets/ui/icons-menas/menas-bronze/mena-bronze3.webp';
+import menaIron from '../../assets/ui/icons-menas/menas-iron/mena-iron3.webp';
+import menaDiamond from '../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp';
 
-import bgCoin from '../../assets/backgrounds/bg-tavern/bg-coin.png';
+import bgCoin from '../../assets/backgrounds/bg-tavern/bg-coin.webp';
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,

@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import '../styles/GoldMine.css';
 import { CombosConfig } from '../game/config/CombosConfig.js';
-import menaGold from '../assets/scenes/mining/mena-gold5.png';
+import menaGold from '../assets/scenes/mining/mena-gold5.webp';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { playBuffer } from '../game/utils/sfx.js';
 import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';

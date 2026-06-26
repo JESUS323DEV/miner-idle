@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import '../../styles/modals/UpgradeModal.css';
 import TutorialModalHint from './TutorialModalHint.jsx';
 
 import { X } from "lucide-react";
 
-import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png"
-import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.png"
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
+import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.webp"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 /**

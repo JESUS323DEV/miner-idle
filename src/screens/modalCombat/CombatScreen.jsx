@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X, ChevronLeft } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
 import '../../styles/modals/CombatScreen.css';
 
-import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.png';
-import bat2Img    from '../../assets/ui/icons-enemy/bats/bat-2.png';
-import bat3Img    from '../../assets/ui/icons-enemy/bats/bat-3.png';
-import batBossImg from '../../assets/ui/icons-enemy/bats/bat-boss.png';
-import bgBats     from '../../assets/ui/icons-enemy/bats/bg-combat-bats.png';
+import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
+import bat2Img    from '../../assets/ui/icons-enemy/bats/bat-2.webp';
+import bat3Img    from '../../assets/ui/icons-enemy/bats/bat-3.webp';
+import batBossImg from '../../assets/ui/icons-enemy/bats/bat-boss.webp';
+import bgBats     from '../../assets/ui/icons-enemy/bats/bg-combat-bats.webp';
 
-import topo1Img    from '../../assets/ui/icons-enemy/topos/topo-1.png';
-import topo2Img    from '../../assets/ui/icons-enemy/topos/topo-2.png';
-import topo3Img    from '../../assets/ui/icons-enemy/topos/topo-3.png';
-import topoBossImg from '../../assets/ui/icons-enemy/topos/topo-boss.png';
-import bgTopos     from '../../assets/ui/icons-enemy/topos/bg-combat-topos.png';
+import topo1Img    from '../../assets/ui/icons-enemy/topos/topo-1.webp';
+import topo2Img    from '../../assets/ui/icons-enemy/topos/topo-2.webp';
+import topo3Img    from '../../assets/ui/icons-enemy/topos/topo-3.webp';
+import topoBossImg from '../../assets/ui/icons-enemy/topos/topo-boss.webp';
+import bgTopos     from '../../assets/ui/icons-enemy/topos/bg-combat-topos.webp';
 
-import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.png';
-import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.png';
-import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.png';
-import munaIcon   from '../../assets/ui/icons-pets/mineros/muna-icon.png';
-import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.png';
-import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.png';
-import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.png';
-import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.png';
-import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.png';
-import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.png';
-import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.png';
-import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.png';
+import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
+import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
+import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
+import munaIcon   from '../../assets/ui/icons-pets/mineros/muna-icon.webp';
+import gordoIcon  from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
+import druhIcon   from '../../assets/ui/icons-pets/mineros/druh-icon.webp';
+import smokeIcon  from '../../assets/ui/icons-pets/mineros/smoke-icon.webp';
+import nupitoIcon from '../../assets/ui/icons-pets/mineros/nupito-icon.webp';
+import zeusIcon      from '../../assets/ui/icons-pets/mineros/zeus-icon.webp';
+import boxerIcon    from '../../assets/ui/icons-pets/mineros/boxer-icon.webp';
+import bullyIcon    from '../../assets/ui/icons-pets/mineros/bully-icon.webp';
+import chihuahuaIcon from '../../assets/ui/icons-pets/mineros/chihuhua-icon.webp';
 
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,

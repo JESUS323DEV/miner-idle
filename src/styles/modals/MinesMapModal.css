@@ -782,3 +782,20 @@
     color: #aaaaff;
     text-shadow: 0 0 8px rgba(100, 100, 255, 0.6);
 }
+
+.mdc-companion-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 1rem;
+}
+
+.mdc-slot-timer {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #7fff7f;
+    text-shadow: 0 0 8px rgba(100, 255, 100, 0.6);
+    font-variant-numeric: tabular-nums;
+}

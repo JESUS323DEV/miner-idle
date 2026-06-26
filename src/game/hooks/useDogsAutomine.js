@@ -5,7 +5,7 @@ import { getDogStats } from '../utils/getDogStats.js';
 const useDogsAutomine = (gameState, handleDogTick) => {
     useEffect(() => {
         const intervals = Object.values(gameState.dogs)
-            .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo !== null && d.assignedTo.globalSlot === undefined && !d.assignedTo?.isMineCompanion)
+            .filter(d => d && typeof d === 'object' && d.hired && d.assignedTo !== null && d.assignedTo.globalSlot === undefined)
             .map(dog => {
                 const stats = getDogStats(dog.id, dog.stars ?? 0);
                 const speed = stats?.miningSpeed ?? DogsConfig[dog.id]?.miningSpeed ?? 1;

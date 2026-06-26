@@ -1,32 +1,32 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 
-import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
+import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
 
-import ladyIcon    from "../../assets/ui/icons-pets/mineros/lady-icon.png";
-import tokyoIcon   from "../../assets/ui/icons-pets/mineros/tokyo-icon.png";
-import tukaIcon    from "../../assets/ui/icons-pets/mineros/tuka-icon.png";
-import munaIcon    from "../../assets/ui/icons-pets/mineros/muna-icon.png";
-import gordoIcon   from "../../assets/ui/icons-pets/mineros/gordo-icon.png";
-import druhIcon    from "../../assets/ui/icons-pets/mineros/druh-icon.png";
-import smokeIcon   from "../../assets/ui/icons-pets/mineros/smoke-icon.png";
-import nupitoIcon  from "../../assets/ui/icons-pets/mineros/nupito-icon.png";
-import zeusIcon    from "../../assets/ui/icons-pets/mineros/zeus-icon.png";
-import boxerIcon   from "../../assets/ui/icons-pets/mineros/boxer-icon.png";
-import bullyIcon   from "../../assets/ui/icons-pets/mineros/bully-icon.png";
-import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png";
-import pipIcon     from "../../assets/ui/icons-pets/forge/forge-icon1.png";
-import kodaIcon    from "../../assets/ui/icons-pets/forge/forge-icon2.png";
-import miloIcon    from "../../assets/ui/icons-pets/forge/forge-icon3.png";
-import rockyIcon   from "../../assets/ui/icons-pets/forge/forge-icon4.png";
-import brunoIcon   from "../../assets/ui/icons-pets/forge/forge-icon5.png";
-import maxIcon     from "../../assets/ui/icons-pets/forge/forge-icon6.png";
-import rexIcon     from "../../assets/ui/icons-pets/forge/forge-icon7.png";
-import tobyIcon    from "../../assets/ui/icons-pets/forge/forge-icon8.png";
-import buddyIcon   from "../../assets/ui/icons-pets/forge/forge-icon9.png";
+import ladyIcon    from "../../assets/ui/icons-pets/mineros/lady-icon.webp";
+import tokyoIcon   from "../../assets/ui/icons-pets/mineros/tokyo-icon.webp";
+import tukaIcon    from "../../assets/ui/icons-pets/mineros/tuka-icon.webp";
+import munaIcon    from "../../assets/ui/icons-pets/mineros/muna-icon.webp";
+import gordoIcon   from "../../assets/ui/icons-pets/mineros/gordo-icon.webp";
+import druhIcon    from "../../assets/ui/icons-pets/mineros/druh-icon.webp";
+import smokeIcon   from "../../assets/ui/icons-pets/mineros/smoke-icon.webp";
+import nupitoIcon  from "../../assets/ui/icons-pets/mineros/nupito-icon.webp";
+import zeusIcon    from "../../assets/ui/icons-pets/mineros/zeus-icon.webp";
+import boxerIcon   from "../../assets/ui/icons-pets/mineros/boxer-icon.webp";
+import bullyIcon   from "../../assets/ui/icons-pets/mineros/bully-icon.webp";
+import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.webp";
+import pipIcon     from "../../assets/ui/icons-pets/forge/forge-icon1.webp";
+import kodaIcon    from "../../assets/ui/icons-pets/forge/forge-icon2.webp";
+import miloIcon    from "../../assets/ui/icons-pets/forge/forge-icon3.webp";
+import rockyIcon   from "../../assets/ui/icons-pets/forge/forge-icon4.webp";
+import brunoIcon   from "../../assets/ui/icons-pets/forge/forge-icon5.webp";
+import maxIcon     from "../../assets/ui/icons-pets/forge/forge-icon6.webp";
+import rexIcon     from "../../assets/ui/icons-pets/forge/forge-icon7.webp";
+import tobyIcon    from "../../assets/ui/icons-pets/forge/forge-icon8.webp";
+import buddyIcon   from "../../assets/ui/icons-pets/forge/forge-icon9.webp";
 
 const DOG_ICONS = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon, muna: munaIcon,

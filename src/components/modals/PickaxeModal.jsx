@@ -1,15 +1,15 @@
-import { X } from "lucide-react";
+﻿import { X } from "lucide-react";
 import '../../styles/modals/PickaxeModal.css';
 import '../../styles/modals/UpgradeModal.css';
 import TutorialModalHint from './TutorialModalHint.jsx';
 
 // ===== ASSETS: LINGOTES =====
-import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png"
-import lingoteIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png"
-import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png"
+import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
+import lingoteIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp"
+import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
 
 // ===== ASSETS: ORO =====
-import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.png"
+import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 

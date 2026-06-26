@@ -79,9 +79,32 @@ export const loadSavedState = () => {
         ]));
     }
 
+    // Migración dogs
+    const migratedDogs = { ...(loaded.dogs ?? InitialDogsState) };
+    Object.keys(migratedDogs).forEach(key => {
+        const dog = migratedDogs[key];
+        if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
+        let updated = dog;
+        if (!updated.mineCompTimer) {
+            updated = { ...updated, mineCompTimer: { remaining: 0, activeFrom: null } };
+        }
+        // Limpiar cualquier assignedTo desconocido (formatos stale de features eliminadas)
+        const a = updated.assignedTo;
+        if (a !== null && a !== undefined) {
+            const valid =
+                typeof a.globalSlot === 'number' ||
+                (typeof a.biome === 'string' && typeof a.slotId === 'number') ||
+                a.type === 'raid' ||
+                typeof a.mineComp === 'string';
+            if (!valid) updated = { ...updated, assignedTo: null };
+        }
+        migratedDogs[key] = updated;
+    });
+
     return {
         ...InitialGameState,
         ...loaded,
+        dogs: migratedDogs,
         yacimientos: migratedYac,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,

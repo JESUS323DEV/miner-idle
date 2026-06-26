@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+﻿import { useState, useEffect, useMemo, useRef } from "react";
 import { playSfx } from "../game/utils/sfx.js";
-import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.png";
-import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.png";
-import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.png";
+import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.webp";
+import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.webp";
+import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.webp";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
 
@@ -19,6 +19,7 @@ import { useFloatingNumbers } from "../game/hooks/useFloatingNumbers.js";
 import { useBurst } from "../game/hooks/useBurst.js";
 import { useGoldTrickle } from "../game/hooks/useGoldTrickle.js";
 import { useRentalTimer } from "../game/hooks/useRentalTimer.js";
+import { useMineDogTimer } from "../game/hooks/useMineDogTimer.js";
 import { useFragmentRewardsUnlock } from "../game/hooks/useFragmentRewardsUnlock.js";
 import { useTutorialTriggers } from "../game/hooks/useTutorialTriggers.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
@@ -47,72 +48,72 @@ import RewardsModal from "../screens/RewardsModal.jsx";
 import RaidScreen from "../screens/modalRaid/RaidScreen.jsx";
 import GlobalDogSlots from "../components/GlobalDogSlots.jsx";
 // ===== ASSETS: HUD PRINCIPAL =====
-import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.png";
-import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.png";
-import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.png";
-import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.png";
-import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.png";
-import repair from "../assets/ui/icons-hud/hud-principal/repair.png";
-import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.png";
+import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.webp";
+import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.webp";
+import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
+import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.webp";
+import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.webp";
+import repair from "../assets/ui/icons-hud/hud-principal/repair.webp";
+import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.webp";
 
-import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.png";
-import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.png";
-import iconDiamond from "../assets/ui/icons-forge/lingotes/lingote-diamond.png";
+import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
+import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.webp";
+import iconDiamond from "../assets/ui/icons-forge/lingotes/lingote-diamond.webp";
 
-import menaBronze from "../assets/ui/icons-forge/menas-hud/bronzeHud.png";
-import menaIron from "../assets/ui/icons-forge/menas-hud/ironHud.png";
-import menaDiamond from "../assets/ui/icons-forge/menas-hud/diamondHud.png";
+import menaBronze from "../assets/ui/icons-forge/menas-hud/bronzeHud.webp";
+import menaIron from "../assets/ui/icons-forge/menas-hud/ironHud.webp";
+import menaDiamond from "../assets/ui/icons-forge/menas-hud/diamondHud.webp";
 
 // ===== ASSETS: FONDOS =====
-import bgMain from "../assets/backgrounds/fondo4.png";
+import bgMain from "../assets/backgrounds/fondo4.webp";
 
 // ===== ASSETS: FONDOS MINES =====
 
-import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.png";
-import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-iron.png";
-import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.png";
+import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.webp";
+import bgMineIron from "../assets/backgrounds/bg-mines/bg-mine-iron.webp";
+import bgMineDiamond from "../assets/backgrounds/bg-mines/bg-mine-diamond.webp";
 
 // ===== ASSETS: ORES (comentado, en uso futuro) =====
 
 // ===== ASSETS: PICKAXE — stone =====
-import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.png";
-import pickAxeStone1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier1.png";
-import pickAxeStone2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier2.png";
-import pickAxeStone3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier3.png";
+import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.webp";
+import pickAxeStone1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier1.webp";
+import pickAxeStone2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier2.webp";
+import pickAxeStone3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone-tier3.webp";
 
 // ===== ASSETS: PICKAXE — bronze =====
-import pickAxeBronze from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.png";
-import pickAxeBronze1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier1.png";
-import pickAxeBronze2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier2.png";
-import pickAxeBronze3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier3.png";
+import pickAxeBronze from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze.webp";
+import pickAxeBronze1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier1.webp";
+import pickAxeBronze2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier2.webp";
+import pickAxeBronze3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-bronze/bronze-tier3.webp";
 
 // ===== ASSETS: PICKAXE — iron =====
-import pickAxeIron from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.png";
-import pickAxeIron1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier1.png";
-import pickAxeIron2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier2.png";
-import pickAxeIron3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier3.png";
+import pickAxeIron from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron.webp";
+import pickAxeIron1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier1.webp";
+import pickAxeIron2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier2.webp";
+import pickAxeIron3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-iron/iron-tier3.webp";
 
 // ===== ASSETS: PICKAXE — diamond =====
-import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.png";
-import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.png";
-import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.png";
-import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.png";
+import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond.webp";
+import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.webp";
+import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.webp";
+import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.webp";
 
 // ===== ASSETS: ICONOS PANTALLAS =====
-import mineModal from "../assets/ui/icon-mine1.png";
-import iconTavern from "../assets/ui/icon-tavern1.png";
-import iconForge from "../assets/ui/icon-forge1.png";
+import mineModal from "../assets/ui/icon-mine1.webp";
+import iconTavern from "../assets/ui/icon-tavern1.webp";
+import iconForge from "../assets/ui/icon-forge1.webp";
 
 // ===== ASSETS: MODALES =====
-import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.png";
-import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.png";
-import buttonUpgrade from "../assets/ui/icons-hud/hud-modals/buttonUpgrade.png";
-import bgStamina from "../assets/backgrounds/bg-modals-hud/bgStamina.png";
-import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.png";
-import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.png";
-import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.png";
+import bgGold from "../assets/backgrounds/bg-modals-hud/fondoGold.webp";
+import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.webp";
+import buttonUpgrade from "../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp";
+import bgStamina from "../assets/backgrounds/bg-modals-hud/bgStamina.webp";
+import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.webp";
+import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.webp";
+import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.webp";
 
-import ladyIcon from "../assets/ui/icons-pets/mineros/lady-icon.png";
+import ladyIcon from "../assets/ui/icons-pets/mineros/lady-icon.webp";
 
 // ===== MINAS =====
 import InitialMinesState from "../game/initialState/InitialMinesState.js";
@@ -262,6 +263,8 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
+    handleAssignMineDog,
+    handleUnassignMineDog,
   } = useGameActions(
     gameState,
     setGameState,
@@ -335,6 +338,8 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
+    handleAssignMineDog,
+    handleUnassignMineDog,
     showGoldCost,
     showGoldGain,
     showTavernCost,
@@ -442,6 +447,7 @@ function GameRoot({ onBack }) {
   };
 
   useRentalTimer(setGameState);
+  useMineDogTimer(setGameState);
 
 
   // ===== HOOKS DE SISTEMA =====
@@ -607,9 +613,9 @@ function GameRoot({ onBack }) {
           <button className="game-back-btn" onClick={onBack} title="Volver">‹</button>
         )}
         {/* DEBUG */}
-        {false && <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
+        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
           DEV
-        </button>}
+        </button>
         {debugOpen && (
           <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
             {/* RECURSOS */}
@@ -1221,7 +1227,7 @@ function GameRoot({ onBack }) {
               ? { zIndex: 600 }
               : undefined
           }>
-            <div className="automine-hub-wrap" style={!gameState.automine?.unlocked ? { width: 'auto', height: 'auto' } : undefined}>
+            <div className="automine-hub-wrap">
               {!gameState.automine?.unlocked ? (
                 <button
                   onClick={handleUnlockAutomine}

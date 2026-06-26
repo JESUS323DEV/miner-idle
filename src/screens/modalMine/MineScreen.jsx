@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
@@ -7,47 +7,47 @@ import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL, RARITY_AUT
 import { useGameContext } from "../../game/context/GameContext.jsx";
 import { playSfx } from "../../game/utils/sfx.js";
 
-import powerFuria    from "../../assets/ui/power-pets/furia.png";
-import powerFire     from "../../assets/ui/power-pets/pelota-fire.png";
-import powerElectric from "../../assets/ui/power-pets/pelota-electic.png";
-import powerWater    from "../../assets/ui/power-pets/pistola-agua.png";
-import powerEarth    from "../../assets/ui/power-pets/terremoto.png";
+import powerFuria    from "../../assets/ui/power-pets/furia.webp";
+import powerFire     from "../../assets/ui/power-pets/pelota-fire.webp";
+import powerElectric from "../../assets/ui/power-pets/pelota-electic.webp";
+import powerWater    from "../../assets/ui/power-pets/pistola-agua.webp";
+import powerEarth    from "../../assets/ui/power-pets/terremoto.webp";
 
-import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.png";
-import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.png";
-import bgInsideDiamond from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-diamond.png";
+import bgInsideBronze from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-bronze.webp";
+import bgInsideIron from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-iron.webp";
+import bgInsideDiamond from "../../assets/backgrounds/bg-mines/bg-inside-mine/bg-inside-diamond.webp";
 
-import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze1.png";
-import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.png";
-import menaBronze3 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.png";
-import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron1.png";
-import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.png";
-import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.png";
-import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.png";
-import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.png";
-import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.png";
+import menaBronze1 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze1.webp";
+import menaBronze2 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze2.webp";
+import menaBronze3 from "../../assets/ui/icons-menas/menas-bronze/mena-bronze3.webp";
+import menaIron1 from "../../assets/ui/icons-menas/menas-iron/mena-iron1.webp";
+import menaIron2 from "../../assets/ui/icons-menas/menas-iron/mena-iron2.webp";
+import menaIron3 from "../../assets/ui/icons-menas/menas-iron/mena-iron3.webp";
+import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond1.webp";
+import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.webp";
+import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp";
 
-import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.png";
-import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.png";
-import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.png";
+import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp";
+import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.webp";
+import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp";
 
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.png";
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.png";
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.png";
+import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
+import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp";
+import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp";
 const ingotAssets = { bronze: ingotBronze, iron: ingotIron, diamond: ingotDiamond };
 
-import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.png";
-import tokyoIcon from "../../assets/ui/icons-pets/mineros/tokyo-icon.png";
-import tukaIcon from "../../assets/ui/icons-pets/mineros/tuka-icon.png";
-import munaIcon from "../../assets/ui/icons-pets/mineros/muna-icon.png";
-import gordoIcon from "../../assets/ui/icons-pets/mineros/gordo-icon.png";
-import druhIcon from "../../assets/ui/icons-pets/mineros/druh-icon.png";
-import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.png";
-import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.png";
-import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.png";
-import boxerIcon from "../../assets/ui/icons-pets/mineros/boxer-icon.png";
-import bullyIcon from "../../assets/ui/icons-pets/mineros/bully-icon.png";
-import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.png";
+import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.webp";
+import tokyoIcon from "../../assets/ui/icons-pets/mineros/tokyo-icon.webp";
+import tukaIcon from "../../assets/ui/icons-pets/mineros/tuka-icon.webp";
+import munaIcon from "../../assets/ui/icons-pets/mineros/muna-icon.webp";
+import gordoIcon from "../../assets/ui/icons-pets/mineros/gordo-icon.webp";
+import druhIcon from "../../assets/ui/icons-pets/mineros/druh-icon.webp";
+import smokeIcon from "../../assets/ui/icons-pets/mineros/smoke-icon.webp";
+import nupitoIcon from "../../assets/ui/icons-pets/mineros/nupito-icon.webp";
+import zeusIcon from "../../assets/ui/icons-pets/mineros/zeus-icon.webp";
+import boxerIcon from "../../assets/ui/icons-pets/mineros/boxer-icon.webp";
+import bullyIcon from "../../assets/ui/icons-pets/mineros/bully-icon.webp";
+import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.webp";
 
 const dogAssets = {
   lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
