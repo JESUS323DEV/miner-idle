@@ -20,7 +20,7 @@ export const PACK_TYPES = {
     legendary: {
         id: 'legendary',
         name: 'Legendario',
-        cost: 20,
+        cost: 15,
         rates: { rare: 0, epic: 0.20, legendary: 0.80 },
         pity: { epic: null, legendary: 20 },
     },

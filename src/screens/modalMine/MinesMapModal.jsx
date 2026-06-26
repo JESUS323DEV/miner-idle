@@ -366,6 +366,9 @@ const YacimientoSlotActivo = ({ slot, selectedBiome, menaAsset, dogAssigned, com
         if (!compAnimTick || compAnimTick === lastCompTickRef.current) return;
         lastCompTickRef.current = compAnimTick;
 
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 150);
+
         const dogConfig = compDogAssigned ? DogsConfig[compDogAssigned.id] : null;
         const starMult = 1 + (dogConfig?.starBonus ?? 0) * (compDogAssigned?.stars ?? 0);
         const baseYield = dogConfig?.yacimientoYield ?? 1;

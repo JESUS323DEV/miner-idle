@@ -15,6 +15,7 @@ const OBSOLETE_FR_KEYS = [
     'set4Forge1Star','set4Forge2Star','set4Forge3Star','set4Forge4Star','set4Forge5Star',
     'set3FurnaceBronze2','set3FurnaceBronze3','set3FurnaceIron2','set3FurnaceIron3',
     'set3FurnaceDiamond2','set3FurnaceDiamond3',
+    'welcomeBoxer','welcomePip',
 ];
 
 const CHAIN_LEADERS = [

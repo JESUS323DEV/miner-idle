@@ -213,6 +213,17 @@
     cursor: not-allowed;
 }
 
+.roulette-free-btn {
+    background: linear-gradient(135deg, #1a6b2a, #2d9e42);
+    box-shadow: 0 0 12px rgba(45, 158, 66, 0.5);
+    animation: pulse-free 2s ease-in-out infinite;
+}
+
+@keyframes pulse-free {
+    0%, 100% { box-shadow: 0 0 12px rgba(45, 158, 66, 0.5); }
+    50%       { box-shadow: 0 0 22px rgba(45, 158, 66, 0.9); }
+}
+
 .roulette-warn {
     font-size: 0.72rem;
     color: #e74c3c;
@@ -246,6 +257,16 @@
 .roulette-tab.rtab-active {
     color: #FFD700;
     border-bottom-color: #FFD700;
+}
+
+.roulette-tab.rtab-pulse {
+    color: #2d9e42;
+    animation: pulse-tab 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-tab {
+    0%, 100% { color: #2d9e42; }
+    50%       { color: #5dde72; }
 }
 
 .roulette-coming-soon {

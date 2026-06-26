@@ -134,6 +134,9 @@ const InitialGameState = {
         miner_basic: null, miner_epic: null, miner_legendary: null,
         forge_basic: null, forge_epic: null, forge_legendary: null,
     },
+    lastFreeSpinGold: null,
+    lastFreeSpinShards: null,
+    slotWelcomeDone: false,
 
     // ========== RAIDS ==========
     raid: InitialRaidState,

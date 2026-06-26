@@ -3,6 +3,7 @@ import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
 import RouletteShards from './RouletteShards.jsx';
+import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/Roulette.css';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -169,6 +170,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const forgeHasAction = _dogHasAction(forgeDogs, ForgeDogsConfig);
     const minerHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`miner_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
     const forgeHasFree = ['basic', 'epic', 'legendary'].some(p => Date.now() - (gameState.lastFreePull?.[`forge_${p}`] ?? 0) >= FREE_PULL_COOLDOWNS[p]);
+    const todayMidnight = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
+    const rouletteHasFree = !gameState.lastFreeSpinGold || gameState.lastFreeSpinGold < todayMidnight()
+        || !gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight();
 
     const currentDogsData = dogTab === 'mineros' ? dogs : forgeDogs;
     const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : ForgeDogsConfig;
@@ -241,11 +245,25 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 <span className="tavern-card-arrow">›</span>
                             </button>
 
-                            <button className="tavern-menu-card" onClick={() => setView('ruleta')}>
+                            <button className={`tavern-menu-card ${rouletteHasFree ? 'notify-pulse' : ''}`} onClick={() => setView('ruleta')}>
                                 <Coins className="tavern-card-icon" style={{ width: 40, height: 40, color: '#FFD700' }} />
                                 <div className="tavern-card-info">
                                     <span className="tavern-card-name">Ruleta</span>
                                     <span className="tavern-card-desc">Apuesta oro y gana premios</span>
+                                </div>
+                                <span className="tavern-card-arrow">›</span>
+                            </button>
+
+                            <button
+                                className={`tavern-menu-card ${!gameState.slotWelcomeDone ? 'notify-pulse' : ''}`}
+                                onClick={() => setView('tragaperras')}
+                            >
+                                <img src={iconShardLegendary} className="tavern-card-icon" alt="" />
+                                <div className="tavern-card-info">
+                                    <span className="tavern-card-name">Tragaperras</span>
+                                    <span className="tavern-card-desc">
+                                        {!gameState.slotWelcomeDone ? 'Tirada de bienvenida disponible' : 'Gira por épicos y legendarios'}
+                                    </span>
                                 </div>
                                 <span className="tavern-card-arrow">›</span>
                             </button>
@@ -837,10 +855,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             <div className='wrap-title-pack'>
                                                 <div className="pack-envelope">
                                                     <img
-                                                        src={packTab === 'forja'
-                                                            ? { basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]
-                                                            : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
-                                                        }
+                                                        src={{ basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]}
                                                         className="pack-shard-icon"
                                                         alt={pack.id}
                                                     />
@@ -886,10 +901,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             return (
                                                 <div key={`${isForge ? 'forge' : 'miner'}_${pack.id}`} className={`free-pack-card pack-card-${pack.id}`}>
                                                     <img
-                                                        src={isForge
-                                                            ? { basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]
-                                                            : { basic: iconShardRare, epic: iconShardEpic, legendary: iconShardLegendary }[pack.id]
-                                                        }
+                                                        src={{ basic: iconShardRareGeneric, epic: iconShardEpicGeneric, legendary: iconShardLegendaryGeneric }[pack.id]}
                                                         className="free-pack-img"
                                                         alt={pack.id}
                                                     />
@@ -936,7 +948,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 Oro
                             </button>
                             <button
-                                className={`roulette-tab ${rouletteTab === 'shards' ? 'rtab-active' : ''}`}
+                                className={`roulette-tab ${rouletteTab === 'shards' ? 'rtab-active' : ''} ${(!gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight()) && rouletteTab !== 'shards' ? 'rtab-pulse' : ''}`}
                                 onClick={() => setRouletteTab('shards')}
                             >
                                 Shards
@@ -945,6 +957,19 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         {rouletteTab === 'gold' && <RouletteGold />}
                         {rouletteTab === 'shards' && <RouletteShards />}
+                    </div>
+                )}
+
+                {/* TRAGAPERRAS */}
+                {view === 'tragaperras' && (
+                    <div className="tavern-cambista">
+                        <button className="tavern-back-btn" onClick={() => setView('main')}>
+                            <ArrowLeft /> Volver
+                        </button>
+                        <h2 className="tavern-title">Tragaperras</h2>
+                        <div className="slot-center-wrapper">
+                            <SlotMachine guaranteed={!gameState.slotWelcomeDone} />
+                        </div>
                     </div>
                 )}
 

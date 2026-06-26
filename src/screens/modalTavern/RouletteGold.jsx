@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from 'react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
+import { playSfx } from '../../game/utils/sfx.js';
 
 import iconGold   from "../../assets/ui/icons-hud/hud-principal/oro1.webp";
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
@@ -46,17 +47,20 @@ const getSectorIcon = (s) => {
     return null;
 };
 
+const todayMidnight = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const isFreeAvailable = (last) => !last || last < todayMidnight();
+
 const fmt = (n) => {
     if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace('.0', '')}M`;
     if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.0', '')}k`;
     return String(n);
 };
 
-const getPrizeData = (sector, bet) => {
+const getPrizeData = (sector, bet, isFree = false) => {
     if (sector.type === 'gold_mult') {
         if (sector.mult === 0) return {
             icon: iconGold, isWin: false, sfx: 'blocked',
-            label: 'Sin suerte', sublabel: `Pierdes ${fmt(bet)} oro`,
+            label: 'Sin suerte', sublabel: isFree ? 'Sin suerte' : `Pierdes ${fmt(bet)} oro`,
         };
         const win = Math.floor(bet * sector.mult);
         return {
@@ -94,12 +98,18 @@ export default function RouletteGold() {
     const rotRef = useRef(0);
 
     const canAfford = gameState.gold >= bet;
+    const freeAvailable = isFreeAvailable(gameState.lastFreeSpinGold);
 
-    const spin = () => {
-        if (isSpinning || !canAfford) return;
+    const spin = (isFree = false) => {
+        if (isSpinning) return;
+        if (!isFree && !canAfford) return;
 
-        const currentBet = bet;
-        setGameState(prev => ({ ...prev, gold: prev.gold - currentBet }));
+        const currentBet = isFree ? 0 : bet;
+        setGameState(prev => ({
+            ...prev,
+            gold: isFree ? prev.gold : prev.gold - currentBet,
+            ...(isFree ? { lastFreeSpinGold: Date.now() } : {}),
+        }));
         setPrizeData(null);
         setIsSpinning(true);
         setWheelTransition('transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)');
@@ -116,14 +126,15 @@ export default function RouletteGold() {
         setRotation(target);
         rotRef.current = target;
 
+        const refBet = isFree ? BET_OPTIONS[0] : currentBet;
         setTimeout(() => {
             setIsSpinning(false);
             setGameState(prev => {
-                if (winner.type === 'gold_mult') return { ...prev, gold: prev.gold + (winner.mult === 0 ? 0 : currentBet + Math.floor(currentBet * winner.mult)) };
+                if (winner.type === 'gold_mult') return { ...prev, gold: prev.gold + (winner.mult === 0 ? 0 : refBet + Math.floor(refBet * winner.mult)) };
                 if (winner.type === 'coin') return { ...prev, tavernCoins: prev.tavernCoins + 3 };
-return prev;
+                return prev;
             });
-            const prize = getPrizeData(winner, currentBet);
+            const prize = getPrizeData(winner, refBet, isFree);
             setPrizeData(prize);
             playSfx(prize.sfx);
         }, 4100);
@@ -187,9 +198,19 @@ return prev;
                 </div>
             </div>
 
+            {freeAvailable && (
+                <button
+                    className="roulette-spin-btn roulette-free-btn"
+                    onClick={() => spin(true)}
+                    disabled={isSpinning}
+                >
+                    {isSpinning ? 'Girando...' : 'Tirada gratis'}
+                </button>
+            )}
+
             <button
                 className="roulette-spin-btn"
-                onClick={spin}
+                onClick={() => spin(false)}
                 disabled={isSpinning || !canAfford}
             >
                 {isSpinning ? 'Girando...' : 'Girar'}

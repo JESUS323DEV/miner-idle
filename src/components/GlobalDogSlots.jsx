@@ -34,6 +34,7 @@ const getDogStatus = (dog, isForge) => {
     } else {
         if (a.globalSlot !== undefined) return 'inSlot';
         if (a.biome) return 'inYacimiento';
+        if (a.mineComp !== undefined) return 'inYacimiento';
         if (a.type === 'raid') return 'inRaid';
     }
     return 'available';

@@ -15,6 +15,7 @@ export const useMineDogTimer = (setGameState) => {
                     const newRemaining = timer.remaining - 1;
                     updates[key] = {
                         ...dog,
+                        assignedTo: newRemaining <= 0 ? null : dog.assignedTo,
                         mineCompTimer: {
                             remaining: newRemaining,
                             activeFrom: newRemaining > 0 ? timer.activeFrom : null,

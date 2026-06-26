@@ -44,8 +44,8 @@ const SECTOR_COLORS  = {
     nothing:   '#180f0f',
 };
 
-const SPIN_COST = 2;
-const SHARDS_PER_RARITY = { rare: 30, epic: 60, legendary: 100 };
+const SPIN_COST = 5;
+const SHARDS_PER_RARITY = { rare: 20, epic: 40, legendary: 50 };
 const RARITY_LABEL = { rare: 'Raro', epic: 'Épico', legendary: 'Legendario' };
 
 const FIXED_RARES = ['boxer', 'druh', 'gordo', 'zeus'];
@@ -110,10 +110,10 @@ const rollResult = (sectorsCum) => {
     return idx < 0 ? 0 : idx;
 };
 
-const getPrizeData = (sector) => {
+const getPrizeData = (sector, isFree = false) => {
     if (sector.type === 'nothing') return {
         icon: coinTavern, isWin: false, sfx: 'blocked',
-        label: 'Sin suerte', sublabel: `Pierdes ${SPIN_COST} monedas`,
+        label: 'Sin suerte', sublabel: isFree ? 'Sin suerte' : `Pierdes ${SPIN_COST} monedas`,
     };
     const frags = SHARDS_PER_RARITY[sector.rarity];
     const name = sector.isForge
@@ -126,6 +126,9 @@ const getPrizeData = (sector) => {
         sublabel: `${name} · ${RARITY_LABEL[sector.rarity]}`,
     };
 };
+
+const todayMidnight = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const isFreeAvailable = (last) => !last || last < todayMidnight();
 
 const resetWheel = (rotRef, setWheelTransition, setRotation) => {
     const equiv = rotRef.current % 360;
@@ -155,11 +158,17 @@ export default function RouletteShards() {
     const rotRef = useRef(0);
 
     const canAfford = gameState.tavernCoins >= SPIN_COST;
+    const freeAvailable = isFreeAvailable(gameState.lastFreeSpinShards);
 
-    const spin = () => {
-        if (isSpinning || !canAfford) return;
+    const spin = (isFree = false) => {
+        if (isSpinning) return;
+        if (!isFree && !canAfford) return;
 
-        setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins - SPIN_COST }));
+        setGameState(prev => ({
+            ...prev,
+            tavernCoins: isFree ? prev.tavernCoins : prev.tavernCoins - SPIN_COST,
+            ...(isFree ? { lastFreeSpinShards: Date.now() } : {}),
+        }));
         setPrizeData(null);
         setIsSpinning(true);
         setWheelTransition('transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)');
@@ -188,7 +197,7 @@ export default function RouletteShards() {
                     };
                 });
             }
-            setPrizeData(getPrizeData(winner));
+            setPrizeData(getPrizeData(winner, isFree));
         }, 4100);
     };
 
@@ -243,9 +252,19 @@ export default function RouletteShards() {
                 <span className="roulette-cost-label">{SPIN_COST} monedas por tirada</span>
             </div>
 
+            {freeAvailable && (
+                <button
+                    className="roulette-spin-btn roulette-free-btn"
+                    onClick={() => spin(true)}
+                    disabled={isSpinning}
+                >
+                    {isSpinning ? 'Girando...' : 'Tirada gratis'}
+                </button>
+            )}
+
             <button
                 className="roulette-spin-btn"
-                onClick={spin}
+                onClick={() => spin(false)}
                 disabled={isSpinning || !canAfford}
             >
                 {isSpinning ? 'Girando...' : 'Girar'}

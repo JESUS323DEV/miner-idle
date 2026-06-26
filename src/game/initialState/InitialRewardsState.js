@@ -188,8 +188,6 @@ const InitialRewardsState = {
     // ===== RECOMPENSAS DE FRAGMENTOS =====
     fragmentRewards: {
         // ===== UNICAS (oneTime: true — desaparecen al reclamar) =====
-        welcomeBoxer:   { oneTime: true, claimed: false, unlocked: true,  dogId: 'boxer', isForge: false, amount: 100, label: 'Bienvenida — Boxer' },
-        welcomePip:     { oneTime: true, claimed: false, unlocked: true,  dogId: 'pip',   isForge: true,  amount: 100, label: 'Bienvenida — Pip (Forja)' },
         unlockTaverna:  { oneTime: true, claimed: false, unlocked: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 50 }, { dogId: 'pip', isForge: true, amount: 50 }], label: 'Desbloquea la Taberna' },
         unlockMinas:    { oneTime: true, claimed: false, unlocked: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 50 }, { dogId: 'pip', isForge: true, amount: 50 }], label: 'Desbloquea las Minas' },
         unlockForja:    { oneTime: true, claimed: false, unlocked: false, dogs: [{ dogId: 'boxer', isForge: false, amount: 50 }, { dogId: 'pip', isForge: true, amount: 50 }], label: 'Desbloquea la Forja' },
