@@ -216,8 +216,10 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             const powers = mine.powers ?? {};
             const now = Date.now();
 
-            // biomeBonus del perro
-            const biomeBonus = companionId ? (DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
+            // biomeBonus del perro (escalado por estrellas)
+            const companionStars = companionId ? (prevState.dogs[companionId]?.stars ?? 0) : 0;
+            const biomeBonusRaw = companionId ? (DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
+            const biomeBonus = Array.isArray(biomeBonusRaw) ? (biomeBonusRaw[Math.min(5, companionStars)] ?? 1.0) : biomeBonusRaw;
 
             // Electric bounce (session_bounce activo)
             const electricExtra = (fromAutomine && powers.electricActive)
@@ -352,7 +354,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 const pickaxeMaterial = prevState.pickaxe.material;
                 const yieldRange = MinesConfig[mineType]?.yields?.[pickaxeMaterial];
                 const avgYield = yieldRange ? (yieldRange.min + yieldRange.max) / 2 : 1;
-                const biomeBonus = DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0;
+                const biomeBonusRaw2 = DogsConfig[companionId]?.biomeBonus?.[baseMineType] ?? 1.0;
+                const biomeBonus = Array.isArray(biomeBonusRaw2) ? (biomeBonusRaw2[Math.min(5, stars)] ?? 1.0) : biomeBonusRaw2;
                 const waterMult = powers.waterMult ?? 1;
 
                 let totalLoot = 0;

@@ -314,8 +314,9 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
     || ultTimedActive
     || fireTimedActive;
 
-  // Pasiva 2: biome bonus del perro
-  const biomeBonus = companionId ? (companionCfg?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
+  // Pasiva 2: biome bonus del perro (escalado por estrellas)
+  const biomeBonusRaw = companionId ? (companionCfg?.biomeBonus?.[baseMineType] ?? 1.0) : 1.0;
+  const biomeBonus = Array.isArray(biomeBonusRaw) ? (biomeBonusRaw[Math.min(5, stars ?? 0)] ?? 1.0) : biomeBonusRaw;
 
   // Pasiva 1: automine interval en ms
   const furyBonus = powers.furyBonus ?? 0;

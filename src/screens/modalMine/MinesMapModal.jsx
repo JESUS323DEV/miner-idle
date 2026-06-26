@@ -354,7 +354,8 @@ const YacimientoSlotActivo = ({ slot, selectedBiome, menaAsset, dogAssigned, com
         const dogConfig = dogAssigned ? DogsConfig[dogAssigned.id] : null;
         const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dogAssigned?.stars ?? 0);
         const baseYield = dogConfig?.yacimientoYield ?? 1;
-        const biomeMult = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const biomeBonusRaw = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const biomeMult = Array.isArray(biomeBonusRaw) ? (biomeBonusRaw[Math.min(5, dogAssigned?.stars ?? 0)] ?? 1.0) : biomeBonusRaw;
         const displayYield = Math.round(baseYield * biomeMult * starMult);
 
         const floatId = Date.now();
@@ -372,7 +373,8 @@ const YacimientoSlotActivo = ({ slot, selectedBiome, menaAsset, dogAssigned, com
         const dogConfig = compDogAssigned ? DogsConfig[compDogAssigned.id] : null;
         const starMult = 1 + (dogConfig?.starBonus ?? 0) * (compDogAssigned?.stars ?? 0);
         const baseYield = dogConfig?.yacimientoYield ?? 1;
-        const biomeMult = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const biomeBonusRaw2 = dogConfig?.biomeBonus?.[selectedBiome] ?? 1.0;
+        const biomeMult = Array.isArray(biomeBonusRaw2) ? (biomeBonusRaw2[Math.min(5, compDogAssigned?.stars ?? 0)] ?? 1.0) : biomeBonusRaw2;
         const displayYield = Math.round(baseYield * biomeMult * starMult);
 
         const floatId = Date.now() + Math.random();

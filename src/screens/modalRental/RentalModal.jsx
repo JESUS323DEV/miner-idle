@@ -222,15 +222,15 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                         <div className="dog-stat-section">
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.bronze > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.bronze}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.bronze) ? config?.biomeBonus?.bronze[0] : config?.biomeBonus?.bronze) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.bronze) ? config?.biomeBonus?.bronze[0] : config?.biomeBonus?.bronze}</span>
                                             </div>
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.iron > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.iron}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.iron) ? config?.biomeBonus?.iron[0] : config?.biomeBonus?.iron) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.iron) ? config?.biomeBonus?.iron[0] : config?.biomeBonus?.iron}</span>
                                             </div>
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.diamond > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.diamond}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.diamond) ? config?.biomeBonus?.diamond[0] : config?.biomeBonus?.diamond) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.diamond) ? config?.biomeBonus?.diamond[0] : config?.biomeBonus?.diamond}</span>
                                             </div>
                                         </div>
                                         <div className="dog-stat-divider">Pasiva oro</div>
@@ -288,15 +288,15 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                         <div className="dog-stat-section">
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.bronze > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.bronze}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.bronze) ? config?.biomeBonus?.bronze[0] : config?.biomeBonus?.bronze) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.bronze) ? config?.biomeBonus?.bronze[0] : config?.biomeBonus?.bronze}</span>
                                             </div>
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.iron > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.iron}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.iron) ? config?.biomeBonus?.iron[0] : config?.biomeBonus?.iron) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.iron) ? config?.biomeBonus?.iron[0] : config?.biomeBonus?.iron}</span>
                                             </div>
                                             <div className="dog-stat-row">
                                                 <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
-                                                <span className={`dog-stat-val ${config?.biomeBonus?.diamond > 1 ? 'dog-stat-bonus' : ''}`}>x{config?.biomeBonus?.diamond}</span>
+                                                <span className={`dog-stat-val ${(Array.isArray(config?.biomeBonus?.diamond) ? config?.biomeBonus?.diamond[0] : config?.biomeBonus?.diamond) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config?.biomeBonus?.diamond) ? config?.biomeBonus?.diamond[0] : config?.biomeBonus?.diamond}</span>
                                             </div>
                                         </div>
                                         <div className="dog-stat-divider">Pasiva oro</div>
