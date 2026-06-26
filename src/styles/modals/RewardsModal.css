@@ -1,5 +1,11 @@
+.rewards-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+}
+
 .rewards-modal-content {
-    position: fixed;
+    position: absolute;
     top: 5.5rem;
     left: 0;
     width: 100%;

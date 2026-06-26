@@ -346,8 +346,10 @@
 .fdm-modal {
     position: fixed;
     top: 5.5rem;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
     bottom: 0;
     height: calc(100dvh - 5.5rem);
     z-index: 801;

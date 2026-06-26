@@ -168,7 +168,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     };
 
     return (
-        <div className="modal-overlay1" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
+        <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
             <div className="raid-screen-content" onClick={e => e.stopPropagation()}>
                 <button
                     className="modal-close"

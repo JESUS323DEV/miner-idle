@@ -2,8 +2,10 @@
 .modal-overlay1 {
     position: fixed;
     top: 9.1rem;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
     bottom: 0;
     display: flex;
     justify-content: center;

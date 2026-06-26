@@ -212,9 +212,11 @@
 .tavern-cambista {
     position: fixed;
     width: 100%;
+    max-width: 430px;
     overflow-y: auto;
     top: 5.5rem;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     height: calc(100vh - 5.5rem);
     padding: 1rem;
     z-index: 1;
@@ -250,7 +252,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     position: fixed;
-    top: 6rem;
+    top: 1rem;
     left: 0.8rem;
     z-index: 20;
 }

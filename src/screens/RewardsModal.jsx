@@ -266,7 +266,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const allDone = !hasUnclaimedGold && !hasUnclaimedCoins && !hasUnclaimedFragments;
 
     return (
-        <div className="modal-overlay1" onClick={isTutorial && !allDone ? undefined : onClose}>
+        <div className="rewards-backdrop" onClick={isTutorial && !allDone ? undefined : onClose}>
             <div className="rewards-modal-content" onClick={e => e.stopPropagation()}>
 
                 <button
