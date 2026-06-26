@@ -1257,16 +1257,35 @@ function GameRoot({ onBack }) {
             'hint_raids': { bottom: '25.8rem' },
             'hint_mine_dog': { bottom: '7.5rem' },
             'done': { bottom: '2rem' },
+            'hint_gold_modal': { bottom: 'auto', top: '22rem' },
+            'hint_snacks_modal': { bottom: 'auto', top: '16rem' },
+            'hint_stamina_modal': { bottom: 'auto', top: '6rem' },
+            'hint_pickaxe_modal': { bottom: 'auto', top: '6rem' },
           };
-          const dialogStyle = DIALOG_POSITIONS[tutorialStep] ?? { bottom: '2rem' };
+
+          let activeStep = null;
+          if (openModal === 'goldPerSecond' && tutorialStep === 0) {
+            activeStep = 'hint_gold_modal';
+          } else if (openModal === 'goldPerSecond' && tutorialStep === '0_snacks') {
+            activeStep = 'hint_snacks_modal';
+          } else if (openModal === 'maxStamina' && !gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed) {
+            activeStep = 'hint_stamina_modal';
+          } else if (openModal === 'pickaxe' && !gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed) {
+            activeStep = 'hint_pickaxe_modal';
+          } else if (
+            openModal === null &&
+            tutorialStep !== 'mine_tap' &&
+            !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
+            !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
+            !(tutorialStep === 'hint_raids' && raidOpen)
+          ) {
+            activeStep = tutorialStep;
+          }
+
+          const dialogStyle = DIALOG_POSITIONS[activeStep] ?? { bottom: '2rem' };
           return (
             <TutorialDialog
-              step={openModal === null &&
-                tutorialStep !== 'mine_tap' &&
-                !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
-                !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
-                !(tutorialStep === 'hint_raids' && raidOpen)
-                ? tutorialStep : null}
+              step={activeStep}
               dialogStyle={dialogStyle}
               onSkip={handleSkipTutorial}
               onAction={handleTutorialAction}

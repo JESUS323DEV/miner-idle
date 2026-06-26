@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
 import '../../styles/modals/UpgradeModal.css';
-import TutorialModalHint from './TutorialModalHint.jsx';
 
 import { X } from "lucide-react";
 
@@ -129,7 +128,6 @@ const UpgradeModal = ({
                         </div>
                     </div>
 
-                    {tutorialPhase === 'upgrade' && <TutorialModalHint hint={tutorialHint} />}
 
                     {/* BOTÓN REFILL — solo stamina 
                     {showRefill && (
@@ -299,7 +297,6 @@ const UpgradeModal = ({
                         </div>
                     )}
 
-                    {tutorialPhase === 'snacks' && <TutorialModalHint hint="goldPerSecondSnacks" onAction={onTutorialAction} />}
 
                 </div>
             </div>

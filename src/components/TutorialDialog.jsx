@@ -114,6 +114,34 @@ const STEPS = {
         counter: null,
         showSkip: false,
     },
+    hint_gold_modal: {
+        title: "Ingresos pasivos",
+        text: "El oro por segundo es el motor del juego. Cuanto más lo mejores, más rico serás sin hacer nada.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_snacks_modal: {
+        title: "Las galletas",
+        text: "Las galletas dan un boost de oro por segundo durante un tiempo. Desbloquéalas con monedas de taberna cuando puedas.",
+        action: "Entendido",
+        counter: null,
+        showSkip: false,
+    },
+    hint_stamina_modal: {
+        title: "Tu energía",
+        text: "Mejora la Energía para aumentar la duración del burst, reducir su tiempo de recarga y obtener más materiales mientras esté activo.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_pickaxe_modal: {
+        title: "Tu pico",
+        text: "Refuerza tu pico para conseguir más materiales. Cuando alcance el nivel máximo, podrás ascenderlo al siguiente nivel para obtener una mayor durabilidad.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
 };
 
 const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true, dialogStyle = {} }) => {
