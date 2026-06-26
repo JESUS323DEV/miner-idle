@@ -1,7 +1,6 @@
 ﻿import { X } from "lucide-react";
 import '../../styles/modals/PickaxeModal.css';
 import '../../styles/modals/UpgradeModal.css';
-import TutorialModalHint from './TutorialModalHint.jsx';
 
 // ===== ASSETS: LINGOTES =====
 import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
@@ -145,7 +144,6 @@ const PickaxeModal = ({
                     </div>
                 </div>
 
-                {tutorialPhase === 'upgrade' && <TutorialModalHint hint={tutorialHint} />}
 
                 <div className="cont-snack-stamina">
                     <div className="snack1-stamina">
