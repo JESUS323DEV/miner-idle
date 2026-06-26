@@ -21,10 +21,10 @@ const MinesConfig = {
 
         //MATERIALES OBTENIDOS AL MINAR CADA MINA
         yields: {
-            stone: { min: 1, max: 3 },
-            bronze: { min: 3, max: 6 },
-            metal: { min: 6, max: 8 },
-            diamond: { min: 10, max: 15 },
+            stone: { min: 1, max: 2 },
+            bronze: { min: 2, max: 3 },
+            metal: { min: 3, max: 4 },
+            diamond: { min: 3, max: 5 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -51,10 +51,10 @@ const MinesConfig = {
         baseVeinCapacity: { min: 25, max: 25 },
 
         yields: {
-            stone: { min: 1, max: 3 },
-            bronze: { min: 3, max: 7 },
-            metal: { min: 6, max: 9 },
-            diamond: { min: 10, max: 15 },
+            stone: { min: 1, max: 2 },
+            bronze: { min: 2, max: 4 },
+            metal: { min: 3, max: 5 },
+            diamond: { min: 4, max: 6 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -79,9 +79,9 @@ const MinesConfig = {
 
         yields: {
             stone: { min: 1, max: 3 },
-            bronze: { min: 3, max: 8 },
-            metal: { min: 6, max: 10 },
-            diamond: { min: 10, max: 15 },
+            bronze: { min: 2, max: 5 },
+            metal: { min: 3, max: 6 },
+            diamond: { min: 4, max: 7 },
         },
 
         // ESTRELLAS — thresholds de materiales recogidos al completar
@@ -106,9 +106,9 @@ const MinesConfig = {
 
         yields: {
             stone: { min: 0, max: 1 },
-            bronze: { min: 0, max: 5 },
-            metal: { min: 4, max: 6 },
-            diamond: { min: 8, max: 10 },
+            bronze: { min: 1, max: 2 },
+            metal: { min: 2, max: 3 },
+            diamond: { min: 3, max: 4 },
         },
 
         starThresholds: { perfect: 220, good: 150, basic: 80 },
@@ -133,10 +133,10 @@ const MinesConfig = {
         baseVeinCapacity: { min: 20, max: 20 },
 
         yields: {
-            stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 5 },
-            metal: { min: 4, max: 7 },
-            diamond: { min: 8, max: 12 },
+            stone: { min: 0, max: 1 },
+            bronze: { min: 1, max: 2 },
+            metal: { min: 2, max: 4 },
+            diamond: { min: 3, max: 5 },
         },
 
         starThresholds: { perfect: 450, good: 360, basic: 200 },
@@ -157,10 +157,10 @@ const MinesConfig = {
         baseVeinCapacity: { min: 25, max: 25 },
 
         yields: {
-            stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 5 },
-            metal: { min: 4, max: 9 },
-            diamond: { min: 8, max: 14 },
+            stone: { min: 0, max: 1 },
+            bronze: { min: 1, max: 3 },
+            metal: { min: 2, max: 5 },
+            diamond: { min: 3, max: 6 },
         },
 
         starThresholds: { perfect: 500, good: 400, basic: 250 },
@@ -182,8 +182,8 @@ const MinesConfig = {
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 5 },
-            diamond: { min: 10, max: 13 },
+            metal: { min: 1, max: 2 },
+            diamond: { min: 2, max: 4 },
         },
 
         starThresholds: { perfect: 205, good: 120, basic: 60 },
@@ -212,8 +212,8 @@ const MinesConfig = {
         yields: {
             stone: { min: 0, max: 0 },
             bronze: { min: 0, max: 1 },
-            metal: { min: 0, max: 5 },
-            diamond: { min: 10, max: 15 },
+            metal: { min: 1, max: 3 },
+            diamond: { min: 2, max: 5 },
         },
 
         starThresholds: { perfect: 430, good: 350, basic: 200 },
@@ -238,9 +238,9 @@ const MinesConfig = {
 
         yields: {
             stone: { min: 0, max: 0 },
-            bronze: { min: 0, max: 0 },
-            metal: { min: 0, max: 5 },
-            diamond: { min: 10, max: 16 },
+            bronze: { min: 0, max: 1 },
+            metal: { min: 1, max: 3 },
+            diamond: { min: 3, max: 6 },
         },
 
         starThresholds: { perfect: 520, good: 420, basic: 250 },
