@@ -583,25 +583,6 @@ function GameRoot({ onBack }) {
   };
 
   // ===== RENDER =====
-  const [debugOpen, setDebugOpen] = useState(false);
-  const MINER_DOGS = ['lady','tokio','tuka','muna','chihuahua','bully','smoke','nupito','boxer','druh','gordo','zeus'];
-  const FORGE_DOGS  = ['pip','koda','milo','rocky','bruno','max','rex','toby','buddy'];
-  const handleDebugSetStars = (dogId, delta) => {
-    setGameState(prev => {
-      const dog = prev.dogs[dogId];
-      if (!dog) return prev;
-      const newStars = Math.min(5, Math.max(0, (dog.stars ?? 0) + delta));
-      return { ...prev, dogs: { ...prev.dogs, [dogId]: { ...dog, hired: true, fragments: 999, stars: newStars } } };
-    });
-  };
-  const handleDebugSetForgeStars = (dogId, delta) => {
-    setGameState(prev => {
-      const dog = prev.forgeDogs?.[dogId];
-      if (!dog) return prev;
-      const newStars = Math.min(5, Math.max(0, (dog.stars ?? 0) + delta));
-      return { ...prev, forgeDogs: { ...prev.forgeDogs, [dogId]: { ...dog, hired: true, fragments: 999, stars: newStars } } };
-    });
-  };
 
   return (
     <GameContext.Provider value={contextValue}>
@@ -611,64 +592,6 @@ function GameRoot({ onBack }) {
       >
         {onBack && (
           <button className="game-back-btn" onClick={onBack} title="Volver">‹</button>
-        )}
-        {/* DEBUG */}
-        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
-          DEV
-        </button>
-        {debugOpen && (
-          <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
-            {/* RECURSOS */}
-            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>RECURSOS</span>
-            <button
-              onClick={() => setGameState(prev => ({ ...prev, gold: prev.gold + 100000 }))}
-              style={{ fontSize:10, padding:'2px 4px', background:'#332200', color:'#ffd740', border:'1px solid #ffd740', borderRadius:3, cursor:'pointer' }}
-            >+100k oro</button>
-            <button
-              onClick={() => setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins + 500 }))}
-              style={{ fontSize:10, padding:'2px 4px', background:'#002233', color:'#4dd0e1', border:'1px solid #4dd0e1', borderRadius:3, cursor:'pointer' }}
-            >+500 tavern</button>
-            <button
-              onClick={() => setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, completed: true, currentStep: 3, staminaUnlocked: true, pickaxeUnlocked: true, minesUnlocked: true, goldPerSecondBought: true, pickaxeUpgradeDone: true, introDone: true, minesHinted: true, snacksHinted: true, automineHinted: true, forgeIntroDone: true, tavernIntroDone: true, cambistaIntroDone: true, dogsIntroDone: true, raidIntroDone: true, rentalTutorialStep: 3, sobreIntroDone: true, mineIntroBronzeDone: true, mineIntroIronDone: true, mineIntroDiamondDone: true } }))}
-              style={{ fontSize:10, padding:'2px 4px', background:'#002200', color:'#69f080', border:'1px solid #69f080', borderRadius:3, cursor:'pointer' }}
-            >skip tutorial</button>
-            {/* MINEROS */}
-            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>MINEROS</span>
-            <button
-              onClick={() => setGameState(prev => {
-                const updated = { ...prev.dogs };
-                MINER_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], hired: true, fragments: 999, stars: 0 }; });
-                return { ...prev, dogs: updated };
-              })}
-              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer' }}
-            >desbloquear + 0★</button>
-            {MINER_DOGS.map(id => (
-              <div key={id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:'#fff' }}>
-                <span style={{ width:70 }}>{id}</span>
-                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{gameState.dogs[id]?.stars ?? 0}</span>
-                <button onClick={() => handleDebugSetStars(id, -1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>-</button>
-                <button onClick={() => handleDebugSetStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
-              </div>
-            ))}
-            {/* FORJA */}
-            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>FORJA</span>
-            <button
-              onClick={() => setGameState(prev => {
-                const updated = { ...prev.forgeDogs };
-                FORGE_DOGS.forEach(id => { if (updated[id]) updated[id] = { ...updated[id], hired: true, fragments: 999, stars: 0 }; });
-                return { ...prev, forgeDogs: updated };
-              })}
-              style={{ fontSize:10, padding:'2px 4px', background:'#331100', color:'#ff9944', border:'1px solid #ff9944', borderRadius:3, cursor:'pointer' }}
-            >desbloquear + 0★</button>
-            {FORGE_DOGS.map(id => (
-              <div key={id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:'#fff' }}>
-                <span style={{ width:70 }}>{id}</span>
-                <span style={{ width:14, textAlign:'center', color:'#ffd740' }}>{gameState.forgeDogs?.[id]?.stars ?? 0}</span>
-                <button onClick={() => handleDebugSetForgeStars(id, -1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>-</button>
-                <button onClick={() => handleDebugSetForgeStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
-              </div>
-            ))}
-          </div>
         )}
 
         {/* OVERLAY OSCURO DURANTE TUTORIAL */}
