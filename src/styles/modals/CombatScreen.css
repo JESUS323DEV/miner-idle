@@ -307,6 +307,7 @@
 }
 
 .combat-dog-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -317,11 +318,76 @@
     background: rgba(255,255,255,0.04);
     cursor: pointer;
     transition: all 0.2s;
+    user-select: none;
 }
 
-.combat-dog-card img {
+.cdc-element-icon {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.cdc-info-btn {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.45);
+    color: rgba(255,255,255,0.55);
+    font-size: 9px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.cdc-info-btn:hover { border-color: rgba(255,255,255,0.6); color: white; }
+
+.cdc-info-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,8,5,0.93);
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 5px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.cdc-info-ult {
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+.cdc-info-passive {
+    font-size: 0.55rem;
+    color: #b0d4ff;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.cdc-img-wrap {
+    position: relative;
     width: 44px;
     height: 44px;
+}
+
+.cdc-img-wrap img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 
@@ -334,6 +400,8 @@
 .combat-dog-card.combat-dog-selected.dog-rarity-legendary { border-color: #f5c842; background: rgba(245,200,66,0.12); }
 .combat-dog-card.combat-dog-selected.dog-rarity-epic      { border-color: #b45cff; background: rgba(180,92,255,0.12); }
 .combat-dog-card.combat-dog-selected.dog-rarity-rare      { border-color: #4ca8ff; background: rgba(76,168,255,0.12); }
+
+.combat-dog-card.unavailable { opacity: 0.35; cursor: default; }
 
 .cdc-name {
     color: white;
@@ -489,63 +557,207 @@
 /* Team row */
 .combat-team-row {
     display: flex;
-    gap: 10px;
+    align-items: center;
     justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding-bottom: 0.5rem;
 }
 
-.combat-team-slot {
+/* Lateral */
+.combat-slot-lateral {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 6px;
-    border-radius: 10px;
+    gap: 4px;
+    padding: 8px 6px;
+    border-radius: 12px;
     border: 2px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.05);
-    width: 68px;
+    width: 72px;
+    min-height: 90px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: border-color 0.15s, background 0.15s;
     position: relative;
 }
 
-.combat-team-slot img {
-    width: 40px;
-    height: 40px;
+.combat-slot-lateral img {
+    width: 42px;
+    height: 42px;
     object-fit: contain;
 }
 
-.ability-label {
-    font-size: 0.65rem;
-    font-weight: bold;
+.csl-name {
+    font-size: 0.54rem;
     color: rgba(255,255,255,0.55);
     text-align: center;
 }
 
-.combat-team-slot.ability-ready {
-    background: rgba(255,220,50,0.1);
-    box-shadow: 0 0 10px rgba(255,220,50,0.25);
+.csl-cd {
+    position: absolute;
+    bottom: 5px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.4);
 }
 
-.combat-team-slot.ability-ready .ability-label {
-    color: #ffd740;
-}
-
-.combat-team-slot.ability-ready:active {
-    transform: scale(0.9);
-}
-
-.combat-team-slot:disabled {
-    opacity: 0.5;
+.combat-slot-lateral.swap-on-cd {
+    opacity: 0.45;
     cursor: not-allowed;
 }
 
-.combat-team-slot.dog-rarity-legendary { border-color: rgba(245,200,66,0.5); }
-.combat-team-slot.dog-rarity-epic      { border-color: rgba(180,92,255,0.5); }
-.combat-team-slot.dog-rarity-rare      { border-color: rgba(76,168,255,0.5); }
+.combat-slot-lateral:not(.swap-on-cd):active {
+    transform: scale(0.93);
+    background: rgba(255,255,255,0.12);
+}
 
-.combat-team-slot.ability-ready.dog-rarity-legendary { border-color: #f5c842; box-shadow: 0 0 12px rgba(245,200,66,0.4); }
-.combat-team-slot.ability-ready.dog-rarity-epic      { border-color: #b45cff; box-shadow: 0 0 12px rgba(180,92,255,0.4); }
-.combat-team-slot.ability-ready.dog-rarity-rare      { border-color: #4ca8ff; box-shadow: 0 0 12px rgba(76,168,255,0.4); }
+.combat-slot-lateral.dog-rarity-legendary { border-color: rgba(245,200,66,0.4); }
+.combat-slot-lateral.dog-rarity-epic      { border-color: rgba(180,92,255,0.4); }
+.combat-slot-lateral.dog-rarity-rare      { border-color: rgba(76,168,255,0.4); }
+
+.combat-slot-empty {
+    width: 72px;
+    min-height: 90px;
+    visibility: hidden;
+}
+
+/* Activo central */
+.combat-slot-active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 8px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.08);
+    width: 96px;
+    min-height: 115px;
+    box-shadow: 0 0 18px rgba(255,255,255,0.1);
+}
+
+.combat-slot-active img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+}
+
+.csa-name {
+    font-size: 0.62rem;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.csa-label {
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ffd740;
+}
+
+.combat-slot-active.dog-rarity-legendary { border-color: rgba(245,200,66,0.7); box-shadow: 0 0 18px rgba(245,200,66,0.2); }
+.combat-slot-active.dog-rarity-epic      { border-color: rgba(180,92,255,0.7); box-shadow: 0 0 18px rgba(180,92,255,0.2); }
+.combat-slot-active.dog-rarity-rare      { border-color: rgba(76,168,255,0.7);  box-shadow: 0 0 18px rgba(76,168,255,0.2);  }
+
+/* Animación de entrada al centro */
+@keyframes dogSwapIn {
+    from { transform: scale(0.72); opacity: 0.4; }
+    to   { transform: scale(1);    opacity: 1;   }
+}
+
+.dog-swap-in {
+    animation: dogSwapIn 0.25s ease-out;
+}
+
+/* Ult button */
+.combat-ult-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 22px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.3);
+    cursor: not-allowed;
+    transition: all 0.2s;
+}
+
+.combat-ult-btn.ult-ready {
+    cursor: pointer;
+    color: white;
+    background: rgba(255,255,255,0.07);
+}
+
+.combat-ult-btn.ult-ready:active {
+    transform: scale(0.92);
+    filter: brightness(1.2);
+}
+
+.ult-btn-label {
+    font-size: 0.72rem;
+    font-weight: bold;
+}
+
+/* Brasas passive info (no ult) */
+.combat-passive-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 107, 53, 0.25);
+    background: rgba(255, 107, 53, 0.06);
+    color: rgba(255, 200, 150, 0.7);
+    font-size: 0.65rem;
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.3;
+}
+
+/* Efectos activos */
+.combat-effects-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 22px;
+}
+
+.combat-effect-badge {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 8px;
+}
+
+.effect-electrico {
+    color: #FFD700;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+}
+
+.effect-buff {
+    color: #4fc3f7;
+    background: rgba(79,195,247,0.1);
+    border: 1px solid rgba(79,195,247,0.3);
+}
+
+.effect-fuego {
+    color: #ff6b35;
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.3);
+}
+
+.effect-tierra {
+    color: #8b6914;
+    background: rgba(139,105,20,0.12);
+    border: 1px solid rgba(139,105,20,0.35);
+}
 
 /* ===== RESULTS ===== */
 .combat-results {

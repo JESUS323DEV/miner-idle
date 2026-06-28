@@ -78,6 +78,22 @@ const ELEMENT_ICON = {
     oscuro:   { Icon: Moon,      color: '#b45cff' },
 };
 
+const FORGE_COMBAT_PASSIVE_BY_ELEMENT = {
+    fuego:     'Cada golpe calienta al enemigo. Cuantos mas golpes, mas daño. Cuanto mejor el perro, mas aguanta.',
+    agua:      'El activo hace mas daño cuanto mas tiempo lleva peleando sin cambiar. Mejora con la rareza.',
+    electrico: 'Cada golpe del activo tiene mas probabilidad de impactar dos veces. Mejora con la rareza.',
+    tierra:    'Cada golpe debilita la armadura del enemigo de forma permanente. Mejora con la rareza.',
+    oscuro:    'El activo hace mas daño mientras el enemigo tiene mucha vida. Mejora con la rareza.',
+};
+
+const COMBAT_PASSIVE_BY_ELEMENT = {
+    fuego:    'Añade daño fijo extra por cada golpe al enemigo.',
+    electrico:'Cada golpe tiene probabilidad de impactar dos veces.',
+    tierra:   'El enemigo recibe un porcentaje extra de daño en cada golpe.',
+    agua:     'Multiplica el daño de todos los golpes durante la batalla.',
+    oscuro:   'Reduce el cooldown de la habilidad activa del perro central.',
+};
+
 const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
     muna: munaIcon, gordo: gordoIcon, druh: druhIcon,
@@ -525,6 +541,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                     <span className="dog-activa-icon"><Icon size={13} color={color} /></span>
                                                                     {MineCompanionConfig[dog.id].ult.name}
                                                                 </div>
+                                                                <div className="dog-stat-divider">Combate</div>
+                                                                <div className="dog-stat-passive"><b>Pasiva:</b> {COMBAT_PASSIVE_BY_ELEMENT[config.element]}</div>
                                                             </>
                                                         );
                                                     })()}
@@ -805,6 +823,18 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                             </div>
                                                         </>
                                                     )}
+                                                    {config.element && ELEMENT_ICON[config.element] && (() => {
+                                                        const { Icon, color } = ELEMENT_ICON[config.element];
+                                                        return (
+                                                            <>
+                                                                <div className="dog-stat-divider">Combate</div>
+                                                                <div className="dog-stat-passive">
+                                                                    <span className="dog-activa-icon"><Icon size={13} color={color} /></span>
+                                                                    {FORGE_COMBAT_PASSIVE_BY_ELEMENT[config.element]}
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         );

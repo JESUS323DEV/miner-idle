@@ -210,8 +210,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     >
                         🏕️ Pasiva
                     </button>
-                    <button className="raid-tab raid-tab-soon" disabled>
-                        ⚡ Activa <span className="raid-soon-badge">pronto</span>
+                    <button
+                        className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
+                        onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
+                    >
+                        ⚡ Activa
                     </button>
                 </div>
 
