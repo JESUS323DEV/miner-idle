@@ -61,55 +61,55 @@
 
 .mine-card-bronze.mine-card-lvl1 {
     position: fixed;
-    top: clamp(16rem, 38vh, 22rem);
+    top: calc(clamp(16rem, 38vh, 22rem) - 9.1rem);
     left: 2.8rem;
 }
 
 .mine-card-bronze.mine-card-lvl2 {
     position: fixed;
-    top: clamp(13rem, 31vh, 19rem);
+    top: calc(clamp(13rem, 31vh, 19rem) - 9.1rem);
     left: 8.5rem;
 }
 
 .mine-card-bronze.mine-card-lvl3 {
     position: fixed;
-    top: clamp(13.5rem, 32vh, 19rem);
+    top: calc(clamp(13.5rem, 32vh, 19rem) - 9.1rem);
     left: 15.8rem;
 }
 
 .mine-card-iron.mine-card-lvl1 {
     position: fixed;
-    top: clamp(15rem, 36vh, 21rem);
+    top: calc(clamp(15rem, 36vh, 21rem) - 9.1rem);
     left: 2.3rem;
 }
 
 .mine-card-iron.mine-card-lvl2 {
     position: fixed;
-    top: clamp(13rem, 31vh, 19rem);
+    top: calc(clamp(13rem, 31vh, 19rem) - 9.1rem);
     left: 8.7rem;
 }
 
 .mine-card-iron.mine-card-lvl3 {
     position: fixed;
-    top: clamp(12.5rem, 30vh, 18rem);
+    top: calc(clamp(12.5rem, 30vh, 18rem) - 9.1rem);
     left: 16.5rem;
 }
 
 .mine-card-diamond.mine-card-lvl1 {
     position: fixed;
-    top: clamp(13.5rem, 32vh, 19rem);
+    top: calc(clamp(13.5rem, 32vh, 19rem) - 9.1rem);
     left: 2rem;
 }
 
 .mine-card-diamond.mine-card-lvl2 {
     position: fixed;
-    top: clamp(11.5rem, 27vh, 17rem);
+    top: calc(clamp(11.5rem, 27vh, 17rem) - 9.1rem);
     left: 8.5rem;
 }
 
 .mine-card-diamond.mine-card-lvl3 {
     position: fixed;
-    top: clamp(12rem, 28.5vh, 17.5rem);
+    top: calc(clamp(12rem, 28.5vh, 17.5rem) - 9.1rem);
     left: 15.5rem;
 }
 

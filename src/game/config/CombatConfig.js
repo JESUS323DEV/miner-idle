@@ -8,7 +8,8 @@ export const CombatConfig = {
                 {
                     id: 'bat-1',
                     name: 'Murciélago',
-                    hp: 80,
+                    hp: 250,
+                    defense: 0,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'rare', weight: 100 }],
@@ -20,7 +21,8 @@ export const CombatConfig = {
                 {
                     id: 'bat-2',
                     name: 'Murciélago Oscuro',
-                    hp: 200,
+                    hp: 700,
+                    defense: 2,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'rare', weight: 80 }, { rarity: 'epic', weight: 20 }],
@@ -32,7 +34,8 @@ export const CombatConfig = {
                 {
                     id: 'bat-3',
                     name: 'Murciélago Anciano',
-                    hp: 380,
+                    hp: 1500,
+                    defense: 4,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'epic', weight: 90 }, { rarity: 'legendary', weight: 10 }],
@@ -44,7 +47,8 @@ export const CombatConfig = {
                 {
                     id: 'bat-boss',
                     name: 'Murciélago Alfa',
-                    hp: 600,
+                    hp: 3000,
+                    defense: 7,
                     timerSec: 30,
                     isBoss: true,
                     rarityPool: [{ rarity: 'epic', weight: 70 }, { rarity: 'legendary', weight: 30 }],
@@ -65,7 +69,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-1',
                     name: 'Topo',
-                    hp: 160,
+                    hp: 500,
+                    defense: 2,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'rare', weight: 60 }, { rarity: 'epic', weight: 40 }],
@@ -77,7 +82,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-2',
                     name: 'Topo Excavador',
-                    hp: 380,
+                    hp: 1500,
+                    defense: 4,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'rare', weight: 40 }, { rarity: 'epic', weight: 60 }],
@@ -89,7 +95,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-3',
                     name: 'Topo Anciano',
-                    hp: 650,
+                    hp: 3000,
+                    defense: 6,
                     timerSec: 30,
                     isBoss: false,
                     rarityPool: [{ rarity: 'epic', weight: 70 }, { rarity: 'legendary', weight: 30 }],
@@ -101,7 +108,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-boss',
                     name: 'Topo Gigante',
-                    hp: 2500,
+                    hp: 8000,
+                    defense: 10,
                     timerSec: 30,
                     isBoss: true,
                     rarityPool: [{ rarity: 'epic', weight: 40 }, { rarity: 'legendary', weight: 60 }],

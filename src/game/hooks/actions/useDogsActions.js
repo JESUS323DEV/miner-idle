@@ -116,7 +116,8 @@ export const useDogsActions = (gameState, setGameState) => {
                 const dogConfig = DogsConfig[dogId];
                 const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dog.stars ?? 0);
                 const baseYield = dogConfig?.yacimientoYield ?? 1;
-                const biomeMult = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const biomeBonusRaw = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const biomeMult = Array.isArray(biomeBonusRaw) ? (biomeBonusRaw[Math.min(5, dog.stars ?? 0)] ?? 1.0) : biomeBonusRaw;
                 const materialGained = Math.round(baseYield * biomeMult * starMult);
                 return {
                     ...prevState,
@@ -180,7 +181,8 @@ export const useDogsActions = (gameState, setGameState) => {
                 const dogConfig = DogsConfig[dogId];
                 const starMult = 1 + (dogConfig?.starBonus ?? 0) * (dog.stars ?? 0);
                 const baseYield = dogConfig?.yacimientoYield ?? 1;
-                const biomeMult = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const biomeBonusRaw2 = dogConfig?.biomeBonus?.[biome] ?? 1.0;
+                const biomeMult = Array.isArray(biomeBonusRaw2) ? (biomeBonusRaw2[Math.min(5, dog.stars ?? 0)] ?? 1.0) : biomeBonusRaw2;
                 const materialGained = Math.round(baseYield * biomeMult * starMult);
 
                 return {

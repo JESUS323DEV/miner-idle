@@ -5,6 +5,16 @@ export const RARITY_COLORS = {
     common: '#aaaaaa',
 };
 
+// biomeBonus por estrellas [0★, 1★, 2★, 3★, 4★, 5★]
+const RARE_BIOME   = [1.00, 1.20, 1.40, 1.60, 1.80, 2.00];
+const EPIC_BIOME   = [1.95, 2.55, 2.75, 2.95, 3.15, 3.35];
+const LEGEND_BIOME = [2.90, 3.50, 3.70, 3.90, 4.10, 4.30];
+
+export const getBiomeBonusAtStars = (dogId, biome, stars = 0) => {
+    const raw = DogsConfig[dogId]?.biomeBonus?.[biome] ?? 1.0;
+    if (Array.isArray(raw)) return raw[Math.min(5, stars)] ?? 1.0;
+    return raw;
+};
 
 //=========================LEGENDARIAS
 export const DogsConfig = {
@@ -24,7 +34,7 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 1,
         biomeBonus: {
-            bronze: 2.0,
+            bronze: LEGEND_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
@@ -49,9 +59,9 @@ export const DogsConfig = {
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
-            bronze: 3.0,
-            iron: 4.0,
-            diamond: 2,
+            bronze: EPIC_BIOME,
+            iron: LEGEND_BIOME,
+            diamond: RARE_BIOME,
         },
         goldMineBonus: {
             type: 'doubleHit',
@@ -74,9 +84,9 @@ export const DogsConfig = {
         miningPower: 4,
         miningSpeed: 1,
         biomeBonus: {
-            bronze: 4.0,
-            iron: 2.0,
-            diamond: 2.0,
+            bronze: LEGEND_BIOME,
+            iron: RARE_BIOME,
+            diamond: RARE_BIOME,
         },
         goldMineBonus: {
             type: 'extraGold',
@@ -99,9 +109,9 @@ export const DogsConfig = {
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
-            bronze: 3.0,
-            iron: 3.0,
-            diamond: 4.0,
+            bronze: EPIC_BIOME,
+            iron: EPIC_BIOME,
+            diamond: LEGEND_BIOME,
         },
         goldMineBonus: {
             type: 'extraGold',
@@ -124,9 +134,9 @@ export const DogsConfig = {
         miningPower: 5,
         miningSpeed: 0.5,
         biomeBonus: {
-            bronze: 4.0,
-            iron: 2,
-            diamond: 3,
+            bronze: LEGEND_BIOME,
+            iron: RARE_BIOME,
+            diamond: EPIC_BIOME,
         },
         goldMineBonus: {
             type: 'saveDurability',
@@ -149,7 +159,7 @@ export const DogsConfig = {
         miningPower: 2,
         miningSpeed: 2,
         biomeBonus: {
-            bronze: 1.3,
+            bronze: EPIC_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
@@ -158,8 +168,6 @@ export const DogsConfig = {
             value: 1
         }
     },
-
-   
 
     //SMOKE ÉPICA PARA MINA DE IRON
     smoke: {
@@ -175,8 +183,8 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
-            bronze: 1.5,
-            iron: 2.5,
+            bronze: RARE_BIOME,
+            iron: EPIC_BIOME,
             diamond: 1.0,
         },
         goldMineBonus: {
@@ -184,7 +192,6 @@ export const DogsConfig = {
             chance: 0.15
         }
     },
-
 
     //NUPITO ÉPICA PARA MINA DE DIAMANTE
     nupito: {
@@ -200,9 +207,9 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
-            bronze: 1.5,
-            iron: 1.5,
-            diamond: 2.5,
+            bronze: RARE_BIOME,
+            iron: RARE_BIOME,
+            diamond: EPIC_BIOME,
         },
         goldMineBonus: {
             type: 'saveDurability',
@@ -226,7 +233,7 @@ export const DogsConfig = {
         miningPower: 1,
         miningSpeed: 2,
         biomeBonus: {
-            bronze: 1.2,
+            bronze: RARE_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
@@ -251,7 +258,7 @@ export const DogsConfig = {
         miningPower: 1,
         miningSpeed: 4,
         biomeBonus: {
-            bronze: 1.5,
+            bronze: RARE_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
@@ -260,7 +267,6 @@ export const DogsConfig = {
             chance: 0.10
         }
     },
-
 
     //GORDO RARA PARA MINA DE IRON
     gordo: {
@@ -277,7 +283,7 @@ export const DogsConfig = {
         miningSpeed: 5,
         biomeBonus: {
             bronze: 1.0,
-            iron: 2.5,
+            iron: RARE_BIOME,
             diamond: 1.0,
         },
         goldMineBonus: {
@@ -285,8 +291,6 @@ export const DogsConfig = {
             value: 1
         }
     },
-
-
 
     //ZEUS RARA PARA MINA DE DIAMANTE
     zeus: {
@@ -302,15 +306,13 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 3,
         biomeBonus: {
-            bronze: 1.5,
-            iron: 1.5,
-            diamond: 2.0,
+            bronze: 1.0,
+            iron: 1.0,
+            diamond: RARE_BIOME,
         },
         goldMineBonus: {
             type: 'doubleHit',
             chance: 0.10
         }
     },
-
-
 };
