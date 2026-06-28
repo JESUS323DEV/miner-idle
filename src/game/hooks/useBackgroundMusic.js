@@ -15,10 +15,11 @@ const getNextTrack = (currentIndex) => {
 };
 
 export const useBackgroundMusic = (volume = 0.010) => {
-    const audioRef = useRef(null);
-    const startedRef = useRef(false);
-    const currentTrackIndex = useRef(0);
-    const volumeRef = useRef(volume);
+    const audioRef            = useRef(null);
+    const startedRef          = useRef(false);
+    const currentTrackIndex   = useRef(0);
+    const volumeRef           = useRef(volume);
+    const intentionalPauseRef = useRef(false);
 
     const getAudio = () => {
         if (!audioRef.current) audioRef.current = new Audio();
@@ -39,8 +40,31 @@ export const useBackgroundMusic = (volume = 0.010) => {
         currentTrackIndex.current = index;
     }, []);
 
-    const pause  = useCallback(() => { getAudio().pause(); }, []);
+    const pause  = useCallback(() => {
+        intentionalPauseRef.current = true;
+        getAudio().pause();
+    }, []);
+
+    const fadeOut = useCallback((duration = 600) => {
+        intentionalPauseRef.current = true;
+        const audio = getAudio();
+        const originalVolume = audio.volume;
+        const startTime = performance.now();
+        const tick = () => {
+            const progress = Math.min((performance.now() - startTime) / duration, 1);
+            audio.volume = originalVolume * (1 - progress);
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                audio.pause();
+                audio.volume = originalVolume;
+            }
+        };
+        requestAnimationFrame(tick);
+    }, []);
+
     const resume = useCallback(() => {
+        intentionalPauseRef.current = false;
         const a = getAudio();
         if (startedRef.current && a.paused) a.play().catch(() => {});
     }, []);
@@ -68,14 +92,14 @@ export const useBackgroundMusic = (volume = 0.010) => {
         };
 
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && startedRef.current) {
+            if (document.visibilityState === 'visible' && startedRef.current && !intentionalPauseRef.current) {
                 const a = getAudio();
                 if (a.paused) a.play().catch(() => {});
             }
         };
 
         const handlePageShow = (e) => {
-            if (e.persisted && startedRef.current) {
+            if (e.persisted && startedRef.current && !intentionalPauseRef.current) {
                 const a = getAudio();
                 if (a.paused) a.play().catch(() => {});
             }
@@ -104,5 +128,5 @@ export const useBackgroundMusic = (volume = 0.010) => {
         };
     }, [playTrack]);
 
-    return { pause, resume };
+    return { pause, fadeOut, resume };
 };

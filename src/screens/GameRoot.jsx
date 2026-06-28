@@ -159,7 +159,7 @@ function GameRoot({ onBack }) {
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
-  const { pause: pauseMusic, resume: resumeMusic } = useBackgroundMusic(musicVolume);
+  const { fadeOut: fadeOutMusic, resume: resumeMusic } = useBackgroundMusic(musicVolume);
 
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
@@ -1212,7 +1212,7 @@ function GameRoot({ onBack }) {
           isOpen={combatOpen}
           onClose={() => setCombatOpen(false)}
           onBack={() => { setCombatOpen(false); setRaidOpen(true); }}
-          onFightStart={pauseMusic}
+          onFightStart={fadeOutMusic}
           onFightEnd={resumeMusic}
           musicVolume={musicVolume}
         />

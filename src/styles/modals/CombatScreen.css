@@ -346,6 +346,33 @@
 .combat-sel-slot.dog-rarity-rare      { border-color: rgba(76,168,255,0.6); }
 
 /* Grid perros */
+.combat-dogs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.cdl-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cdl-section-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #c8992a;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(200, 153, 42, 0.2);
+}
+
+
 .combat-dogs-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
