@@ -73,7 +73,10 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     const [showRaidIntro, setShowRaidIntro] = useState(false);
 
     useEffect(() => {
-        if (isOpen && !gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
+        if (isOpen) {
+            setRaidTab('passive');
+            if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
+        }
     }, [isOpen]); // eslint-disable-line
 
     useEffect(() => {

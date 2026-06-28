@@ -512,7 +512,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                     <div className="combat-nav">
                         <button className="combat-back-btn" onClick={goToBiome}><ChevronLeft /></button>
                         <h2 className="combat-title">{activeBiome.name}</h2>
-                        <button className="combat-close-btn-sm" onClick={onClose}><X /></button>
+                        <div style={{ width: 32 }} />
                     </div>
                     <div className="combat-enemy-grid">
                         {activeBiome.enemies.map(enemy => (
