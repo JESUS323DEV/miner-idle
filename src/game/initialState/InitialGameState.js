@@ -88,6 +88,9 @@ const InitialGameState = {
     minesMapUnlocked: false,
     lastMineReward: null,
 
+    // ========== RAIDS ACTIVAS ==========
+    raidBestStars: {},
+
     // ========== TIEMPO ==========
     timeOfDay: "day",
     dayCount: 1,
