@@ -290,7 +290,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                             </div>
 
                             {/* SLOT COMPAÑERO DE MINA */}
-                            <div className="mdc-companion-row" style={{ position: 'relative' }}>
+                            {yacimientos[selectedBiome].slots.some(s => s.unlocked) && <div className="mdc-companion-row" style={{ position: 'relative' }}>
                                 <div
                                     className={`dog-slot-box${mineCompDog ? ` dog-rarity-${DogsConfig[mineCompDog.id]?.rarity}` : ''}`}
                                     onClick={() => setMineCompModalOpen(true)}
@@ -311,7 +311,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                 <span className="dog-slot-label">
                                     {mineCompDog ? (DogsConfig[mineCompDog.id]?.name ?? mineCompDog.id) : 'compañero'}
                                 </span>
-                            </div>
+                            </div>}
                         </div>
                     )}
 

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { X, ChevronLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe } from 'lucide-react';
+import { ChevronLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
@@ -132,7 +132,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
     const [infoCardId, setInfoCardId]             = useState(null);
     const [activeBiome, setActiveBiome]           = useState(null);
     const [activeEnemy, setActiveEnemy]           = useState(null);
-    const [team, setTeam]                         = useState([]);
+    const [team, setTeam]                         = useState([null, null, null]);
     const [slots, setSlots]                       = useState([null, null, null]);
     const [enemyHp, setEnemyHp]                   = useState(0);
     const [timer, setTimer]                       = useState(0);
@@ -153,7 +153,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
             setPhase('biome');
             setActiveBiome(null);
             setActiveEnemy(null);
-            setTeam([]);
+            setTeam([null, null, null]);
             setSlots([null, null, null]);
             setEnemyHp(0);
             setTimer(0);
@@ -216,37 +216,45 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
             const dealt = activeEnemy.hp - Math.max(0, enemyHp);
             const pct   = Math.min(1, dealt / activeEnemy.hp);
             const threshold = [...activeEnemy.rewardThresholds].reverse().find(t => pct >= t.pct) ?? null;
-            const shards = threshold?.shards ?? 0;
+            const shards     = threshold?.shards ?? 0;
+            const gold       = threshold?.gold ?? 0;
+            const starsEarned = threshold?.stars ?? 0;
 
-            const gold = threshold?.gold ?? 0;
             let rewardDogId  = null;
             let rewardRarity = null;
-
             if (shards > 0 && activeEnemy.rarityPool) {
                 rewardRarity = rollRarity(activeEnemy.rarityPool);
-                const dog = pickRewardDog(rewardRarity);
-                if (dog) {
-                    rewardDogId = dog.id;
-                    setGameState(prev => ({
-                        ...prev,
-                        gold: prev.gold + gold,
-                        dogs: {
-                            ...prev.dogs,
-                            [dog.id]: {
-                                ...prev.dogs[dog.id],
-                                fragments: (prev.dogs[dog.id]?.fragments ?? 0) + shards,
-                            },
-                        },
-                    }));
-                }
+                const dog    = pickRewardDog(rewardRarity);
+                if (dog) rewardDogId = dog.id;
             }
+
+            setGameState(prev => {
+                const currentBest = prev.raidBestStars?.[activeEnemy.id] ?? 0;
+                const next = {
+                    ...prev,
+                    raidBestStars: { ...(prev.raidBestStars ?? {}), [activeEnemy.id]: Math.max(currentBest, starsEarned) },
+                    gold: prev.gold + gold,
+                };
+                if (!rewardDogId) return next;
+                return {
+                    ...next,
+                    dogs: {
+                        ...next.dogs,
+                        [rewardDogId]: {
+                            ...next.dogs[rewardDogId],
+                            fragments: (next.dogs[rewardDogId]?.fragments ?? 0) + shards,
+                        },
+                    },
+                };
+            });
 
             setResultsData({
                 pct,
                 shards,
                 gold,
-                label:        threshold?.label ?? 'Sin recompensa',
-                defeated:     enemyHp <= 0,
+                starsEarned,
+                label:    threshold?.label ?? 'Sin recompensa',
+                defeated: enemyHp <= 0,
                 rewardDogId,
                 rewardRarity,
             });
@@ -445,8 +453,8 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
 
 
     const startFight = () => {
-        if (team.length === 0 || !activeEnemy) return;
-        setSlots([team[1] ?? null, team[0], team[2] ?? null]);
+        if (team.every(id => id === null) || !activeEnemy) return;
+        setSlots([team[0] ?? null, team[1] ?? null, team[2] ?? null]);
         setAbilityCooldowns({});
         setSwitchCooldowns({});
         setHeatStacks(0);
@@ -468,6 +476,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
 
     if (!isOpen) return null;
 
+    const raidBestStars = gameState.raidBestStars ?? {};
     const dogs = gameState.dogs ?? {};
     const forgeDogs = gameState.forgeDogs ?? {};
     const hiredDogs = [
@@ -515,18 +524,41 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                         <div style={{ width: 32 }} />
                     </div>
                     <div className="combat-enemy-grid">
-                        {activeBiome.enemies.map(enemy => (
-                            <button
-                                key={enemy.id}
-                                className={`combat-enemy-card${enemy.isBoss ? ' combat-enemy-boss' : ''}`}
-                                onClick={() => { setActiveEnemy(enemy); setPhase('select'); }}
-                            >
-                                {enemy.isBoss && <span className="cec-boss-badge">BOSS</span>}
-                                <img src={enemyImgs[enemy.id]} alt={enemy.name} />
-                                <span className="cec-name">{enemy.name}</span>
-                                <span className="cec-meta">❤️ {enemy.hp} · ⏱ {enemy.timerSec}s</span>
-                            </button>
-                        ))}
+                        {activeBiome.enemies.map(enemy => {
+                            const req     = enemy.requiresStars;
+                            const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
+                            const myBest  = raidBestStars[enemy.id] ?? 0;
+                            return (
+                                <button
+                                    key={enemy.id}
+                                    className={`combat-enemy-card${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked ? ' combat-enemy-locked' : ''}`}
+                                    onClick={() => { if (!locked) { setActiveEnemy(enemy); setPhase('select'); } }}
+                                    disabled={locked}
+                                >
+                                    {enemy.isBoss && !locked && <span className="cec-boss-badge">BOSS</span>}
+                                    {locked ? (
+                                        <>
+                                            <div className="cec-lock-icon"><Lock size={28} /></div>
+                                            <span className="cec-name">{enemy.name}</span>
+                                            <span className="cec-lock-req">
+                                                {req.stars} {req.stars === 1 ? 'estrella' : 'estrellas'} en anterior
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <img src={enemyImgs[enemy.id]} alt={enemy.name} />
+                                            <span className="cec-name">{enemy.name}</span>
+                                            <span className="cec-meta">❤ {enemy.hp} · {enemy.timerSec}s</span>
+                                            <div className="cec-stars">
+                                                {[1,2,3].map(s => (
+                                                    <Star key={s} size={11} fill={myBest >= s ? '#ffd740' : 'none'} color={myBest >= s ? '#ffd740' : '#444'} />
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -546,27 +578,32 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                     <div className="combat-selected-slots">
                         {[0, 1, 2].map(i => {
                             const id = team[i];
+                            const label = i === 0 ? 'Lateral' : i === 1 ? 'Activo' : 'Lateral';
                             if (id) {
                                 const cfg = getConfig(id);
                                 return (
                                     <div
                                         key={i}
                                         className={`combat-sel-slot filled dog-rarity-${cfg?.rarity}`}
-                                        onClick={() => setTeam(prev => prev.filter(d => d !== id))}
+                                        onClick={() => setTeam(prev => prev.map((x, j) => j === i ? null : x))}
                                     >
                                         <img src={getAsset(id)} alt={id} />
                                         <span>{cfg?.name}</span>
                                     </div>
                                 );
                             }
-                            return <div key={i} className="combat-sel-slot empty"><span>+</span></div>;
+                            return (
+                                <div key={i} className="combat-sel-slot empty">
+                                    <span>+</span>
+                                </div>
+                            );
                         })}
                     </div>
 
                     <button
-                        className={`combat-start-btn${team.length === 0 ? ' combat-start-disabled' : ''}`}
+                        className={`combat-start-btn${team.every(id => !id) ? ' combat-start-disabled' : ''}`}
                         onClick={startFight}
-                        disabled={team.length === 0}
+                        disabled={team.every(id => !id)}
                     >
                         <Swords size={14} /> Combatir
                     </button>
@@ -580,7 +617,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                             const isForge  = !!ForgeDogsConfig[dog.id];
                             const status   = getCombatStatus(dog, isForge);
                             const blocked  = status !== 'available';
-                            const selected = team.includes(dog.id);
+                            const selected = team.some(id => id === dog.id);
                             const elemInfo  = cfg?.element ? ELEMENT_ICON[cfg.element] : null;
                             const showInfo  = infoCardId === dog.id;
                             return (
@@ -589,11 +626,20 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                                     className={`combat-dog-card${selected ? ' combat-dog-selected' : ''}${blocked ? ' unavailable' : ''} dog-rarity-${cfg?.rarity}`}
                                     onClick={() => {
                                         if (blocked || showInfo) return;
-                                        setTeam(prev =>
-                                            selected
-                                                ? prev.filter(id => id !== dog.id)
-                                                : prev.length < 3 ? [...prev, dog.id] : prev
-                                        );
+                                        setTeam(prev => {
+                                            if (selected) return prev.map(id => id === dog.id ? null : id);
+                                            const next = [...prev];
+                                            if (isForge) {
+                                                if (!next[0]) { next[0] = dog.id; return next; }
+                                                if (!next[2]) { next[2] = dog.id; return next; }
+                                                return prev;
+                                            } else {
+                                                for (const i of [1, 0, 2]) {
+                                                    if (!next[i]) { next[i] = dog.id; return next; }
+                                                }
+                                                return prev;
+                                            }
+                                        });
                                     }}
                                 >
                                     {elemInfo && (
@@ -785,9 +831,21 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
             {phase === 'results' && resultsData && (
                 <div className="combat-results">
                     <h2 className="combat-results-title">
-                        {resultsData.defeated ? '¡Derrotado!' : 'Tiempo agotado'}
+                        {resultsData.defeated ? 'Derrotado' : 'Tiempo agotado'}
                     </h2>
                     <p className="combat-result-boss">{activeEnemy?.name}</p>
+
+                    <div className="combat-result-stars">
+                        {[1,2,3].map(s => (
+                            <Star
+                                key={s}
+                                size={36}
+                                fill={resultsData.starsEarned >= s ? '#ffd740' : 'none'}
+                                color={resultsData.starsEarned >= s ? '#ffd740' : '#333'}
+                                strokeWidth={1.5}
+                            />
+                        ))}
+                    </div>
 
                     <div className="combat-result-pct-wrap">
                         <div className="combat-result-pct-bar">
@@ -817,7 +875,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                                 )}
                             </>
                         ) : (
-                            <span className="combat-result-noreward">Sin recompensa (menos del 50%)</span>
+                            <span className="combat-result-noreward">Sin recompensa (menos del 15%)</span>
                         )}
                     </div>
 
