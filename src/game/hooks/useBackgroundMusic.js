@@ -39,6 +39,12 @@ export const useBackgroundMusic = (volume = 0.010) => {
         currentTrackIndex.current = index;
     }, []);
 
+    const pause  = useCallback(() => { getAudio().pause(); }, []);
+    const resume = useCallback(() => {
+        const a = getAudio();
+        if (startedRef.current && a.paused) a.play().catch(() => {});
+    }, []);
+
     useEffect(() => {
         const audio = getAudio();
 
@@ -97,4 +103,6 @@ export const useBackgroundMusic = (volume = 0.010) => {
             window.removeEventListener('pageshow', handlePageShow);
         };
     }, [playTrack]);
+
+    return { pause, resume };
 };

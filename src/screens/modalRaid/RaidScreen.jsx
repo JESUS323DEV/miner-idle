@@ -213,12 +213,18 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     >
                         🏕️ Pasiva
                     </button>
-                    <button
-                        className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
-                        onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
-                    >
-                        ⚡ Activa
-                    </button>
+                    {(import.meta.env.DEV || import.meta.env.VITE_RAIDS_ACTIVAS === 'true') ? (
+                        <button
+                            className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
+                            onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
+                        >
+                            ⚡ Activa
+                        </button>
+                    ) : (
+                        <button className="raid-tab raid-tab-locked" disabled title="Próximamente">
+                            ⚡ Activa
+                        </button>
+                    )}
                 </div>
 
                 {/* RESULTADOS ÚLTIMAS RAIDS */}

@@ -1,6 +1,18 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import raidActiveBg from '../../assets/audio/bg-raid-active.mp3';
+
+import ultFuego     from '../../assets/ui/power-pets/pelota-fire.webp';
+import ultElectrico from '../../assets/ui/power-pets/pelota-electic.webp';
+import ultAgua      from '../../assets/ui/power-pets/pistola-agua.webp';
+import ultTierra    from '../../assets/ui/power-pets/terremoto.webp';
+import ultOscuro    from '../../assets/ui/power-pets/furia.webp';
+
+const ULT_ASSET = {
+    fuego: ultFuego, electrico: ultElectrico,
+    agua: ultAgua, tierra: ultTierra, oscuro: ultOscuro,
+};
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
@@ -88,14 +100,6 @@ const MINER_COMBAT_INFO = {
     oscuro:    { ult: 'Furia', passive: 'Lateral: -1s cooldown de cambio' },
 };
 
-const MINER_ULT_NAME = {
-    fuego: 'Pelota de fuego', electrico: 'Pelota eléctrica',
-    agua: 'Pistola de agua',  tierra: 'Terremoto', oscuro: 'Furia',
-};
-
-const FORGE_ULT_NAME = {
-    fuego: 'Brasas', agua: 'Vapor', electrico: 'Estática', tierra: 'Roca', oscuro: 'Sombra',
-};
 
 const FORGE_PASSIVE_INFO = {
     fuego:     'Solo actua en lateral. Si lo pones aqui pierdes el calor acumulado.',
@@ -125,8 +129,9 @@ const biomeBg = {
     moles: bgTopos,
 };
 
-const CombatScreen = ({ isOpen, onClose, onBack }) => {
+const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, musicVolume = 0.08 }) => {
     const { gameState, setGameState } = useGameContext();
+    const raidAudioRef = useRef(null);
 
     const [phase, setPhase]                       = useState('biome');
     const [infoCardId, setInfoCardId]             = useState(null);
@@ -145,8 +150,42 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
     const [heatStacks, setHeatStacks]             = useState(0);
     const [activeSeconds, setActiveSeconds]       = useState(0);
     const [defenseDebuff, setDefenseDebuff]       = useState(0);
+    const [autoUlt, setAutoUlt]                   = useState(false);
+    const [autoFiring, setAutoFiring]             = useState(false);
+    const autoFireTimerRef                        = useRef(null);
 
     const SWITCH_COOLDOWN = 6;
+
+    useEffect(() => {
+        if (phase === 'fight') {
+            if (!raidAudioRef.current) {
+                raidAudioRef.current = new Audio(raidActiveBg);
+                raidAudioRef.current.volume = musicVolume;
+                raidAudioRef.current.loop = true;
+            }
+            raidAudioRef.current.currentTime = 0;
+            raidAudioRef.current.play().catch(() => {});
+            onFightStart?.();
+        } else {
+            if (raidAudioRef.current && !raidAudioRef.current.paused) {
+                raidAudioRef.current.pause();
+                raidAudioRef.current.currentTime = 0;
+            }
+            onFightEnd?.();
+        }
+    }, [phase]); // eslint-disable-line
+
+    useEffect(() => {
+        if (raidAudioRef.current) raidAudioRef.current.volume = musicVolume;
+    }, [musicVolume]);
+
+    useEffect(() => {
+        if (!isOpen && raidAudioRef.current) {
+            raidAudioRef.current.pause();
+            raidAudioRef.current.currentTime = 0;
+            onFightEnd?.();
+        }
+    }, [isOpen]); // eslint-disable-line
 
     useEffect(() => {
         if (isOpen) {
@@ -166,6 +205,7 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
             setHeatStacks(0);
             setActiveSeconds(0);
             setDefenseDebuff(0);
+            setAutoUlt(false);
         }
     }, [isOpen]);
 
@@ -193,6 +233,17 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
         }, 1000);
         return () => clearTimeout(t);
     }, [phase, timer]);
+
+    useEffect(() => {
+        if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
+            setAutoFiring(true);
+            autoFireTimerRef.current = setTimeout(() => {
+                handleUlt();
+                setAutoFiring(false);
+            }, 350);
+        }
+        return () => clearTimeout(autoFireTimerRef.current);
+    }, [ultCooldown, autoUlt]); // eslint-disable-line
 
     const rollRarity = (rarityPool) => {
         const total = rarityPool.reduce((s, r) => s + r.weight, 0);
@@ -499,6 +550,9 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                     <button className="combat-back-btn combat-biome-back" onClick={onBack ?? onClose}><ChevronLeft /></button>
                     <h2 className="combat-title">Raids Activas</h2>
                     <p className="combat-subtitle">Elige un bioma</p>
+                    <div className="combat-early-warning">
+                        Sistema en fase muy temprana. Puede contener errores o cambios bruscos de balance.
+                    </div>
                     <div className="combat-biome-grid">
                         {CombatConfig.biomes.map(biome => (
                             <button
@@ -783,23 +837,30 @@ const CombatScreen = ({ isOpen, onClose, onBack }) => {
                             );
                         }
 
-                        const elemInfo = element ? ELEMENT_ICON[element] : null;
-                        const isReady  = ultCooldown === 0;
-                        const ultName  = isForge
-                            ? (FORGE_ULT_NAME[element] ?? 'Ult')
-                            : (MINER_ULT_NAME[element] ?? 'Ult');
+                        const isReady = ultCooldown === 0;
+                        const asset   = ULT_ASSET[element];
                         return (
                             <button
-                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}`}
-                                style={isReady && elemInfo ? { borderColor: elemInfo.color, boxShadow: `0 0 14px ${elemInfo.color}44` } : {}}
+                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}`}
                                 onClick={handleUlt}
                                 disabled={!isReady}
                             >
-                                {elemInfo && <elemInfo.Icon size={14} color={isReady ? elemInfo.color : 'rgba(255,255,255,0.28)'} />}
-                                <span className="ult-btn-label">{isReady ? ultName : `${ultCooldown}s`}</span>
+                                {asset && <img src={asset} alt={element} className="ult-btn-img" />}
+                                {!isReady && <span className="ult-btn-cd">{ultCooldown}s</span>}
                             </button>
                         );
                     })()}
+
+                    {slots[1] && !ForgeDogsConfig[slots[1]] && (
+                        <label className="combat-auto-ult">
+                            <input
+                                type="checkbox"
+                                checked={autoUlt}
+                                onChange={e => setAutoUlt(e.target.checked)}
+                            />
+                            Auto
+                        </label>
+                    )}
 
                     {/* EFECTOS ACTIVOS */}
                     <div className="combat-effects-row">

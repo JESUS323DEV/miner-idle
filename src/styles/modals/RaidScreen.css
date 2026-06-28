@@ -56,6 +56,11 @@
     color: #ff9500;
 }
 
+.raid-tab-locked {
+    cursor: not-allowed;
+    opacity: 0.35;
+}
+
 .raid-tab-soon {
     cursor: not-allowed;
     opacity: 0.4;
