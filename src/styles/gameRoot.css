@@ -1116,8 +1116,10 @@ button:not(:disabled) .lock-price-badge img {
 .gds-modal {
     position: fixed;
     top: 9rem;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
     bottom: 0;
     z-index: 801;
     background: #130f08;
