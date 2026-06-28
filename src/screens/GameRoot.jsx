@@ -159,7 +159,7 @@ function GameRoot({ onBack }) {
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
-  useBackgroundMusic(musicVolume);
+  const { pause: pauseMusic, resume: resumeMusic } = useBackgroundMusic(musicVolume);
 
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
@@ -1135,6 +1135,9 @@ function GameRoot({ onBack }) {
           isOpen={combatOpen}
           onClose={() => setCombatOpen(false)}
           onBack={() => { setCombatOpen(false); setRaidOpen(true); }}
+          onFightStart={pauseMusic}
+          onFightEnd={resumeMusic}
+          musicVolume={musicVolume}
         />
 
         {/* MENA DE ORO + AUTOMINE + SLOTS PERROS — posicionados juntos como unidad */}

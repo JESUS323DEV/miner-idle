@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[context.production]
+  [context.production.environment]
+    VITE_RAIDS_ACTIVAS = "false"
+
+[context.branch-deploy]
+  [context.branch-deploy.environment]
+    VITE_RAIDS_ACTIVAS = "true"
