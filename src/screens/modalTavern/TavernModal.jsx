@@ -10,6 +10,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/ForgeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
+import { computeTavernClients } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
@@ -28,7 +29,17 @@ import iconShardLegendaryGeneric from "../../assets/ui/icons-pets-shards/icon-sh
 import iconShardEpic from "../../assets/ui/icons-pets-shards/icon-shard-epic.webp"
 import iconShardLegendary from "../../assets/ui/icons-pets-shards/icon-shard-legendary.webp"
 
-import bgTavern from "../../assets/backgrounds/bg-tavern/bg-tavern1.webp"
+import bgTavern0 from "../../assets/backgrounds/bg-tavern/bg-tavern-0.webp"
+import bgTavern1 from "../../assets/backgrounds/bg-tavern/bg-tavern-1.webp"
+import bgTavern2 from "../../assets/backgrounds/bg-tavern/bg-tavern-2.webp"
+import bgTavern3 from "../../assets/backgrounds/bg-tavern/bg-tavern-3.webp"
+import bgTavern4 from "../../assets/backgrounds/bg-tavern/bg-tavern-4.webp"
+import bgTavern5 from "../../assets/backgrounds/bg-tavern/bg-tavern-5.webp"
+import iconTavernComida from "../../assets/ui/icons-hud/hud-modals/icons-tavern/comida.webp"
+import iconTavernTrigo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp"
+import iconTavernLupulo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp"
+import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
+import iconTavernCraft from "../../assets/ui/icons-hud/hud-modals/icons-tavern/craft.webp"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
 import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
@@ -43,7 +54,9 @@ import menaIron from "../../assets/ui/icons-menas/menas-iron/mena-iron3.webp"
 import menaDiamond from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp"
 
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
-import materiales from "../../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.webp"
+import iconRuleta from "../../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.png"
+import iconTragaperras from "../../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.png"
+import iconLogo from "../../assets/landing-pico-pata/logo.webp"
 
 import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.webp"
 import tokyoIcon from "../../assets/ui/icons-pets/mineros/tokyo-icon.webp"
@@ -71,27 +84,27 @@ import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.webp"
 import forgeBadge from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.webp"
 
 const ELEMENT_ICON = {
-    fuego:    { Icon: Flame,     color: '#ff6b35' },
-    electrico:{ Icon: Zap,       color: '#FFD700' },
-    agua:     { Icon: Droplets,  color: '#4fc3f7' },
-    tierra:   { Icon: Mountain,  color: '#8b6914' },
-    oscuro:   { Icon: Moon,      color: '#b45cff' },
+    fuego: { Icon: Flame, color: '#ff6b35' },
+    electrico: { Icon: Zap, color: '#FFD700' },
+    agua: { Icon: Droplets, color: '#4fc3f7' },
+    tierra: { Icon: Mountain, color: '#8b6914' },
+    oscuro: { Icon: Moon, color: '#b45cff' },
 };
 
 const FORGE_COMBAT_PASSIVE_BY_ELEMENT = {
-    fuego:     'Cada golpe calienta al enemigo. Cuantos mas golpes, mas daño. Cuanto mejor el perro, mas aguanta.',
-    agua:      'El activo hace mas daño cuanto mas tiempo lleva peleando sin cambiar. Mejora con la rareza.',
+    fuego: 'Cada golpe calienta al enemigo. Cuantos mas golpes, mas daño. Cuanto mejor el perro, mas aguanta.',
+    agua: 'El activo hace mas daño cuanto mas tiempo lleva peleando sin cambiar. Mejora con la rareza.',
     electrico: 'Cada golpe del activo tiene mas probabilidad de impactar dos veces. Mejora con la rareza.',
-    tierra:    'Cada golpe debilita la armadura del enemigo de forma permanente. Mejora con la rareza.',
-    oscuro:    'El activo hace mas daño mientras el enemigo tiene mucha vida. Mejora con la rareza.',
+    tierra: 'Cada golpe debilita la armadura del enemigo de forma permanente. Mejora con la rareza.',
+    oscuro: 'El activo hace mas daño mientras el enemigo tiene mucha vida. Mejora con la rareza.',
 };
 
 const COMBAT_PASSIVE_BY_ELEMENT = {
-    fuego:    'Añade daño fijo extra por cada golpe al enemigo.',
-    electrico:'Cada golpe tiene probabilidad de impactar dos veces.',
-    tierra:   'El enemigo recibe un porcentaje extra de daño en cada golpe.',
-    agua:     'Multiplica el daño de todos los golpes durante la batalla.',
-    oscuro:   'Reduce el cooldown de la habilidad activa del perro central.',
+    fuego: 'Añade daño fijo extra por cada golpe al enemigo.',
+    electrico: 'Cada golpe tiene probabilidad de impactar dos veces.',
+    tierra: 'El enemigo recibe un porcentaje extra de daño en cada golpe.',
+    agua: 'Multiplica el daño de todos los golpes durante la batalla.',
+    oscuro: 'Reduce el cooldown de la habilidad activa del perro central.',
 };
 
 const dogAssets = {
@@ -125,10 +138,125 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         handleOpenPack: onOpenPack,
         handleFreePull: onFreePull,
     } = useGameContext();
-    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {} } = gameState;
+    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
+    const setBartenderHired = (val) => setGameState(prev => ({ ...prev, bartenderHired: val }));
+
+    const activeClients = bartenderHired ? computeTavernClients(tavernStock) : 0;
+    const BG_IMAGES = [bgTavern0, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5];
+    const tavernBgIndex = !bartenderHired ? 0
+        : activeClients <= 0 ? 1
+        : activeClients >= 11 ? 5
+        : activeClients >= 6 ? 4
+        : activeClients >= 4 ? 3
+        : activeClients >= 2 ? 2
+        : 1;
+    const tavernBg = BG_IMAGES[tavernBgIndex];
+
+    const brewLevel = gameState.tavernBrewLevel ?? 0;
+    const BREW_DURATION = TavernConfig.brewDurations[brewLevel] ?? 15000;
+    const brew = gameState.tavernBrewery ?? { isActive: false, startTime: null, progress: 0 };
+    const createdMax = gameState.tavernCreatedMaxStock ?? TavernConfig.createdMaxStock;
+    const materialsMax = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+
+    useEffect(() => {
+        if (!bartenderHired) return;
+        const interval = setInterval(() => {
+            setGameState(prev => {
+                const b = prev.tavernBrewery ?? { isActive: false, startTime: null, progress: 0 };
+                const stock = prev.tavernStock ?? {};
+                const cMax = prev.tavernCreatedMaxStock ?? TavernConfig.createdMaxStock;
+                const duration = TavernConfig.brewDurations[prev.tavernBrewLevel ?? 0] ?? 15000;
+                const cerveza = stock.cerveza ?? 0;
+                const hasMats = (stock.trigo ?? 0) >= 1 && (stock.lupulo ?? 0) >= 1;
+                const cervezaFull = cerveza >= cMax;
+
+                if (b.isActive) {
+                    const elapsed = Date.now() - b.startTime;
+                    const progress = Math.min(1, elapsed / duration);
+                    if (elapsed >= duration) {
+                        if (cervezaFull) return { ...prev, tavernBrewery: { ...b, progress: 1 } };
+                        const canContinue = hasMats;
+                        return {
+                            ...prev,
+                            tavernStock: {
+                                ...stock,
+                                cerveza: cerveza + 1,
+                                ...(canContinue ? { trigo: stock.trigo - 1, lupulo: stock.lupulo - 1 } : {}),
+                            },
+                            tavernBrewery: {
+                                isActive: canContinue,
+                                startTime: canContinue ? Date.now() : null,
+                                progress: 0,
+                            },
+                        };
+                    }
+                    return { ...prev, tavernBrewery: { ...b, progress } };
+                }
+
+                if (hasMats && !cervezaFull) {
+                    return {
+                        ...prev,
+                        tavernStock: { ...stock, trigo: stock.trigo - 1, lupulo: stock.lupulo - 1 },
+                        tavernBrewery: { isActive: true, startTime: Date.now(), progress: 0 },
+                    };
+                }
+                return prev;
+            });
+        }, 500);
+        return () => clearInterval(interval);
+    }, [bartenderHired]); // eslint-disable-line
+
+    const upgradeBrew = () => {
+        const currentLevel = gameState.tavernBrewLevel ?? 0;
+        const next = TavernConfig.brewUpgrades.find(u => u.level > currentLevel);
+        if (!next || gameState.gold < next.cost) return;
+        setGameState(prev => ({
+            ...prev,
+            gold: prev.gold - next.cost,
+            tavernBrewLevel: next.level,
+        }));
+    };
+
+    const upgradeStock = () => {
+        const current = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+        const next = TavernConfig.stockUpgrades.find(u => u.to > current);
+        if (!next || gameState.gold < next.cost) return;
+        setGameState(prev => ({
+            ...prev,
+            gold: prev.gold - next.cost,
+            tavernProvisionMaxStock: next.to,
+        }));
+    };
+
+    const upgradeCreatedStock = () => {
+        const current = gameState.tavernCreatedMaxStock ?? TavernConfig.createdMaxStock;
+        const next = TavernConfig.createdStockUpgrades.find(u => u.to > current);
+        if (!next || gameState.gold < next.gold || gameState.tavernCoins < next.coins) return;
+        setGameState(prev => ({
+            ...prev,
+            gold: prev.gold - next.gold,
+            tavernCoins: prev.tavernCoins - next.coins,
+            tavernCreatedMaxStock: next.to,
+        }));
+    };
+
+    const buyProvision = (id, costPerUnit, buyAmount) => {
+        const current = tavernStock[id] ?? 0;
+        const max = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+        if (current >= max) return;
+        const total = costPerUnit * buyAmount;
+        if (gameState.gold < total) return;
+        setGameState(prev => ({
+            ...prev,
+            gold: prev.gold - total,
+            tavernStock: { ...prev.tavernStock, [id]: Math.min(max, current + buyAmount) },
+        }));
+    };
 
     const [showDogsIntro, setShowDogsIntro] = useState(false);
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
+    const [cambistaTab, setCambistaTab] = useState('materiales');
+    const [showBrewPanel, setShowBrewPanel] = useState(false);
     const [showSobresIntro, setShowSobresIntro] = useState(false);
     const [view, setView] = useState('main');
     const [rouletteTab, setRouletteTab] = useState('gold');
@@ -222,79 +350,119 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         : _checkHiredUpgradeable(forgeDogs, ForgeDogsConfig);
 
     return (
-        <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${bgTavern})` }}>
+        <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${tavernBg})`, overflowY: view === 'main' ? 'hidden' : 'auto' }}>
+            {view !== 'main' && (
+                <button className="tavern-back-btn-fixed" onClick={(e) => { e.stopPropagation(); setView('main'); if (view === 'sobres') setInvocPrizeData(null); }}>
+                    <ArrowLeft size={16} /> Volver
+                </button>
+            )}
+            {bartenderHired && view === 'main' && (
+                <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
+
+
+                    <div className="tavern-stock-item">
+                        <img src={iconTavernTrigo} className="tavern-stock-icon" alt="trigo" />
+                        <span>{tavernStock.trigo ?? 0}</span>
+                    </div>
+
+                    <div className="tavern-stock-item">
+                        <img src={iconTavernLupulo} className="tavern-stock-icon" alt="lupulo" />
+                        <span>{tavernStock.lupulo ?? 0}</span>
+                    </div>
+
+                    <div className="tavern-stock-item">
+                        <img src={iconTavernCerveza} className="tavern-stock-icon" alt="cerveza" />
+                        <span>{tavernStock.cerveza ?? 0}</span>
+                    </div>
+                    <div className="tavern-stock-item">
+                        <img src={iconTavernComida} className="tavern-stock-icon" alt="comida" />
+                        <span>{tavernStock.comida ?? 0}</span>
+                    </div>
+                    {activeClients > 0 && (
+                        <div className="tavern-stock-item tavern-clients-badge">
+                            <span>{activeClients} clientes</span>
+                        </div>
+                    )}
+                </div>
+            )}
             <div className="tavern-content" onClick={(e) => e.stopPropagation()}>
                 {view === 'main' && <button className="tavern-close" onClick={onClose}><X /></button>}
 
-                {/* MAIN */}
-                {view === 'main' && (
-                    <>
-                        <h2 className="tavern-title">🏛️ TABERNA</h2>
-                        <div className="tavern-menu">
+                {/* MAIN — escena interactiva */}
+                {view === 'main' && (() => {
+                    const ZONES = [
+                        { id: 'cambista', icon: cambistaCoin, notify: false },
+                        { id: 'ayudantes', icon: iconLogo, notify: hasPendingDogAction },
+                        { id: 'sobres', icon: iconInvocacion, notify: hasFreePacks },
+                        { id: 'ruleta', icon: iconRuleta, notify: rouletteHasFree },
+                        { id: 'tragaperras', icon: iconTragaperras, notify: !gameState.slotWelcomeDone },
+                    ];
+                    return (
+                        <div className="tavern-scene">
+                            {!bartenderHired && (
+                                <button className="tavern-bartender-btn" onClick={() => setBartenderHired(true)}>
+                                    Contratar cantinero
+                                </button>
+                            )}
 
-                            <button className="tavern-menu-card" onClick={() => setView('cambista')}>
-                                <img src={cambistaCoin} className="tavern-card-icon" />
-                                <div className="tavern-card-info">
-                                    <span className="tavern-card-name">Cambista</span>
-                                    <span className="tavern-card-desc">
-                                        Convierte materiales <img src={materiales} className="tavern-card-inline-icon" /> en monedas <img src={coinTavern} className="tavern-card-inline-icon" />
-                                    </span>
+                            {bartenderHired && (
+                                <div className="tavern-brew-anchor">
+                                    <button
+                                        className="tavern-brew-btn"
+                                        onClick={(e) => { e.stopPropagation(); setShowBrewPanel(p => !p); }}
+                                    >
+                                        {showBrewPanel
+                                            ? <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={28} color="white" /></div>
+                                            : <img src={iconTavernCraft} alt="craft" className="tavern-brew-btn-icon" />
+                                        }
+                                    </button>
+                                    {showBrewPanel && (
+                                        <div className="tavern-brew-panel" onClick={e => e.stopPropagation()}>
+                                            <div className="brew-slots">
+                                                <div className="brew-slot">
+                                                    <span className="brew-slot-label">Cebada</span>
+                                                    <span className="brew-slot-qty">{tavernStock.trigo ?? 0}</span>
+                                                </div>
+                                                <span className="brew-plus">+</span>
+                                                <div className="brew-slot">
+                                                    <span className="brew-slot-label">Lupulo</span>
+                                                    <span className="brew-slot-qty">{tavernStock.lupulo ?? 0}</span>
+                                                </div>
+                                                <span className="brew-plus">=</span>
+                                                <div className="brew-slot brew-slot-result">
+                                                    <span className="brew-slot-label">Cerveza</span>
+                                                    <span className="brew-slot-qty">{tavernStock.cerveza ?? 0}</span>
+                                                </div>
+                                            </div>
+                                            <div className="brew-progress-bar">
+                                                <div className="brew-progress-fill" style={{ width: `${(brew.progress ?? 0) * 100}%` }} />
+                                            </div>
+                                            <span className="brew-status-label">
+                                                {brew.isActive ? 'Elaborando...' : ((tavernStock.trigo ?? 0) < 1 || (tavernStock.lupulo ?? 0) < 1) ? 'Sin materiales' : 'Esperando...'}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
-                                <span className="tavern-card-arrow">›</span>
-                            </button>
-
-                            <button className={`tavern-menu-card ${hasPendingDogAction ? 'notify-pulse' : ''}`} onClick={() => setView('ayudantes')}>
-                                <img src={ladyIcon} className="tavern-card-icon" />
-                                <div className="tavern-card-info">
-                                    <span className="tavern-card-name">Ayudantes</span>
-                                    <span className="tavern-card-desc">Contrata y gestiona tus mascotas</span>
-                                </div>
-                                <span className="tavern-card-arrow">›</span>
-                            </button>
-
-                            <button className={`tavern-menu-card ${hasFreePacks ? 'notify-pulse' : ''}`} onClick={() => setView('sobres')}>
-                                <img src={iconInvocacion} className="tavern-card-icon" />
-                                <div className="tavern-card-info">
-                                    <span className="tavern-card-name">Invocación</span>
-                                    <span className="tavern-card-desc">Abre sobres y consigue fragmentos</span>
-                                </div>
-                                <span className="tavern-card-arrow">›</span>
-                            </button>
-
-                            <button className={`tavern-menu-card ${rouletteHasFree ? 'notify-pulse' : ''}`} onClick={() => setView('ruleta')}>
-                                <Coins className="tavern-card-icon" style={{ width: 40, height: 40, color: '#FFD700' }} />
-                                <div className="tavern-card-info">
-                                    <span className="tavern-card-name">Ruleta</span>
-                                    <span className="tavern-card-desc">Apuesta oro y gana premios</span>
-                                </div>
-                                <span className="tavern-card-arrow">›</span>
-                            </button>
-
-                            <button
-                                className={`tavern-menu-card ${!gameState.slotWelcomeDone ? 'notify-pulse' : ''}`}
-                                onClick={() => setView('tragaperras')}
-                            >
-                                <img src={iconShardLegendary} className="tavern-card-icon" alt="" />
-                                <div className="tavern-card-info">
-                                    <span className="tavern-card-name">Tragaperras</span>
-                                    <span className="tavern-card-desc">
-                                        {!gameState.slotWelcomeDone ? 'Tirada de bienvenida disponible' : 'Gira por épicos y legendarios'}
-                                    </span>
-                                </div>
-                                <span className="tavern-card-arrow">›</span>
-                            </button>
-
+                            )}
+                            <div className="tavern-bottom-bar">
+                                {ZONES.map(z => (
+                                    <button
+                                        key={z.id}
+                                        className={`tavern-zone-btn${z.notify ? ' tavern-zone-notify' : ''}`}
+                                        onClick={() => setView(z.id)}
+                                    >
+                                        <img src={z.icon} alt={z.id} />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </>
-                )}
+                    );
+                })()}
 
                 {/* CAMBISTA LINGOTES → MONEDAS */}
                 {view === 'cambista' && (
                     <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
-                        <button className="tavern-back-btn" onClick={() => setView('main')}>
-                            <ArrowLeft /> Volver
-                        </button>
-                        <h2 className="tavern-title">💱 Cambista</h2>
+                        <h2 className="tavern-title">Comerciante</h2>
 
                         {showCambistaIntro && (
                             <div className="forge-intro-overlay">
@@ -308,36 +476,145 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 }}>Entendido</button>
                             </div>
                         )}
-                        <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
+                        <div className="dog-tabs">
+                            <button className={`dog-tab-btn ${cambistaTab === 'materiales' ? 'active' : ''}`} onClick={() => setCambistaTab('materiales')}>Materiales</button>
+                            <button className={`dog-tab-btn ${cambistaTab === 'taberna' ? 'active' : ''}`} onClick={() => setCambistaTab('taberna')}>Taberna</button>
+                        </div>
 
-                        <div className="tavern-conversions">
-                            {TavernConfig.conversions.map(conv => {
-                                const stock = currentMaterials[conv.material] ?? 0;
-                                const hasEnough = stock >= conv.amount;
-                                return (
-                                    <div key={conv.material} className={`tavern-conv-card ${!hasEnough ? 'conv-locked' : ''}`}>
+                        {cambistaTab === 'materiales' && (
+                            <>
+                                <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
+                                <div className="tavern-conversions">
+                                    {TavernConfig.conversions.map(conv => {
+                                        const stock = currentMaterials[conv.material] ?? 0;
+                                        const hasEnough = stock >= conv.amount;
+                                        return (
+                                            <div key={conv.material} className={`tavern-conv-card ${!hasEnough ? 'conv-locked' : ''}`}>
+                                                <div className="conv-left">
+                                                    <img src={ingotAssets[conv.material]} className="conv-icon" />
+                                                    <div className="conv-details">
+                                                        <span className="conv-ratio">{conv.amount} → {conv.coins} <img src={coinTavern} className="conv-small-icon" /></span>
+                                                        <span className={`conv-stock ${hasEnough ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {formatNumber2(stock)}</span>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => onConvert(conv.material)} disabled={!hasEnough} className="conv-btn">→</button>
+                                            </div>
+                                        );
+                                    })}
+                                    <div className={`tavern-conv-card ${tavernCoins < 1 ? 'conv-locked' : ''}`}>
                                         <div className="conv-left">
-                                            <img src={ingotAssets[conv.material]} className="conv-icon" />
+                                            <img src={coinTavern} className="conv-icon" />
                                             <div className="conv-details">
-                                                <span className="conv-ratio">{conv.amount} → {conv.coins} <img src={coinTavern} className="conv-small-icon" /></span>
-                                                <span className={`conv-stock ${hasEnough ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {formatNumber2(stock)}</span>
+                                                <span className="conv-ratio">1 <img src={coinTavern} className="conv-small-icon" /> → {formatNumber2(TavernConfig.coinToGold)} <img src={iconGold} className="conv-small-icon" /></span>
+                                                <span className={`conv-stock ${tavernCoins >= 1 ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {tavernCoins}</span>
                                             </div>
                                         </div>
-                                        <button onClick={() => onConvert(conv.material)} disabled={!hasEnough} className="conv-btn">→</button>
-                                    </div>
-                                );
-                            })}
-                            <div className={`tavern-conv-card ${tavernCoins < 1 ? 'conv-locked' : ''}`}>
-                                <div className="conv-left">
-                                    <img src={coinTavern} className="conv-icon" />
-                                    <div className="conv-details">
-                                        <span className="conv-ratio">1 <img src={coinTavern} className="conv-small-icon" /> → {formatNumber2(TavernConfig.coinToGold)} <img src={iconGold} className="conv-small-icon" /></span>
-                                        <span className={`conv-stock ${tavernCoins >= 1 ? 'conv-stock-ok' : 'conv-stock-low'}`}>Tienes: {tavernCoins}</span>
+                                        <button onClick={onConvertCoins} disabled={tavernCoins < 1} className="conv-btn">→</button>
                                     </div>
                                 </div>
-                                <button onClick={onConvertCoins} disabled={tavernCoins < 1} className="conv-btn">→</button>
-                            </div>
-                        </div>
+                            </>
+                        )}
+
+                        {cambistaTab === 'taberna' && (() => {
+                            const provIcons = { comida: iconTavernComida, trigo: iconTavernTrigo, lupulo: iconTavernLupulo, cerveza: iconTavernCerveza };
+                            const nextUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
+                            const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost;
+                            return (
+                                <div className="tavern-conversions">
+                                    <span className="tavern-section-label">Provisiones</span>
+                                    {TavernConfig.provisions.map(prov => {
+                                        const current = tavernStock[prov.id] ?? 0;
+                                        const total = prov.costPerUnit * prov.buyAmount;
+                                        const maxForProv = prov.id === 'comida' ? createdMax : materialsMax;
+                                        const isFull = current >= maxForProv;
+                                        const canBuy = !isFull && gameState.gold >= total;
+                                        return (
+                                            <div key={prov.id} className={`tavern-conv-card ${!canBuy ? 'conv-locked' : ''}`}>
+                                                <div className="conv-left">
+                                                    <img src={provIcons[prov.id]} className="conv-icon" />
+                                                    <div className="conv-details">
+                                                        <span className="conv-ratio">{prov.label} · {current}/{maxForProv}</span>
+                                                        <span className={`conv-stock ${canBuy ? 'conv-stock-ok' : 'conv-stock-low'}`}>
+                                                            {formatNumber2(total)} <img src={iconGold} className="conv-small-icon" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => buyProvision(prov.id, prov.costPerUnit, prov.buyAmount)} disabled={!canBuy} className="conv-btn">
+                                                    {isFull ? 'MAX' : `+${prov.buyAmount}`}
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                    <span className="tavern-section-label">Mejoras</span>
+                                    <div className={`tavern-conv-card tavern-stock-upgrade-card ${!canUpgrade ? 'conv-locked' : ''}`}>
+                                        <div className="conv-left">
+                                            <div className="conv-details">
+                                                <span className="conv-ratio">Almacén {materialsMax} → {nextUpgrade ? nextUpgrade.to : materialsMax}</span>
+                                                {nextUpgrade ? (
+                                                    <span className={`conv-stock ${canUpgrade ? 'conv-stock-ok' : 'conv-stock-low'}`}>
+                                                        {formatNumber2(nextUpgrade.cost)} <img src={iconGold} className="conv-small-icon" />
+                                                    </span>
+                                                ) : (
+                                                    <span className="conv-stock conv-stock-ok">Capacidad maxima</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <button onClick={upgradeStock} disabled={!canUpgrade} className="conv-btn">
+                                            {nextUpgrade ? 'Mejorar' : 'MAX'}
+                                        </button>
+                                    </div>
+                                    {(() => {
+                                        const nextCreated = TavernConfig.createdStockUpgrades.find(u => u.to > createdMax);
+                                        const canUpgradeCreated = nextCreated && gameState.gold >= nextCreated.gold && gameState.tavernCoins >= nextCreated.coins;
+                                        return (
+                                            <div className={`tavern-conv-card tavern-stock-upgrade-card ${!canUpgradeCreated ? 'conv-locked' : ''}`}>
+                                                <div className="conv-left">
+                                                    <div className="conv-details">
+                                                        <span className="conv-ratio">Almacén creados {createdMax} → {nextCreated ? nextCreated.to : createdMax}</span>
+                                                        {nextCreated ? (
+                                                            <span className={`conv-stock ${canUpgradeCreated ? 'conv-stock-ok' : 'conv-stock-low'}`}>
+                                                                {formatNumber2(nextCreated.gold)} <img src={iconGold} className="conv-small-icon" />
+                                                                {' '}{nextCreated.coins} <img src={coinTavern} className="conv-small-icon" />
+                                                            </span>
+                                                        ) : (
+                                                            <span className="conv-stock conv-stock-ok">Capacidad maxima</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <button onClick={upgradeCreatedStock} disabled={!canUpgradeCreated} className="conv-btn">
+                                                    {nextCreated ? 'Mejorar' : 'MAX'}
+                                                </button>
+                                            </div>
+                                        );
+                                    })()}
+                                    {(() => {
+                                        const nextBrew = TavernConfig.brewUpgrades.find(u => u.level > brewLevel);
+                                        const canUpgradeBrew = nextBrew && gameState.gold >= nextBrew.cost;
+                                        const currentSecs = BREW_DURATION / 1000;
+                                        const nextSecs = nextBrew ? nextBrew.duration / 1000 : null;
+                                        return (
+                                            <div className={`tavern-conv-card ${!canUpgradeBrew ? 'conv-locked' : ''}`}>
+                                                <div className="conv-left">
+                                                    <div className="conv-details">
+                                                        <span className="conv-ratio">Crafteo {currentSecs}s → {nextSecs ? `${nextSecs}s` : 'MAX'}</span>
+                                                        {nextBrew ? (
+                                                            <span className={`conv-stock ${canUpgradeBrew ? 'conv-stock-ok' : 'conv-stock-low'}`}>
+                                                                {formatNumber2(nextBrew.cost)} <img src={iconGold} className="conv-small-icon" />
+                                                            </span>
+                                                        ) : (
+                                                            <span className="conv-stock conv-stock-ok">Velocidad maxima</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <button onClick={upgradeBrew} disabled={!canUpgradeBrew} className="conv-btn">
+                                                    {nextBrew ? 'Mejorar' : 'MAX'}
+                                                </button>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            );
+                        })()}
                     </div>
                 )}
 
@@ -347,9 +624,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                 {view === 'ayudantes' && (
                     <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
-                        <button className="tavern-back-btn" onClick={() => setView('main')}>
-                            <ArrowLeft /> Volver
-                        </button>
                         <h2 className="tavern-title"> Ayudantes</h2>
 
                         {showDogsIntro && (
@@ -589,7 +863,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             <img src={assets[dog.id]} className="dog-portrait" alt={config.name} />
                                             <div className="dog-name">{config.name}</div>
                                             <div className="dog-stars-row">
-                                                {[1,2,3,4,5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
+                                                {[1, 2, 3, 4, 5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
                                             </div>
                                             {stars < 5 ? (
                                                 <>
@@ -600,7 +874,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         </span>
                                                         {starGoldCost > 0 && (
                                                             <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${(starGoldCost/1000).toFixed(0)}k` : starGoldCost}
+                                                                <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${(starGoldCost / 1000).toFixed(0)}k` : starGoldCost}
                                                             </span>
                                                         )}
                                                     </div>
@@ -847,9 +1121,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/* SOBRES */}
                 {view === 'sobres' && (
                     <div className="tavern-cambista">
-                        <button className="tavern-back-btn" onClick={() => { setView('main'); setInvocPrizeData(null); }}>
-                            <ArrowLeft /> Volver
-                        </button>
                         <h2 className="tavern-title">Invocación</h2>
 
                         {showSobresIntro && (
@@ -965,9 +1236,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/* RULETA */}
                 {view === 'ruleta' && (
                     <div className="tavern-cambista">
-                        <button className="tavern-back-btn" onClick={() => setView('main')}>
-                            <ArrowLeft /> Volver
-                        </button>
                         <h2 className="tavern-title">Ruleta</h2>
 
                         <div className="roulette-tabs">
@@ -993,9 +1261,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/* TRAGAPERRAS */}
                 {view === 'tragaperras' && (
                     <div className="tavern-cambista">
-                        <button className="tavern-back-btn" onClick={() => setView('main')}>
-                            <ArrowLeft /> Volver
-                        </button>
                         <h2 className="tavern-title">Tragaperras</h2>
                         <div className="slot-center-wrapper">
                             <SlotMachine guaranteed={!gameState.slotWelcomeDone} />

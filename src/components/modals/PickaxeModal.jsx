@@ -103,6 +103,7 @@ const PickaxeModal = ({
                                 className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
                                 onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
                                 disabled={!canAfford}
+                                data-tutorial="tut-pickaxe-modal"
                             >
                                 <img src={buttonImage} loading="lazy" alt="Upgrade" />
                                 <span className="info-tier">

@@ -83,6 +83,13 @@ const InitialGameState = {
     // ========== TABERNA ==========
     tavernCoins: 1,
     tavernUnlocked: false,
+    tavernStock: { comida: 0, trigo: 0, lupulo: 0, cerveza: 0 },
+    tavernActiveClients: 0,
+    tavernLastTick: null,
+    tavernSalaryDue: null,
+    tavernBrewery: { isActive: false, startTime: null, progress: 0 },
+    tavernBrewLevel: 0,
+    tavernCreatedMaxStock: null,
 
     // ========== MINAS ==========
     minesMapUnlocked: false,
@@ -140,6 +147,7 @@ const InitialGameState = {
     lastFreeSpinGold: null,
     lastFreeSpinShards: null,
     slotWelcomeDone: false,
+    bartenderHired: false,
 
     // ========== RAIDS ==========
     raid: InitialRaidState,
