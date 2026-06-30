@@ -32,7 +32,6 @@ export const TavernConfig = {
         { level: 2, duration: 5000,  cost: 25000 },
     ],
     provisions: [
-        { id: 'comida', label: 'Comida',  costPerUnit: 200, buyAmount: 5 },
         { id: 'trigo',  label: 'Trigo',   costPerUnit: 150, buyAmount: 5 },
         { id: 'lupulo', label: 'Lupulo',  costPerUnit: 200, buyAmount: 5 },
     ],

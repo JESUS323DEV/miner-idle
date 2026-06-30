@@ -634,7 +634,6 @@ function GameRoot({ onBack }) {
     });
   const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
   const tavernStockNeedsAttention = gameState.bartenderHired && (
-    (gameState.tavernStock?.comida ?? 0) === 0 ||
     (gameState.tavernStock?.cerveza ?? 0) === 0 ||
     (gameState.tavernStock?.trigo ?? 0) === 0 ||
     (gameState.tavernStock?.lupulo ?? 0) === 0

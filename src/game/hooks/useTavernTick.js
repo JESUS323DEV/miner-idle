@@ -6,16 +6,20 @@ const CONSUME_PER_TICK = 2;
 
 const GOLD_PER_TIER = {
     2:  800,
+    3:  1200,
     4:  2000,
-    6:  5000,
-    11: 12000,
+    5:  3000,
+    8:  6000,
+    10: 12000,
 };
 
 export function computeTavernClients(stock) {
-    const minStock = Math.min(stock?.comida ?? 0, stock?.cerveza ?? 0);
-    return minStock >= 11 ? 11
-        : minStock >= 6 ? 6
+    const minStock = stock?.cerveza ?? 0;
+    return minStock >= 10 ? 10
+        : minStock >= 8 ? 8
+        : minStock >= 5 ? 5
         : minStock >= 4 ? 4
+        : minStock >= 3 ? 3
         : minStock >= 2 ? 2
         : 0;
 }
@@ -36,14 +40,12 @@ export const useTavernTick = (setGameState) => {
                 if (clients === 0) return prev;
 
                 const goldEarned = computeTavernGold(clients);
-                const comida = stock.comida ?? 0;
                 const cerveza = stock.cerveza ?? 0;
 
                 return {
                     ...prev,
                     tavernStock: {
                         ...stock,
-                        comida: Math.max(0, comida - CONSUME_PER_TICK),
                         cerveza: Math.max(0, cerveza - CONSUME_PER_TICK),
                     },
                     gold: prev.gold + goldEarned,
@@ -69,7 +71,7 @@ export const useTavernTick = (setGameState) => {
 
                 for (const prov of TavernConfig.provisions) {
                     const current = newStock[prov.id] ?? 0;
-                    if (current === 0) {
+                    if (current <= 1) {
                         const needed = materialsMax - current;
                         const total = prov.costPerUnit * needed;
                         if (gold >= total) {

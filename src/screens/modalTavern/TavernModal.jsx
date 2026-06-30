@@ -3,6 +3,7 @@ import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
 import TavernDogSlot from './TavernDogSlot.jsx';
+import BartenderSprite from './BartenderSprite.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -30,13 +31,13 @@ import iconShardLegendaryGeneric from "../../assets/ui/icons-pets-shards/icon-sh
 import iconShardEpic from "../../assets/ui/icons-pets-shards/icon-shard-epic.webp"
 import iconShardLegendary from "../../assets/ui/icons-pets-shards/icon-shard-legendary.webp"
 
-import bgTavern0 from "../../assets/backgrounds/bg-tavern/bg-tavern-0.webp"
-import bgTavern1 from "../../assets/backgrounds/bg-tavern/bg-tavern-1.webp"
-import bgTavern2 from "../../assets/backgrounds/bg-tavern/bg-tavern-2.webp"
-import bgTavern3 from "../../assets/backgrounds/bg-tavern/bg-tavern-3.webp"
-import bgTavern4 from "../../assets/backgrounds/bg-tavern/bg-tavern-4.webp"
-import bgTavern5 from "../../assets/backgrounds/bg-tavern/bg-tavern-5.webp"
-import iconTavernComida from "../../assets/ui/icons-hud/hud-modals/icons-tavern/comida.webp"
+import bgScene1 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-1.webp"
+import bgScene2 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-2.webp"
+import bgScene3 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-3.webp"
+import bgScene4 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-4.webp"
+import bgScene5 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-5.webp"
+import bgScene6 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-6.webp"
+import bgScene7 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-7.webp"
 import iconTavernTrigo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp"
 import iconTavernLupulo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp"
 import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
@@ -153,18 +154,17 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     const activeClients = bartenderHired ? computeTavernClients(tavernStock) : 0;
     const stockNeedsAttention = bartenderHired && (
-        (tavernStock.comida ?? 0) <= 1 ||
         (tavernStock.cerveza ?? 0) <= 1 ||
         (tavernStock.trigo ?? 0) <= 1 ||
         (tavernStock.lupulo ?? 0) <= 1
     );
-    const BG_IMAGES = [bgTavern0, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5];
-    const tavernBgIndex = !bartenderHired ? 0
-        : activeClients <= 0 ? 1
-        : activeClients >= 11 ? 5
-        : activeClients >= 6 ? 4
-        : activeClients >= 4 ? 3
-        : activeClients >= 2 ? 2
+    const BG_IMAGES = [bgScene1, bgScene2, bgScene3, bgScene4, bgScene5, bgScene6, bgScene7];
+    const tavernBgIndex = !bartenderHired || activeClients <= 0 ? 0
+        : activeClients >= 10 ? 6
+        : activeClients >= 8  ? 5
+        : activeClients >= 5  ? 4
+        : activeClients >= 4  ? 3
+        : activeClients >= 3  ? 2
         : 1;
     const tavernBg = BG_IMAGES[tavernBgIndex];
 
@@ -380,7 +380,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         { key: 'trigo',   icon: iconTavernTrigo,   label: 'trigo'   },
                         { key: 'lupulo',  icon: iconTavernLupulo,  label: 'lupulo'  },
                         { key: 'cerveza', icon: iconTavernCerveza, label: 'cerveza' },
-                        { key: 'comida',  icon: iconTavernComida,  label: 'comida'  },
                     ].map(({ key, icon, label }) => {
                         const qty = tavernStock[key] ?? 0;
                         return (
@@ -411,6 +410,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
+                            {bartenderHired && (
+                                <BartenderSprite isMax={activeClients >= 10} />
+                            )}
                             {!bartenderHired && (() => {
                                 const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
                                 const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
@@ -543,7 +545,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         {cambistaTab === 'taberna' && (() => {
-                            const provIcons = { comida: iconTavernComida, trigo: iconTavernTrigo, lupulo: iconTavernLupulo, cerveza: iconTavernCerveza };
+                            const provIcons = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo, cerveza: iconTavernCerveza };
                             const nextUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
                             const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost;
                             return (
@@ -552,7 +554,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     {TavernConfig.provisions.map(prov => {
                                         const current = tavernStock[prov.id] ?? 0;
                                         const total = prov.costPerUnit * prov.buyAmount;
-                                        const maxForProv = prov.id === 'comida' ? createdMax : materialsMax;
+                                        const maxForProv = materialsMax;
                                         const isFull = current >= maxForProv;
                                         const canBuy = !isFull && gameState.gold >= total;
                                         return (
