@@ -28,6 +28,7 @@
 }
 
 .rewards-tab {
+    position: relative;
     flex: 1;
     padding: 8px 6px;
     border: 1px solid rgba(180, 120, 40, 0.3);
@@ -68,6 +69,17 @@
 
 .tab-pulse {
     animation: tab-pulse 1.2s ease-in-out infinite;
+}
+
+.tab-pulse::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
 }
 
 .rewards-list {

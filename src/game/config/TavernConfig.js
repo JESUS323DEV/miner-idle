@@ -1,4 +1,5 @@
 export const TavernConfig = {
+    bartenderCost: { gold: 50000, coins: 2 },
     conversions: [
         { material: 'bronzeIngot', amount: 10, coins: 1 },
         { material: 'ironIngot',   amount: 6,  coins: 1 },
@@ -31,8 +32,8 @@ export const TavernConfig = {
         { level: 2, duration: 5000,  cost: 25000 },
     ],
     provisions: [
-        { id: 'comida', label: 'Comida',  costPerUnit: 80,  buyAmount: 5 },
-        { id: 'trigo',  label: 'Trigo',   costPerUnit: 50,  buyAmount: 5 },
-        { id: 'lupulo', label: 'Lupulo',  costPerUnit: 70,  buyAmount: 5 },
+        { id: 'comida', label: 'Comida',  costPerUnit: 200, buyAmount: 5 },
+        { id: 'trigo',  label: 'Trigo',   costPerUnit: 150, buyAmount: 5 },
+        { id: 'lupulo', label: 'Lupulo',  costPerUnit: 200, buyAmount: 5 },
     ],
 };

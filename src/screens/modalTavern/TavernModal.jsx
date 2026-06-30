@@ -2,6 +2,7 @@
 import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
+import TavernDogSlot from './TavernDogSlot.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -10,7 +11,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/ForgeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
-import { computeTavernClients } from '../../game/hooks/useTavernTick.js';
+import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
@@ -139,9 +140,24 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         handleFreePull: onFreePull,
     } = useGameContext();
     const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
-    const setBartenderHired = (val) => setGameState(prev => ({ ...prev, bartenderHired: val }));
+    const hireBartender = () => {
+        const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
+        if (gameState.gold < costGold || tavernCoins < costCoins) return;
+        setGameState(prev => ({
+            ...prev,
+            bartenderHired: true,
+            gold: prev.gold - costGold,
+            tavernCoins: prev.tavernCoins - costCoins,
+        }));
+    };
 
     const activeClients = bartenderHired ? computeTavernClients(tavernStock) : 0;
+    const stockNeedsAttention = bartenderHired && (
+        (tavernStock.comida ?? 0) <= 1 ||
+        (tavernStock.cerveza ?? 0) <= 1 ||
+        (tavernStock.trigo ?? 0) <= 1 ||
+        (tavernStock.lupulo ?? 0) <= 1
+    );
     const BG_IMAGES = [bgTavern0, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5];
     const tavernBgIndex = !bartenderHired ? 0
         : activeClients <= 0 ? 1
@@ -360,27 +376,23 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
 
 
-                    <div className="tavern-stock-item">
-                        <img src={iconTavernTrigo} className="tavern-stock-icon" alt="trigo" />
-                        <span>{tavernStock.trigo ?? 0}</span>
-                    </div>
-
-                    <div className="tavern-stock-item">
-                        <img src={iconTavernLupulo} className="tavern-stock-icon" alt="lupulo" />
-                        <span>{tavernStock.lupulo ?? 0}</span>
-                    </div>
-
-                    <div className="tavern-stock-item">
-                        <img src={iconTavernCerveza} className="tavern-stock-icon" alt="cerveza" />
-                        <span>{tavernStock.cerveza ?? 0}</span>
-                    </div>
-                    <div className="tavern-stock-item">
-                        <img src={iconTavernComida} className="tavern-stock-icon" alt="comida" />
-                        <span>{tavernStock.comida ?? 0}</span>
-                    </div>
+                    {[
+                        { key: 'trigo',   icon: iconTavernTrigo,   label: 'trigo'   },
+                        { key: 'lupulo',  icon: iconTavernLupulo,  label: 'lupulo'  },
+                        { key: 'cerveza', icon: iconTavernCerveza, label: 'cerveza' },
+                        { key: 'comida',  icon: iconTavernComida,  label: 'comida'  },
+                    ].map(({ key, icon, label }) => {
+                        const qty = tavernStock[key] ?? 0;
+                        return (
+                            <div key={key} className={`tavern-stock-item${qty <= 1 ? ' tavern-stock-zero' : ''}`}>
+                                <img src={icon} className="tavern-stock-icon" alt={label} />
+                                <span>{qty}</span>
+                            </div>
+                        );
+                    })}
                     {activeClients > 0 && (
                         <div className="tavern-stock-item tavern-clients-badge">
-                            <span>{activeClients} clientes</span>
+                            <span>{activeClients} cli · +{formatNumber2(computeTavernGold(activeClients))}g</span>
                         </div>
                     )}
                 </div>
@@ -391,7 +403,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/* MAIN — escena interactiva */}
                 {view === 'main' && (() => {
                     const ZONES = [
-                        { id: 'cambista', icon: cambistaCoin, notify: false },
+                        { id: 'cambista', icon: cambistaCoin, notify: stockNeedsAttention },
                         { id: 'ayudantes', icon: iconLogo, notify: hasPendingDogAction },
                         { id: 'sobres', icon: iconInvocacion, notify: hasFreePacks },
                         { id: 'ruleta', icon: iconRuleta, notify: rouletteHasFree },
@@ -399,13 +411,22 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
-                            {!bartenderHired && (
-                                <button className="tavern-bartender-btn" onClick={() => setBartenderHired(true)}>
-                                    Contratar cantinero
-                                </button>
-                            )}
+                            {!bartenderHired && (() => {
+                                const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
+                                const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
+                                return (
+                                    <button className={`tavern-bartender-btn${!canHire ? ' locked' : ''}`} onClick={hireBartender} disabled={!canHire}>
+                                        <span>Contratar cantinero</span>
+                                        <span className="bartender-cost">
+                                            {costGold / 1000}k <img src={iconGold} className="conv-small-icon" />
+                                            {' '}{costCoins} <img src={coinTavern} className="conv-small-icon" />
+                                        </span>
+                                    </button>
+                                );
+                            })()}
 
                             {bartenderHired && (
+                                <div className="tavern-left-controls">
                                 <div className="tavern-brew-anchor">
                                     <button
                                         className="tavern-brew-btn"
@@ -443,6 +464,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         </div>
                                     )}
                                 </div>
+                                <TavernDogSlot gameState={gameState} setGameState={setGameState} />
+                                </div>
                             )}
                             <div className="tavern-bottom-bar">
                                 {ZONES.map(z => (
@@ -478,7 +501,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
                         <div className="dog-tabs">
                             <button className={`dog-tab-btn ${cambistaTab === 'materiales' ? 'active' : ''}`} onClick={() => setCambistaTab('materiales')}>Materiales</button>
-                            <button className={`dog-tab-btn ${cambistaTab === 'taberna' ? 'active' : ''}`} onClick={() => setCambistaTab('taberna')}>Taberna</button>
+                            {bartenderHired && (
+                                <button className={`dog-tab-btn ${cambistaTab === 'taberna' ? 'active' : ''}${stockNeedsAttention ? ' tavern-zone-notify' : ''}`} onClick={() => setCambistaTab('taberna')}>
+                                    Taberna
+                                </button>
+                            )}
                         </div>
 
                         {cambistaTab === 'materiales' && (
@@ -664,16 +691,16 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         {/* PESTAÑAS */}
                         <div className="dog-tabs">
                             <button
-                                className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'dog-tab-btn-pulse' : ''}`}
+                                className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => { setDogTab('mineros'); setRarityFilter(null); }}
                             >
-                                ⛏️ Mineros
+                                Mineros
                             </button>
                             <button
-                                className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'dog-tab-btn-pulse' : ''}`}
+                                className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => { setDogTab('forja'); setRarityFilter(null); }}
                             >
-                                🔥 Forja
+                                Forja
                             </button>
                         </div>
 
@@ -1137,9 +1164,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         <div className="dog-tabs">
-                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>⛏️ Mineros</button>
-                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>🔥 Forja</button>
-                            <button className={`dog-tab-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'dog-tab-btn-pulse' : ''}`} onClick={() => setPackTab('gratis')}>🎁 Gratis</button>
+                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>Mineros</button>
+                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>Forja</button>
+                            <button className={`dog-tab-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'tavern-zone-notify' : ''}`} onClick={() => setPackTab('gratis')}>Gratis</button>
                         </div>
 
                         <PrizeOverlay
@@ -1238,15 +1265,15 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     <div className="tavern-cambista">
                         <h2 className="tavern-title">Ruleta</h2>
 
-                        <div className="roulette-tabs">
+                        <div className="dog-tabs">
                             <button
-                                className={`roulette-tab ${rouletteTab === 'gold' ? 'rtab-active' : ''}`}
+                                className={`dog-tab-btn ${rouletteTab === 'gold' ? 'active' : ''}`}
                                 onClick={() => setRouletteTab('gold')}
                             >
                                 Oro
                             </button>
                             <button
-                                className={`roulette-tab ${rouletteTab === 'shards' ? 'rtab-active' : ''} ${(!gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight()) && rouletteTab !== 'shards' ? 'rtab-pulse' : ''}`}
+                                className={`dog-tab-btn ${rouletteTab === 'shards' ? 'active' : ''} ${(!gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight()) && rouletteTab !== 'shards' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => setRouletteTab('shards')}
                             >
                                 Shards

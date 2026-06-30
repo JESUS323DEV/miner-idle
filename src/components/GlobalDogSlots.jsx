@@ -27,6 +27,7 @@ const renderPassive = (id, stars, isForge) => {
 const getDogStatus = (dog, isForge) => {
     if (!dog.assignedTo) return 'available';
     const a = dog.assignedTo;
+    if (a.tavern) return 'inTavern';
     if (isForge) {
         if (typeof a === 'string') return 'inFurnace';
         if (a.globalSlot !== undefined) return 'inSlot';

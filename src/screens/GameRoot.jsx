@@ -300,7 +300,6 @@ function GameRoot({ onBack }) {
     const FALLBACKS = {
       'intro':         { bottom: '14dvh' },
       'done':          { bottom: '4dvh' },
-      0:               { bottom: 'auto', top: '18dvh' },
       'hint_mine_dog': { bottom: '4dvh' },
     };
     const STEP_TARGETS = {
@@ -634,6 +633,12 @@ function GameRoot({ onBack }) {
       return false;
     });
   const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
+  const tavernStockNeedsAttention = gameState.bartenderHired && (
+    (gameState.tavernStock?.comida ?? 0) === 0 ||
+    (gameState.tavernStock?.cerveza ?? 0) === 0 ||
+    (gameState.tavernStock?.trigo ?? 0) === 0 ||
+    (gameState.tavernStock?.lupulo ?? 0) === 0
+  );
 
   const getMinesBg = (biome) => {
     if (biome === "bronze") return bgMineBronze;
@@ -1037,7 +1042,7 @@ function GameRoot({ onBack }) {
               <button
                 onClick={() => setTavernModalOpen(true)}
                 data-tutorial="tut-tavern"
-                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction) ? 'notify-pulse' : ''}`}
+                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction || tavernStockNeedsAttention) ? 'notify-pulse' : ''}`}
               >
                 <img src={iconTavern} alt="Icono-Taberna" />
               </button>

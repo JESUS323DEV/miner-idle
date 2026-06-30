@@ -80,7 +80,7 @@
 
 .tavern-bartender-btn {
     position: absolute;
-    top: 42%;
+    top: 25%;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.65);
@@ -91,6 +91,25 @@
     font-weight: bold;
     padding: 6px 14px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tavern-bartender-btn.locked {
+    opacity: 0.7;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.bartender-cost {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* ===== HUD STOCK TAVERNA ===== */
@@ -131,22 +150,126 @@
     padding-left: 12px;
 }
 
+.tavern-stock-zero {
+    animation: stock-zero-pulse 1s ease-in-out infinite;
+}
+
+.tavern-stock-zero span {
+    color: #ff4444;
+}
+
+.tavern-stock-zero .tavern-stock-icon {
+    filter: drop-shadow(0 0 4px #ff4444);
+}
+
+@keyframes stock-zero-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
 /* ===== CRAFTEO CERVEZA ===== */
-.tavern-brew-anchor {
+.tavern-left-controls {
     position: absolute;
-    top: 0rem;
-    left: 0rem;
+    top: 0;
+    left: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 6px;
+    z-index: 5;
+}
 
+.tavern-brew-anchor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border: 1px solid rgba(255, 195, 60, 0.4);
     border-radius: 10px;
-
     background: rgba(10, 5, 0, 0.92);
     padding: 0.3rem;
+}
 
+.tavern-dog-slot-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
+.tavern-dog-slot-wrap .global-dog-slot {
+    width: 44px;
+    height: 44px;
+}
+
+.tavern-dog-slot-wrap .global-dog-slot-img {
+    width: 36px;
+    height: 36px;
+}
+
+.tavern-dog-panel {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 8px);
+    background: rgba(10, 5, 0, 0.95);
+    border: 1px solid rgba(255, 195, 60, 0.4);
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    min-width: 130px;
+    z-index: 20;
+}
+
+.tavern-dog-panel-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+}
+
+.tavern-dog-panel-item:not(.unavailable):hover {
+    background: rgba(255, 195, 60, 0.12);
+    border-color: rgba(255, 195, 60, 0.3);
+}
+
+.tavern-dog-panel-item.unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tavern-dog-panel-item.assigned {
+    border-color: rgba(255, 210, 80, 0.6);
+    background: rgba(255, 210, 80, 0.08);
+}
+
+.tavern-dog-panel-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.tavern-dog-panel-name {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.9);
+    flex: 1;
+}
+
+.tavern-dog-panel-stars {
+    display: flex;
+    gap: 1px;
+}
+
+.tavern-dog-panel-empty {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    padding: 4px;
 }
 
 .tavern-brew-btn {
@@ -1086,6 +1209,7 @@
 }
 
 .dog-tab-btn {
+    position: relative;
     flex: 1;
     padding: 6px;
     border: 1px solid rgba(255, 165, 0, 0.4);
