@@ -298,9 +298,10 @@ function GameRoot({ onBack }) {
 
   useEffect(() => {
     const FALLBACKS = {
-      'intro':         { bottom: '14dvh' },
-      'done':          { bottom: '4dvh' },
-      'hint_mine_dog': { bottom: '4dvh' },
+      'intro':           { bottom: '14dvh' },
+      'done':            { bottom: '4dvh' },
+      'hint_mine_dog':   { bottom: '4dvh' },
+      'hint_gold_modal': { bottom: '2dvh' },
     };
     const STEP_TARGETS = {
       0: 'tut-0', 1: 'tut-1', 2: 'tut-2',

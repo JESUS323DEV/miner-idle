@@ -8,7 +8,7 @@ const MATERIALS = ['bronze', 'iron', 'diamond'];
 const MATERIAL_NAMES = { bronze: 'Bronze', iron: 'Hierro', diamond: 'Diamante' };
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
 
-export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarget, forgeDogs, onAssign, onUnassign }) {
+export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarget, forgeDogs, onAssign, onUnassign, passiveRaids = [] }) {
     const [materialFilter, setMaterialFilter] = useState(null);
     const [flippedCard, setFlippedCard] = useState(null);
 
@@ -86,7 +86,8 @@ export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarg
                             {sorted.map(dog => {
                                 const cfg = ForgeDogsConfig[dog.id];
                                 const assignedToTarget = dog.assignedTo === targetMaterial;
-                                const assignedElsewhere = dog.assignedTo && !assignedToTarget;
+                                const inRaid = passiveRaids.some(r => r.dogIds?.includes(dog.id));
+                                const assignedElsewhere = (dog.assignedTo && !assignedToTarget) || inRaid;
                                 return (
                                     <div key={dog.id} className={`fdm-card-wrapper${flippedCard === dog.id ? ' flipped' : ''}${assignedElsewhere ? ' unavailable' : ''}${assignedToTarget ? ' fdm-card-active' : ''}`}>
                                         <div className={`fdm-card fdm-card-face fdm-card-front dog-rarity-${cfg?.rarity}`}

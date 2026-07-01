@@ -8,7 +8,7 @@ const IDLE_POSES = [pose1, pose2, pose3];
 const CYCLE_MS = 2500;
 const FADE_MS = 300;
 
-export default function BartenderSprite({ isMax }) {
+export default function BartenderSprite({ isMax, style = {} }) {
     const [idx, setIdx] = useState(0);
     const [visible, setVisible] = useState(true);
 
@@ -28,7 +28,7 @@ export default function BartenderSprite({ isMax }) {
         <img
             src={isMax ? poseMax : IDLE_POSES[idx]}
             className="bartender-sprite"
-            style={{ opacity: visible ? 1 : 0 }}
+            style={{ opacity: visible ? 1 : 0, ...style }}
             alt=""
         />
     );

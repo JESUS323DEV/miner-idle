@@ -78,17 +78,6 @@
     height: calc(100dvh - 5.5rem);
 }
 
-.bartender-sprite {
-    position: absolute;
-    top: 21.5%;
-    left: 48%;
-    transform: translateX(-50%);
-    width: 63px;
-    height: auto;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
 .tavern-bartender-btn {
     position: absolute;
     top: 25%;
@@ -174,15 +163,8 @@
 }
 
 @keyframes stock-zero-pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
 }
 
 /* ===== CRAFTEO CERVEZA ===== */
@@ -249,7 +231,7 @@
     border-radius: 6px;
     border: 1px solid transparent;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255,255,255,0.04);
 }
 
 .tavern-dog-panel-item:not(.unavailable):hover {
@@ -275,7 +257,7 @@
 
 .tavern-dog-panel-name {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255,255,255,0.9);
     flex: 1;
 }
 
@@ -286,7 +268,7 @@
 
 .tavern-dog-panel-empty {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255,255,255,0.4);
     padding: 4px;
 }
 
@@ -436,15 +418,8 @@
 }
 
 @keyframes zone-notify-pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.08);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
 }
 
 .tavern-zone-notify::after {

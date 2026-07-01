@@ -1,9 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { playSfx } from '../../game/utils/sfx.js';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
 import TavernDogSlot from './TavernDogSlot.jsx';
-import BartenderSprite from './BartenderSprite.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -24,20 +22,19 @@ import tutorialMina from "../../assets/tutorial/mascotas/mina.webp"
 import tutorialForja from "../../assets/tutorial/mascotas/forja.webp"
 
 import iconInvocacion from "../../assets/ui/icons-pets-shards/icon-invocacion.webp"
-import iconShardRare from "../../assets/ui/icons-pets-shards/icon-shard-rare.webp"
 import iconShardRareGeneric from "../../assets/ui/icons-pets-shards/icon-shard-rare-generic.webp"
 import iconShardEpicGeneric from "../../assets/ui/icons-pets-shards/icon-shard-epic-generic.webp"
 import iconShardLegendaryGeneric from "../../assets/ui/icons-pets-shards/icon-shard-legendary-generic.webp"
-import iconShardEpic from "../../assets/ui/icons-pets-shards/icon-shard-epic.webp"
-import iconShardLegendary from "../../assets/ui/icons-pets-shards/icon-shard-legendary.webp"
 
-import bgScene1 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-1.webp"
-import bgScene2 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-2.webp"
-import bgScene3 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-3.webp"
-import bgScene4 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-4.webp"
-import bgScene5 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-5.webp"
-import bgScene6 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-6.webp"
-import bgScene7 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-7.webp"
+import bgTavern0 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-0.webp"
+import bgTavern1 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-1.webp"
+import bgTavern2 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-2.webp"
+import bgTavern3 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-3.webp"
+import bgTavern4 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-4.webp"
+import bgTavern5 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-5.webp"
+import bgTavern6 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-6.webp"
+import bgTavern7 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-7.webp"
+import bgTavern8 from "../../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-8.webp"
 import iconTavernTrigo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp"
 import iconTavernLupulo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp"
 import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
@@ -158,13 +155,16 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         (tavernStock.trigo ?? 0) <= 1 ||
         (tavernStock.lupulo ?? 0) <= 1
     );
-    const BG_IMAGES = [bgScene1, bgScene2, bgScene3, bgScene4, bgScene5, bgScene6, bgScene7];
-    const tavernBgIndex = !bartenderHired || activeClients <= 0 ? 0
-        : activeClients >= 10 ? 6
-        : activeClients >= 8  ? 5
-        : activeClients >= 5  ? 4
-        : activeClients >= 4  ? 3
-        : activeClients >= 3  ? 2
+    const BG_IMAGES = [bgTavern0, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgTavern6, bgTavern7, bgTavern8];
+    const tavernBgIndex = !bartenderHired ? 0
+        : activeClients <= 0 ? 1
+        : activeClients >= 10 ? 8
+        : activeClients >= 8  ? 7
+        : activeClients >= 6  ? 6
+        : activeClients >= 5  ? 5
+        : activeClients >= 4  ? 4
+        : activeClients >= 3  ? 3
+        : activeClients >= 2  ? 2
         : 1;
     const tavernBg = BG_IMAGES[tavernBgIndex];
 
@@ -181,7 +181,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 const b = prev.tavernBrewery ?? { isActive: false, startTime: null, progress: 0 };
                 const stock = prev.tavernStock ?? {};
                 const cMax = prev.tavernCreatedMaxStock ?? TavernConfig.createdMaxStock;
-                const duration = TavernConfig.brewDurations[prev.tavernBrewLevel ?? 0] ?? 15000;
+                const brewLevel = prev.tavernBrewLevel ?? 0;
+                const duration = TavernConfig.brewDurations[brewLevel] ?? 15000;
+                const brewOutput = TavernConfig.brewOutputs[brewLevel] ?? 1;
                 const cerveza = stock.cerveza ?? 0;
                 const hasMats = (stock.trigo ?? 0) >= 1 && (stock.lupulo ?? 0) >= 1;
                 const cervezaFull = cerveza >= cMax;
@@ -196,7 +198,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             ...prev,
                             tavernStock: {
                                 ...stock,
-                                cerveza: cerveza + 1,
+                                cerveza: Math.min(cMax, cerveza + brewOutput),
                                 ...(canContinue ? { trigo: stock.trigo - 1, lupulo: stock.lupulo - 1 } : {}),
                             },
                             tavernBrewery: {
@@ -225,10 +227,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const upgradeBrew = () => {
         const currentLevel = gameState.tavernBrewLevel ?? 0;
         const next = TavernConfig.brewUpgrades.find(u => u.level > currentLevel);
-        if (!next || gameState.gold < next.cost) return;
+        if (!next || gameState.gold < next.cost || tavernCoins < (next.coins ?? 0)) return;
         setGameState(prev => ({
             ...prev,
             gold: prev.gold - next.cost,
+            tavernCoins: prev.tavernCoins - (next.coins ?? 0),
             tavernBrewLevel: next.level,
         }));
     };
@@ -236,10 +239,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const upgradeStock = () => {
         const current = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
         const next = TavernConfig.stockUpgrades.find(u => u.to > current);
-        if (!next || gameState.gold < next.cost) return;
+        if (!next || gameState.gold < next.cost || tavernCoins < (next.coins ?? 0)) return;
         setGameState(prev => ({
             ...prev,
             gold: prev.gold - next.cost,
+            tavernCoins: prev.tavernCoins - (next.coins ?? 0),
             tavernProvisionMaxStock: next.to,
         }));
     };
@@ -382,10 +386,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         { key: 'cerveza', icon: iconTavernCerveza, label: 'cerveza' },
                     ].map(({ key, icon, label }) => {
                         const qty = tavernStock[key] ?? 0;
+                        const max = key === 'cerveza' ? createdMax : materialsMax;
                         return (
                             <div key={key} className={`tavern-stock-item${qty <= 1 ? ' tavern-stock-zero' : ''}`}>
                                 <img src={icon} className="tavern-stock-icon" alt={label} />
-                                <span>{qty}</span>
+                                <span>{qty}/{max}</span>
                             </div>
                         );
                     })}
@@ -410,9 +415,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
-                            {bartenderHired && (
-                                <BartenderSprite isMax={activeClients >= 10} />
-                            )}
                             {!bartenderHired && (() => {
                                 const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
                                 const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
@@ -547,7 +549,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         {cambistaTab === 'taberna' && (() => {
                             const provIcons = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo, cerveza: iconTavernCerveza };
                             const nextUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
-                            const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost;
+                            const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost && tavernCoins >= (nextUpgrade.coins ?? 0);
                             return (
                                 <div className="tavern-conversions">
                                     <span className="tavern-section-label">Provisiones</span>
@@ -582,6 +584,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 {nextUpgrade ? (
                                                     <span className={`conv-stock ${canUpgrade ? 'conv-stock-ok' : 'conv-stock-low'}`}>
                                                         {formatNumber2(nextUpgrade.cost)} <img src={iconGold} className="conv-small-icon" />
+                                                        {nextUpgrade.coins > 0 && <> {nextUpgrade.coins} <img src={coinTavern} className="conv-small-icon" /></>}
                                                     </span>
                                                 ) : (
                                                     <span className="conv-stock conv-stock-ok">Capacidad maxima</span>
@@ -618,7 +621,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     })()}
                                     {(() => {
                                         const nextBrew = TavernConfig.brewUpgrades.find(u => u.level > brewLevel);
-                                        const canUpgradeBrew = nextBrew && gameState.gold >= nextBrew.cost;
+                                        const canUpgradeBrew = nextBrew && gameState.gold >= nextBrew.cost && tavernCoins >= (nextBrew.coins ?? 0);
                                         const currentSecs = BREW_DURATION / 1000;
                                         const nextSecs = nextBrew ? nextBrew.duration / 1000 : null;
                                         return (
@@ -629,6 +632,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         {nextBrew ? (
                                                             <span className={`conv-stock ${canUpgradeBrew ? 'conv-stock-ok' : 'conv-stock-low'}`}>
                                                                 {formatNumber2(nextBrew.cost)} <img src={iconGold} className="conv-small-icon" />
+                                                                {nextBrew.coins > 0 && <> {nextBrew.coins} <img src={coinTavern} className="conv-small-icon" /></>}
                                                             </span>
                                                         ) : (
                                                             <span className="conv-stock conv-stock-ok">Velocidad maxima</span>

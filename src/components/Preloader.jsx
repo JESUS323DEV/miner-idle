@@ -2,12 +2,15 @@
 import { sfxReady } from '../game/utils/sfx.js';
 
 // ===== FONDOS =====
-import bgTavern from "../assets/backgrounds/bg-tavern/bg-tavern-0.webp"
-import bgTavern1 from "../assets/backgrounds/bg-tavern/bg-tavern-1.webp"
-import bgTavern2 from "../assets/backgrounds/bg-tavern/bg-tavern-2.webp"
-import bgTavern3 from "../assets/backgrounds/bg-tavern/bg-tavern-3.webp"
-import bgTavern4 from "../assets/backgrounds/bg-tavern/bg-tavern-4.webp"
-import bgTavern5 from "../assets/backgrounds/bg-tavern/bg-tavern-5.webp"
+import bgTavern from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-0.webp"
+import bgTavern1 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-1.webp"
+import bgTavern2 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-2.webp"
+import bgTavern3 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-3.webp"
+import bgTavern4 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-4.webp"
+import bgTavern5 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-5.webp"
+import bgTavern6 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-6.webp"
+import bgTavern7 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-7.webp"
+import bgTavern8 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-8.webp"
 import bgCoin from "../assets/backgrounds/bg-tavern/bg-coin.webp"
 import bgGold1 from "../assets/backgrounds/bg-tavern/bg-gold.webp"
 import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.webp"
@@ -185,7 +188,7 @@ import tutorialForja from "../assets/tutorial/mascotas/forja.webp"
 
 const IMAGES = [
     // fondos
-    bgTavern, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgCoin, bgGold1,
+    bgTavern, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgTavern6, bgTavern7, bgTavern8, bgCoin, bgGold1,
     bgMineBronze, bgMineIron, bgMineDiamond,
     bgInsideBronze, bgInsideIron, bgInsideDiamond,
     bgMain, bgGold, bgStamina, bgPickaxe, bgNupito,
