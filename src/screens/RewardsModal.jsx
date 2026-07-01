@@ -67,12 +67,12 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const _r = gameState.rewards;
     const _fr = _r?.fragmentRewards ?? {};
     const _cr = _r?.coinRewards ?? {};
-    const _goldKeys = ['goldMilestones','goldSpentMilestones','goldPerSecondMilestones','clickMilestones','staminaMilestones','pickaxeMilestones','repairMilestones','refillMilestones'];
+    const _goldKeys = ['goldMilestones','goldSpentMilestones','goldPerSecondMilestones','clickMilestones','pickaxeMilestones','repairMilestones'];
     const _goldVals = {
         goldMilestones: gameState.totalGoldEarned, goldSpentMilestones: gameState.totalGoldSpent,
         goldPerSecondMilestones: gameState.goldPerSecond, clickMilestones: gameState.totalClicks,
-        staminaMilestones: gameState.maxStaminaLevel, pickaxeMilestones: _r?.pickaxeMilestones?.totalTiers ?? 0,
-        repairMilestones: gameState.totalRepairs, refillMilestones: gameState.totalRefills,
+        pickaxeMilestones: _r?.pickaxeMilestones?.totalTiers ?? 0,
+        repairMilestones: gameState.totalRepairs,
     };
     const _hasGold = _goldKeys.some(k => {
         const m = _r?.[k]; if (!m) return false;
@@ -137,10 +137,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
             goldSpentMilestones: gameState.totalGoldSpent,
             goldPerSecondMilestones: gameState.goldPerSecond,
             clickMilestones: gameState.totalClicks,
-            staminaMilestones: gameState.maxStaminaLevel,
             pickaxeMilestones: rewards.pickaxeMilestones.totalTiers,
             repairMilestones: gameState.totalRepairs,
-            refillMilestones: gameState.totalRefills,
         };
         const currentValue = currentValues[milestoneKey];
         const nextMilestoneValue = milestone.claimed.length === 0
@@ -176,10 +174,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
             goldSpentMilestones: gameState.totalGoldSpent,
             goldPerSecondMilestones: gameState.goldPerSecond,
             clickMilestones: gameState.totalClicks,
-            staminaMilestones: gameState.maxStaminaLevel,
             pickaxeMilestones: rewards.pickaxeMilestones.totalTiers,
             repairMilestones: gameState.totalRepairs,
-            refillMilestones: gameState.totalRefills,
         };
         return values[milestoneKey];
     };
@@ -225,10 +221,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
         { key: "goldSpentMilestones", icon: "💸", label: "Oro gastado" },
         { key: "goldPerSecondMilestones", icon: "⏱️", label: "Oro por segundo" },
         { key: "clickMilestones", icon: "⛏️", label: "Clicks totales" },
-        { key: "staminaMilestones", icon: "⚡", label: "Nivel stamina" },
         { key: "pickaxeMilestones", icon: "🪓", label: "Tiers de pico" },
         { key: "repairMilestones", icon: "🔧", label: "Reparaciones" },
-        { key: "refillMilestones", icon: "🔋", label: "Recargas stamina" },
     ];
 
     const uniqueCoinRewardsList = [
