@@ -294,7 +294,7 @@ function GameRoot({ onBack }) {
       return tutorialStep;
     }
     return null;
-  }, [openModal, tutorialStep, gameState.tutorial, rewardsOpen, rentalModalOpen, raidOpen]); // eslint-disable-line
+  }, [openModal, tutorialStep, gameState.tutorial, rewardsOpen, rentalModalOpen, raidOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const FALLBACKS = {

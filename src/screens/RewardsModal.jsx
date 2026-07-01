@@ -109,7 +109,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
             if (_hasGold) setActiveTab('gold');
             else if (_hasCoins) setActiveTab('coins');
         }
-    }, [isOpen, isTutorial, _hasGold, _hasCoins, _hasFrags, activeTab]); // eslint-disable-line
+    }, [isOpen, isTutorial, _hasGold, _hasCoins, _hasFrags, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!isOpen) return null;
 

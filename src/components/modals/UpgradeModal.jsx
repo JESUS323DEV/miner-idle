@@ -25,9 +25,8 @@ const UpgradeModal = ({
 
     // ===== TUTORIAL =====
     tutorialStep0Active = false,
-    tutorialPhase = null,      // 'upgrade' | 'snacks' | null
-    onTutorialAction = null,
-    tutorialHint = null,       // key de MODAL_HINTS: 'goldPerSecond' | 'stamina'
+    tutorialPhase = null,
+    tutorialHint = null,
 
     // ===== IMÁGENES =====
     bgImage,

@@ -109,7 +109,7 @@ export default function TavernDogSlot({ gameState, setGameState }) {
                     {getDogPool().length === 0 && (
                         <span className="tavern-dog-panel-empty">Sin mascotas</span>
                     )}
-                    {getDogPool().map(({ id, dog, cfg, status, isForge }) => {
+                    {getDogPool().map(({ id, cfg, status, isForge }) => {
                         const unavailable = status !== 'available' && status !== 'inTavern';
                         const isAssigned = id === tavernDogId;
                         return (

@@ -306,7 +306,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
             isWin: true,
             sfx: pendingSfxRef.current,
         });
-    }, [gameState.lastPackResult]); // eslint-disable-line
+    }, [gameState.lastPackResult]);
 
     if (!isOpen) return null;
 
@@ -861,7 +861,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         {/* OBTENIDOS — bloque eliminado, ahora es filtro de rareza */}
-                        {false && (() => {
+                        {false && (() => { // eslint-disable-line no-constant-binary-expression
                             const sortByRarity = (a, b) => {
                                 const rarityOrder = { legendary: 0, epic: 1, rare: 2 };
                                 const ca = DogsConfig[a.id] ?? ForgeDogsConfig[a.id];
@@ -870,13 +870,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 if (rd !== 0) return rd;
                                 return (ca?.order ?? 99) - (cb?.order ?? 99);
                             };
-                            const hiredMineros = Object.values(dogs)
-                                .filter(d => d?.hired && (!rarityFilter || DogsConfig[d.id]?.rarity === rarityFilter))
-                                .sort(sortByRarity);
-                            const hiredForja = Object.values(forgeDogs)
-                                .filter(d => d?.hired && (!rarityFilter || ForgeDogsConfig[d.id]?.rarity === rarityFilter))
-                                .sort(sortByRarity);
-
+                            const STAR_COIN_COST_MAP = { rare: 1, epic: 2, legendary: 3 };
+                            const hiredMineros = Object.values(dogs).filter(d => d?.hired).sort(sortByRarity);
+                            const hiredForja = Object.values(forgeDogs).filter(d => d?.hired).sort(sortByRarity);
                             const renderCard = (dog, isForge) => {
                                 const config = isForge ? ForgeDogsConfig[dog.id] : DogsConfig[dog.id];
                                 if (!config) return null;

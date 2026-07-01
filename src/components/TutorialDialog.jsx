@@ -144,7 +144,7 @@ const STEPS = {
     },
 };
 
-const TutorialDialog = ({ step, onSkip, onAction, isFirstTime = true, dialogStyle = {} }) => {
+const TutorialDialog = ({ step, onAction, dialogStyle = {} }) => {
     if (step === null || step === undefined) return null;
     const data = STEPS[step];
     if (!data) return null;

@@ -20,11 +20,6 @@ import { useEffect } from 'react';
  */
 export const useGoldPerSecond = (gameState, setGameState) => {
 
-    // Estado inicial (actualmente no se usa, puede eliminarse o usarse para reset)
-    const initialState = {
-        gold: 0,
-    };
-
     useEffect(() => {
         const interval = setInterval(() => {
             setGameState(prevState => {

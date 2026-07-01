@@ -84,8 +84,6 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             if (prevState.tavernUnlocked) return prevState;
 
             const newGoldSpent = prevState.totalGoldSpent + 1000;
-            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
-
             const fragReward = prevState.rewards.fragmentRewards?.unlockTaverna;
             return {
                 ...prevState,

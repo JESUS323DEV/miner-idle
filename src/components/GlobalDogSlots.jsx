@@ -52,8 +52,9 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
     const { floats, add } = useFloatingNumbers();
     const slotRefs = useRef([null, null, null]);
     const gameStateRef = useRef(gameState);
-    gameStateRef.current = gameState;
     const lastMineBonusRef = useRef(null);
+
+    useEffect(() => { gameStateRef.current = gameState; });
 
     useEffect(() => {
         if (mineClickCount === 0) return;

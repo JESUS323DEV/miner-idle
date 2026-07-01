@@ -160,7 +160,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [enemyHp, setEnemyHp]                   = useState(0);
     const [timer, setTimer]                       = useState(0);
     const [resultsData, setResultsData]           = useState(null);
-    const [abilityCooldowns, setAbilityCooldowns] = useState({});
+    const [, setAbilityCooldowns] = useState({});
     const [switchCooldowns, setSwitchCooldowns]   = useState({});
     const [swappingTo, setSwappingTo]             = useState(null);
     const [ultCooldown, setUltCooldown]           = useState(0);
@@ -266,12 +266,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
             setAutoFiring(true);
             autoFireTimerRef.current = setTimeout(() => {
-                handleUlt();
+                handleUlt(); // eslint-disable-line react-hooks/immutability
                 setAutoFiring(false);
             }, 350);
         }
         return () => clearTimeout(autoFireTimerRef.current);
-    }, [ultCooldown, autoUlt]); // eslint-disable-line
+    }, [ultCooldown, autoUlt]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const rollRarity = (rarityPool) => {
         const total = rarityPool.reduce((s, r) => s + r.weight, 0);
@@ -667,7 +667,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     <div className="combat-selected-slots">
                         {[0, 1, 2].map(i => {
                             const id = team[i];
-                            const label = i === 0 ? 'Lateral' : i === 1 ? 'Activo' : 'Lateral';
                             if (id) {
                                 const cfg = getConfig(id);
                                 return (

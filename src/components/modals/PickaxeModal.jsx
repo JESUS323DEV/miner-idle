@@ -65,7 +65,6 @@ const PickaxeModal = ({
     canAffordMaterial,
     materialButtonImage,
     tutorialPhase = null,
-    tutorialHint = null,
     tutorialStep0Active = false,
     onShowGoldCost = null,
     materialIngotCost = null,
