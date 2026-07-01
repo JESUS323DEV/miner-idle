@@ -1391,6 +1391,7 @@ function GameRoot({ onBack }) {
             setGameState={setGameState}
             tutorialStep={tutorialStep}
             hidden={tutorialStep === 'mine_tap'}
+            suppressFloats={openModal !== null || tavernModalOpen || forgeModalOpen || minesModalOpen || isMineScreenOpen || biomeSelectorOpen || rewardsOpen || raidOpen || rentalModalOpen || combatOpen || menuOpenModal}
           />
         </div>
 

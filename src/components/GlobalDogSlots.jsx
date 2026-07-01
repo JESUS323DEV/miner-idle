@@ -41,7 +41,7 @@ const getDogStatus = (dog, isForge) => {
     return 'available';
 };
 
-export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, hidden }) {
+export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, hidden, suppressFloats = false }) {
     const [modalOpen, setModalOpen] = useState(false);
     const [infoCardId, setInfoCardId] = useState(null);
     const [flashFull, setFlashFull] = useState(false);
@@ -300,7 +300,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                 document.body
             )}
 
-            {createPortal(
+            {!suppressFloats && createPortal(
                 floats.map(f => {
                     if (f.type === 'slotExtraGold') return <div key={f.id} className="floating-slot-extra-gold" style={{ left: f.x, top: f.y }}>+{f.value}</div>;
                     if (f.type === 'slotDoubleHit') return <div key={f.id} className="floating-slot-double-hit" style={{ left: f.x, top: f.y }}>x{f.multiplier}!</div>;
