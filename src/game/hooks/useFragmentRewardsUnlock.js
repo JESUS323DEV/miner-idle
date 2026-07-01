@@ -21,12 +21,6 @@ export const useFragmentRewardsUnlock = (gameState, setGameState) => {
             goldPassive30: gameState.goldPerSecondLevel >= 30,
             goldPassive40: gameState.goldPerSecondLevel >= 40,
             goldPassive50: gameState.goldPerSecondLevel >= 50,
-            stamina2:  gameState.maxStaminaLevel >= 2,
-            stamina5:  gameState.maxStaminaLevel >= 5,
-            stamina10: gameState.maxStaminaLevel >= 10,
-            stamina20: gameState.maxStaminaLevel >= 20,
-            stamina30: gameState.maxStaminaLevel >= 30,
-            stamina50: gameState.maxStaminaLevel >= 50,
             unlockMineBronze:  bronzeMineUnlocked,
             unlockMineIron:    ironMineUnlocked,
             unlockMineDiamond: diamondMineUnlocked,
@@ -99,7 +93,6 @@ export const useFragmentRewardsUnlock = (gameState, setGameState) => {
         });
     }, [
         gameState.goldPerSecondLevel,
-        gameState.maxStaminaLevel,
         gameState.mines?.unlockedBiomes,
         gameState.totalBronzeMined,
         gameState.totalIronMined,

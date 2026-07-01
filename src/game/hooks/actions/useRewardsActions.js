@@ -15,10 +15,8 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
                 goldSpentMilestones: prevState.totalGoldSpent,
                 goldPerSecondMilestones: prevState.goldPerSecond,
                 clickMilestones: prevState.totalClicks,
-                staminaMilestones: prevState.maxStaminaLevel,
                 pickaxeMilestones: prevState.rewards.pickaxeMilestones.totalTiers,
                 repairMilestones: prevState.totalRepairs,
-                refillMilestones: prevState.totalRefills,
             };
 
             const currentValue = currentValues[milestoneKey];
@@ -40,6 +38,8 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
                 if (key === 'hasUnclaimed') return false;
                 if (key === 'coinRewards') return false;
                 if (key === 'fragmentRewards') return false;
+                if (key === 'staminaMilestones') return false;
+                if (key === 'refillMilestones') return false;
                 if (key === 'pickaxeMilestones') {
                     return checkMilestone(m, prevState.rewards.pickaxeMilestones.totalTiers);
                 }
@@ -174,7 +174,6 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
 
             const chains = [
                 ['goldPassive5','goldPassive10','goldPassive20','goldPassive30','goldPassive40','goldPassive50'],
-                ['stamina2','stamina5','stamina10','stamina20','stamina30','stamina50'],
                 ['unlockMineBronze','unlockMineIron','unlockMineDiamond'],
                 ['bronze300','iron300','diamond300'],
                 ['forgeUnlockBronze','forgeUnlockIron','forgeUnlockDiamond'],
@@ -200,7 +199,26 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
                 }
             }
 
-            return { ...next, rewards: { ...next.rewards, fragmentRewards: updatedFragRewards } };
+            const stillHasUnclaimedGold = Object.entries(next.rewards).some(([k, m]) => {
+                if (!m || typeof m !== 'object' || !('claimed' in m) || !Array.isArray(m.claimed)) return false;
+                if (k === 'staminaMilestones' || k === 'refillMilestones' || k === 'pickaxeMilestones') return false;
+                return checkMilestone(m, {
+                    goldMilestones: next.totalGoldEarned,
+                    goldSpentMilestones: next.totalGoldSpent,
+                    goldPerSecondMilestones: next.goldPerSecond,
+                    clickMilestones: next.totalClicks,
+                    repairMilestones: next.totalRepairs,
+                }[k]);
+            });
+
+            return {
+                ...next,
+                rewards: {
+                    ...next.rewards,
+                    hasUnclaimed: stillHasUnclaimedGold,
+                    fragmentRewards: updatedFragRewards,
+                },
+            };
         });
     };
 

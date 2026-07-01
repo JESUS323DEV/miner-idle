@@ -602,7 +602,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             <div className={`tavern-conv-card tavern-stock-upgrade-card ${!canUpgradeCreated ? 'conv-locked' : ''}`}>
                                                 <div className="conv-left">
                                                     <div className="conv-details">
-                                                        <span className="conv-ratio">Almacén creados {createdMax} → {nextCreated ? nextCreated.to : createdMax}</span>
+                                                        <span className="conv-ratio">Almacén cerveza {createdMax} → {nextCreated ? nextCreated.to : createdMax}</span>
                                                         {nextCreated ? (
                                                             <span className={`conv-stock ${canUpgradeCreated ? 'conv-stock-ok' : 'conv-stock-low'}`}>
                                                                 {formatNumber2(nextCreated.gold)} <img src={iconGold} className="conv-small-icon" />

@@ -566,7 +566,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 minesMapUnlocked: true,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || true,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || (fragReward && !fragReward.unlocked),
                     fragmentRewards: {
                         ...prevState.rewards.fragmentRewards,
                         unlockMinas: fragReward && !fragReward.unlocked

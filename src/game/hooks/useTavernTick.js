@@ -47,7 +47,6 @@ export const useTavernTick = (setGameState) => {
                     ...prev,
                     tavernStock: { ...stock, cerveza: Math.max(0, cerveza - consume) },
                     gold: prev.gold + goldEarned,
-                    totalGoldEarned: (prev.totalGoldEarned ?? 0) + goldEarned,
                     tavernLastTick: Date.now(),
                 };
             });

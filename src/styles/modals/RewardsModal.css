@@ -108,6 +108,11 @@
     opacity: 0.5;
 }
 
+.reward-card.exhausted {
+    opacity: 0.3;
+    filter: grayscale(1);
+}
+
 .reward-icon {
     font-size: 28px;
 }

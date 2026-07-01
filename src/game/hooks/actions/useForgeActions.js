@@ -24,7 +24,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                 forgeUnlocked: true,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || true,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || (fragReward && !fragReward.unlocked),
                     fragmentRewards: {
                         ...prevState.rewards.fragmentRewards,
                         unlockForja: fragReward && !fragReward.unlocked
