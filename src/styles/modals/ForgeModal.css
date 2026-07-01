@@ -142,6 +142,12 @@
     cursor: not-allowed;
 }
 
+.forge-btn-upgrade.disabled,
+.forge-btn-upgrade:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .forge-progress-container {
     position: relative;
     height: 2rem;
