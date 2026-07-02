@@ -25,14 +25,11 @@
     gap: 0.75rem;
 }
 
-.raid-screen-content::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    pointer-events: none;
-    z-index: 0;
+
+.raid-screen-content.raid-view-passive {
+    align-items: stretch;
 }
+
 
 .raid-screen-content h2 {
     color: white;
@@ -41,6 +38,47 @@
     margin: 0;
     letter-spacing: 1px;
     text-transform: uppercase;
+}
+
+/* HUB */
+.raid-hub {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.raid-hub-btn {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: all;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10, 6, 2, 0.72);
+    border: 1px solid rgba(180, 120, 40, 0.6);
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: #f5c842;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.raid-hub-btn span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #f5e8b0;
+}
+
+.raid-hub-btn-locked {
+    color: #888;
+    border-color: rgba(120, 120, 120, 0.4);
+}
+
+.raid-hub-btn-locked span {
+    color: #888;
 }
 
 /* TABS */
@@ -106,6 +144,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin: auto 0;
 }
 
 .raid-card {
@@ -334,7 +373,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.65);
     border: 1px solid rgba(255, 149, 0, 0.25);
     border-radius: 10px;
     padding: 10px;

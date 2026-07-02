@@ -1,8 +1,9 @@
 ﻿import { useState, useEffect } from 'react';
-import { X, Pickaxe } from 'lucide-react';
+import { X, Pickaxe, Swords } from 'lucide-react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
-import bgRaids from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
+import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
+import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
@@ -59,6 +60,12 @@ const formatTime = (ms) => {
 };
 
 // ============================================================
+// Posiciones de los botones del hub sobre el fondo (% relativo al contenedor)
+const HUB_BUTTONS = {
+    passive: { top: '52%', left: '22%' },
+    active:  { top: '30%', left: '55%' },
+};
+
 const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
@@ -71,12 +78,12 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     const [now, setNow] = useState(Date.now());
     const [selectedRaid, setSelectedRaid] = useState(null);
     const [teamDogIds, setTeamDogIds] = useState([]);
-    const [raidTab, setRaidTab] = useState('passive');
+    const [raidView, setRaidView] = useState('hub');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            setRaidTab('passive');
+            setRaidView('hub');
             if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
         }
     }, [isOpen]); // eslint-disable-line
@@ -174,14 +181,42 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     return (
         <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
-            <div className="raid-screen-content" onClick={e => e.stopPropagation()} style={{ backgroundImage: `url(${bgRaids})` }}>
+            <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
+    ? `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${bgRaidsPassive})`
+    : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
+}}>
                 <button
                     className="modal-close"
-                    onClick={tutorialStep === 'hint_raids' ? undefined : onClose}
+                    onClick={raidView !== 'hub' ? () => setRaidView('hub') : (tutorialStep === 'hint_raids' ? undefined : onClose)}
                     disabled={tutorialStep === 'hint_raids'}
                     style={tutorialStep === 'hint_raids' ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
                 ><X /></button>
-                <h2>⚔️ Raids</h2>
+
+                {/* HUB */}
+                {raidView === 'hub' && (
+                    <div className="raid-hub">
+                        <button
+                            className="raid-hub-btn"
+                            style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left }}
+                            onClick={() => setRaidView('passive')}
+                        >
+                            <Swords size={28} />
+                            <span>Pasiva</span>
+                        </button>
+                        <button
+                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : ''}`}
+                            style={{ top: HUB_BUTTONS.active.top, left: HUB_BUTTONS.active.left }}
+                            onClick={() => {
+                                if (gameState.raidActivasUnlocked) { setRaidView('active'); onOpenCombat?.(); }
+                                else handleUnlockRaidActivas();
+                            }}
+                            disabled={!gameState.raidActivasUnlocked && gameState.gold < 25000}
+                        >
+                            <Swords size={28} />
+                            <span>{gameState.raidActivasUnlocked ? 'Activa' : `Activa — 25k`}</span>
+                        </button>
+                    </div>
+                )}
 
                 {showRaidIntro && (
                     <div className="forge-intro-overlay">
@@ -207,33 +242,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     </div>
                 )}
 
-                {/* TABS */}
-                <div className="raid-tabs">
-                    <button
-                        className={`raid-tab ${raidTab === 'passive' ? 'active' : ''}`}
-                        onClick={() => setRaidTab('passive')}
-                    >
-                        🏕️ Pasiva
-                    </button>
-                    {gameState.raidActivasUnlocked ? (
-                        <button
-                            className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
-                            onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
-                        >
-                            ⚡ Activa
-                        </button>
-                    ) : (
-                        <button
-                            className={`raid-tab raid-tab-locked ${gameState.gold >= 25000 ? 'raid-tab-unlockable' : ''}`}
-                            onClick={handleUnlockRaidActivas}
-                            disabled={gameState.gold < 25000}
-                            title="Desbloquear raids activas"
-                        >
-                            ⚡ Activa
-                            <span className="raid-tab-price">25k</span>
-                        </button>
-                    )}
-                </div>
+                {/* CONTENIDO PASIVA */}
+                {raidView === 'passive' && <>
 
                 {/* RESULTADOS ÚLTIMAS RAIDS */}
                 {Object.entries(lastRaidResults).map(([raidId, result]) => {
@@ -261,9 +271,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     );
                 })}
 
-                {/* LISTA DE RAIDS — siempre visible */}
-                {raidTab === 'passive' && (
-                    <div className="raid-list">
+                {/* LISTA DE RAIDS */}
+                <div className="raid-list">
                         {RaidConfig.passiveRaids.map(raid => {
                             const activeRaid = passiveRaids.find(r => r.raidId === raid.id);
                             const isActive = !!activeRaid;
@@ -426,7 +435,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                             );
                         })}
                     </div>
-                )}
+                </>}
 
             </div>
         </div>
