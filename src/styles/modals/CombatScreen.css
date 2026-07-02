@@ -1,3 +1,33 @@
+/* ===== COMBAT TUTORIAL ===== */
+.combat-tut-highlight {
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.4);
+    border-radius: 10px;
+    animation: combat-tut-pulse 1.2s ease-in-out infinite;
+}
+@keyframes combat-tut-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.4); }
+    50%       { box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); }
+}
+.combat-tut-bubble {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.92);
+    color: #ffd740;
+    border: 1px solid #ffd740;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 20;
+}
+.combat-tut-bubble--below { top: calc(100% + 10px); }
+.combat-tut-bubble--above { bottom: calc(100% + 10px); }
+
 /* ===== COMBAT SCREEN ===== */
 .combat-screen {
     position: fixed;
@@ -230,6 +260,20 @@
     display: flex;
     gap: 3px;
     margin-top: 2px;
+}
+
+.cec-cooldown {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #b45cff;
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+
+.cec-attempts {
+    color: rgba(255, 180, 80, 0.75);
+    font-size: 0.6rem;
 }
 
 .combat-enemy-locked {
@@ -871,10 +915,34 @@
     border: 1px solid rgba(255,107,53,0.3);
 }
 
+.effect-oscuro {
+    color: #b45cff;
+    background: rgba(180,92,255,0.1);
+    border: 1px solid rgba(180,92,255,0.3);
+}
+
 .effect-tierra {
     color: #8b6914;
     background: rgba(139,105,20,0.12);
     border: 1px solid rgba(139,105,20,0.35);
+}
+
+/* ===== PANTALLAS CORTAS (S23 y similares) ===== */
+@media (max-height: 740px) {
+    .combat-fight {
+        gap: 0.4rem;
+        padding: 0.5rem 1rem 0;
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+    .combat-timer { font-size: 1.4rem; }
+    .combat-boss-portrait { width: 140px; height: 140px; }
+    .combat-boss-img { width: 110px; height: 110px; }
+    .combat-slot-active { min-height: 85px; width: 80px; }
+    .combat-slot-active img { width: 44px; height: 44px; }
+    .combat-slot-lateral { min-height: 70px; width: 62px; }
+    .combat-slot-lateral img { width: 34px; height: 34px; }
+    .combat-slot-empty { min-height: 70px; width: 62px; }
+    .ult-btn-img { width: 60px; height: 60px; }
 }
 
 /* ===== RESULTS ===== */
@@ -1003,6 +1071,21 @@
     font-size: 0.8rem;
     text-align: center;
 }
+
+.combat-next-enemy-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed, #4f1d96);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.combat-next-enemy-btn:hover { filter: brightness(1.15); }
 
 .combat-retry-btn {
     width: 100%;

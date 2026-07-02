@@ -264,6 +264,7 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
+    handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
   } = useGameActions(
@@ -397,6 +398,7 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
+    handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
     showGoldCost,

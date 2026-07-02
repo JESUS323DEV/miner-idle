@@ -202,9 +202,9 @@ const InitialRewardsState = {
         goldPassive50: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 50' },
 
         // ===== CADENA 3: MINAS =====
-        unlockMineBronze:  { claimed: false, unlocked: false, visible: true,  dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de bronce' },
-        unlockMineIron:    { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de hierro' },
-        unlockMineDiamond: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de diamante' },
+        unlockMineBronze:  { claimed: false, unlocked: false, visible: true,  dogs: [{ dogId: 'nupito', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de bronce' },
+        unlockMineIron:    { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'nupito', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de hierro' },
+        unlockMineDiamond: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'nupito', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de diamante' },
 
         // ===== CADENA 4: MENAS =====
         bronze300:  { claimed: false, unlocked: false, visible: true,  dogs: [{ dogId: 'boxer', isForge: false, amount: 200 }, { dogId: 'pip', isForge: true, amount: 200 }], label: 'Consigue 300 de bronce' },

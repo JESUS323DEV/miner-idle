@@ -21,26 +21,26 @@ export const DogsConfig = {
 
     //CHIHUAHUA LEGENDARIA DE REGALO
     chihuahua: {
-        rarity: 'legendary',
+        rarity: 'epic',
         element: 'oscuro',
         order: 0,
         id: 'chihuahua',
         name: 'Chihuahua',
         unlockCost: { gold: 150000, tavernCoins: 10 },
-        starBonus: 0.20,
-        unlockFragments: 150,
-        starFragments: [200, 400, 600, 800, 1000],
+        starBonus: 0.15,
+        unlockFragments: 100,
+        starFragments: [150, 300, 450, 600, 750],
         yacimientoYield: 6,
         miningPower: 3,
         miningSpeed: 1,
         biomeBonus: {
-            bronze: LEGEND_BIOME,
+            bronze: EPIC_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
         goldMineBonus: {
             type: 'doubleHit',
-            chance: 0.10
+            chance: 0.08
         }
     },
 
@@ -195,25 +195,25 @@ export const DogsConfig = {
 
     //NUPITO ÉPICA PARA MINA DE DIAMANTE
     nupito: {
-        rarity: 'epic',
+        rarity: 'legendary',
         element: 'oscuro',
         id: 'nupito',
         name: 'Nupito',
         unlockCost: { gold: 1200000, tavernCoins: 45 },
-        starBonus: 0.15,
-        unlockFragments: 100,
-        starFragments: [150, 300, 450, 600, 750],
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
         yacimientoYield: 4,
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
             bronze: RARE_BIOME,
             iron: RARE_BIOME,
-            diamond: EPIC_BIOME,
+            diamond: LEGEND_BIOME,
         },
         goldMineBonus: {
             type: 'saveDurability',
-            chance: 0.15
+            chance: 0.20
         }
     },
 

@@ -75,7 +75,7 @@ export const CombatConfig = {
                 {
                     id: 'topo-1',
                     name: 'Topo',
-                    hp: 900,
+                    hp: 600,
                     defense: 5,
                     timerSec: 20,
                     isBoss: false,
@@ -90,8 +90,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-2',
                     name: 'Topo Excavador',
-                    hp: 3000,
-                    defense: 9,
+                    hp: 1000,
+                    defense: 7,
                     timerSec: 20,
                     isBoss: false,
                     requiresStars: { enemyId: 'topo-1', stars: 1 },
@@ -105,8 +105,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-3',
                     name: 'Topo Anciano',
-                    hp: 6500,
-                    defense: 13,
+                    hp: 2500,
+                    defense: 10,
                     timerSec: 20,
                     isBoss: false,
                     requiresStars: { enemyId: 'topo-2', stars: 1 },
@@ -120,8 +120,8 @@ export const CombatConfig = {
                 {
                     id: 'topo-boss',
                     name: 'Topo Gigante',
-                    hp: 18000,
-                    defense: 18,
+                    hp: 3600,
+                    defense: 15,
                     timerSec: 30,
                     isBoss: true,
                     requiresStars: { enemyId: 'topo-3', stars: 2 },

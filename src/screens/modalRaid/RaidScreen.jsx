@@ -64,6 +64,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
         handleCancelPassiveRaid,
+        handleUnlockRaidActivas,
     } = useGameContext();
 
     const [now, setNow] = useState(Date.now());
@@ -213,7 +214,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     >
                         🏕️ Pasiva
                     </button>
-                    {(import.meta.env.DEV || import.meta.env.VITE_RAIDS_ACTIVAS === 'true') ? (
+                    {gameState.raidActivasUnlocked ? (
                         <button
                             className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
                             onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
@@ -221,8 +222,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                             ⚡ Activa
                         </button>
                     ) : (
-                        <button className="raid-tab raid-tab-locked" disabled title="Próximamente">
+                        <button
+                            className={`raid-tab raid-tab-locked ${gameState.gold >= 25000 ? 'raid-tab-unlockable' : ''}`}
+                            onClick={handleUnlockRaidActivas}
+                            disabled={gameState.gold < 25000}
+                            title="Desbloquear raids activas"
+                        >
                             ⚡ Activa
+                            <span className="raid-tab-price">25k</span>
                         </button>
                     )}
                 </div>
