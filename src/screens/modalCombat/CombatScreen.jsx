@@ -170,6 +170,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [defenseDebuff, setDefenseDebuff]       = useState(0);
     const [autoUlt, setAutoUlt]                   = useState(false);
     const [autoFiring, setAutoFiring]             = useState(false);
+    const [combatTutStep, setCombatTutStep]       = useState(null);
+    const [fightStarted, setFightStarted]         = useState(false);
     const autoFireTimerRef                        = useRef(null);
 
     const SWITCH_COOLDOWN = 6;
@@ -234,11 +236,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setActiveSeconds(0);
             setDefenseDebuff(0);
             setAutoUlt(false);
+            setFightStarted(false);
         }
     }, [isOpen]);
 
     useEffect(() => {
-        if (phase !== 'fight' || timer <= 0) return;
+        if (phase !== 'fight' || timer <= 0 || !fightStarted) return;
         const t = setTimeout(() => {
             setTimer(prev => prev - 1);
             setAbilityCooldowns(prev => {
@@ -254,13 +257,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setUltCooldown(prev => Math.max(0, prev - 1));
             setActiveSeconds(prev => prev + 1);
             setActiveEffect(prev => {
-                if (!prev || prev.type === 'doubleHits') return prev;
+                if (!prev || prev.type === 'doubleHits' || prev.type === 'damageMultiTaps' || prev.type === 'furyTaps') return prev;
                 const remaining = prev.remaining - 1;
                 return remaining <= 0 ? null : { ...prev, remaining };
             });
         }, 1000);
         return () => clearTimeout(t);
-    }, [phase, timer]);
+    }, [phase, timer, fightStarted]);
 
     useEffect(() => {
         if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
@@ -309,10 +312,22 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
             setGameState(prev => {
                 const currentBest = prev.raidBestStars?.[activeEnemy.id] ?? 0;
+
+                const attempts = prev.raidAttempts ?? {};
+                const current = attempts[activeEnemy.id] ?? { count: 0, cooldownUntil: null };
+                const expired = current.cooldownUntil && Date.now() > current.cooldownUntil;
+                const baseCount = expired ? 0 : current.count;
+                const newCount = baseCount + 1;
+                const cooldownUntil = newCount >= 3
+                    ? Date.now() + (activeEnemy.isBoss ? 15 : 10) * 60 * 1000
+                    : null;
+                const newRaidAttempts = { ...attempts, [activeEnemy.id]: { count: newCount, cooldownUntil } };
+
                 const next = {
                     ...prev,
                     raidBestStars: { ...(prev.raidBestStars ?? {}), [activeEnemy.id]: Math.max(currentBest, starsEarned) },
                     gold: prev.gold + gold,
+                    raidAttempts: newRaidAttempts,
                 };
                 if (!rewardDogId) return next;
                 return {
@@ -401,6 +416,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
     const handleTap = () => {
         if (phase !== 'fight') return;
+        if (!fightStarted) setFightStarted(true);
+        if (combatTutStep === 0) {
+            const isForge = slots[1] ? !!ForgeDogsConfig[slots[1]] : false;
+            setCombatTutStep(isForge ? 2 : 1);
+        }
         const pickDmg  = gameState.pickaxe.miningPowerByMaterial?.[gameState.pickaxe.material] ?? 2;
         const activeId = slots[1];
         const dogDmg   = activeId ? (getConfig(activeId)?.miningPower ?? 0) : 0;
@@ -416,6 +436,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         dmg *= passive.damageMulti;
         dmg *= passive.damageAmp;
         if (activeEffect?.type === 'damageMulti') dmg *= activeEffect.value;
+        if (activeEffect?.type === 'damageMultiTaps' && activeEffect.remaining > 0) dmg *= activeEffect.value;
+        if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0)
+            dmg += Math.round(enemyHp * activeEffect.value);
 
         const defense = Math.max(0, (activeEnemy?.defense ?? 0) - defenseDebuff);
         dmg = Math.round(Math.max(1, dmg - defense));
@@ -433,10 +456,26 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 return remaining <= 0 ? null : { ...prev, remaining };
             });
         }
+        if (activeEffect?.type === 'damageMultiTaps' && activeEffect.remaining > 0) {
+            setActiveEffect(prev => {
+                if (!prev || prev.type !== 'damageMultiTaps') return prev;
+                const remaining = prev.remaining - 1;
+                return remaining <= 0 ? null : { ...prev, remaining };
+            });
+        }
+        if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0) {
+            setActiveEffect(prev => {
+                if (!prev || prev.type !== 'furyTaps') return prev;
+                const remaining = prev.remaining - 1;
+                return remaining <= 0 ? null : { ...prev, remaining };
+            });
+        }
     };
 
     const handleUlt = () => {
         if (phase !== 'fight' || ultCooldown > 0 || !slots[1]) return;
+        if (!fightStarted) setFightStarted(true);
+        if (combatTutStep === 1) setCombatTutStep(2);
         const activeId = slots[1];
         const cfg      = getConfig(activeId);
         const element  = cfg?.element;
@@ -450,8 +489,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (!isForge) {
             switch (element) {
                 case 'fuego': {
-                    const dmg = applyDefense(Math.round((cfg.miningPower ?? 1) * 20 + pickDmg * 5));
-                    setEnemyHp(prev => Math.max(0, prev - dmg));
+                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const baseDmg = cfg.rarity === 'legendary' ? 350 : 250;
+                    const baseCd  = cfg.rarity === 'legendary' ? 10 : 12;
+                    const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
+                    setUltCooldown(Math.round(baseCd - stars * cdStep));
+                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 20)));
                     break;
                 }
                 case 'electrico': {
@@ -461,19 +504,28 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     break;
                 }
                 case 'tierra': {
-                    const dmg = applyDefense(Math.round((cfg.miningPower ?? 1) * 30 + pickDmg * 8));
-                    setEnemyHp(prev => Math.max(0, prev - dmg));
+                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const baseDmg = cfg.rarity === 'legendary' ? 450 : cfg.rarity === 'epic' ? 350 : 250;
+                    const baseCd  = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 13;
+                    const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
+                    setUltCooldown(Math.round(baseCd - stars * cdStep));
+                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 20)));
                     break;
                 }
                 case 'agua': {
-                    const stars = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const base  = cfg.rarity === 'legendary' ? 3 : cfg.rarity === 'epic' ? 2 : 1;
-                    setActiveEffect({ type: 'damageMulti', value: base + (stars / 5), remaining: 6 });
+                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const base    = cfg.rarity === 'legendary' ? 3 : cfg.rarity === 'epic' ? 2 : 1;
+                    const tapBase = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 6 : 4;
+                    setActiveEffect({ type: 'damageMultiTaps', value: base + (stars / 5), remaining: Math.round(tapBase + stars * 0.5) });
                     break;
                 }
-                case 'oscuro':
-                    setSwitchCooldowns({});
+                case 'oscuro': {
+                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const pct     = cfg.rarity === 'legendary' ? 0.08 : cfg.rarity === 'epic' ? 0.05 : 0.03;
+                    const tapBase = cfg.rarity === 'legendary' ? 4 : cfg.rarity === 'epic' ? 3 : 2;
+                    setActiveEffect({ type: 'furyTaps', value: pct, remaining: Math.round(tapBase + stars * 0.5) });
                     break;
+                }
             }
         } else {
             switch (element) {
@@ -538,9 +590,25 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
 
 
+    const getAttemptStatus = (enemy) => {
+        const data = (gameState.raidAttempts ?? {})[enemy.id] ?? { count: 0, cooldownUntil: null };
+        const expired = data.cooldownUntil && Date.now() > data.cooldownUntil;
+        if (expired) return { isOnCooldown: false, attemptsLeft: 3, remainingMin: 0 };
+        const isOnCooldown = !!data.cooldownUntil;
+        const remainingMin = isOnCooldown ? Math.ceil((data.cooldownUntil - Date.now()) / 60000) : 0;
+        const attemptsLeft = Math.max(0, 3 - data.count);
+        return { isOnCooldown, attemptsLeft, remainingMin };
+    };
+
+    const finishCombatTut = () => {
+        setCombatTutStep(null);
+        setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, combatTutDone: true } }));
+    };
+
     const startFight = () => {
         if (team.every(id => id === null) || !activeEnemy) return;
-        setSlots([team[0] ?? null, team[1] ?? null, team[2] ?? null]);
+        const centerDog = team[1] ?? null;
+        setSlots([team[0] ?? null, centerDog, team[2] ?? null]);
         setAbilityCooldowns({});
         setSwitchCooldowns({});
         setHeatStacks(0);
@@ -551,6 +619,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setEnemyHp(activeEnemy.hp);
         setTimer(activeEnemy.timerSec);
         setPhase('fight');
+        if (!gameState.tutorial?.combatTutDone) setCombatTutStep(0);
     };
 
     const goToBiome = () => {
@@ -617,14 +686,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             const req     = enemy.requiresStars;
                             const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
                             const myBest  = raidBestStars[enemy.id] ?? 0;
+                            const { isOnCooldown, attemptsLeft, remainingMin } = getAttemptStatus(enemy);
                             return (
                                 <button
                                     key={enemy.id}
-                                    className={`combat-enemy-card${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked ? ' combat-enemy-locked' : ''}`}
-                                    onClick={() => { if (!locked) { setActiveEnemy(enemy); setPhase('select'); } }}
-                                    disabled={locked}
+                                    className={`combat-enemy-card${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked || isOnCooldown ? ' combat-enemy-locked' : ''}`}
+                                    onClick={() => { if (!locked && !isOnCooldown) { setActiveEnemy(enemy); setPhase('select'); } }}
+                                    disabled={locked || isOnCooldown}
                                 >
-                                    {enemy.isBoss && !locked && <span className="cec-boss-badge">BOSS</span>}
+                                    {enemy.isBoss && !locked && !isOnCooldown && <span className="cec-boss-badge">BOSS</span>}
                                     {locked ? (
                                         <>
                                             <div className="cec-lock-icon"><Lock size={28} /></div>
@@ -632,6 +702,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                             <span className="cec-lock-req">
                                                 {req.stars} {req.stars === 1 ? 'estrella' : 'estrellas'} en anterior
                                             </span>
+                                        </>
+                                    ) : isOnCooldown ? (
+                                        <>
+                                            <img src={enemyImgs[enemy.id]} alt={enemy.name} style={{ opacity: 0.35 }} />
+                                            <span className="cec-name">{enemy.name}</span>
+                                            <span className="cec-cooldown"><Moon size={10} /> {remainingMin}min</span>
                                         </>
                                     ) : (
                                         <>
@@ -643,6 +719,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                                     <Star key={s} size={11} fill={myBest >= s ? '#ffd740' : 'none'} color={myBest >= s ? '#ffd740' : '#444'} />
                                                 ))}
                                             </div>
+                                            {attemptsLeft < 3 && (
+                                                <span className="cec-attempts">{attemptsLeft} {attemptsLeft === 1 ? 'intento' : 'intentos'}</span>
+                                            )}
                                         </>
                                     )}
                                 </button>
@@ -816,8 +895,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             </div>
                             <span className="combat-hp-text">{enemyHp} / {activeEnemy.hp}</span>
                         </div>
-                        <button className="combat-boss-portrait" onClick={handleTap}>
+                        <button className={`combat-boss-portrait${combatTutStep === 0 ? ' combat-tut-highlight' : ''}`} onClick={handleTap}>
                             <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy.name} className="combat-boss-img" />
+                            {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
                         </button>
                     </div>
 
@@ -900,24 +980,29 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const asset   = ULT_ASSET[element];
                         return (
                             <button
-                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}`}
+                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}${combatTutStep === 1 ? ' combat-tut-highlight' : ''}`}
                                 onClick={handleUlt}
                                 disabled={!isReady}
                             >
                                 {asset && <img src={asset} alt={element} className="ult-btn-img" />}
                                 {!isReady && <span className="ult-btn-cd">{ultCooldown}s</span>}
+                                {combatTutStep === 1 && <div className="combat-tut-bubble combat-tut-bubble--above">Usa el poder de tu perro</div>}
                             </button>
                         );
                     })()}
 
                     {slots[1] && !ForgeDogsConfig[slots[1]] && (
-                        <label className="combat-auto-ult">
+                        <label className={`combat-auto-ult${combatTutStep === 2 ? ' combat-tut-highlight' : ''}`}>
                             <input
                                 type="checkbox"
                                 checked={autoUlt}
-                                onChange={e => setAutoUlt(e.target.checked)}
+                                onChange={e => {
+                                    setAutoUlt(e.target.checked);
+                                    if (combatTutStep === 2) finishCombatTut();
+                                }}
                             />
                             Auto
+                            {combatTutStep === 2 && <div className="combat-tut-bubble combat-tut-bubble--above">Actívalo para usar el poder solo</div>}
                         </label>
                     )}
 
@@ -931,6 +1016,16 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {activeEffect?.type === 'damageMulti' && (
                             <span className="combat-effect-badge effect-buff">
                                 x{activeEffect.value} DMG · {activeEffect.remaining}s
+                            </span>
+                        )}
+                        {activeEffect?.type === 'damageMultiTaps' && (
+                            <span className="combat-effect-badge effect-buff">
+                                x{activeEffect.value.toFixed(1)} DMG · {activeEffect.remaining} taps
+                            </span>
+                        )}
+                        {activeEffect?.type === 'furyTaps' && (
+                            <span className="combat-effect-badge effect-oscuro">
+                                <Moon size={11} color="#b45cff" /> {Math.round(activeEffect.value * 100)}% HP · {activeEffect.remaining} taps
                             </span>
                         )}
                         {heatStacks > 0 && (
@@ -999,6 +1094,22 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         )}
                     </div>
 
+                    {(() => {
+                        const nextIdx = activeBiome.enemies.findIndex(e => e.id === activeEnemy.id) + 1;
+                        const nextEnemy = activeBiome.enemies[nextIdx] ?? null;
+                        const nextUnlocked = nextEnemy && (
+                            !nextEnemy.requiresStars ||
+                            (raidBestStars[nextEnemy.requiresStars.enemyId] ?? 0) >= nextEnemy.requiresStars.stars
+                        );
+                        return nextUnlocked ? (
+                            <button
+                                className="combat-next-enemy-btn"
+                                onClick={() => { setActiveEnemy(nextEnemy); setPhase('select'); }}
+                            >
+                                Siguiente enemigo
+                            </button>
+                        ) : null;
+                    })()}
                     <button className="combat-retry-btn" onClick={() => { setPhase('select'); setTeam([]); }}>
                         Repetir
                     </button>
