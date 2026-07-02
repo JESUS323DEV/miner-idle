@@ -743,6 +743,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             }
                             return (
                                 <div key={i} className="combat-sel-slot empty">
+                                    <span className="csel-label">{i === 1 ? 'Minero' : 'Forja'}</span>
                                     <span>+</span>
                                 </div>
                             );
