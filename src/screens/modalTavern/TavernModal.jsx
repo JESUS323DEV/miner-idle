@@ -53,8 +53,8 @@ import menaIron from "../../assets/ui/icons-menas/menas-iron/mena-iron3.webp"
 import menaDiamond from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp"
 
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
-import iconRuleta from "../../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.png"
-import iconTragaperras from "../../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.png"
+import iconRuleta from "../../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
+import iconTragaperras from "../../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
 import iconLogo from "../../assets/landing-pico-pata/logo.webp"
 
 import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.webp"

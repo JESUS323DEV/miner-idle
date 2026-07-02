@@ -51,6 +51,15 @@ import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade
 // ===== TAVERN MODAL ICONS =====
 import cambistaCoin from "../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
 import cambistaMateriales from "../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.webp"
+import iconRuleta from "../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
+import iconTragaperras from "../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
+
+// ===== LANDING =====
+import landingLogo from "../assets/landing-pico-pata/logo.webp"
+import landingAyudantes from "../assets/landing-pico-pata/ayudantes.webp"
+import landingMinas from "../assets/landing-pico-pata/minas.webp"
+import landingPicos from "../assets/landing-pico-pata/picos.webp"
+import landingProduccionOro from "../assets/landing-pico-pata/produccion-oro.webp"
 
 // ===== ICONS TAVERN =====
 import iconTavernComida from "../assets/ui/icons-hud/hud-modals/icons-tavern/comida.webp"
@@ -201,7 +210,9 @@ const IMAGES = [
     // sat
     satEnergy, satRepair, satUpgrade,
     // tavern
-    cambistaCoin, cambistaMateriales,
+    cambistaCoin, cambistaMateriales, iconRuleta, iconTragaperras,
+    // landing
+    landingLogo, landingAyudantes, landingMinas, landingPicos, landingProduccionOro,
     // picos
     pickAxeStone, pickAxeStone1, pickAxeStone2, pickAxeStone3,
     pickAxeBronze, pickAxeBronze1, pickAxeBronze2, pickAxeBronze3,
