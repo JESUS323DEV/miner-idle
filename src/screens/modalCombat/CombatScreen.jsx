@@ -166,8 +166,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [ultCooldown, setUltCooldown]           = useState(0);
     const [activeEffect, setActiveEffect]         = useState(null);
     const [heatStacks, setHeatStacks]             = useState(0);
-    const [activeSeconds, setActiveSeconds]       = useState(0);
-    const [defenseDebuff, setDefenseDebuff]       = useState(0);
     const [autoUlt, setAutoUlt]                   = useState(false);
     const [autoFiring, setAutoFiring]             = useState(false);
     const [combatTutStep, setCombatTutStep]       = useState(null);
@@ -233,8 +231,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setUltCooldown(0);
             setActiveEffect(null);
             setHeatStacks(0);
-            setActiveSeconds(0);
-            setDefenseDebuff(0);
             setAutoUlt(false);
             setFightStarted(false);
         }
@@ -255,7 +251,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 return next;
             });
             setUltCooldown(prev => Math.max(0, prev - 1));
-            setActiveSeconds(prev => prev + 1);
             setActiveEffect(prev => {
                 if (!prev || prev.type === 'doubleHits' || prev.type === 'damageMultiTaps' || prev.type === 'furyTaps') return prev;
                 const remaining = prev.remaining - 1;
@@ -361,8 +356,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const eff = {
             flatBonus: 0, doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
             switchCooldownReduce: 0, heatStackDmg: 0, addHeatStack: false,
-            heatStackCap: 0, vaporBonusPerSec: 0, vaporCap: 0,
-            addDefenseDebuff: false, defenseDebuffCap: 0, shadowBonus: 0,
+            heatStackCap: 0,
         };
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
             const cfg = getConfig(id);
@@ -378,34 +372,40 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             } else {
                 switch (cfg.element) {
                     case 'fuego': {
-                        eff.heatStackDmg += 5;
+                        const stars    = gameState.forgeDogs?.[id]?.stars ?? 0;
+                        const baseHeat = cfg.rarity === 'legendary' ? 9 : cfg.rarity === 'epic' ? 7 : 5;
+                        eff.heatStackDmg += baseHeat + stars * 0.6;
                         eff.addHeatStack = true;
-                        const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
                         const baseCap = cfg.rarity === 'legendary' ? 7 : cfg.rarity === 'epic' ? 5 : 3;
                         eff.heatStackCap = Math.max(eff.heatStackCap, baseCap + (stars >= 5 ? 1 : 0));
                         break;
                     }
                     case 'agua': {
-                        const perSec = cfg.rarity === 'legendary' ? 0.03 : cfg.rarity === 'epic' ? 0.02 : 0.01;
-                        const cap    = cfg.rarity === 'legendary' ? 0.40 : cfg.rarity === 'epic' ? 0.30 : 0.20;
-                        eff.vaporBonusPerSec += perSec;
-                        eff.vaporCap = Math.max(eff.vaporCap, cap);
+                        const stars     = gameState.forgeDogs?.[id]?.stars ?? 0;
+                        const baseMulti = cfg.rarity === 'legendary' ? 1.30 : cfg.rarity === 'epic' ? 1.25 : 1.20;
+                        const step      = cfg.rarity === 'rare' ? 0.01 : 0.02;
+                        eff.damageMulti *= baseMulti + stars * step;
                         break;
                     }
                     case 'electrico': {
-                        const chance = cfg.rarity === 'legendary' ? 0.20 : cfg.rarity === 'epic' ? 0.15 : 0.10;
-                        eff.doubleHitChance += chance;
+                        const stars      = gameState.forgeDogs?.[id]?.stars ?? 0;
+                        const baseChance = cfg.rarity === 'legendary' ? 0.14 : cfg.rarity === 'epic' ? 0.12 : 0.10;
+                        const step       = cfg.rarity === 'rare' ? 0.008 : 0.006;
+                        eff.doubleHitChance += baseChance + stars * step;
                         break;
                     }
                     case 'tierra': {
-                        eff.addDefenseDebuff = true;
-                        const debuffCap = cfg.rarity === 'legendary' ? 6 : cfg.rarity === 'epic' ? 4 : 2;
-                        eff.defenseDebuffCap = Math.max(eff.defenseDebuffCap, debuffCap);
+                        const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
+                        const baseAmp = cfg.rarity === 'legendary' ? 1.18 : cfg.rarity === 'epic' ? 1.15 : 1.12;
+                        const step    = cfg.rarity === 'legendary' ? 0.014 : 0.006;
+                        eff.damageAmp *= baseAmp + stars * step;
                         break;
                     }
                     case 'oscuro': {
-                        const bonus = cfg.rarity === 'legendary' ? 0.35 : cfg.rarity === 'epic' ? 0.25 : 0.15;
-                        eff.shadowBonus += bonus;
+                        const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
+                        const baseAmp = cfg.rarity === 'legendary' ? 1.20 : cfg.rarity === 'epic' ? 1.15 : 1.10;
+                        const step    = cfg.rarity === 'legendary' ? 0.016 : cfg.rarity === 'epic' ? 0.01 : 0.008;
+                        eff.damageAmp *= baseAmp + stars * step;
                         break;
                     }
                 }
@@ -429,10 +429,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         let dmg = Math.max(1, pickDmg + dogDmg);
         dmg += passive.flatBonus;
         dmg += heatStacks * passive.heatStackDmg;
-        if (passive.vaporBonusPerSec > 0)
-            dmg *= 1 + Math.min(activeSeconds * passive.vaporBonusPerSec, passive.vaporCap || 0.3);
-        if (passive.shadowBonus > 0 && activeEnemy && enemyHp / activeEnemy.hp > 0.5)
-            dmg *= 1 + passive.shadowBonus;
         dmg *= passive.damageMulti;
         dmg *= passive.damageAmp;
         if (activeEffect?.type === 'damageMulti') dmg *= activeEffect.value;
@@ -440,7 +436,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0)
             dmg += Math.round(enemyHp * activeEffect.value);
 
-        const defense = Math.max(0, (activeEnemy?.defense ?? 0) - defenseDebuff);
+        const defense = activeEnemy?.defense ?? 0;
         dmg = Math.round(Math.max(1, dmg - defense));
 
         const isGuaranteedDouble = activeEffect?.type === 'doubleHits' && activeEffect.remaining > 0;
@@ -448,7 +444,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setEnemyHp(prev => Math.max(0, prev - (isDoubleHit ? dmg * 2 : dmg)));
 
         if (passive.addHeatStack) setHeatStacks(prev => Math.min(passive.heatStackCap, prev + 1));
-        if (passive.addDefenseDebuff) setDefenseDebuff(prev => Math.min(passive.defenseDebuffCap, prev + 1));
         if (isGuaranteedDouble) {
             setActiveEffect(prev => {
                 if (!prev || prev.type !== 'doubleHits') return prev;
@@ -579,7 +574,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setSwappingTo(targetId);
         setUltCooldown(0);
         setHeatStacks(0);
-        setActiveSeconds(0);
         setSwitchCooldowns(prev => ({
             ...prev,
             ...(newLeft  ? { [newLeft]:  finalCd } : {}),
@@ -612,8 +606,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setAbilityCooldowns({});
         setSwitchCooldowns({});
         setHeatStacks(0);
-        setActiveSeconds(0);
-        setDefenseDebuff(0);
         setActiveEffect(null);
         setUltCooldown(0);
         setEnemyHp(activeEnemy.hp);
@@ -1031,11 +1023,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {heatStacks > 0 && (
                             <span className="combat-effect-badge effect-fuego">
                                 <Flame size={11} color="#ff6b35" /> {heatStacks}
-                            </span>
-                        )}
-                        {defenseDebuff > 0 && (
-                            <span className="combat-effect-badge effect-tierra">
-                                <Mountain size={11} color="#8b6914" /> -{defenseDebuff} def
                             </span>
                         )}
                     </div>
