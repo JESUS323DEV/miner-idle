@@ -608,6 +608,13 @@
     image-rendering: pixelated;
 }
 
+.raid-lady-wait {
+    position: static;
+    transform: none;
+    height: 40px;
+    flex-shrink: 0;
+}
+
 .raid-lady-timer {
     position: absolute;
     bottom: -18px;

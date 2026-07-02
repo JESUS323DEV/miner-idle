@@ -6,12 +6,15 @@ import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.web
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
 import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
-import ladyRun1 from '../../assets/ui/lady-run/lady-1.webp';
-import ladyRun2 from '../../assets/ui/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-run/lady-4.webp';
+import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
+import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
+import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
 
-const LADY_FRAMES = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
+const LADY_FRAMES      = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
+const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
 import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
 import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
 import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
@@ -104,7 +107,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
         gameState, setGameState,
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
-        handleCancelPassiveRaid,
         handleUnlockRaidActivas,
     } = useGameContext();
 
@@ -115,6 +117,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
+    const [waitFrameIndex, setWaitFrameIndex] = useState(0);
 
     useEffect(() => {
         if (isOpen) {
@@ -132,6 +135,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     useEffect(() => {
         const t = setInterval(() => setFrameIndex(prev => (prev + 1) % 4), 150);
+        return () => clearInterval(t);
+    }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setWaitFrameIndex(prev => (prev + 1) % 2), 2000);
         return () => clearInterval(t);
     }, []);
 
@@ -259,7 +267,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                 {raidView === 'hub' && (
                     <div className="raid-hub">
                         <button
-                            className="raid-hub-btn"
+                            className={`raid-hub-btn ${(passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
                             style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left }}
                             onClick={() => setRaidView('passive')}
                         >
@@ -358,17 +366,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 </div>
                                                 {canClaim ? (
                                                     <div className="rip-actions">
+                                                        <img
+                                                            src={LADY_WAIT_FRAMES[waitFrameIndex]}
+                                                            className="raid-lady-sprite raid-lady-wait"
+                                                            alt="lady"
+                                                        />
                                                         <button
                                                             className="btn-claim-raid btn-claim-ready"
                                                             onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
                                                         >
                                                             Reclamar
-                                                        </button>
-                                                        <button
-                                                            className="btn-cancel-raid"
-                                                            onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
-                                                        >
-                                                            Cancelar
                                                         </button>
                                                     </div>
                                                 ) : (

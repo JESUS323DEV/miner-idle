@@ -1200,7 +1200,7 @@ function GameRoot({ onBack }) {
             const raidBlocked = tutorialStep !== null && tutorialStep !== 'done' && !isRaidStep;
             return (
               <button
-                className={`btn-raid ${canClaim ? 'btn-raid-ready' : hasFreeDogs ? 'btn-raid-dogs-free' : ''} ${isRaidStep ? 'tutorial-highlight' : ''}`}
+                className={`btn-raid ${canClaim ? 'btn-raid-ready btn-notify-dot' : hasFreeDogs ? 'btn-raid-dogs-free' : ''} ${isRaidStep ? 'tutorial-highlight' : ''}`}
                 onClick={() => setRaidOpen(true)}
                 disabled={raidBlocked}
                 style={{ position: 'relative', ...(raidBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
