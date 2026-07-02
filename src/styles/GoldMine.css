@@ -321,7 +321,7 @@
         1px -1px 0 #0a1a0a,
         -1px  1px 0 #0a1a0a,
         1px  1px 0 #0a1a0a;
-    z-index: 9999;
+    z-index: 50;
 }
 
 .floating-slot-double-hit {
@@ -337,7 +337,7 @@
         -1px  1px 0 #3a1a00,
         1px  1px 0 #3a1a00,
         0 0 12px #ffaa00;
-    z-index: 9999;
+    z-index: 50;
 }
 
 .floating-slot-save-durability {
@@ -345,7 +345,7 @@
     pointer-events: none;
     animation: float-up-slot 1s ease-out forwards;
     color: #a0d4ff;
-    z-index: 9999;
+    z-index: 50;
     display: flex;
     align-items: center;
 }
@@ -362,7 +362,7 @@
         1px -1px 0 #0a1a2a,
         -1px  1px 0 #0a1a2a,
         1px  1px 0 #0a1a2a;
-    z-index: 9999;
+    z-index: 50;
     display: flex;
     align-items: center;
     gap: 2px;

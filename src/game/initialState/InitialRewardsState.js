@@ -3,24 +3,24 @@ const InitialRewardsState = {
     //ORO picado CONSEGUIDO HISTÓRICO
     goldMilestones: {
         claimed: [],
-        firstStep: 1000,   // primer hito
-        step: 5000,        // a partir del 2do
+        firstStep: 1000,
+        step: 5000,
+        maxClaims: 30,
 
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
             { upTo: 10, base: 1000, increase: 100, max: 2000 },
             { upTo: 15, base: 1000, increase: 100, max: 3000 },
             { upTo: Infinity, base: 1000, increase: 100, max: 5000 },
-
         ],
     },
 
     //ORO GASTADO
     goldSpentMilestones: {
-
         claimed: [],
-        firstStep: 5000,   // primer hito
-        step: 10000,           // cada X oro gastado
+        firstStep: 5000,
+        step: 10000,
+        maxClaims: 20,
         tiers: [
             { upTo: 5, base: 1000, increase: 100, max: 1500 },
             { upTo: 10, base: 1000, increase: 100, max: 2000 },
@@ -200,14 +200,6 @@ const InitialRewardsState = {
         goldPassive30: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 30' },
         goldPassive40: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 40' },
         goldPassive50: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Oro pasivo nivel 50' },
-
-        // ===== CADENA 2: STAMINA =====
-        stamina2:  { claimed: false, unlocked: false, visible: true,  dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 2' },
-        stamina5:  { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 5' },
-        stamina10: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 10' },
-        stamina20: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 20' },
-        stamina30: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 30' },
-        stamina50: { claimed: false, unlocked: false, visible: false, dogs: [{ dogId: 'bully', isForge: false, amount: 100 }, { dogId: 'rocky', isForge: true, amount: 100 }], label: 'Energia nivel 50' },
 
         // ===== CADENA 3: MINAS =====
         unlockMineBronze:  { claimed: false, unlocked: false, visible: true,  dogs: [{ dogId: 'chihuahua', isForge: false, amount: 100 }, { dogId: 'rex', isForge: true, amount: 100 }], label: 'Desbloquea la mina de bronce' },

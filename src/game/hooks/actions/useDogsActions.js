@@ -2,8 +2,6 @@ import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { ForgeConfig } from '../../config/ForgeConfig.js';
 import { PACK_TYPES, FRAGMENTS_PER_RARITY, FREE_FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
-import { getDogStats } from '../../utils/getDogStats.js';
-
 export const useDogsActions = (gameState, setGameState) => {
 
     // ========== CONTRATAR PERRO MINERO ==========
@@ -328,19 +326,18 @@ export const useDogsActions = (gameState, setGameState) => {
             if (prevState.gold < goldCost) return prevState;
             if (prevState.tavernCoins < coinCost) return prevState;
 
+            const isRented = !isForge && (prevState.rental?.active ?? []).some(r => r.dogId === dogId);
+
             let extraDogState = {};
-            if (!isForge) {
+            let assignedTo = null;
+            if (!isForge && !isRented) {
                 const globalSlots = prevState.dogs.globalSlots ?? [null, null, null];
                 const emptyIdx = globalSlots.findIndex(id => id === null);
                 if (emptyIdx !== -1) {
                     extraDogState = { globalSlots: globalSlots.map((id, i) => i === emptyIdx ? dogId : id) };
+                    assignedTo = { globalSlot: emptyIdx };
                 }
             }
-            const assignedTo = !isForge && (() => {
-                const globalSlots = prevState.dogs.globalSlots ?? [null, null, null];
-                const emptyIdx = globalSlots.findIndex(id => id === null);
-                return emptyIdx !== -1 ? { globalSlot: emptyIdx } : null;
-            })();
 
             return {
                 ...prevState,
@@ -349,7 +346,7 @@ export const useDogsActions = (gameState, setGameState) => {
                 [stateKey]: {
                     ...prevState[stateKey],
                     ...extraDogState,
-                    [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments, assignedTo: isForge ? null : assignedTo }
+                    [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments, assignedTo }
                 }
             };
         });

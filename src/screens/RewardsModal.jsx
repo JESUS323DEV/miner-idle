@@ -67,15 +67,16 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const _r = gameState.rewards;
     const _fr = _r?.fragmentRewards ?? {};
     const _cr = _r?.coinRewards ?? {};
-    const _goldKeys = ['goldMilestones','goldSpentMilestones','goldPerSecondMilestones','clickMilestones','staminaMilestones','pickaxeMilestones','repairMilestones','refillMilestones'];
+    const _goldKeys = ['goldMilestones','goldSpentMilestones','goldPerSecondMilestones','clickMilestones','pickaxeMilestones','repairMilestones'];
     const _goldVals = {
         goldMilestones: gameState.totalGoldEarned, goldSpentMilestones: gameState.totalGoldSpent,
         goldPerSecondMilestones: gameState.goldPerSecond, clickMilestones: gameState.totalClicks,
-        staminaMilestones: gameState.maxStaminaLevel, pickaxeMilestones: _r?.pickaxeMilestones?.totalTiers ?? 0,
-        repairMilestones: gameState.totalRepairs, refillMilestones: gameState.totalRefills,
+        pickaxeMilestones: _r?.pickaxeMilestones?.totalTiers ?? 0,
+        repairMilestones: gameState.totalRepairs,
     };
     const _hasGold = _goldKeys.some(k => {
         const m = _r?.[k]; if (!m) return false;
+        if (m.maxClaims && m.claimed.length >= m.maxClaims) return false;
         const next = m.claimed.length === 0 ? m.firstStep : m.firstStep + m.step * m.claimed.length;
         return (_goldVals[k] ?? 0) >= next;
     });
@@ -109,7 +110,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
             if (_hasGold) setActiveTab('gold');
             else if (_hasCoins) setActiveTab('coins');
         }
-    }, [isOpen, isTutorial, _hasGold, _hasCoins, _hasFrags, activeTab]); // eslint-disable-line
+    }, [isOpen, isTutorial, _hasGold, _hasCoins, _hasFrags, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!isOpen) return null;
 
@@ -130,17 +131,21 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
     const coinRewards = rewards.coinRewards;
 
     // ===== HELPERS ORO =====
+    const isExhausted = (milestoneKey) => {
+        const milestone = rewards[milestoneKey];
+        return !!milestone.maxClaims && milestone.claimed.length >= milestone.maxClaims;
+    };
+
     const isClaimable = (milestoneKey) => {
+        if (isExhausted(milestoneKey)) return false;
         const milestone = rewards[milestoneKey];
         const currentValues = {
             goldMilestones: gameState.totalGoldEarned,
             goldSpentMilestones: gameState.totalGoldSpent,
             goldPerSecondMilestones: gameState.goldPerSecond,
             clickMilestones: gameState.totalClicks,
-            staminaMilestones: gameState.maxStaminaLevel,
             pickaxeMilestones: rewards.pickaxeMilestones.totalTiers,
             repairMilestones: gameState.totalRepairs,
-            refillMilestones: gameState.totalRefills,
         };
         const currentValue = currentValues[milestoneKey];
         const nextMilestoneValue = milestone.claimed.length === 0
@@ -176,10 +181,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
             goldSpentMilestones: gameState.totalGoldSpent,
             goldPerSecondMilestones: gameState.goldPerSecond,
             clickMilestones: gameState.totalClicks,
-            staminaMilestones: gameState.maxStaminaLevel,
             pickaxeMilestones: rewards.pickaxeMilestones.totalTiers,
             repairMilestones: gameState.totalRepairs,
-            refillMilestones: gameState.totalRefills,
         };
         return values[milestoneKey];
     };
@@ -225,10 +228,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
         { key: "goldSpentMilestones", icon: "💸", label: "Oro gastado" },
         { key: "goldPerSecondMilestones", icon: "⏱️", label: "Oro por segundo" },
         { key: "clickMilestones", icon: "⛏️", label: "Clicks totales" },
-        { key: "staminaMilestones", icon: "⚡", label: "Nivel stamina" },
         { key: "pickaxeMilestones", icon: "🪓", label: "Tiers de pico" },
         { key: "repairMilestones", icon: "🔧", label: "Reparaciones" },
-        { key: "refillMilestones", icon: "🔋", label: "Recargas stamina" },
     ];
 
     const uniqueCoinRewardsList = [
@@ -304,28 +305,37 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                 {activeTab === "gold" && (
                     <div className="rewards-list">
                         {[...goldRewardsList].sort((a, b) => {
-                            const ca = isClaimable(a.key);
-                            const cb = isClaimable(b.key);
+                            const ea = isExhausted(a.key), eb = isExhausted(b.key);
+                            if (ea && !eb) return 1;
+                            if (!ea && eb) return -1;
+                            const ca = isClaimable(a.key), cb = isClaimable(b.key);
                             if (ca && !cb) return -1;
                             if (!ca && cb) return 1;
                             return 0;
                         }).map(({ key, icon, label }) => {
+                            const exhausted = isExhausted(key);
                             const claimable = isClaimable(key);
                             const reward = getReward(key);
                             const target = getNextTarget(key);
                             const current = getCurrentValue(key);
                             const claimed = rewards[key].claimed.length;
+                            const maxClaims = rewards[key].maxClaims;
 
                             return (
-                                <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
+                                <div key={key} className={`reward-card ${exhausted ? "exhausted" : claimable ? "claimable" : "locked"}`}>
                                     <span className="reward-icon">{icon}</span>
                                     <div className="reward-info">
                                         <p className="reward-label">{label}</p>
-                                        <p className="reward-progress">{fmt(current)} / {fmt(target)}</p>
-                                        <p className="reward-claimed">Reclamados: {claimed}</p>
+                                        {exhausted
+                                            ? <p className="reward-progress">Completado ({claimed}/{maxClaims})</p>
+                                            : <>
+                                                <p className="reward-progress">{fmt(current)} / {fmt(target)}</p>
+                                                <p className="reward-claimed">Reclamados: {claimed}{maxClaims ? `/${maxClaims}` : ''}</p>
+                                              </>
+                                        }
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
+                                        {!exhausted && <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>}
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                             onClick={() => { if (claimable) { playSfx('rewardGold'); onClaimReward(key); } }}

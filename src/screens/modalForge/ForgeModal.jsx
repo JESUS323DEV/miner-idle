@@ -88,6 +88,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
         handleUnassignForgeDog: onUnassignForgeDog,
     } = useGameContext();
     const forgeDogs = gameState.forgeDogs ?? {};
+    const passiveRaids = gameState.raid?.passiveRaids ?? [];
 
     const [showIntro, setShowIntro] = useState(false);
     const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
@@ -254,6 +255,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                     forgeDogs={forgeDogs}
                     onAssign={handleForgeAssign}
                     onUnassign={onUnassignForgeDog}
+                    passiveRaids={passiveRaids}
                 />
 
                 {showIntro && (

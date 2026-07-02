@@ -25,9 +25,8 @@ const UpgradeModal = ({
 
     // ===== TUTORIAL =====
     tutorialStep0Active = false,
-    tutorialPhase = null,      // 'upgrade' | 'snacks' | null
-    onTutorialAction = null,
-    tutorialHint = null,       // key de MODAL_HINTS: 'goldPerSecond' | 'stamina'
+    tutorialPhase = null,
+    tutorialHint = null,
 
     // ===== IMÁGENES =====
     bgImage,
@@ -93,6 +92,7 @@ const UpgradeModal = ({
                                     className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
                                     onClick={onUpgrade}
                                     disabled={!canAfford}
+                                    data-tutorial={tutorialHint === 'goldPerSecond' ? 'tut-gold-modal' : tutorialHint === 'stamina' ? 'tut-stamina-modal' : undefined}
                                 >
                                     <img src={buttonImage} loading='lazy' alt="Upgrade" />
                                 </button>
@@ -203,7 +203,7 @@ const UpgradeModal = ({
 
                     {/* ===== SNACKS — solo modal de oro ===== */}
                     {showSnacks && snacksData && (
-                        <div className="cont-snacks">
+                        <div className="cont-snacks" data-tutorial="tut-snacks-modal">
 
                             {/* GALLETA */}
                             <div className='container-snacks'>

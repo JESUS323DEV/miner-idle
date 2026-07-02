@@ -54,7 +54,7 @@ const loadBuffer = async (key, url) => {
         const res = await fetch(url);
         const data = await res.arrayBuffer();
         buffers[key] = await ctx.decodeAudioData(data);
-    } catch (_) { }
+    } catch { /* ignore decode errors */ }
 };
 
 export const sfxReady = Promise.all(

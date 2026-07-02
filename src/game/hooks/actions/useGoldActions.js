@@ -3,7 +3,7 @@ import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 
-export const useGoldActions = (gameState, setGameState, showGoldCost, showTavernCost) => {
+export const useGoldActions = (gameState, setGameState, showGoldCost) => {
 
     // ========== ORO POR SEGUNDO ==========
     const handleBuyGoldPerSecondUpgrade = () => {
@@ -199,13 +199,6 @@ export const useGoldActions = (gameState, setGameState, showGoldCost, showTavern
     };
 
     // ========== BURST ==========
-
-    const getRechargeTime = (level) => {
-        if (level <= 20) return Math.round(40 - level * 0.5);
-        if (level <= 40) return Math.round(30 - (level - 20) * 0.25);
-        if (level <= 55) return Math.round(25 - (level - 40) * (5 / 15));
-        return 20;
-    };
 
     const handleActivateBurst = () => {
         setGameState(prevState => {

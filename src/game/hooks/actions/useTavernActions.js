@@ -1,5 +1,3 @@
-import { checkMilestone } from '../helpers/milestoneHelpers.js';
-
 export const useTavernActions = (gameState, setGameState, showGoldCost, showTavernCost, showTavernGain) => {
 
     // ========== CONVERTIR LINGOTES EN MONEDAS ==========
@@ -60,19 +58,10 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
         showTavernCost(1);
         setGameState(prevState => {
             if (prevState.tavernCoins < 1) return prevState;
-
-            const newTotalGoldEarned = prevState.totalGoldEarned + 5000;
-            const hasGoldMilestone = checkMilestone(prevState.rewards.goldMilestones, newTotalGoldEarned);
-
             return {
                 ...prevState,
                 tavernCoins: prevState.tavernCoins - 1,
                 gold: prevState.gold + 5000,
-                totalGoldEarned: newTotalGoldEarned,
-                rewards: {
-                    ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldMilestone,
-                }
             };
         });
     };
@@ -84,8 +73,6 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             if (prevState.tavernUnlocked) return prevState;
 
             const newGoldSpent = prevState.totalGoldSpent + 1000;
-            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
-
             const fragReward = prevState.rewards.fragmentRewards?.unlockTaverna;
             return {
                 ...prevState,

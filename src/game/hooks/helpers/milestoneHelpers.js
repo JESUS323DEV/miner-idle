@@ -1,6 +1,7 @@
 // ========== HELPER: DETECTA HITOS Y MARCA hasUnclaimed ==========
 export const checkMilestone = (milestoneConfig, currentValue) => {
-    const { claimed, firstStep, step } = milestoneConfig;
+    const { claimed, firstStep, step, maxClaims } = milestoneConfig;
+    if (maxClaims && claimed.length >= maxClaims) return false;
     const nextTarget = claimed.length === 0
         ? firstStep
         : firstStep + step * claimed.length;

@@ -35,7 +35,6 @@ export const useGoldTrickle = (globalSlots, setGameState) => {
                 setGameState(prev => ({
                     ...prev,
                     gold: prev.gold + goldGained,
-                    totalGoldEarned: prev.totalGoldEarned + goldGained,
                 }));
             }
         }, 1000);

@@ -17,15 +17,25 @@ import chihuahuaIcon from "../../assets/ui/icons-pets/mineros/chihuhua-icon.webp
 import '../../styles/modals/SlotMachine.css';
 
 const SLOT_DOGS = [
-    { id: 'bully',     rarity: 'epic'      },
-    { id: 'smoke',     rarity: 'epic'      },
-    { id: 'nupito',    rarity: 'epic'      },
-    { id: 'chihuahua', rarity: 'legendary' },
-    { id: 'tuka',      rarity: 'legendary' },
-    { id: 'muna',      rarity: 'legendary' },
-    { id: 'lady',      rarity: 'legendary' },
-    { id: 'tokio',     rarity: 'legendary' },
+    { id: 'bully',     rarity: 'epic',      weight: 2567 },
+    { id: 'smoke',     rarity: 'epic',      weight: 2567 },
+    { id: 'nupito',    rarity: 'epic',      weight: 2566 },
+    { id: 'chihuahua', rarity: 'legendary', weight: 1000 },
+    { id: 'muna',      rarity: 'legendary', weight: 1000 },
+    { id: 'tuka',      rarity: 'legendary', weight: 100  },
+    { id: 'lady',      rarity: 'legendary', weight: 100  },
+    { id: 'tokio',     rarity: 'legendary', weight: 100  },
 ];
+
+const TOTAL_WEIGHT = SLOT_DOGS.reduce((acc, d) => acc + d.weight, 0);
+const weightedRnd = () => {
+    let r = Math.floor(Math.random() * TOTAL_WEIGHT);
+    for (const dog of SLOT_DOGS) {
+        r -= dog.weight;
+        if (r < 0) return dog;
+    }
+    return SLOT_DOGS[SLOT_DOGS.length - 1];
+};
 
 const DOG_ICONS = {
     bully: bullyIcon, smoke: smokeIcon, nupito: nupitoIcon,
@@ -46,7 +56,7 @@ const SPIN_COST     = 50;
 const rnd = (n) => Math.floor(Math.random() * n);
 
 const buildStrip = (targetId) => {
-    const strip = Array.from({ length: STRIP_LEN }, () => SLOT_DOGS[rnd(SLOT_DOGS.length)]);
+    const strip = Array.from({ length: STRIP_LEN }, () => weightedRnd());
     strip[RESULT_IDX] = SLOT_DOGS.find(d => d.id === targetId);
     return strip;
 };
@@ -71,11 +81,11 @@ export default function SlotMachine({ guaranteed }) {
 
         let results;
         if (guaranteed) {
-            const winner = SLOT_DOGS[rnd(SLOT_DOGS.length)];
+            const winner = weightedRnd();
             results = [winner, winner, winner];
             setGameState(prev => ({ ...prev, slotWelcomeDone: true }));
         } else {
-            results = Array.from({ length: 3 }, () => SLOT_DOGS[rnd(SLOT_DOGS.length)]);
+            results = Array.from({ length: 3 }, () => weightedRnd());
             setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins - SPIN_COST }));
         }
         resultsRef.current = results;
@@ -114,13 +124,21 @@ export default function SlotMachine({ guaranteed }) {
                         const config = DogsConfig[winner.id];
                         setGameState(prev => {
                             const dog = prev.dogs[winner.id];
+                            const globalSlots = prev.dogs.globalSlots ?? [null, null, null];
+                            const emptyIdx = globalSlots.findIndex(id => id === null);
+                            const newSlots = emptyIdx !== -1
+                                ? globalSlots.map((id, i) => i === emptyIdx ? winner.id : id)
+                                : globalSlots;
+                            const assignedTo = emptyIdx !== -1 ? { globalSlot: emptyIdx } : null;
                             return {
                                 ...prev,
                                 dogs: {
                                     ...prev.dogs,
+                                    globalSlots: newSlots,
                                     [winner.id]: {
                                         ...dog,
                                         hired: true,
+                                        assignedTo,
                                         fragments: Math.max(dog?.fragments ?? 0, config.unlockFragments),
                                     },
                                 },

@@ -22,6 +22,7 @@ import { useRentalTimer } from "../game/hooks/useRentalTimer.js";
 import { useMineDogTimer } from "../game/hooks/useMineDogTimer.js";
 import { useFragmentRewardsUnlock } from "../game/hooks/useFragmentRewardsUnlock.js";
 import { useTutorialTriggers } from "../game/hooks/useTutorialTriggers.js";
+import { useTavernTick } from "../game/hooks/useTavernTick.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
 import { formatNumber, formatNumber2, formatRentalTimer } from "../game/utils/formatters.js";
 import { InitialDogsState } from "../game/initialState/InitialDogsState.js";
@@ -159,7 +160,7 @@ function GameRoot({ onBack }) {
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
-  const { pause: pauseMusic, resume: resumeMusic } = useBackgroundMusic(musicVolume);
+  const { fadeOut: fadeOutMusic, resume: resumeMusic } = useBackgroundMusic(musicVolume);
 
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
@@ -277,6 +278,64 @@ function GameRoot({ onBack }) {
   // ===== MINE CLICK COUNT — GlobalDogSlots escucha este contador para disparar floats de slots =====
   const [mineClickCount, setMineClickCount] = useState(0);
   const notifyMineClick = () => setMineClickCount(c => c + 1);
+
+  // ===== TUTORIAL DIALOG POSITION =====
+  const [tutDialogStyle, setTutDialogStyle] = useState({ bottom: '4dvh' });
+
+  const tutActiveStep = useMemo(() => {
+    if (openModal === 'goldPerSecond' && tutorialStep === 0) return 'hint_gold_modal';
+    if (openModal === 'goldPerSecond' && tutorialStep === '0_snacks') return 'hint_snacks_modal';
+    if (openModal === 'maxStamina' && !gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed) return 'hint_stamina_modal';
+    if (openModal === 'pickaxe' && !gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed) return 'hint_pickaxe_modal';
+    if (openModal === null && tutorialStep !== 'mine_tap' &&
+        !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
+        !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
+        !(tutorialStep === 'hint_raids' && raidOpen)) {
+      return tutorialStep;
+    }
+    return null;
+  }, [openModal, tutorialStep, gameState.tutorial, rewardsOpen, rentalModalOpen, raidOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const FALLBACKS = {
+      'intro':           { bottom: '14dvh' },
+      'done':            { bottom: '4dvh' },
+      'hint_mine_dog':   { bottom: '4dvh' },
+      'hint_gold_modal': { bottom: '2dvh' },
+    };
+    const STEP_TARGETS = {
+      0: 'tut-0', 1: 'tut-1', 2: 'tut-2',
+      'stamina_hint':    'tut-stamina',
+      'repair_hint':     'tut-repair',
+      'automine_hint':   'tut-automine',
+      'hint_tavern':     'tut-tavern',
+      'hint_mine':       'tut-mine',
+      'hint_forge':      'tut-forge',
+      'hint_rewards':    'tut-rewards',
+      'hint_rental':     'tut-rental',
+      'hint_raids':      'tut-raids',
+      'hint_mine_dog':   'tut-mine-dog',
+      'hint_gold_modal':    'tut-gold-modal',
+      'hint_snacks_modal':  'tut-snacks-modal',
+      'hint_stamina_modal': 'tut-stamina-modal',
+      'hint_pickaxe_modal': 'tut-pickaxe-modal',
+    };
+    if (tutActiveStep === null || tutActiveStep === undefined) { setTutDialogStyle({ bottom: '4dvh' }); return; }
+    if (FALLBACKS[tutActiveStep]) { setTutDialogStyle(FALLBACKS[tutActiveStep]); return; }
+    const key = STEP_TARGETS[tutActiveStep];
+    if (!key) { setTutDialogStyle({ bottom: '4dvh' }); return; }
+    const el = document.querySelector(`[data-tutorial="${key}"]`);
+    if (!el) { setTutDialogStyle({ bottom: '4dvh' }); return; }
+    const rect = el.getBoundingClientRect();
+    const DIALOG_H = 180;
+    const GAP = 14;
+    const vh = window.innerHeight;
+    if (rect.bottom + DIALOG_H + GAP <= vh) {
+      setTutDialogStyle({ top: `${rect.bottom + GAP}px`, bottom: 'auto' });
+    } else {
+      setTutDialogStyle({ bottom: `${vh - rect.top + GAP}px`, top: 'auto' });
+    }
+  }, [tutActiveStep]);
 
   // ===== CONTEXT VALUE =====
   const contextValue = {
@@ -459,6 +518,7 @@ function GameRoot({ onBack }) {
   useDogsAutomine(gameState, handleDogTick);
 
   useBurst(setGameState);
+  useTavernTick(setGameState);
 
   // Cargas disponibles de automine
   const availableCharges =
@@ -574,6 +634,11 @@ function GameRoot({ onBack }) {
       return false;
     });
   const hasPendingDogAction = _checkDogsPending(gameState.dogs ?? {}, DogsConfig) || _checkDogsPending(gameState.forgeDogs ?? {}, ForgeDogsConfig);
+  const tavernStockNeedsAttention = gameState.bartenderHired && (
+    (gameState.tavernStock?.cerveza ?? 0) === 0 ||
+    (gameState.tavernStock?.trigo ?? 0) === 0 ||
+    (gameState.tavernStock?.lupulo ?? 0) === 0
+  );
 
   const getMinesBg = (biome) => {
     if (biome === "bronze") return bgMineBronze;
@@ -708,6 +773,7 @@ function GameRoot({ onBack }) {
               disabled={!gameState.tutorial?.completed && tutorialStep !== 0}
               className={`openDisplay1 ${tutorialStep === 0 && openModal === null ? "tutorial-highlight" : ""}`}
               style={{ position: "relative" }}
+              data-tutorial="tut-0"
             >
               <img src={goldOpen} alt="icon goldOpen" />
               {tutorialStep === 0 && openModal === null && <TutorialPointer step={0} />}
@@ -760,6 +826,7 @@ function GameRoot({ onBack }) {
             <button
               className={`openDisplay2 ${tutorialStep === 1 ? 'tutorial-highlight' : ''}`}
               style={tutorialStep === 1 ? { position: 'relative', zIndex: 600 } : {}}
+              data-tutorial="tut-1"
               onClick={() => { setTutorialStep(null); setOpenModal("maxStamina"); }}
             >
               <img src={refillStaminaIcon} alt="Mejorar burst" />
@@ -818,6 +885,7 @@ function GameRoot({ onBack }) {
               disabled={!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed}
               className={`openDisplay3 ${tutorialStep === 2 ? 'tutorial-highlight' : ''}`}
               style={tutorialStep === 2 ? { position: 'relative', zIndex: 600 } : {}}
+              data-tutorial="tut-2"
             >
               <img src={repair} alt="Mejorar pico" />
             </button>
@@ -896,7 +964,8 @@ function GameRoot({ onBack }) {
             {gameState.tavernUnlocked ? (
               <button
                 onClick={() => setTavernModalOpen(true)}
-                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction) ? 'notify-pulse' : ''}`}
+                data-tutorial="tut-tavern"
+                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction || tavernStockNeedsAttention) ? 'notify-pulse' : ''}`}
               >
                 <img src={iconTavern} alt="Icono-Taberna" />
               </button>
@@ -917,6 +986,7 @@ function GameRoot({ onBack }) {
             {gameState.minesMapUnlocked ? (
               <button
                 onClick={() => setBiomeSelectorOpen(true)}
+                data-tutorial="tut-mine"
                 className={`mines-map-btn ${tutorialStep === 'hint_mine' ? 'tutorial-highlight' : ''}`}
               >
                 <img src={mineModal} alt="Icon1" />
@@ -942,7 +1012,7 @@ function GameRoot({ onBack }) {
                   (gameState.furnaces.iron.unlocked && !gameState.furnaces.iron.isActive && gameState.iron >= 6) ||
                   (gameState.furnaces.diamond.unlocked && !gameState.furnaces.diamond.isActive && gameState.diamond >= 2);
                 return (
-                  <button onClick={() => setForgeModalOpen(true)} className={`forge-btn ${forgeReady ? 'forge-btn-ready' : ''} ${tutorialStep === 'hint_forge' ? 'tutorial-highlight' : ''}`}>
+                  <button onClick={() => setForgeModalOpen(true)} data-tutorial="tut-forge" className={`forge-btn ${forgeReady ? 'forge-btn-ready' : ''} ${tutorialStep === 'hint_forge' ? 'tutorial-highlight' : ''}`}>
                     <img src={iconForge} alt="Icon-Forge" />
                   </button>
                 );
@@ -1055,6 +1125,7 @@ function GameRoot({ onBack }) {
                 onClick={() => setRaidOpen(true)}
                 disabled={raidBlocked}
                 style={{ position: 'relative', ...(raidBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
+                data-tutorial="tut-raids"
               >
                 ⚔️
                 {isRaidStep && !raidOpen && <TutorialPointer step="hint_raids" />}
@@ -1076,6 +1147,7 @@ function GameRoot({ onBack }) {
                 onClick={() => setRentalModalOpen(true)}
                 disabled={rentalBlocked}
                 style={{ position: 'relative', ...(rentalBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
+                data-tutorial="tut-rental"
               >
                 <img src={ladyIcon} className="btn-rental-img" alt="alquiler" />
                 {activeCount > 0 && (
@@ -1102,6 +1174,7 @@ function GameRoot({ onBack }) {
                 onClick={() => setRewardsOpen(true)}
                 disabled={rewardsBlocked}
                 style={{ position: 'relative', ...(rewardsBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
+                data-tutorial="tut-rewards"
               >
                 🏆
                 {tutorialStep === 'hint_rewards' && !rewardsOpen && <TutorialPointer step="hint_rewards" />}
@@ -1135,7 +1208,7 @@ function GameRoot({ onBack }) {
           isOpen={combatOpen}
           onClose={() => setCombatOpen(false)}
           onBack={() => { setCombatOpen(false); setRaidOpen(true); }}
-          onFightStart={pauseMusic}
+          onFightStart={fadeOutMusic}
           onFightEnd={resumeMusic}
           musicVolume={musicVolume}
         />
@@ -1158,6 +1231,7 @@ function GameRoot({ onBack }) {
                 <button
                   onClick={handleUnlockAutomine}
                   disabled={gameState.gold < AutomineConfig.unlockCost}
+                  data-tutorial="tut-automine"
                   className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
                 >
                   <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
@@ -1182,6 +1256,7 @@ function GameRoot({ onBack }) {
                 </button>
               )}
               <button
+                data-tutorial="tut-stamina"
                 className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
                 onClick={() => { playSfx('burst'); handleActivateBurst(); }}
                 disabled={gameState.burst?.active || gameState.burst?.recharging}
@@ -1221,6 +1296,7 @@ function GameRoot({ onBack }) {
                 );
               })()}
               <button
+                data-tutorial="tut-repair"
                 className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
                 onClick={() => { skipUpgradeSoundRef.current = true; playSfx('repair'); handleRepairPickaxe(); }}
                 disabled={gameState.pickaxe.durability >= effectiveMaxDurability || gameState.automine?.isActive}
@@ -1238,64 +1314,18 @@ function GameRoot({ onBack }) {
             setGameState={setGameState}
             tutorialStep={tutorialStep}
             hidden={tutorialStep === 'mine_tap'}
+            suppressFloats={openModal !== null || tavernModalOpen || forgeModalOpen || minesModalOpen || isMineScreenOpen || biomeSelectorOpen || rewardsOpen || raidOpen || rentalModalOpen || combatOpen || menuOpenModal}
           />
         </div>
 
         {/* TUTORIAL DIALOG */}
-        {/* ── Posiciones por paso: ajusta top según donde caiga el botón en pantalla ── */}
-        {(() => {
-          const DIALOG_POSITIONS = {
-            'intro': { bottom: '7rem' },
-            0: { bottom: 'auto', top: '9rem' }, //gold x second
-            1: { bottom: 'auto', top: '9rem' },
-            2: { bottom: 'auto', top: '9rem', left: '12.5rem' },
-            'hint_tavern': { bottom: 'auto', top: '14rem' },
-            'hint_mine': { bottom: 'auto', top: '14rem' },
-            'hint_forge': { bottom: 'auto', top: '14rem' },
-            'automine_hint': { bottom: '21rem' },
-            'stamina_hint': { bottom: 'auto', top: '7.5rem', left: '12rem' },
-            'repair_hint': { bottom: 'auto', top: '22.5rem', left: '12.5rem' },
-            'hint_rewards': { bottom: '18.8rem' },
-            'hint_rental': { bottom: '22.5rem' },
-            'hint_raids': { bottom: '25.8rem' },
-            'hint_mine_dog': { bottom: '7.5rem' },
-            'done': { bottom: '2rem' },
-            'hint_gold_modal': { bottom: 'auto', top: '22rem' },
-            'hint_snacks_modal': { bottom: 'auto', top: '16rem' },
-            'hint_stamina_modal': { bottom: 'auto', top: '6rem' },
-            'hint_pickaxe_modal': { bottom: 'auto', top: '6rem' },
-          };
-
-          let activeStep = null;
-          if (openModal === 'goldPerSecond' && tutorialStep === 0) {
-            activeStep = 'hint_gold_modal';
-          } else if (openModal === 'goldPerSecond' && tutorialStep === '0_snacks') {
-            activeStep = 'hint_snacks_modal';
-          } else if (openModal === 'maxStamina' && !gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed) {
-            activeStep = 'hint_stamina_modal';
-          } else if (openModal === 'pickaxe' && !gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed) {
-            activeStep = 'hint_pickaxe_modal';
-          } else if (
-            openModal === null &&
-            tutorialStep !== 'mine_tap' &&
-            !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
-            !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
-            !(tutorialStep === 'hint_raids' && raidOpen)
-          ) {
-            activeStep = tutorialStep;
-          }
-
-          const dialogStyle = DIALOG_POSITIONS[activeStep] ?? { bottom: '2rem' };
-          return (
-            <TutorialDialog
-              step={activeStep}
-              dialogStyle={dialogStyle}
-              onSkip={handleSkipTutorial}
-              onAction={handleTutorialAction}
-              isFirstTime={true}
-            />
-          );
-        })()}
+        <TutorialDialog
+          step={tutActiveStep}
+          dialogStyle={tutDialogStyle}
+          onSkip={handleSkipTutorial}
+          onAction={handleTutorialAction}
+          isFirstTime={true}
+        />
 
 
       </div>

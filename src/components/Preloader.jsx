@@ -2,7 +2,15 @@
 import { sfxReady } from '../game/utils/sfx.js';
 
 // ===== FONDOS =====
-import bgTavern from "../assets/backgrounds/bg-tavern/bg-tavern1.webp"
+import bgTavern from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-0.webp"
+import bgTavern1 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-1.webp"
+import bgTavern2 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-2.webp"
+import bgTavern3 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-3.webp"
+import bgTavern4 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-4.webp"
+import bgTavern5 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-5.webp"
+import bgTavern6 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-6.webp"
+import bgTavern7 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-7.webp"
+import bgTavern8 from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-8.webp"
 import bgCoin from "../assets/backgrounds/bg-tavern/bg-coin.webp"
 import bgGold1 from "../assets/backgrounds/bg-tavern/bg-gold.webp"
 import bgMineBronze from "../assets/backgrounds/bg-mines/bg-mine-bronze.webp"
@@ -43,6 +51,22 @@ import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade
 // ===== TAVERN MODAL ICONS =====
 import cambistaCoin from "../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
 import cambistaMateriales from "../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.webp"
+import iconRuleta from "../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
+import iconTragaperras from "../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
+
+// ===== LANDING =====
+import landingLogo from "../assets/landing-pico-pata/logo.webp"
+import landingAyudantes from "../assets/landing-pico-pata/ayudantes.webp"
+import landingMinas from "../assets/landing-pico-pata/minas.webp"
+import landingPicos from "../assets/landing-pico-pata/picos.webp"
+import landingProduccionOro from "../assets/landing-pico-pata/produccion-oro.webp"
+
+// ===== ICONS TAVERN =====
+import iconTavernComida from "../assets/ui/icons-hud/hud-modals/icons-tavern/comida.webp"
+import iconTavernTrigo from "../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp"
+import iconTavernLupulo from "../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp"
+import iconTavernCerveza from "../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
+import iconTavernCraft from "../assets/ui/icons-hud/hud-modals/icons-tavern/craft.webp"
 
 // ===== PICOS =====
 import pickAxeStone from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-stone/stone.webp"
@@ -173,7 +197,7 @@ import tutorialForja from "../assets/tutorial/mascotas/forja.webp"
 
 const IMAGES = [
     // fondos
-    bgTavern, bgCoin, bgGold1,
+    bgTavern, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgTavern6, bgTavern7, bgTavern8, bgCoin, bgGold1,
     bgMineBronze, bgMineIron, bgMineDiamond,
     bgInsideBronze, bgInsideIron, bgInsideDiamond,
     bgMain, bgGold, bgStamina, bgPickaxe, bgNupito,
@@ -181,10 +205,14 @@ const IMAGES = [
     cofre, gold1, coinTavern, stamina1, goldOpen, repair, refillStaminaIcon, rayo,
     // hud modals
     iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier, cookie,
+    // icons tavern
+    iconTavernComida, iconTavernTrigo, iconTavernLupulo, iconTavernCerveza, iconTavernCraft,
     // sat
     satEnergy, satRepair, satUpgrade,
     // tavern
-    cambistaCoin, cambistaMateriales,
+    cambistaCoin, cambistaMateriales, iconRuleta, iconTragaperras,
+    // landing
+    landingLogo, landingAyudantes, landingMinas, landingPicos, landingProduccionOro,
     // picos
     pickAxeStone, pickAxeStone1, pickAxeStone2, pickAxeStone3,
     pickAxeBronze, pickAxeBronze1, pickAxeBronze2, pickAxeBronze3,

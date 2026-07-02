@@ -1,5 +1,6 @@
 ﻿/* ===== OVERLAY Y CONTENIDO PRINCIPAL ===== */
 .tavern-overlay {
+    background-color: #1a0e00;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -28,20 +29,21 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.82);
+    background: rgba(0, 0, 0, 0.242);
     z-index: -1;
 }
 
 /* ===== BOTÓN CERRAR ===== */
 .tavern-close {
     position: absolute;
-    top: 10px;
+    top: 40px;
     right: 10px;
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
     color: white;
+    z-index: 5;
 }
 
 .tavern-close svg {
@@ -68,6 +70,368 @@
     font-size: 0.7rem;
     margin-bottom: 1.25rem;
     color: #FFF;
+}
+
+.tavern-scene {
+    position: relative;
+    width: 100%;
+    height: calc(100dvh - 5.5rem);
+}
+
+.tavern-bartender-btn {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 195, 60, 0.5);
+    border-radius: 8px;
+    color: #FFD700;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 6px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tavern-bartender-btn.locked {
+    opacity: 0.7;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.bartender-cost {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== HUD STOCK TAVERNA ===== */
+.tavern-stock-hud {
+    position: fixed;
+    top: 5.5rem;
+    left: 0;
+    right: 0;
+    max-width: 430px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 4px 12px;
+    background: rgba(8, 4, 0, 0.85);
+    border-bottom: 1px solid rgba(255, 195, 60, 0.15);
+    z-index: 12;
+}
+
+.tavern-stock-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #FFD700;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.tavern-stock-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.tavern-clients-badge {
+    color: #a8e6a3;
+    border-left: 1px solid rgba(255, 195, 60, 0.2);
+    padding-left: 12px;
+}
+
+.tavern-stock-zero {
+    animation: stock-zero-pulse 1s ease-in-out infinite;
+}
+
+.tavern-stock-zero span {
+    color: #ff4444;
+}
+
+.tavern-stock-zero .tavern-stock-icon {
+    filter: drop-shadow(0 0 4px #ff4444);
+}
+
+@keyframes stock-zero-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* ===== CRAFTEO CERVEZA ===== */
+.tavern-left-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 5;
+}
+
+.tavern-brew-anchor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255, 195, 60, 0.4);
+    border-radius: 10px;
+    background: rgba(10, 5, 0, 0.92);
+    padding: 0.3rem;
+}
+
+.tavern-dog-slot-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tavern-dog-slot-wrap .global-dog-slot {
+    width: 44px;
+    height: 44px;
+}
+
+.tavern-dog-slot-wrap .global-dog-slot-img {
+    width: 36px;
+    height: 36px;
+}
+
+.tavern-dog-panel {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 8px);
+    background: rgba(10, 5, 0, 0.95);
+    border: 1px solid rgba(255, 195, 60, 0.4);
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    min-width: 130px;
+    z-index: 20;
+}
+
+.tavern-dog-panel-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+}
+
+.tavern-dog-panel-item:not(.unavailable):hover {
+    background: rgba(255, 195, 60, 0.12);
+    border-color: rgba(255, 195, 60, 0.3);
+}
+
+.tavern-dog-panel-item.unavailable {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tavern-dog-panel-item.assigned {
+    border-color: rgba(255, 210, 80, 0.6);
+    background: rgba(255, 210, 80, 0.08);
+}
+
+.tavern-dog-panel-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.tavern-dog-panel-name {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.9);
+    flex: 1;
+}
+
+.tavern-dog-panel-stars {
+    display: flex;
+    gap: 1px;
+}
+
+.tavern-dog-panel-empty {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    padding: 4px;
+}
+
+.tavern-brew-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+
+}
+
+.tavern-brew-btn-icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    display: block;
+}
+
+.tavern-brew-panel {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 8px);
+    background: rgba(10, 5, 0, 0.95);
+    border: 1px solid rgba(255, 195, 60, 0.4);
+    border-radius: 10px;
+    padding: 10px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 220px;
+    z-index: 20;
+}
+
+.brew-slots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.brew-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 195, 60, 0.25);
+    border-radius: 8px;
+    padding: 6px 10px;
+    min-width: 52px;
+}
+
+.brew-slot-result {
+    border-color: rgba(255, 195, 60, 0.6);
+    background: rgba(255, 195, 60, 0.08);
+}
+
+.brew-slot-label {
+    font-size: 0.6rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.brew-slot-qty {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #FFD700;
+}
+
+.brew-plus {
+    color: #aaa;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.brew-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.brew-progress-fill {
+    height: 100%;
+    background: #FFD700;
+    border-radius: 4px;
+    transition: width 0.4s linear;
+}
+
+.brew-action-btn {
+    background: rgba(255, 195, 60, 0.15);
+    border: 1px solid rgba(255, 195, 60, 0.6);
+    border-radius: 8px;
+    color: #FFD700;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 5px 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.brew-action-btn.brew-locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tavern-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 430px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 8px;
+    background: rgba(8, 4, 0, 0.72);
+    border-top: 1px solid rgba(255, 195, 60, 0.2);
+    z-index: 11;
+}
+
+.tavern-zone-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+    transition: transform 0.15s, filter 0.15s;
+}
+
+.tavern-zone-btn img {
+    width: 57px;
+    height: 57px;
+    object-fit: contain;
+    display: block;
+}
+
+.tavern-zone-btn:active {
+    transform: scale(0.9);
+}
+
+.tavern-zone-notify {
+    animation: zone-notify-pulse 2s ease-in-out infinite;
+}
+
+@keyframes zone-notify-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+.tavern-zone-notify::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background: #ff4444;
+    border-radius: 50%;
+    border: 2px solid #1a1200;
 }
 
 /* ===== MENÚ PRINCIPAL ===== */
@@ -209,6 +573,30 @@
 }
 
 /* ===== VISTA CAMBISTA ===== */
+.tavern-back-btn-fixed {
+    position: fixed;
+    top: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 6px 12px;
+    background: rgba(8, 4, 0, 0.85);
+    border: none;
+    border-bottom: 1px solid rgba(255, 195, 60, 0.15);
+    color: #aaa;
+    font-size: 0.85rem;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.tavern-back-btn-fixed:hover {
+    color: white;
+}
+
 .tavern-cambista {
     position: fixed;
     width: 100%;
@@ -219,6 +607,7 @@
     transform: translateX(-50%);
     height: calc(100vh - 5.5rem);
     padding: 1rem;
+    padding-top: 3rem;
     z-index: 1;
     background-position: center;
     background-repeat: no-repeat;
@@ -246,6 +635,8 @@
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
     background: none;
     border: none;
     color: #AAA;
@@ -261,16 +652,27 @@
     color: white;
 }
 
+.tavern-section-label {
+    width: 100%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 210, 80, 0.7);
+    border-bottom: 1px solid rgba(255, 195, 60, 0.2);
+    padding-bottom: 3px;
+    margin-top: 4px;
+}
+
 /* ===== CONVERSIONES ===== */
 .tavern-conversions {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     gap: 0.9rem;
-
     overflow-y: auto;
-
+    max-height: 65vh;
+    padding-bottom: 3rem;
 }
 
 .tavern-conversion-row {
@@ -389,6 +791,9 @@
 
 .conv-stock {
     font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .conv-stock-ok {
@@ -804,6 +1209,7 @@
 }
 
 .dog-tab-btn {
+    position: relative;
     flex: 1;
     padding: 6px;
     border: 1px solid rgba(255, 165, 0, 0.4);
@@ -875,26 +1281,76 @@
 }
 
 @keyframes rarity-pulse-legendary {
-    0%, 100% { box-shadow: none; transform: scale(1); }
-    50% { box-shadow: 0 0 12px rgba(245, 200, 66, 1), 0 0 4px rgba(245, 200, 66, 0.6); transform: scale(1.07); }
+
+    0%,
+    100% {
+        box-shadow: none;
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(245, 200, 66, 1), 0 0 4px rgba(245, 200, 66, 0.6);
+        transform: scale(1.07);
+    }
 }
+
 @keyframes rarity-pulse-epic {
-    0%, 100% { box-shadow: none; transform: scale(1); }
-    50% { box-shadow: 0 0 12px rgba(180, 92, 255, 1), 0 0 4px rgba(180, 92, 255, 0.6); transform: scale(1.07); }
+
+    0%,
+    100% {
+        box-shadow: none;
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(180, 92, 255, 1), 0 0 4px rgba(180, 92, 255, 0.6);
+        transform: scale(1.07);
+    }
 }
+
 @keyframes rarity-pulse-rare {
-    0%, 100% { box-shadow: none; transform: scale(1); }
-    50% { box-shadow: 0 0 12px rgba(76, 168, 255, 1), 0 0 4px rgba(76, 168, 255, 0.6); transform: scale(1.07); }
+
+    0%,
+    100% {
+        box-shadow: none;
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(76, 168, 255, 1), 0 0 4px rgba(76, 168, 255, 0.6);
+        transform: scale(1.07);
+    }
 }
-.rarity-filter-legendary.rarity-filter-pulse { animation: rarity-pulse-legendary 1.2s ease-in-out infinite; }
-.rarity-filter-epic.rarity-filter-pulse { animation: rarity-pulse-epic 1.2s ease-in-out infinite; }
-.rarity-filter-rare.rarity-filter-pulse { animation: rarity-pulse-rare 1.2s ease-in-out infinite; }
+
+.rarity-filter-legendary.rarity-filter-pulse {
+    animation: rarity-pulse-legendary 1.2s ease-in-out infinite;
+}
+
+.rarity-filter-epic.rarity-filter-pulse {
+    animation: rarity-pulse-epic 1.2s ease-in-out infinite;
+}
+
+.rarity-filter-rare.rarity-filter-pulse {
+    animation: rarity-pulse-rare 1.2s ease-in-out infinite;
+}
 
 @keyframes dog-tab-pulse {
-    0%, 100% { box-shadow: none; transform: scale(1); }
-    50% { box-shadow: 0 0 12px rgba(255, 210, 80, 0.9), 0 0 4px rgba(255, 210, 80, 0.5); transform: scale(1.07); }
+
+    0%,
+    100% {
+        box-shadow: none;
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 12px rgba(255, 210, 80, 0.9), 0 0 4px rgba(255, 210, 80, 0.5);
+        transform: scale(1.07);
+    }
 }
-.dog-tab-btn-pulse { animation: dog-tab-pulse 1.2s ease-in-out infinite; }
+
+.dog-tab-btn-pulse {
+    animation: dog-tab-pulse 1.2s ease-in-out infinite;
+}
 
 /* ESTRELLAS */
 .dog-stars-row {
@@ -1292,8 +1748,15 @@
 }
 
 @keyframes rental-tab-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5); }
-    50%       { box-shadow: 0 0 0 6px rgba(168, 85, 247, 0); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(168, 85, 247, 0);
+    }
 }
 
 .rental-tab {
@@ -1355,8 +1818,15 @@
 }
 
 @keyframes rental-card-glow {
-    0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.3); }
-    50%       { box-shadow: 0 0 20px rgba(168, 85, 247, 0.7); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.7);
+    }
 }
 
 .rental-dog-portrait {
@@ -1569,6 +2039,7 @@
     text-align: center;
     line-height: 1.3;
 }
+
 /* OBTENIDOS */
 .dogs-obtenidos {
     width: 100%;
@@ -1590,7 +2061,7 @@
 
 .dogs-empty-msg {
     text-align: center;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.8rem;
     padding: 32px 0;
 }

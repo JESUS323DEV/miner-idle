@@ -1,7 +1,8 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
-import raidActiveBg from '../../assets/audio/bg-raid-active.mp3';
+import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
+import raidActiveSelectBg from '../../assets/audio/bg-raid-active-select.mp3';
 
 import ultFuego     from '../../assets/ui/power-pets/pelota-fire.webp';
 import ultElectrico from '../../assets/ui/power-pets/pelota-electic.webp';
@@ -16,6 +17,7 @@ const ULT_ASSET = {
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
+import { playSfx } from '../../game/utils/sfx.js';
 import '../../styles/modals/CombatScreen.css';
 
 import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
@@ -93,20 +95,19 @@ const ELEMENT_ICON = {
 };
 
 const MINER_COMBAT_INFO = {
-    fuego:     { ult: 'Bola de fuego', passive: 'Lateral: +5 daño plano al activo' },
-    electrico: { ult: 'Bola eléctrica', passive: 'Lateral: +12% prob. doble golpe' },
-    tierra:    { ult: 'Terremoto', passive: 'Lateral: x1.12 daño amplificado' },
-    agua:      { ult: 'Pistola de agua', passive: 'Lateral: x1.25 daño multiplicado' },
-    oscuro:    { ult: 'Furia', passive: 'Lateral: -1s cooldown de cambio' },
+    fuego:     { ult: 'Bola de fuego',   passive: 'Desde el lateral suma daño fijo a cada golpe del activo.' },
+    electrico: { ult: 'Bola eléctrica',  passive: 'Desde el lateral aumenta la probabilidad de golpe doble del activo.' },
+    tierra:    { ult: 'Terremoto',       passive: 'Desde el lateral amplifica el daño total del activo.' },
+    agua:      { ult: 'Pistola de agua', passive: 'Desde el lateral multiplica el daño que inflige el activo.' },
+    oscuro:    { ult: 'Furia',           passive: 'Desde el lateral reduce el tiempo de espera entre cambios de activo.' },
 };
 
-
 const FORGE_PASSIVE_INFO = {
-    fuego:     'Solo actua en lateral. Si lo pones aqui pierdes el calor acumulado.',
-    agua:      'Solo actua en lateral. Desde ahi potencia al activo con el tiempo.',
-    electrico: 'Solo actua en lateral. Desde ahi aumenta el doble golpe del activo.',
-    tierra:    'Solo actua en lateral. Cada golpe debilita la armadura del enemigo.',
-    oscuro:    'Solo actua en lateral. Da mas daño mientras el enemigo tiene mucha vida.',
+    fuego:     'Acumula calor con cada golpe del activo. A mayor calor, mas daño inflige.',
+    agua:      'Potencia al activo de forma pasiva. Su efecto aumenta con el tiempo de combate.',
+    electrico: 'Incrementa la probabilidad de golpe doble del activo desde su posicion lateral.',
+    tierra:    'Cada impacto reduce la armadura del enemigo, haciendolo mas vulnerable.',
+    oscuro:    'Inflige mas daño cuanta mas vida le quede al enemigo. Ideal para empezar fuerte.',
 };
 
 const ULT_COOLDOWN_BY_ELEMENT = {
@@ -131,7 +132,24 @@ const biomeBg = {
 
 const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, musicVolume = 0.08 }) => {
     const { gameState, setGameState } = useGameContext();
-    const raidAudioRef = useRef(null);
+    const raidAudioRef   = useRef(null);
+    const selectAudioRef = useRef(null);
+
+    useEffect(() => {
+        const fight = new Audio(raidActiveBg);
+        fight.volume = musicVolume;
+        fight.loop = true;
+        fight.preload = 'auto';
+        raidAudioRef.current = fight;
+
+        const select = new Audio(raidActiveSelectBg);
+        select.volume = musicVolume;
+        select.loop = true;
+        select.preload = 'auto';
+        selectAudioRef.current = select;
+
+        return () => { fight.pause(); select.pause(); };
+    }, []); // eslint-disable-line
 
     const [phase, setPhase]                       = useState('biome');
     const [infoCardId, setInfoCardId]             = useState(null);
@@ -142,7 +160,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [enemyHp, setEnemyHp]                   = useState(0);
     const [timer, setTimer]                       = useState(0);
     const [resultsData, setResultsData]           = useState(null);
-    const [abilityCooldowns, setAbilityCooldowns] = useState({});
+    const [, setAbilityCooldowns] = useState({});
     const [switchCooldowns, setSwitchCooldowns]   = useState({});
     const [swappingTo, setSwappingTo]             = useState(null);
     const [ultCooldown, setUltCooldown]           = useState(0);
@@ -157,35 +175,45 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const SWITCH_COOLDOWN = 6;
 
     useEffect(() => {
+        if (isOpen) {
+            const FADE_MS = 600;
+            onFightStart?.(FADE_MS);
+            const t = setTimeout(() => {
+                selectAudioRef.current.currentTime = 0;
+                selectAudioRef.current.play().catch(() => {});
+            }, FADE_MS);
+            return () => clearTimeout(t);
+        } else {
+            selectAudioRef.current?.pause();
+            if (selectAudioRef.current) selectAudioRef.current.currentTime = 0;
+            raidAudioRef.current?.pause();
+            if (raidAudioRef.current) raidAudioRef.current.currentTime = 0;
+            onFightEnd?.();
+        }
+    }, [isOpen]); // eslint-disable-line
+
+    useEffect(() => {
+        if (!isOpen) return;
         if (phase === 'fight') {
-            if (!raidAudioRef.current) {
-                raidAudioRef.current = new Audio(raidActiveBg);
-                raidAudioRef.current.volume = musicVolume;
-                raidAudioRef.current.loop = true;
-            }
+            selectAudioRef.current?.pause();
+            if (selectAudioRef.current) selectAudioRef.current.currentTime = 0;
             raidAudioRef.current.currentTime = 0;
             raidAudioRef.current.play().catch(() => {});
-            onFightStart?.();
         } else {
             if (raidAudioRef.current && !raidAudioRef.current.paused) {
                 raidAudioRef.current.pause();
                 raidAudioRef.current.currentTime = 0;
             }
-            onFightEnd?.();
+            if (selectAudioRef.current?.paused) {
+                selectAudioRef.current.play().catch(() => {});
+            }
         }
     }, [phase]); // eslint-disable-line
 
     useEffect(() => {
-        if (raidAudioRef.current) raidAudioRef.current.volume = musicVolume;
+        if (raidAudioRef.current)   raidAudioRef.current.volume   = musicVolume;
+        if (selectAudioRef.current) selectAudioRef.current.volume = musicVolume;
     }, [musicVolume]);
-
-    useEffect(() => {
-        if (!isOpen && raidAudioRef.current) {
-            raidAudioRef.current.pause();
-            raidAudioRef.current.currentTime = 0;
-            onFightEnd?.();
-        }
-    }, [isOpen]); // eslint-disable-line
 
     useEffect(() => {
         if (isOpen) {
@@ -238,12 +266,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
             setAutoFiring(true);
             autoFireTimerRef.current = setTimeout(() => {
-                handleUlt();
+                handleUlt(); // eslint-disable-line react-hooks/immutability
                 setAutoFiring(false);
             }, 350);
         }
         return () => clearTimeout(autoFireTimerRef.current);
-    }, [ultCooldown, autoUlt]); // eslint-disable-line
+    }, [ultCooldown, autoUlt]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const rollRarity = (rarityPool) => {
         const total = rarityPool.reduce((s, r) => s + r.weight, 0);
@@ -309,6 +337,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 rewardDogId,
                 rewardRarity,
             });
+            playSfx('finalMina');
             setPhase('results');
         }
     }, [phase, enemyHp, timer]);
@@ -425,17 +454,23 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     setEnemyHp(prev => Math.max(0, prev - dmg));
                     break;
                 }
-                case 'electrico':
-                    setActiveEffect({ type: 'doubleHits', remaining: 5 });
+                case 'electrico': {
+                    const stars = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const base  = cfg.rarity === 'legendary' ? 6 : cfg.rarity === 'epic' ? 4 : 2;
+                    setActiveEffect({ type: 'doubleHits', remaining: Math.round(base + stars * 0.4) });
                     break;
+                }
                 case 'tierra': {
                     const dmg = applyDefense(Math.round((cfg.miningPower ?? 1) * 30 + pickDmg * 8));
                     setEnemyHp(prev => Math.max(0, prev - dmg));
                     break;
                 }
-                case 'agua':
-                    setActiveEffect({ type: 'damageMulti', value: 3, remaining: 6 });
+                case 'agua': {
+                    const stars = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const base  = cfg.rarity === 'legendary' ? 3 : cfg.rarity === 'epic' ? 2 : 1;
+                    setActiveEffect({ type: 'damageMulti', value: base + (stars / 5), remaining: 6 });
                     break;
+                }
                 case 'oscuro':
                     setSwitchCooldowns({});
                     break;
@@ -632,7 +667,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     <div className="combat-selected-slots">
                         {[0, 1, 2].map(i => {
                             const id = team[i];
-                            const label = i === 0 ? 'Lateral' : i === 1 ? 'Activo' : 'Lateral';
                             if (id) {
                                 const cfg = getConfig(id);
                                 return (
@@ -662,82 +696,107 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         <Swords size={14} /> Combatir
                     </button>
 
-                    <div className="combat-dogs-grid">
+                    <div className="combat-dogs-list">
                         {hiredDogs.length === 0 && (
                             <p className="combat-no-dogs">No tienes mascotas contratadas</p>
                         )}
-                        {hiredDogs.map(dog => {
-                            const cfg      = getConfig(dog.id);
-                            const isForge  = !!ForgeDogsConfig[dog.id];
-                            const status   = getCombatStatus(dog, isForge);
-                            const blocked  = status !== 'available';
-                            const selected = team.some(id => id === dog.id);
-                            const elemInfo  = cfg?.element ? ELEMENT_ICON[cfg.element] : null;
-                            const showInfo  = infoCardId === dog.id;
-                            return (
-                                <div
-                                    key={dog.id}
-                                    className={`combat-dog-card${selected ? ' combat-dog-selected' : ''}${blocked ? ' unavailable' : ''} dog-rarity-${cfg?.rarity}`}
-                                    onClick={() => {
-                                        if (blocked || showInfo) return;
-                                        setTeam(prev => {
-                                            if (selected) return prev.map(id => id === dog.id ? null : id);
-                                            const next = [...prev];
-                                            if (isForge) {
-                                                if (!next[0]) { next[0] = dog.id; return next; }
-                                                if (!next[2]) { next[2] = dog.id; return next; }
-                                                return prev;
-                                            } else {
-                                                for (const i of [1, 0, 2]) {
-                                                    if (!next[i]) { next[i] = dog.id; return next; }
+                        {(() => {
+                            const renderCard = (dog) => {
+                                const cfg      = getConfig(dog.id);
+                                const isForge  = !!ForgeDogsConfig[dog.id];
+                                const status   = getCombatStatus(dog, isForge);
+                                const blocked  = status !== 'available';
+                                const selected = team.some(id => id === dog.id);
+                                const elemInfo = cfg?.element ? ELEMENT_ICON[cfg.element] : null;
+                                const showInfo = infoCardId === dog.id;
+                                return (
+                                    <div
+                                        key={dog.id}
+                                        className={`combat-dog-card${selected ? ' combat-dog-selected' : ''}${blocked ? ' unavailable' : ''} dog-rarity-${cfg?.rarity}`}
+                                        onClick={() => {
+                                            if (blocked || showInfo) return;
+                                            setTeam(prev => {
+                                                if (selected) return prev.map(id => id === dog.id ? null : id);
+                                                const next = [...prev];
+                                                if (isForge) {
+                                                    if (!next[0]) { next[0] = dog.id; return next; }
+                                                    if (!next[2]) { next[2] = dog.id; return next; }
+                                                    return prev;
+                                                } else {
+                                                    for (const i of [1, 0, 2]) {
+                                                        if (!next[i]) { next[i] = dog.id; return next; }
+                                                    }
+                                                    return prev;
                                                 }
-                                                return prev;
-                                            }
-                                        });
-                                    }}
-                                >
-                                    {elemInfo && (
-                                        <span className="cdc-element-icon">
-                                            <elemInfo.Icon size={11} color={elemInfo.color} />
-                                        </span>
-                                    )}
-                                    <button
-                                        className="cdc-info-btn"
-                                        onClick={e => { e.stopPropagation(); setInfoCardId(showInfo ? null : dog.id); }}
-                                    >i</button>
-
-                                    <div className="cdc-img-wrap">
-                                        <img src={getAsset(dog.id)} alt={dog.id} />
-                                        {status === 'inMine'    && <span className="gds-status-badge"><Pickaxe size={9} /></span>}
-                                        {status === 'inRaid'    && <span className="gds-status-badge"><Swords size={9} /></span>}
-                                        {status === 'inFurnace' && <span className="gds-status-badge"><Flame size={9} /></span>}
+                                            });
+                                        }}
+                                    >
+                                        {elemInfo && (
+                                            <span className="cdc-element-icon">
+                                                <elemInfo.Icon size={11} color={elemInfo.color} />
+                                            </span>
+                                        )}
+                                        <button
+                                            className="cdc-info-btn"
+                                            onClick={e => { e.stopPropagation(); setInfoCardId(showInfo ? null : dog.id); }}
+                                        >i</button>
+                                        <div className="cdc-img-wrap">
+                                            <img src={getAsset(dog.id)} alt={dog.id} />
+                                            {status === 'inMine'    && <span className="gds-status-badge"><Pickaxe size={9} /></span>}
+                                            {status === 'inRaid'    && <span className="gds-status-badge"><Swords size={9} /></span>}
+                                            {status === 'inFurnace' && <span className="gds-status-badge"><Flame size={9} /></span>}
+                                        </div>
+                                        <span className="cdc-name">{cfg?.name}</span>
+                                        <span className="cdc-power"><Swords size={9} /> {cfg?.miningPower ?? 0}</span>
+                                        <div className="fdm-card-stars">
+                                            {[0,1,2,3,4].map(si => (
+                                                <Star key={si} size={8} fill={si < (dog.stars ?? 0) ? '#f5c842' : 'none'} color={si < (dog.stars ?? 0) ? '#f5c842' : '#555'} />
+                                            ))}
+                                        </div>
+                                        {showInfo && (() => {
+                                            const info = isForge
+                                                ? { ult: null, passive: FORGE_PASSIVE_INFO[cfg?.element] ?? '' }
+                                                : (MINER_COMBAT_INFO[cfg?.element] ?? { ult: null, passive: '' });
+                                            return (
+                                                <div
+                                                    className="cdc-info-overlay"
+                                                    onClick={e => { e.stopPropagation(); setInfoCardId(null); }}
+                                                >
+                                                    {elemInfo && <elemInfo.Icon size={14} color={elemInfo.color} />}
+                                                    {info.ult && <span className="cdc-info-ult">{info.ult}</span>}
+                                                    <span className="cdc-info-passive">{info.passive}</span>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
-                                    <span className="cdc-name">{cfg?.name}</span>
-                                    <span className="cdc-power"><Swords size={9} /> {cfg?.miningPower ?? 0}</span>
-                                    <div className="fdm-card-stars">
-                                        {[0,1,2,3,4].map(si => (
-                                            <Star key={si} size={8} fill={si < (dog.stars ?? 0) ? '#f5c842' : 'none'} color={si < (dog.stars ?? 0) ? '#f5c842' : '#555'} />
-                                        ))}
-                                    </div>
+                                );
+                            };
 
-                                    {showInfo && (() => {
-                                        const info = isForge
-                                            ? { ult: null, passive: FORGE_PASSIVE_INFO[cfg?.element] ?? '' }
-                                            : (MINER_COMBAT_INFO[cfg?.element] ?? { ult: null, passive: '' });
-                                        return (
-                                            <div
-                                                className="cdc-info-overlay"
-                                                onClick={e => { e.stopPropagation(); setInfoCardId(null); }}
-                                            >
-                                                {elemInfo && <elemInfo.Icon size={14} color={elemInfo.color} />}
-                                                {info.ult && <span className="cdc-info-ult">{info.ult}</span>}
-                                                <span className="cdc-info-passive">{info.passive}</span>
+                            const byStars = (a, b) => (b.stars ?? 0) - (a.stars ?? 0);
+                            const miners = hiredDogs.filter(d => !ForgeDogsConfig[d.id]).sort(byStars);
+                            const forge  = hiredDogs.filter(d =>  ForgeDogsConfig[d.id]).sort(byStars);
+
+                            return (
+                                <>
+                                    {miners.length > 0 && (
+                                        <div className="cdl-section">
+                                            <span className="cdl-section-title"><Pickaxe size={12} /> Mineros</span>
+                                            <div className="combat-dogs-grid">
+                                                {miners.map(renderCard)}
                                             </div>
-                                        );
-                                    })()}
-                                </div>
+                                        </div>
+                                    )}
+                                    {forge.length > 0 && (
+                                        <div className="cdl-section">
+                                            <span className="cdl-section-title"><Flame size={12} /> Forja</span>
+                                            <div className="combat-dogs-grid">
+                                                {forge.map(renderCard)}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             );
-                        })}
+                        })()}
                     </div>
                 </div>
             )}

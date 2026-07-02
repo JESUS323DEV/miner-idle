@@ -10,17 +10,16 @@ export const AutomineConfig = {
 
     // ===== CARGAS =====
     maxCharges: 2,
-    chargeRecoveryTime: 30,  // segundos base
+    chargeRecoveryTime: 25,  // segundos base
 
-    // ===== MEJORAS DE RECARGA (5 niveles) =====
+    // ===== MEJORAS DE RECARGA (4 niveles) =====
     chargeUpgrades: [
-        { level: 1, cost: 5000,     reductionSeconds: 4 },
-        { level: 2, cost: 25000,    reductionSeconds: 4 },
+        { level: 1, cost: 5000,     reductionSeconds: 5 },
+        { level: 2, cost: 25000,    reductionSeconds: 5 },
         { level: 3, cost: 100000,   reductionSeconds: 5 },
-        { level: 4, cost: 500000,   reductionSeconds: 5 },
-        { level: 5, cost: 2000000,  reductionSeconds: 5 },
+        { level: 4, cost: 500000,   reductionSeconds: 3 },
     ],
-    // 30s → 26s → 22s → 17s → 12s → 7s al máximo nivel
+    // 25s → 20s → 15s → 10s → 7s al máximo nivel
 
     // ===== PODER =====
     poderCooldown: 120,      // segundos de cooldown entre usos

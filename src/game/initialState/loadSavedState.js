@@ -16,10 +16,11 @@ const OBSOLETE_FR_KEYS = [
     'set3FurnaceBronze2','set3FurnaceBronze3','set3FurnaceIron2','set3FurnaceIron3',
     'set3FurnaceDiamond2','set3FurnaceDiamond3',
     'welcomeBoxer','welcomePip',
+    'stamina2','stamina5','stamina10','stamina20','stamina30','stamina50',
 ];
 
 const CHAIN_LEADERS = [
-    'goldPassive5','stamina2','unlockMineBronze','bronze300','forgeUnlockBronze','smelt50Bronze',
+    'goldPassive5','unlockMineBronze','bronze300','forgeUnlockBronze','smelt50Bronze',
     'miner1Star','forge1Star','picoTier1','picoMaterialBronze','burst5','automineLevel2',
     'passiveRaids5','dogs1','summons3',
 ];

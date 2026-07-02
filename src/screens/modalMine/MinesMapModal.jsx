@@ -104,7 +104,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
         if (!tick || tick === lastCompTickRef.current) return;
         lastCompTickRef.current = tick;
         setCompAnimTick(n => n + 1);
-    }, [dogs, isOpen, selectedBiome]); // eslint-disable-line
+    }, [dogs, isOpen, selectedBiome]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!isOpen) return null;
 

@@ -27,6 +27,7 @@ const renderPassive = (id, stars, isForge) => {
 const getDogStatus = (dog, isForge) => {
     if (!dog.assignedTo) return 'available';
     const a = dog.assignedTo;
+    if (a.tavern) return 'inTavern';
     if (isForge) {
         if (typeof a === 'string') return 'inFurnace';
         if (a.globalSlot !== undefined) return 'inSlot';
@@ -40,7 +41,7 @@ const getDogStatus = (dog, isForge) => {
     return 'available';
 };
 
-export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, hidden }) {
+export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, hidden, suppressFloats = false }) {
     const [modalOpen, setModalOpen] = useState(false);
     const [infoCardId, setInfoCardId] = useState(null);
     const [flashFull, setFlashFull] = useState(false);
@@ -51,8 +52,9 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
     const { floats, add } = useFloatingNumbers();
     const slotRefs = useRef([null, null, null]);
     const gameStateRef = useRef(gameState);
-    gameStateRef.current = gameState;
     const lastMineBonusRef = useRef(null);
+
+    useEffect(() => { gameStateRef.current = gameState; });
 
     useEffect(() => {
         if (mineClickCount === 0) return;
@@ -299,7 +301,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                 document.body
             )}
 
-            {createPortal(
+            {!suppressFloats && createPortal(
                 floats.map(f => {
                     if (f.type === 'slotExtraGold') return <div key={f.id} className="floating-slot-extra-gold" style={{ left: f.x, top: f.y }}>+{f.value}</div>;
                     if (f.type === 'slotDoubleHit') return <div key={f.id} className="floating-slot-double-hit" style={{ left: f.x, top: f.y }}>x{f.multiplier}!</div>;
