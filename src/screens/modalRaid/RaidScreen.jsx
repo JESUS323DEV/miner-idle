@@ -6,6 +6,12 @@ import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.web
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
 import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
+import ladyRun1 from '../../assets/ui/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-run/lady-4.webp';
+
+const LADY_FRAMES = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
 import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
 import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
 import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
@@ -108,6 +114,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     const [raidView, setRaidView] = useState('hub');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
+    const [frameIndex, setFrameIndex] = useState(0);
 
     useEffect(() => {
         if (isOpen) {
@@ -120,6 +127,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     useEffect(() => {
         const t = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(t);
+    }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setFrameIndex(prev => (prev + 1) % 4), 150);
         return () => clearInterval(t);
     }, []);
 
@@ -344,27 +356,32 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <div className="rap-progress-bar">
-                                                    <div className="rap-progress-fill" style={{ width: `${progress * 100}%` }} />
-                                                </div>
-                                                <div className="rap-timer">
-                                                    {canClaim ? '¡Han vuelto!' : `⏱ ${formatTime(timeLeft)}`}
-                                                </div>
-                                                <div className="rip-actions">
-                                                    <button
-                                                        className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
-                                                        onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
-                                                        disabled={!canClaim}
-                                                    >
-                                                        {canClaim ? '🎁 Reclamar' : 'En camino...'}
-                                                    </button>
-                                                    <button
-                                                        className="btn-cancel-raid"
-                                                        onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
-                                                    >
-                                                        Cancelar
-                                                    </button>
-                                                </div>
+                                                {canClaim ? (
+                                                    <div className="rip-actions">
+                                                        <button
+                                                            className="btn-claim-raid btn-claim-ready"
+                                                            onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
+                                                        >
+                                                            Reclamar
+                                                        </button>
+                                                        <button
+                                                            className="btn-cancel-raid"
+                                                            onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="raid-lady-track">
+                                                        <img
+                                                            src={LADY_FRAMES[frameIndex]}
+                                                            className="raid-lady-sprite"
+                                                            alt="lady"
+                                                            style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
+                                                        />
+                                                        <span className="raid-lady-timer">⏱ {formatTime(timeLeft)}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             /* Estado NORMAL */
@@ -375,6 +392,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                     <span className="rc-meta">
                                                         ⏱ {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
                                                         👥 {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
+                                                        {raid.minRarity && <> &nbsp;·&nbsp; <span className={`rc-min-rarity rarity-${raid.minRarity}`}>min. {raid.minRarity}</span></>}
                                                     </span>
                                                 </div>
                                                 <div className="rc-loot-preview">

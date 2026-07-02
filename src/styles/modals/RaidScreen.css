@@ -233,6 +233,11 @@
     font-size: 0.65rem;
 }
 
+.rc-min-rarity { font-weight: 700; }
+.rc-min-rarity.rarity-rare      { color: #4ca8ff; }
+.rc-min-rarity.rarity-epic      { color: #b45cff; }
+.rc-min-rarity.rarity-legendary { color: #f5c842; }
+
 .rc-loot-preview {
     display: flex;
     gap: 3px;
@@ -586,6 +591,30 @@
 .rap-dog.dog-rarity-legendary { border-color: rgba(245,200,66,0.5); }
 .rap-dog.dog-rarity-epic      { border-color: rgba(180,92,255,0.5); }
 .rap-dog.dog-rarity-rare      { border-color: rgba(76,168,255,0.5); }
+
+.raid-lady-track {
+    position: relative;
+    width: 100%;
+    height: 48px;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.raid-lady-sprite {
+    position: absolute;
+    bottom: 0;
+    height: 48px;
+    width: auto;
+    transform: translateX(-50%);
+    image-rendering: pixelated;
+}
+
+.raid-lady-timer {
+    position: absolute;
+    bottom: -18px;
+    right: 0;
+    font-size: 0.65rem;
+    color: #ffd740;
+}
 
 .rap-progress-bar {
     height: 6px;
