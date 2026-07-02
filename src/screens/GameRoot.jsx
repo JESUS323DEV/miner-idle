@@ -291,7 +291,7 @@ function GameRoot({ onBack }) {
     if (openModal === null && tutorialStep !== 'mine_tap' &&
         !(tutorialStep === 'hint_rewards' && rewardsOpen) &&
         !(tutorialStep === 'hint_rental' && rentalModalOpen) &&
-        !(tutorialStep === 'hint_raids' && raidOpen)) {
+        !((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') && raidOpen)) {
       return tutorialStep;
     }
     return null;
@@ -1178,7 +1178,7 @@ function GameRoot({ onBack }) {
           className="hud-top-right"
           style={{
             display: (combatOpen || rewardsOpen || rentalModalOpen || raidOpen) ? 'none' : undefined,
-            zIndex: (tutorialStep === 'hint_rewards' || tutorialStep === 'hint_rental' || tutorialStep === 'hint_raids') ? 600 : undefined,
+            zIndex: (tutorialStep === 'hint_rewards' || tutorialStep === 'hint_rental' || tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? 600 : undefined,
           }}
         >
 
@@ -1196,7 +1196,7 @@ function GameRoot({ onBack }) {
                 r.destination === 'raid' &&
                 !passiveRaids.some(pr => pr.dogEntries?.some(d => d.id === r.dogId))
               );
-            const isRaidStep = tutorialStep === 'hint_raids';
+            const isRaidStep = tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive';
             const raidBlocked = tutorialStep !== null && tutorialStep !== 'done' && !isRaidStep;
             return (
               <button
@@ -1277,6 +1277,7 @@ function GameRoot({ onBack }) {
           onClose={() => setRaidOpen(false)}
           onOpenCombat={() => { setRaidOpen(false); setCombatOpen(true); }}
           tutorialStep={tutorialStep}
+          onTutorialAdvanceToPassive={() => setTutorialStep('hint_raids_passive')}
           onTutorialRaidSent={() => {
             setRaidOpen(false);
             setTutorialStep('hint_mine_dog');

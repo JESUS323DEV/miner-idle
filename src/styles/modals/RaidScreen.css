@@ -281,6 +281,13 @@
     color: #7fff7f;
 }
 
+.rts-rarity-warning {
+    color: #ff6b6b;
+    font-size: 0.72rem;
+    margin: 0;
+    text-align: center;
+}
+
 .raid-dogs-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

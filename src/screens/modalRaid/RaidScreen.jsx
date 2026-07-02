@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { X, Pickaxe } from 'lucide-react';
+import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
@@ -64,6 +65,8 @@ const dogAssets = {
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
+const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
+
 const fmt = (n) => {
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
     if (n >= 1000)    return (n / 1000).toFixed(1).replace('.0', '') + 'k';
@@ -102,7 +105,7 @@ const HUB_BUTTONS = {
     active:  { top: '30%', left: '55%' },
 };
 
-const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRaidSent }) => {
+const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
@@ -145,7 +148,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     // Auto-select forest + Druh during tutorial raid step
     useEffect(() => {
-        if (!isOpen || tutorialStep !== 'hint_raids') return;
+        if (!isOpen || tutorialStep !== 'hint_raids_passive') return;
         const passiveRaids = gameState.raid?.passiveRaids ?? [];
         if (passiveRaids.some(r => r.raidId === 'forest')) return;
         setSelectedRaid('forest');
@@ -245,33 +248,35 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
         handleSendPassiveRaid(raidId, teamDogIds);
         setTeamDogIds([]);
         setSelectedRaid(null);
-        if (tutorialStep === 'hint_raids') {
+        if (tutorialStep === 'hint_raids_passive') {
             onTutorialRaidSent?.();
         }
     };
 
     return (
-        <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
+        <div className="raid-backdrop" onClick={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose}>
             <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
     ? `url(${bgRaidsPassive})`
     : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
 }}>
                 <button
                     className="modal-close"
-                    onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : (tutorialStep === 'hint_raids' ? undefined : onClose)}
-                    disabled={tutorialStep === 'hint_raids'}
-                    style={tutorialStep === 'hint_raids' ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                    onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : ((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose)}
+                    disabled={tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive'}
+                    style={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
                 ><X /></button>
 
                 {/* HUB */}
                 {raidView === 'hub' && (
                     <div className="raid-hub">
                         <button
-                            className={`raid-hub-btn ${(passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
-                            style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left }}
-                            onClick={() => setRaidView('passive')}
+                            className={`raid-hub-btn ${tutorialStep === 'hint_raids' ? 'tutorial-highlight' : (passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
+                            style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left, position: 'absolute' }}
+                            data-tutorial="tut-raids-passive"
+                            onClick={() => { if (tutorialStep === 'hint_raids') onTutorialAdvanceToPassive?.(); setRaidView('passive'); }}
                         >
                             <img src={btnRaidPassive} alt="pasiva" className="raid-hub-btn-img" />
+                            {tutorialStep === 'hint_raids' && <TutorialPointer step="hint_raids" />}
                         </button>
                         <button
                             className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : ''}`}
@@ -449,13 +454,25 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 </p>
                                             )}
 
-                                            <button
-                                                className={`btn-send-raid ${teamDogIds.length >= raid.minTeam ? '' : 'btn-send-disabled'}`}
-                                                onClick={() => handleSend(raid.id, raid.minTeam)}
-                                                disabled={teamDogIds.length < raid.minTeam}
-                                            >
-                                                Enviar equipo
-                                            </button>
+                                            {(() => {
+                                                const meetsRarity = !raid.minRarity || teamDogIds.some(d => {
+                                                    const cfg = getDogConfig(d.id, d.isForge);
+                                                    return (RARITY_RANK[cfg?.rarity] ?? 0) >= (RARITY_RANK[raid.minRarity] ?? 0);
+                                                });
+                                                const canSend = teamDogIds.length >= raid.minTeam && meetsRarity;
+                                                return (<>
+                                                    <button
+                                                        className={`btn-send-raid ${canSend ? '' : 'btn-send-disabled'}`}
+                                                        onClick={() => handleSend(raid.id, raid.minTeam)}
+                                                        disabled={!canSend}
+                                                    >
+                                                        Enviar equipo
+                                                    </button>
+                                                    {teamDogIds.length >= raid.minTeam && !meetsRarity && (
+                                                        <p className="rts-rarity-warning">Necesitas al menos un perro {raid.minRarity}</p>
+                                                    )}
+                                                </>);
+                                            })()}
 
                                             {/* Grid de perros disponibles */}
                                             <div className="raid-dogs-grid">
