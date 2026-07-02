@@ -2,6 +2,7 @@
 import { X, Pickaxe } from 'lucide-react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import bgRaids from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
@@ -173,7 +174,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     return (
         <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
-            <div className="raid-screen-content" onClick={e => e.stopPropagation()}>
+            <div className="raid-screen-content" onClick={e => e.stopPropagation()} style={{ backgroundImage: `url(${bgRaids})` }}>
                 <button
                     className="modal-close"
                     onClick={tutorialStep === 'hint_raids' ? undefined : onClose}
