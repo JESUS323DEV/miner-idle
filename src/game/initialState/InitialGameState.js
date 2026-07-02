@@ -96,6 +96,7 @@ const InitialGameState = {
     lastMineReward: null,
 
     // ========== RAIDS ACTIVAS ==========
+    raidActivasUnlocked: false,
     raidBestStars: {},
 
     // ========== TIEMPO ==========
