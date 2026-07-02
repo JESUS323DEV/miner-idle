@@ -1,9 +1,11 @@
 ﻿import { useState, useEffect } from 'react';
-import { X, Pickaxe, Swords } from 'lucide-react';
+import { X, Pickaxe } from 'lucide-react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
+import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
+import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
 import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
 import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
 import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
@@ -87,7 +89,7 @@ const RAID_CARD_BG = {
 };
 
 const HUB_BUTTONS = {
-    passive: { top: '52%', left: '22%' },
+    passive: { top: '40%', left: '22%' },
     active:  { top: '30%', left: '55%' },
 };
 
@@ -110,6 +112,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     useEffect(() => {
         if (isOpen) {
             setRaidView('hub');
+            setSelectedRaid(null);
+            setTeamDogIds([]);
             if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
         }
     }, [isOpen]); // eslint-disable-line
@@ -229,12 +233,12 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     return (
         <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
             <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
-    ? `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${bgRaidsPassive})`
+    ? `url(${bgRaidsPassive})`
     : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
 }}>
                 <button
                     className="modal-close"
-                    onClick={raidView !== 'hub' ? () => setRaidView('hub') : (tutorialStep === 'hint_raids' ? undefined : onClose)}
+                    onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : (tutorialStep === 'hint_raids' ? undefined : onClose)}
                     disabled={tutorialStep === 'hint_raids'}
                     style={tutorialStep === 'hint_raids' ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
                 ><X /></button>
@@ -247,8 +251,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                             style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left }}
                             onClick={() => setRaidView('passive')}
                         >
-                            <Swords size={28} />
-                            <span>Pasiva</span>
+                            <img src={btnRaidPassive} alt="pasiva" className="raid-hub-btn-img" />
                         </button>
                         <button
                             className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : ''}`}
@@ -259,8 +262,12 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                             }}
                             disabled={!gameState.raidActivasUnlocked && gameState.gold < 25000}
                         >
-                            <Swords size={28} />
-                            <span>{gameState.raidActivasUnlocked ? 'Activa' : `Activa — 25k`}</span>
+                            <img src={btnRaidActive} alt="activa" className="raid-hub-btn-img" />
+                            {!gameState.raidActivasUnlocked && (
+                                <span className={`raid-hub-price ${gameState.gold >= 25000 ? 'raid-hub-price-ready' : ''}`}>
+                                    <img src={iconGold} alt="gold" />25k
+                                </span>
+                            )}
                         </button>
                     </div>
                 )}

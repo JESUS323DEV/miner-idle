@@ -53,16 +53,17 @@
     transform: translate(-50%, -50%);
     pointer-events: all;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    background: rgba(10, 6, 2, 0.72);
-    border: 1px solid rgba(180, 120, 40, 0.6);
-    border-radius: 12px;
-    padding: 10px 16px;
-    color: #f5c842;
+    background: none;
+    border: none;
+    padding: 0 0 10px;
     cursor: pointer;
     z-index: 2;
+}
+
+.raid-hub-btn-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
 }
 
 .raid-hub-btn span {
@@ -74,12 +75,41 @@
 }
 
 .raid-hub-btn-locked {
-    color: #888;
-    border-color: rgba(120, 120, 120, 0.4);
+    opacity: 0.55;
 }
 
-.raid-hub-btn-locked span {
+.raid-hub-price {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(20, 10, 0, 0.9);
+    border: 1px solid rgba(120, 120, 120, 0.5);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
     color: #888;
+    white-space: nowrap;
+}
+
+.raid-hub-price img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+    filter: grayscale(1);
+}
+
+.raid-hub-price-ready {
+    border-color: #f5c842;
+    color: #f5c842;
+}
+
+.raid-hub-price-ready img {
+    filter: none;
 }
 
 /* TABS */
