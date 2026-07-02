@@ -95,11 +95,11 @@ const ELEMENT_ICON = {
 };
 
 const MINER_COMBAT_INFO = {
-    fuego:     { ult: 'Bola de fuego',   passive: 'Desde el lateral suma daño fijo a cada golpe del activo.' },
-    electrico: { ult: 'Bola eléctrica',  passive: 'Desde el lateral aumenta la probabilidad de golpe doble del activo.' },
-    tierra:    { ult: 'Terremoto',       passive: 'Desde el lateral amplifica el daño total del activo.' },
-    agua:      { ult: 'Pistola de agua', passive: 'Desde el lateral multiplica el daño que inflige el activo.' },
-    oscuro:    { ult: 'Furia',           passive: 'Desde el lateral reduce el tiempo de espera entre cambios de activo.' },
+    fuego:     { ult: 'Bola de fuego',   passive: 'Golpe de daño directo. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
+    electrico: { ult: 'Bola electrica',  passive: 'Activa golpes dobles durante X taps. Cantidad aumenta con rareza y estrellas.' },
+    tierra:    { ult: 'Terremoto',       passive: 'Golpe de daño directo mas potente. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
+    agua:      { ult: 'Pistola de agua', passive: 'Multiplica el daño durante X taps. Multiplicador y taps aumentan con rareza y estrellas.' },
+    oscuro:    { ult: 'Furia',           passive: 'Los proximos X taps hacen daño extra segun la HP actual del enemigo.' },
 };
 
 const FORGE_PASSIVE_INFO = {
@@ -354,22 +354,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
     const getPassiveEffects = () => {
         const eff = {
-            flatBonus: 0, doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
-            switchCooldownReduce: 0, heatStackDmg: 0, addHeatStack: false,
-            heatStackCap: 0,
+            doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
+            heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
         };
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
             const cfg = getConfig(id);
-            if (!cfg?.element) continue;
-            if (!ForgeDogsConfig[id]) {
-                switch (cfg.element) {
-                    case 'fuego':     eff.flatBonus += 5; break;
-                    case 'electrico': eff.doubleHitChance += 0.12; break;
-                    case 'tierra':    eff.damageAmp *= 1.12; break;
-                    case 'agua':      eff.damageMulti *= 1.25; break;
-                    case 'oscuro':    eff.switchCooldownReduce += 1; break;
-                }
-            } else {
+            if (!cfg?.element || !ForgeDogsConfig[id]) continue;
+            {
                 switch (cfg.element) {
                     case 'fuego': {
                         const stars    = gameState.forgeDogs?.[id]?.stars ?? 0;
@@ -427,7 +418,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const passive  = getPassiveEffects();
 
         let dmg = Math.max(1, pickDmg + dogDmg);
-        dmg += passive.flatBonus;
         dmg += heatStacks * passive.heatStackDmg;
         dmg *= passive.damageMulti;
         dmg *= passive.damageAmp;
@@ -898,18 +888,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {slots[0] ? (() => {
                             const id  = slots[0];
                             const cfg = getConfig(id);
-                            const cd  = switchCooldowns[id] ?? 0;
                             return (
-                                <button
-                                    key={`left-${id}`}
-                                    className={`combat-slot-lateral dog-rarity-${cfg?.rarity}${cd > 0 ? ' swap-on-cd' : ''}`}
-                                    onClick={() => handleSwap('left')}
-                                    disabled={cd > 0}
-                                >
+                                <div key={`left-${id}`} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
                                     <img src={getAsset(id)} alt={id} />
                                     <span className="csl-name">{cfg?.name}</span>
-                                    {cd > 0 && <span className="csl-cd">{cd}s</span>}
-                                </button>
+                                </div>
                             );
                         })() : <div className="combat-slot-lateral combat-slot-empty" />}
 
@@ -933,18 +916,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {slots[2] ? (() => {
                             const id  = slots[2];
                             const cfg = getConfig(id);
-                            const cd  = switchCooldowns[id] ?? 0;
                             return (
-                                <button
-                                    key={`right-${id}`}
-                                    className={`combat-slot-lateral dog-rarity-${cfg?.rarity}${cd > 0 ? ' swap-on-cd' : ''}`}
-                                    onClick={() => handleSwap('right')}
-                                    disabled={cd > 0}
-                                >
+                                <div key={`right-${id}`} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
                                     <img src={getAsset(id)} alt={id} />
                                     <span className="csl-name">{cfg?.name}</span>
-                                    {cd > 0 && <span className="csl-cd">{cd}s</span>}
-                                </button>
+                                </div>
                             );
                         })() : <div className="combat-slot-lateral combat-slot-empty" />}
                     </div>
