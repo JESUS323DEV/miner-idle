@@ -28,6 +28,7 @@
 
 .raid-screen-content.raid-view-passive {
     align-items: stretch;
+    padding-top: 3rem;
 }
 
 
@@ -159,6 +160,8 @@
     text-align: left;
     transition: all 0.2s;
     width: 100%;
+    min-height: 100px;
+    background-position: center top;
 }
 
 .raid-card:hover {
@@ -166,9 +169,10 @@
 }
 
 .raid-card-selected {
-    border-color: #ff9500;
-    background: rgba(255,149,0,0.1);
-    box-shadow: 0 0 10px rgba(255,149,0,0.2);
+    border-color: #00d4aa;
+    border-width: 2px;
+    background: rgba(0,212,170,0.08);
+    box-shadow: 0 0 12px rgba(0,212,170,0.25);
 }
 
 .rc-emoji {

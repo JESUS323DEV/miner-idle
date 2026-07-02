@@ -4,14 +4,21 @@ import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
+import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
+import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
+import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
+import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/RaidScreen.css';
 import '../../styles/modals/ForgeModal.css';
 
-import iconGold   from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
-import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import iconGold         from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
+import coinTavern       from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import iconShardRare    from '../../assets/ui/icons-pets-shards/icon-shard-rare-generic.webp';
+import iconShardEpic    from '../../assets/ui/icons-pets-shards/icon-shard-epic-generic.webp';
+import iconShardLegend  from '../../assets/ui/icons-pets-shards/icon-shard-legendary-generic.webp';
 
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
@@ -61,6 +68,24 @@ const formatTime = (ms) => {
 
 // ============================================================
 // Posiciones de los botones del hub sobre el fondo (% relativo al contenedor)
+const SHARD_ICON = {
+    rare:      iconShardRare,
+    epic:      iconShardEpic,
+    legendary: iconShardLegend,
+};
+
+const RAID_SHARD_ICON = {
+    forest:  iconShardRare,
+    caves:   iconShardEpic,
+    volcano: iconShardLegend,
+};
+
+const RAID_CARD_BG = {
+    forest:  cardBgForest,
+    caves:   cardBgCaves,
+    volcano: cardBgVolcano,
+};
+
 const HUB_BUTTONS = {
     passive: { top: '52%', left: '22%' },
     active:  { top: '30%', left: '55%' },
@@ -80,6 +105,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     const [teamDogIds, setTeamDogIds] = useState([]);
     const [raidView, setRaidView] = useState('hub');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
+    const [prizeQueue, setPrizeQueue] = useState([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -105,7 +131,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     if (!isOpen) return null;
 
     const passiveRaids = gameState.raid?.passiveRaids ?? [];
-    const lastRaidResults = gameState.raid?.lastRaidResults ?? {};
     const dogs = gameState.dogs ?? {};
     const forgeDogs = gameState.forgeDogs ?? {};
 
@@ -167,6 +192,28 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
 
     };
 
+
+    const buildPrizeData = (loot, raidCfg) => {
+        const steps = [];
+        const sub = `${raidCfg.emoji} ${raidCfg.name}`;
+        if (loot.gold > 0) steps.push({
+            icon: iconGold, label: `+${fmt(loot.gold)} oro`, sublabel: sub, isWin: true, sfx: 'rewardGold',
+        });
+        if (loot.tavernCoins > 0) steps.push({
+            icon: coinTavern, label: `+${loot.tavernCoins} monedas`, sublabel: sub, isWin: true, sfx: 'rewardGold',
+        });
+        loot.fragments?.forEach(f => steps.push({
+            icon: SHARD_ICON[DogsConfig[f.dogId]?.rarity] ?? iconShardRare,
+            label: `×${f.amount} fragmentos`,
+            sublabel: DogsConfig[f.dogId]?.name ?? f.dogId,
+            isWin: true,
+            sfx: 'rewardGold',
+        }));
+        if (steps.length === 0) steps.push({
+            icon: iconGold, label: 'Sin botín', sublabel: sub, isWin: false, sfx: 'blocked',
+        });
+        setPrizeQueue(steps);
+    };
 
     const handleSend = (raidId, minTeam) => {
         if (teamDogIds.length < minTeam) return;
@@ -245,32 +292,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                 {/* CONTENIDO PASIVA */}
                 {raidView === 'passive' && <>
 
-                {/* RESULTADOS ÚLTIMAS RAIDS */}
-                {Object.entries(lastRaidResults).map(([raidId, result]) => {
-                    if (passiveRaids.some(r => r.raidId === raidId)) return null;
-                    const raidCfg = RaidConfig.passiveRaids.find(r => r.id === raidId);
-                    const dismiss = () => setGameState(prev => {
-                        const next = { ...prev.raid.lastRaidResults };
-                        delete next[raidId];
-                        return { ...prev, raid: { ...prev.raid, lastRaidResults: next } };
-                    });
-                    return (
-                        <div key={raidId} className="raid-last-result">
-                            <div className="rlr-header">
-                                <p className="rlr-title">🎁 {raidCfg?.emoji} {raidCfg?.name}</p>
-                                <button className="rlr-dismiss" onClick={dismiss}><X size={16} /></button>
-                            </div>
-                            <div className="rlr-loot">
-                                {result.gold > 0 && <span><img src={iconGold} alt="gold" />{fmt(result.gold)}</span>}
-                                {result.tavernCoins > 0 && <span><img src={coinTavern} alt="coins" />{result.tavernCoins}</span>}
-                                {result.fragments?.map(({ dogId, amount }) => (
-                                    <span key={dogId}>🧩×{amount} <small>{DogsConfig[dogId]?.name ?? dogId}</small></span>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-
                 {/* LISTA DE RAIDS */}
                 <div className="raid-list">
                         {RaidConfig.passiveRaids.map(raid => {
@@ -296,12 +317,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                     <div
                                         className={`raid-card ${isSelected ? 'raid-card-selected' : ''} ${isActive ? 'raid-card-active' : ''}`}
                                         onClick={() => !isActive && handleSelectRaid(raid.id)}
+                                        style={RAID_CARD_BG[raid.id] ? {
+                                            backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${RAID_CARD_BG[raid.id]})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center 20%',
+                                        } : undefined}
                                     >
                                         {isActive ? (
                                             /* Estado EN CURSO */
                                             <div className="raid-inline-progress">
                                                 <div className="rip-header">
-                                                    <span className="rc-emoji">{raid.emoji}</span>
                                                     <span className="rc-name">{raid.name}</span>
                                                 </div>
                                                 <div className="rip-dogs">
@@ -321,7 +346,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 <div className="rip-actions">
                                                     <button
                                                         className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
-                                                        onClick={e => { e.stopPropagation(); playSfx('freeInvoc'); handleClaimPassiveRaid(raid.id); }}
+                                                        onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
                                                         disabled={!canClaim}
                                                     >
                                                         {canClaim ? '🎁 Reclamar' : 'En camino...'}
@@ -337,7 +362,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                         ) : (
                                             /* Estado NORMAL */
                                             <>
-                                                <span className="rc-emoji">{raid.emoji}</span>
                                                 <div className="rc-info">
                                                     <span className="rc-name">{raid.name}</span>
                                                     <span className="rc-desc">{raid.description}</span>
@@ -350,7 +374,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                     {Object.keys(raid.loot).map(res =>
                                                         res === 'gold' ? <img key={res} src={iconGold} alt="gold" /> :
                                                         res === 'tavernCoins' ? <img key={res} src={coinTavern} alt="coins" /> :
-                                                        res === 'fragments' ? <span key={res}>🧩</span> : null
+                                                        res === 'fragments' ? <img key={res} src={RAID_SHARD_ICON[raid.id] ?? iconShardRare} alt="shards" /> : null
                                                     )}
                                                 </div>
                                             </>
@@ -393,6 +417,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 </p>
                                             )}
 
+                                            <button
+                                                className={`btn-send-raid ${teamDogIds.length >= raid.minTeam ? '' : 'btn-send-disabled'}`}
+                                                onClick={() => handleSend(raid.id, raid.minTeam)}
+                                                disabled={teamDogIds.length < raid.minTeam}
+                                            >
+                                                Enviar equipo
+                                            </button>
+
                                             {/* Grid de perros disponibles */}
                                             <div className="raid-dogs-grid">
                                                 {availableDogs.length === 0 && (
@@ -420,13 +452,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 })}
                                             </div>
 
-                                            <button
-                                                className={`btn-send-raid ${teamDogIds.length >= raid.minTeam ? '' : 'btn-send-disabled'}`}
-                                                onClick={() => handleSend(raid.id, raid.minTeam)}
-                                                disabled={teamDogIds.length < raid.minTeam}
-                                            >
-                                                🚀 Enviar equipo
-                                            </button>
                                         </div>
                                     )}
 
@@ -438,6 +463,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                 </>}
 
             </div>
+            <PrizeOverlay prizeData={prizeQueue[0] ?? null} onAccept={() => setPrizeQueue(prev => prev.slice(1))} />
         </div>
     );
 };

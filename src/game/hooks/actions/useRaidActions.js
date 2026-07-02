@@ -71,23 +71,22 @@ export const useRaidActions = (gameState, setGameState) => {
     };
 
     // ===== RECLAMAR RAID PASIVA =====
-    const handleClaimPassiveRaid = (raidId) => {
+    const handleClaimPassiveRaid = (raidId, onLoot) => {
+        const passive = gameState.raid.passiveRaids.find(r => r.raidId === raidId);
+        if (!passive || Date.now() < passive.returnAt) return;
+
+        const raid = RaidConfig.passiveRaids.find(r => r.id === raidId);
+        if (!raid) return;
+
+        const dogEntries = passive.dogEntries ?? passive.dogIds?.map(id => ({ id, isForge: false })) ?? [];
+        const dogIds = dogEntries.map(d => d.id);
+        const loot = generateRaidLoot(raid, dogIds, gameState.dogs);
+
+        onLoot?.(loot, raid);
+
         setGameState(prevState => {
-            const passive = prevState.raid.passiveRaids.find(r => r.raidId === raidId);
-            if (!passive) return prevState;
-            if (Date.now() < passive.returnAt) return prevState;
-
-            const raid = RaidConfig.passiveRaids.find(r => r.id === raidId);
-            if (!raid) return prevState;
-
-            const dogEntries = passive.dogEntries ?? passive.dogIds?.map(id => ({ id, isForge: false })) ?? [];
-            const dogIds = dogEntries.map(d => d.id);
-            const loot = generateRaidLoot(raid, dogIds, prevState.dogs);
-
-            // Liberar perros
             const { updatedDogs, updatedForgeDogs } = markDogs(prevState, dogEntries, null);
 
-            // Aplicar fragmentos al estado correcto
             if (loot.fragments) {
                 for (const { dogId, amount } of loot.fragments) {
                     const entry = dogEntries.find(d => d.id === dogId);
@@ -118,10 +117,6 @@ export const useRaidActions = (gameState, setGameState) => {
                 raid: {
                     ...prevState.raid,
                     passiveRaids: prevState.raid.passiveRaids.filter(r => r.raidId !== raidId),
-                    lastRaidResults: {
-                        ...prevState.raid.lastRaidResults,
-                        [raidId]: { ...loot, claimedAt: Date.now() },
-                    },
                 },
             };
         });
