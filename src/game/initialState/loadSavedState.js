@@ -134,6 +134,17 @@ export const loadSavedState = () => {
             ...InitialQuestsState,
             ...(loaded.dailyQuests ?? {}),
         },
-        pjQuests: loaded.pjQuests ?? {},
+        pjQuests: (() => {
+            const pj = { ...(loaded.pjQuests ?? {}) };
+            const slots = loaded.dogs?.globalSlots ?? [];
+            const now = Date.now();
+            slots.forEach(dogId => {
+                if (!dogId) return;
+                if (!pj[dogId]?.slotEnteredAt) {
+                    pj[dogId] = { slotTimeMs: 0, slotEnteredAt: now, passiveRaids: 0, claimedMissions: [], finalClaimed: false, ...(pj[dogId] ?? {}) };
+                }
+            });
+            return pj;
+        })(),
     };
 };
