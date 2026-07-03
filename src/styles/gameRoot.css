@@ -438,6 +438,22 @@
     animation: notifyPulse 1.8s ease-in-out infinite;
 }
 
+.btn-notify-dot {
+    position: relative;
+}
+.btn-notify-dot::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background: #ff3b30;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.4);
+    pointer-events: none;
+}
+
 .tavern-locked img {
     filter: grayscale(100%) brightness(0.5);
     cursor: not-allowed;

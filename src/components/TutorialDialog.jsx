@@ -88,6 +88,13 @@ const STEPS = {
     },
     hint_raids: {
         title: "¡Envía una raid!",
+        text: "Abre el menú de raids y entra en Raids Pasivas.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    hint_raids_passive: {
+        title: "¡Envía una raid!",
         text: "Selecciona el Bosque Antiguo, añade a Druh al equipo y envíalo. Vuelve cuando regrese para recoger las recompensas.",
         action: null,
         counter: null,

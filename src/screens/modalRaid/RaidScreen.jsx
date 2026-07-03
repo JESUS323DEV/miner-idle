@@ -1,15 +1,36 @@
 ﻿import { useState, useEffect } from 'react';
 import { X, Pickaxe } from 'lucide-react';
+import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
+import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
+import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
+import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
+import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
+import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
+import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
+
+const LADY_FRAMES      = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
+const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
+import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
+import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
+import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
+import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/RaidScreen.css';
 import '../../styles/modals/ForgeModal.css';
 
-import iconGold   from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
-import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import iconGold         from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
+import coinTavern       from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import iconShardRare    from '../../assets/ui/icons-pets-shards/icon-shard-rare-generic.webp';
+import iconShardEpic    from '../../assets/ui/icons-pets-shards/icon-shard-epic-generic.webp';
+import iconShardLegend  from '../../assets/ui/icons-pets-shards/icon-shard-legendary-generic.webp';
 
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
@@ -44,6 +65,8 @@ const dogAssets = {
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
+const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
+
 const fmt = (n) => {
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
     if (n >= 1000)    return (n / 1000).toFixed(1).replace('.0', '') + 'k';
@@ -58,24 +81,52 @@ const formatTime = (ms) => {
 };
 
 // ============================================================
-const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRaidSent }) => {
+// Posiciones de los botones del hub sobre el fondo (% relativo al contenedor)
+const SHARD_ICON = {
+    rare:      iconShardRare,
+    epic:      iconShardEpic,
+    legendary: iconShardLegend,
+};
+
+const RAID_SHARD_ICON = {
+    forest:  iconShardRare,
+    caves:   iconShardEpic,
+    volcano: iconShardLegend,
+};
+
+const RAID_CARD_BG = {
+    forest:  cardBgForest,
+    caves:   cardBgCaves,
+    volcano: cardBgVolcano,
+};
+
+const HUB_BUTTONS = {
+    passive: { top: '40%', left: '22%' },
+    active:  { top: '30%', left: '55%' },
+};
+
+const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
-        handleCancelPassiveRaid,
         handleUnlockRaidActivas,
     } = useGameContext();
 
     const [now, setNow] = useState(Date.now());
     const [selectedRaid, setSelectedRaid] = useState(null);
     const [teamDogIds, setTeamDogIds] = useState([]);
-    const [raidTab, setRaidTab] = useState('passive');
+    const [raidView, setRaidView] = useState('hub');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
+    const [prizeQueue, setPrizeQueue] = useState([]);
+    const [frameIndex, setFrameIndex] = useState(0);
+    const [waitFrameIndex, setWaitFrameIndex] = useState(0);
 
     useEffect(() => {
         if (isOpen) {
-            setRaidTab('passive');
+            setRaidView('hub');
+            setSelectedRaid(null);
+            setTeamDogIds([]);
             if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
         }
     }, [isOpen]); // eslint-disable-line
@@ -85,9 +136,19 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
         return () => clearInterval(t);
     }, []);
 
+    useEffect(() => {
+        const t = setInterval(() => setFrameIndex(prev => (prev + 1) % 4), 150);
+        return () => clearInterval(t);
+    }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setWaitFrameIndex(prev => (prev + 1) % 2), 2000);
+        return () => clearInterval(t);
+    }, []);
+
     // Auto-select forest + Druh during tutorial raid step
     useEffect(() => {
-        if (!isOpen || tutorialStep !== 'hint_raids') return;
+        if (!isOpen || tutorialStep !== 'hint_raids_passive') return;
         const passiveRaids = gameState.raid?.passiveRaids ?? [];
         if (passiveRaids.some(r => r.raidId === 'forest')) return;
         setSelectedRaid('forest');
@@ -97,7 +158,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     if (!isOpen) return null;
 
     const passiveRaids = gameState.raid?.passiveRaids ?? [];
-    const lastRaidResults = gameState.raid?.lastRaidResults ?? {};
     const dogs = gameState.dogs ?? {};
     const forgeDogs = gameState.forgeDogs ?? {};
 
@@ -160,27 +220,82 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
     };
 
 
+    const buildPrizeData = (loot, raidCfg) => {
+        const steps = [];
+        const sub = `${raidCfg.emoji} ${raidCfg.name}`;
+        if (loot.gold > 0) steps.push({
+            icon: iconGold, label: `+${fmt(loot.gold)} oro`, sublabel: sub, isWin: true, sfx: 'rewardGold',
+        });
+        if (loot.tavernCoins > 0) steps.push({
+            icon: coinTavern, label: `+${loot.tavernCoins} monedas`, sublabel: sub, isWin: true, sfx: 'rewardGold',
+        });
+        loot.fragments?.forEach(f => steps.push({
+            icon: SHARD_ICON[DogsConfig[f.dogId]?.rarity] ?? iconShardRare,
+            label: `×${f.amount} fragmentos`,
+            sublabel: DogsConfig[f.dogId]?.name ?? f.dogId,
+            isWin: true,
+            sfx: 'rewardGold',
+        }));
+        if (steps.length === 0) steps.push({
+            icon: iconGold, label: 'Sin botín', sublabel: sub, isWin: false, sfx: 'blocked',
+        });
+        setPrizeQueue(steps);
+    };
+
     const handleSend = (raidId, minTeam) => {
         if (teamDogIds.length < minTeam) return;
         playSfx('sendRaid');
         handleSendPassiveRaid(raidId, teamDogIds);
         setTeamDogIds([]);
         setSelectedRaid(null);
-        if (tutorialStep === 'hint_raids') {
+        if (tutorialStep === 'hint_raids_passive') {
             onTutorialRaidSent?.();
         }
     };
 
     return (
-        <div className="raid-backdrop" onClick={tutorialStep === 'hint_raids' ? undefined : onClose}>
-            <div className="raid-screen-content" onClick={e => e.stopPropagation()}>
+        <div className="raid-backdrop" onClick={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose}>
+            <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
+    ? `url(${bgRaidsPassive})`
+    : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
+}}>
                 <button
                     className="modal-close"
-                    onClick={tutorialStep === 'hint_raids' ? undefined : onClose}
-                    disabled={tutorialStep === 'hint_raids'}
-                    style={tutorialStep === 'hint_raids' ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                    onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : ((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose)}
+                    disabled={tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive'}
+                    style={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
                 ><X /></button>
-                <h2>⚔️ Raids</h2>
+
+                {/* HUB */}
+                {raidView === 'hub' && (
+                    <div className="raid-hub">
+                        <button
+                            className={`raid-hub-btn ${tutorialStep === 'hint_raids' ? 'tutorial-highlight' : (passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
+                            style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left, position: 'absolute' }}
+                            data-tutorial="tut-raids-passive"
+                            onClick={() => { if (tutorialStep === 'hint_raids') onTutorialAdvanceToPassive?.(); setRaidView('passive'); }}
+                        >
+                            <img src={btnRaidPassive} alt="pasiva" className="raid-hub-btn-img" />
+                            {tutorialStep === 'hint_raids' && <TutorialPointer step="hint_raids" />}
+                        </button>
+                        <button
+                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : ''}`}
+                            style={{ top: HUB_BUTTONS.active.top, left: HUB_BUTTONS.active.left }}
+                            onClick={() => {
+                                if (gameState.raidActivasUnlocked) { setRaidView('active'); onOpenCombat?.(); }
+                                else handleUnlockRaidActivas();
+                            }}
+                            disabled={!gameState.raidActivasUnlocked && gameState.gold < 25000}
+                        >
+                            <img src={btnRaidActive} alt="activa" className="raid-hub-btn-img" />
+                            {!gameState.raidActivasUnlocked && (
+                                <span className={`raid-hub-price ${gameState.gold >= 25000 ? 'raid-hub-price-ready' : ''}`}>
+                                    <img src={iconGold} alt="gold" />25k
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                )}
 
                 {showRaidIntro && (
                     <div className="forge-intro-overlay">
@@ -206,63 +321,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                     </div>
                 )}
 
-                {/* TABS */}
-                <div className="raid-tabs">
-                    <button
-                        className={`raid-tab ${raidTab === 'passive' ? 'active' : ''}`}
-                        onClick={() => setRaidTab('passive')}
-                    >
-                        🏕️ Pasiva
-                    </button>
-                    {gameState.raidActivasUnlocked ? (
-                        <button
-                            className={`raid-tab ${raidTab === 'active' ? 'active' : ''}`}
-                            onClick={() => { setRaidTab('active'); onOpenCombat?.(); }}
-                        >
-                            ⚡ Activa
-                        </button>
-                    ) : (
-                        <button
-                            className={`raid-tab raid-tab-locked ${gameState.gold >= 25000 ? 'raid-tab-unlockable' : ''}`}
-                            onClick={handleUnlockRaidActivas}
-                            disabled={gameState.gold < 25000}
-                            title="Desbloquear raids activas"
-                        >
-                            ⚡ Activa
-                            <span className="raid-tab-price">25k</span>
-                        </button>
-                    )}
-                </div>
+                {/* CONTENIDO PASIVA */}
+                {raidView === 'passive' && <>
 
-                {/* RESULTADOS ÚLTIMAS RAIDS */}
-                {Object.entries(lastRaidResults).map(([raidId, result]) => {
-                    if (passiveRaids.some(r => r.raidId === raidId)) return null;
-                    const raidCfg = RaidConfig.passiveRaids.find(r => r.id === raidId);
-                    const dismiss = () => setGameState(prev => {
-                        const next = { ...prev.raid.lastRaidResults };
-                        delete next[raidId];
-                        return { ...prev, raid: { ...prev.raid, lastRaidResults: next } };
-                    });
-                    return (
-                        <div key={raidId} className="raid-last-result">
-                            <div className="rlr-header">
-                                <p className="rlr-title">🎁 {raidCfg?.emoji} {raidCfg?.name}</p>
-                                <button className="rlr-dismiss" onClick={dismiss}><X size={16} /></button>
-                            </div>
-                            <div className="rlr-loot">
-                                {result.gold > 0 && <span><img src={iconGold} alt="gold" />{fmt(result.gold)}</span>}
-                                {result.tavernCoins > 0 && <span><img src={coinTavern} alt="coins" />{result.tavernCoins}</span>}
-                                {result.fragments?.map(({ dogId, amount }) => (
-                                    <span key={dogId}>🧩×{amount} <small>{DogsConfig[dogId]?.name ?? dogId}</small></span>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-
-                {/* LISTA DE RAIDS — siempre visible */}
-                {raidTab === 'passive' && (
-                    <div className="raid-list">
+                {/* LISTA DE RAIDS */}
+                <div className="raid-list">
                         {RaidConfig.passiveRaids.map(raid => {
                             const activeRaid = passiveRaids.find(r => r.raidId === raid.id);
                             const isActive = !!activeRaid;
@@ -286,12 +349,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                     <div
                                         className={`raid-card ${isSelected ? 'raid-card-selected' : ''} ${isActive ? 'raid-card-active' : ''}`}
                                         onClick={() => !isActive && handleSelectRaid(raid.id)}
+                                        style={RAID_CARD_BG[raid.id] ? {
+                                            backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${RAID_CARD_BG[raid.id]})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center 20%',
+                                        } : undefined}
                                     >
                                         {isActive ? (
                                             /* Estado EN CURSO */
                                             <div className="raid-inline-progress">
                                                 <div className="rip-header">
-                                                    <span className="rc-emoji">{raid.emoji}</span>
                                                     <span className="rc-name">{raid.name}</span>
                                                 </div>
                                                 <div className="rip-dogs">
@@ -302,45 +369,49 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <div className="rap-progress-bar">
-                                                    <div className="rap-progress-fill" style={{ width: `${progress * 100}%` }} />
-                                                </div>
-                                                <div className="rap-timer">
-                                                    {canClaim ? '¡Han vuelto!' : `⏱ ${formatTime(timeLeft)}`}
-                                                </div>
-                                                <div className="rip-actions">
-                                                    <button
-                                                        className={`btn-claim-raid ${canClaim ? 'btn-claim-ready' : ''}`}
-                                                        onClick={e => { e.stopPropagation(); playSfx('freeInvoc'); handleClaimPassiveRaid(raid.id); }}
-                                                        disabled={!canClaim}
-                                                    >
-                                                        {canClaim ? '🎁 Reclamar' : 'En camino...'}
-                                                    </button>
-                                                    <button
-                                                        className="btn-cancel-raid"
-                                                        onClick={e => { e.stopPropagation(); handleCancelPassiveRaid(raid.id); }}
-                                                    >
-                                                        Cancelar
-                                                    </button>
-                                                </div>
+                                                {canClaim ? (
+                                                    <div className="rip-actions">
+                                                        <img
+                                                            src={LADY_WAIT_FRAMES[waitFrameIndex]}
+                                                            className="raid-lady-sprite raid-lady-wait"
+                                                            alt="lady"
+                                                        />
+                                                        <button
+                                                            className="btn-claim-raid btn-claim-ready"
+                                                            onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
+                                                        >
+                                                            Reclamar
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="raid-lady-track">
+                                                        <img
+                                                            src={LADY_FRAMES[frameIndex]}
+                                                            className="raid-lady-sprite"
+                                                            alt="lady"
+                                                            style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
+                                                        />
+                                                        <span className="raid-lady-timer">⏱ {formatTime(timeLeft)}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             /* Estado NORMAL */
                                             <>
-                                                <span className="rc-emoji">{raid.emoji}</span>
                                                 <div className="rc-info">
                                                     <span className="rc-name">{raid.name}</span>
                                                     <span className="rc-desc">{raid.description}</span>
                                                     <span className="rc-meta">
                                                         ⏱ {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
                                                         👥 {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
+                                                        {raid.minRarity && <> &nbsp;·&nbsp; <span className={`rc-min-rarity rarity-${raid.minRarity}`}>min. {raid.minRarity}</span></>}
                                                     </span>
                                                 </div>
                                                 <div className="rc-loot-preview">
                                                     {Object.keys(raid.loot).map(res =>
                                                         res === 'gold' ? <img key={res} src={iconGold} alt="gold" /> :
                                                         res === 'tavernCoins' ? <img key={res} src={coinTavern} alt="coins" /> :
-                                                        res === 'fragments' ? <span key={res}>🧩</span> : null
+                                                        res === 'fragments' ? <img key={res} src={RAID_SHARD_ICON[raid.id] ?? iconShardRare} alt="shards" /> : null
                                                     )}
                                                 </div>
                                             </>
@@ -383,6 +454,26 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 </p>
                                             )}
 
+                                            {(() => {
+                                                const meetsRarity = !raid.minRarity || teamDogIds.some(d => {
+                                                    const cfg = getDogConfig(d.id, d.isForge);
+                                                    return (RARITY_RANK[cfg?.rarity] ?? 0) >= (RARITY_RANK[raid.minRarity] ?? 0);
+                                                });
+                                                const canSend = teamDogIds.length >= raid.minTeam && meetsRarity;
+                                                return (<>
+                                                    <button
+                                                        className={`btn-send-raid ${canSend ? '' : 'btn-send-disabled'}`}
+                                                        onClick={() => handleSend(raid.id, raid.minTeam)}
+                                                        disabled={!canSend}
+                                                    >
+                                                        Enviar equipo
+                                                    </button>
+                                                    {teamDogIds.length >= raid.minTeam && !meetsRarity && (
+                                                        <p className="rts-rarity-warning">Necesitas al menos un perro {raid.minRarity}</p>
+                                                    )}
+                                                </>);
+                                            })()}
+
                                             {/* Grid de perros disponibles */}
                                             <div className="raid-dogs-grid">
                                                 {availableDogs.length === 0 && (
@@ -410,13 +501,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                                                 })}
                                             </div>
 
-                                            <button
-                                                className={`btn-send-raid ${teamDogIds.length >= raid.minTeam ? '' : 'btn-send-disabled'}`}
-                                                onClick={() => handleSend(raid.id, raid.minTeam)}
-                                                disabled={teamDogIds.length < raid.minTeam}
-                                            >
-                                                🚀 Enviar equipo
-                                            </button>
                                         </div>
                                     )}
 
@@ -425,9 +509,10 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialRai
                             );
                         })}
                     </div>
-                )}
+                </>}
 
             </div>
+            <PrizeOverlay prizeData={prizeQueue[0] ?? null} onAccept={() => setPrizeQueue(prev => prev.slice(1))} />
         </div>
     );
 };

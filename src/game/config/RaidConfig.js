@@ -22,13 +22,14 @@ export const RaidConfig = {
             name: 'Bosque Antiguo',
             emoji: '🌲',
             description: 'Recursos básicos y fragmentos de tus perros.',
-            duration: 120,          // segundos
+            duration: 120,
             difficulty: 1,
             minTeam: 1,
             maxTeam: 3,
+            minRarity: 'rare',
             loot: {
                 gold:      { chance: 80, min: 300,  max: 1200 },
-                fragments: { chance: 50, min: 5,    max: 15   },   // por perro
+                fragments: { chance: 50, min: 5,    max: 15   },
             },
         },
         {
@@ -40,9 +41,10 @@ export const RaidConfig = {
             difficulty: 2,
             minTeam: 2,
             maxTeam: 3,
+            minRarity: 'epic',
             loot: {
                 gold:        { chance: 85, min: 1000, max: 4000 },
-                fragments:   { chance: 65, min: 10,   max: 30   },  // por perro
+                fragments:   { chance: 65, min: 10,   max: 30   },
                 tavernCoins: { chance: 12, min: 1,    max: 1    },
             },
         },
@@ -55,9 +57,10 @@ export const RaidConfig = {
             difficulty: 4,
             minTeam: 3,
             maxTeam: 3,
+            minRarity: 'legendary',
             loot: {
                 gold:        { chance: 90, min: 3000, max: 12000 },
-                fragments:   { chance: 80, min: 20,   max: 60    },  // por perro
+                fragments:   { chance: 80, min: 20,   max: 60    },
                 tavernCoins: { chance: 35, min: 1,    max: 3     },
             },
         },

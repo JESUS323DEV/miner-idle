@@ -1,4 +1,17 @@
 import { RaidConfig, generateRaidLoot } from '../../config/RaidConfig.js';
+import { DogsConfig } from '../../config/DogsConfig.js';
+import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
+
+const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
+
+const teamMeetsMinRarity = (dogEntries, dogsState, forgeDogs, minRarity) => {
+    if (!minRarity) return true;
+    const minRank = RARITY_RANK[minRarity] ?? 0;
+    return dogEntries.some(({ id, isForge }) => {
+        const cfg = isForge ? ForgeDogsConfig[id] : DogsConfig[id];
+        return (RARITY_RANK[cfg?.rarity] ?? 0) >= minRank;
+    });
+};
 
 // dogEntries: [{ id, isForge }]
 const markDogs = (prevState, dogEntries, assignedTo) => {
@@ -36,6 +49,7 @@ export const useRaidActions = (gameState, setGameState) => {
             if (!raid) return prevState;
             if (prevState.raid.passiveRaids.some(r => r.raidId === raidId)) return prevState;
             if (dogEntries.length < raid.minTeam || dogEntries.length > raid.maxTeam) return prevState;
+            if (!teamMeetsMinRarity(dogEntries, prevState.dogs, prevState.forgeDogs, raid.minRarity)) return prevState;
 
             // Validar que todos los perros están disponibles
             for (const { id, isForge, isRented } of dogEntries) {
@@ -71,23 +85,22 @@ export const useRaidActions = (gameState, setGameState) => {
     };
 
     // ===== RECLAMAR RAID PASIVA =====
-    const handleClaimPassiveRaid = (raidId) => {
+    const handleClaimPassiveRaid = (raidId, onLoot) => {
+        const passive = gameState.raid.passiveRaids.find(r => r.raidId === raidId);
+        if (!passive || Date.now() < passive.returnAt) return;
+
+        const raid = RaidConfig.passiveRaids.find(r => r.id === raidId);
+        if (!raid) return;
+
+        const dogEntries = passive.dogEntries ?? passive.dogIds?.map(id => ({ id, isForge: false })) ?? [];
+        const dogIds = dogEntries.map(d => d.id);
+        const loot = generateRaidLoot(raid, dogIds, gameState.dogs);
+
+        onLoot?.(loot, raid);
+
         setGameState(prevState => {
-            const passive = prevState.raid.passiveRaids.find(r => r.raidId === raidId);
-            if (!passive) return prevState;
-            if (Date.now() < passive.returnAt) return prevState;
-
-            const raid = RaidConfig.passiveRaids.find(r => r.id === raidId);
-            if (!raid) return prevState;
-
-            const dogEntries = passive.dogEntries ?? passive.dogIds?.map(id => ({ id, isForge: false })) ?? [];
-            const dogIds = dogEntries.map(d => d.id);
-            const loot = generateRaidLoot(raid, dogIds, prevState.dogs);
-
-            // Liberar perros
             const { updatedDogs, updatedForgeDogs } = markDogs(prevState, dogEntries, null);
 
-            // Aplicar fragmentos al estado correcto
             if (loot.fragments) {
                 for (const { dogId, amount } of loot.fragments) {
                     const entry = dogEntries.find(d => d.id === dogId);
@@ -118,10 +131,6 @@ export const useRaidActions = (gameState, setGameState) => {
                 raid: {
                     ...prevState.raid,
                     passiveRaids: prevState.raid.passiveRaids.filter(r => r.raidId !== raidId),
-                    lastRaidResults: {
-                        ...prevState.raid.lastRaidResults,
-                        [raidId]: { ...loot, claimedAt: Date.now() },
-                    },
                 },
             };
         });

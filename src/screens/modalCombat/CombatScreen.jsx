@@ -24,13 +24,13 @@ import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
 import bat2Img    from '../../assets/ui/icons-enemy/bats/bat-2.webp';
 import bat3Img    from '../../assets/ui/icons-enemy/bats/bat-3.webp';
 import batBossImg from '../../assets/ui/icons-enemy/bats/bat-boss.webp';
-import bgBats     from '../../assets/ui/icons-enemy/bats/bg-combat-bats.webp';
+import bgBats     from '../../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-bats.webp';
 
 import topo1Img    from '../../assets/ui/icons-enemy/topos/topo-1.webp';
 import topo2Img    from '../../assets/ui/icons-enemy/topos/topo-2.webp';
 import topo3Img    from '../../assets/ui/icons-enemy/topos/topo-3.webp';
 import topoBossImg from '../../assets/ui/icons-enemy/topos/topo-boss.webp';
-import bgTopos     from '../../assets/ui/icons-enemy/topos/bg-combat-topos.webp';
+import bgTopos     from '../../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-topos.webp';
 
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
