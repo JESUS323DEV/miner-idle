@@ -785,9 +785,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                                     if (!next[2]) { next[2] = dog.id; return next; }
                                                     return prev;
                                                 } else {
-                                                    for (const i of [1, 0, 2]) {
-                                                        if (!next[i]) { next[i] = dog.id; return next; }
-                                                    }
+                                                    if (!next[1]) { next[1] = dog.id; return next; }
                                                     return prev;
                                                 }
                                             });

@@ -69,6 +69,22 @@ export const useBackgroundMusic = (volume = 0.010) => {
         if (startedRef.current && a.paused) a.play().catch(() => {});
     }, []);
 
+    const resumeFade = useCallback((duration = 800) => {
+        intentionalPauseRef.current = false;
+        const a = getAudio();
+        if (!startedRef.current || !a.paused) return;
+        a.volume = 0;
+        a.play().catch(() => {});
+        const target = volumeRef.current;
+        const startTime = performance.now();
+        const tick = () => {
+            const progress = Math.min((performance.now() - startTime) / duration, 1);
+            a.volume = target * progress;
+            if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }, []);
+
     useEffect(() => {
         const audio = getAudio();
 
@@ -128,5 +144,5 @@ export const useBackgroundMusic = (volume = 0.010) => {
         };
     }, [playTrack]);
 
-    return { pause, fadeOut, resume };
+    return { pause, fadeOut, resume, resumeFade };
 };

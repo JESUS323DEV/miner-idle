@@ -53,11 +53,15 @@
     transform: translate(-50%, -50%);
     pointer-events: all;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     background: none;
     border: none;
-    padding: 0 0 10px;
+    padding: 0;
     cursor: pointer;
     z-index: 2;
+    overflow: visible;
 }
 
 .raid-hub-btn-img {
@@ -79,18 +83,13 @@
 }
 
 .raid-hub-price {
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 3px;
     background: rgba(20, 10, 0, 0.9);
-    border: 1px solid rgba(120, 120, 120, 0.5);
     border-radius: 20px;
     padding: 2px 8px;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     font-weight: 700;
     color: #888;
     white-space: nowrap;
@@ -100,7 +99,6 @@
     width: 12px;
     height: 12px;
     object-fit: contain;
-    filter: grayscale(1);
 }
 
 .raid-hub-price-ready {
@@ -507,6 +505,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .rip-dog {
@@ -624,8 +623,8 @@
 
 .raid-lady-timer {
     position: absolute;
-    bottom: -18px;
-    right: 0;
+    bottom: 2px;
+    right: 4px;
     font-size: 0.65rem;
     color: #ffd740;
 }
