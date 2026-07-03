@@ -1,5 +1,6 @@
 import initialSnacksState from "./snacks/initialSnacksState.js";
 import InitialRaidState from "./InitialRaidState.js";
+import InitialQuestsState from "./InitialQuestsState.js";
 
 const InitialGameState = {
 
@@ -152,6 +153,9 @@ const InitialGameState = {
 
     // ========== RAIDS ==========
     raid: InitialRaidState,
+
+    // ========== MISIONES DIARIAS ==========
+    dailyQuests: InitialQuestsState,
 
     // ========== TUTORIAL ==========
     tutorial: {

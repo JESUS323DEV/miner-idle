@@ -7,6 +7,7 @@ import { InitialDogsState } from './InitialDogsState.js';
 import { InitialForgeDogsState } from './InitialForgeDogsState.js';
 import { InitialRentalState } from './InitialRentalState.js';
 import InitialMinesState from './InitialMinesState.js';
+import InitialQuestsState from './InitialQuestsState.js';
 
 const SAVE_KEY = 'ladyHungryGame';
 
@@ -128,6 +129,10 @@ export const loadSavedState = () => {
             ...loaded.rewards,
             fragmentRewards: mergedFR,
             coinRewards: mergedCR,
+        },
+        dailyQuests: {
+            ...InitialQuestsState,
+            ...(loaded.dailyQuests ?? {}),
         },
     };
 };

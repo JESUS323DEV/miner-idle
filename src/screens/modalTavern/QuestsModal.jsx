@@ -1,0 +1,160 @@
+import { useState, useEffect } from 'react';
+import { X, Lock, LockOpen, Check } from 'lucide-react';
+import { useGameContext } from '../../game/context/GameContext.jsx';
+import { DAILY_QUESTS_FIXED, DAILY_QUESTS_EXTRA_20, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
+import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import '../../styles/modals/RewardsModal.css';
+import '../../styles/modals/QuestsModal.css';
+
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
+const pickDailyQuests = (dayNumber) => {
+    if (dayNumber === 1) return DAILY_QUESTS_FIXED.map(q => q.id);
+    const pool = dayNumber === 2 ? DAILY_QUESTS_EXTRA_20 : ALL_DAILY_QUESTS;
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 10).map(q => q.id);
+};
+
+const QuestsModal = ({ isOpen, onClose }) => {
+    const { gameState, setGameState } = useGameContext();
+    const [activeTab, setActiveTab] = useState('daily');
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const today = todayStr();
+        const dq = gameState.dailyQuests;
+        if (dq.lastResetDate === today) return;
+
+        const newDayNumber = (dq.dayNumber ?? 0) + 1;
+        const newIds = pickDailyQuests(newDayNumber);
+        const initialProgress = {};
+        newIds.forEach(id => { initialProgress[id] = 0; });
+        if (newIds.includes('open_today')) initialProgress['open_today'] = 1;
+        if (newIds.includes('tavern_visit')) initialProgress['tavern_visit'] = 1;
+
+        setGameState(prev => ({
+            ...prev,
+            dailyQuests: {
+                lastResetDate: today,
+                dayNumber: newDayNumber,
+                activeQuestIds: newIds,
+                progress: initialProgress,
+                claimed: [],
+            },
+        }));
+    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!isOpen) return null;
+
+    const dq = gameState.dailyQuests;
+    const activeQuests = getQuestsByIds(dq.activeQuestIds ?? []);
+    const progress = dq.progress ?? {};
+    const claimed = dq.claimed ?? [];
+
+    const claimedCount = claimed.length;
+
+    const getProgress = (quest) => {
+        if (quest.type === 'questsDone') return Math.min(claimedCount, quest.target);
+        if (quest.type === 'passiveActive') return Math.min(gameState.raid?.passiveRaids?.length ?? 0, quest.target);
+        if (quest.type === 'mineFullSlots') {
+            const allDogs = Object.values(gameState.dogs ?? {});
+            const allFull = ['bronze', 'iron', 'diamond'].every(m => allDogs.some(d => d?.assignedTo?.mineComp === m));
+            return allFull ? 1 : 0;
+        }
+        return Math.min(progress[quest.id] ?? 0, quest.target);
+    };
+
+    const isCompleted = (quest) => getProgress(quest) >= quest.target;
+    const isClaimed = (quest) => claimed.includes(quest.id);
+
+    const hasClaimmable = activeQuests.some(q => isCompleted(q) && !isClaimed(q));
+
+    const handleClaim = (quest) => {
+        if (!isCompleted(quest) || isClaimed(quest)) return;
+        setGameState(prev => ({
+            ...prev,
+            tavernCoins: (prev.tavernCoins ?? 0) + quest.reward.coins,
+            dailyQuests: {
+                ...prev.dailyQuests,
+                claimed: [...(prev.dailyQuests.claimed ?? []), quest.id],
+            },
+        }));
+    };
+
+    return (
+        <div className="rewards-backdrop" onClick={onClose}>
+            <div className="quests-panel" onClick={e => e.stopPropagation()}>
+                <button className="quests-close" onClick={onClose}><X size={24} /></button>
+                <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>Misiones</h2>
+
+                <div className="rewards-tabs">
+                    <button
+                        className={`rewards-tab ${activeTab === 'daily' ? 'active' : ''} ${hasClaimmable && activeTab !== 'daily' ? 'tab-pulse' : ''}`}
+                        onClick={() => setActiveTab('daily')}
+                    >
+                        Diarias
+                    </button>
+                    <button
+                        className={`rewards-tab ${activeTab === 'pj' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('pj')}
+                    >
+                        Misiones PJ
+                    </button>
+                </div>
+
+                {activeTab === 'daily' && (
+                    <div className="rewards-list">
+                        {activeQuests.map(quest => {
+                            const prog = getProgress(quest);
+                            const completed = isCompleted(quest);
+                            const done = isClaimed(quest);
+                            const pct = Math.min(100, (prog / quest.target) * 100);
+
+                            return (
+                                <div
+                                    key={quest.id}
+                                    className={`reward-card ${done ? 'exhausted' : completed ? 'claimable' : 'locked'}`}
+                                >
+                                    <div className="reward-info" style={{ minWidth: 0 }}>
+                                        <p className="reward-label">{quest.label}</p>
+                                        <p className="reward-progress" style={{ margin: '2px 0', fontSize: 12 }}>
+                                            {prog} / {quest.target}
+                                        </p>
+                                        <div className="quest-progress-bar">
+                                            <div
+                                                className={`quest-progress-fill${completed ? ' complete' : ''}`}
+                                                style={{ width: `${pct}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="reward-right">
+                                        <p className="reward-amount">
+                                            +{quest.reward.coins}
+                                            <img src={coinTavern} alt="coins" style={{ width: 16, height: 16, verticalAlign: 'middle' }} />
+                                        </p>
+                                        <button
+                                            className={`reward-btn ${done ? 'btn-locked' : completed ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
+                                            onClick={() => handleClaim(quest)}
+                                            disabled={done || !completed}
+                                        >
+                                            {done ? <Check size={18} /> : completed ? <LockOpen size={18} /> : <Lock size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {activeQuests.length === 0 && (
+                            <div className="quests-empty">Cargando misiones...</div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'pj' && (
+                    <div className="quests-empty">Proximamente</div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default QuestsModal;

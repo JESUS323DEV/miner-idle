@@ -1,13 +1,15 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
+import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon, ScrollText } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
 import TavernDogSlot from './TavernDogSlot.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
+import QuestsModal from './QuestsModal.jsx';
 import '../../styles/modals/Roulette.css';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
+import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
@@ -273,6 +275,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         }));
     };
 
+    const [showQuests, setShowQuests] = useState(false);
     const [showDogsIntro, setShowDogsIntro] = useState(false);
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
     const [cambistaTab, setCambistaTab] = useState('materiales');
@@ -415,6 +418,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
+                            <button
+                                className="tavern-quests-btn"
+                                onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
+                            >
+                                <ScrollText size={22} />
+                            </button>
                             {!bartenderHired && (() => {
                                 const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
                                 const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
@@ -1298,6 +1307,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 )}
 
             </div>
+            {showQuests && <QuestsModal isOpen={showQuests} onClose={() => setShowQuests(false)} />}
         </div>
     );
 };

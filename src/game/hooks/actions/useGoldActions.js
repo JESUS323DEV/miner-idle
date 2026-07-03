@@ -2,6 +2,7 @@ import { CombosConfig } from '../../config/CombosConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
+import { advanceDailyQuestInState, setDailyQuestMaxInState } from '../../utils/questUtils.js';
 
 export const useGoldActions = (gameState, setGameState, showGoldCost) => {
 
@@ -68,7 +69,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
                     rewards: {
                         ...prevState.rewards,
                         hasUnclaimed: prevState.rewards.hasUnclaimed || hasClickMilestone,
-                    }
+                    },
+                    dailyQuests: setDailyQuestMaxInState(prevState.dailyQuests, 'maxCombo', newMaxCombo),
                 };
             }
 
@@ -122,6 +124,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
                     : { ...prevBurst, rechargeRemaining: newRemaining };
             }
 
+            let dq = setDailyQuestMaxInState(prevState.dailyQuests, 'maxCombo', newMaxCombo);
+            dq = advanceDailyQuestInState(dq, 'goldMined', totalGold);
             return {
                 ...prevState,
                 totalClicks: newTotalClicks,
@@ -143,7 +147,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasClickMilestone || hasGoldMilestone,
-                }
+                },
+                dailyQuests: dq,
             };
         });
     };
@@ -211,6 +216,7 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
                 stamina: maxStamina,
                 burst: { active: true, recharging: false, rechargeRemaining: 0 },
                 totalBurstUses: (prevState.totalBurstUses ?? 0) + 1,
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'burstUses', 1),
             };
         });
     };

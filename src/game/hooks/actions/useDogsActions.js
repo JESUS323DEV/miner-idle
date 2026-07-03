@@ -2,6 +2,7 @@ import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { ForgeConfig } from '../../config/ForgeConfig.js';
 import { PACK_TYPES, FRAGMENTS_PER_RARITY, FREE_FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
+import { advanceDailyQuestInState } from '../../utils/questUtils.js';
 export const useDogsActions = (gameState, setGameState) => {
 
     // ========== CONTRATAR PERRO MINERO ==========
@@ -378,7 +379,8 @@ export const useDogsActions = (gameState, setGameState) => {
                 [stateKey]: {
                     ...prevState[stateKey],
                     [dogId]: { ...dog, stars: stars + 1, fragments: dog.fragments - needed }
-                }
+                },
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'starUps', 1),
             };
         });
     };
@@ -426,10 +428,13 @@ export const useDogsActions = (gameState, setGameState) => {
             if (!currentDog) { console.error('[Gacha] perro no encontrado:', pickedId, 'en', stateKey, prevState[stateKey]); return prevState; }
             const updatedDog = { ...currentDog, fragments: (currentDog.fragments ?? 0) + fragsGained };
 
+            let dq = advanceDailyQuestInState(prevState.dailyQuests, 'cardsBought', 1);
+            dq = advanceDailyQuestInState(dq, 'rareCards', 1);
             return {
                 ...prevState,
                 tavernCoins: prevState.tavernCoins - pack.cost,
                 [stateKey]: { ...prevState[stateKey], [pickedId]: updatedDog },
+                dailyQuests: dq,
                 gachaPity: {
                     ...prevState.gachaPity,
                     [pityKey]: { count: newCount, epicCount: newEpicCount }
@@ -517,6 +522,7 @@ export const useDogsActions = (gameState, setGameState) => {
                         mineCompTimer: { remaining: newRemaining, activeFrom: Date.now() },
                     },
                 },
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'dogsAssigned', 1),
             };
         });
     };
