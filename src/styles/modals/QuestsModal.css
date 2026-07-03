@@ -59,28 +59,15 @@
 
 .tavern-quests-btn {
     position: absolute;
-    top: 42%;
-    right: 6%;
-    background: rgba(20, 12, 0, 0.75);
-    border: 1.5px solid rgba(180, 120, 40, 0.6);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 18%;
+    right: 1%;
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    color: #f0a500;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     z-index: 5;
 }
 
-.tavern-quests-btn:hover {
-    background: rgba(30, 18, 0, 0.9);
-    border-color: #f0a500;
-}
-
-.tavern-quests-btn.quests-notify {
-    border-color: #f0a500;
-    box-shadow: 0 0 10px rgba(240, 165, 0, 0.4);
+.tavern-quests-btn.quests-notify img {
+    filter: drop-shadow(0 0 6px rgba(240, 165, 0, 0.7));
 }
