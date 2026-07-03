@@ -127,9 +127,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
             setRaidView('hub');
             setSelectedRaid(null);
             setTeamDogIds([]);
-            if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true);
         }
-    }, [isOpen]); // eslint-disable-line
+    }, [isOpen]);
 
     useEffect(() => {
         const t = setInterval(() => setNow(Date.now()), 1000);
@@ -273,7 +272,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                             className={`raid-hub-btn ${tutorialStep === 'hint_raids' ? 'tutorial-highlight' : (passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
                             style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left, position: 'absolute' }}
                             data-tutorial="tut-raids-passive"
-                            onClick={() => { if (tutorialStep === 'hint_raids') onTutorialAdvanceToPassive?.(); setRaidView('passive'); }}
+                            onClick={() => { if (tutorialStep === 'hint_raids') onTutorialAdvanceToPassive?.(); if (!gameState.tutorial?.raidIntroDone) setShowRaidIntro(true); setRaidView('passive'); }}
                         >
                             <img src={btnRaidPassive} alt="pasiva" className="raid-hub-btn-img" />
                             {tutorialStep === 'hint_raids' && <TutorialPointer step="hint_raids" />}
