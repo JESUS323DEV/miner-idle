@@ -34,6 +34,36 @@ export const setDailyQuestMaxInState = (dq, type, value) => {
     return changed ? { ...dq, progress: newProgress } : dq;
 };
 
+// ===== PJ QUESTS =====
+
+const DEFAULT_PJ = { slotTimeMs: 0, slotEnteredAt: null, passiveRaids: 0, claimedMissions: [], finalClaimed: false };
+
+export const enterPJSlot = (pjQuests, dogId) => {
+    const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
+    if (prev.slotEnteredAt) return pjQuests;
+    return { ...(pjQuests ?? {}), [dogId]: { ...DEFAULT_PJ, ...prev, slotEnteredAt: Date.now() } };
+};
+
+export const leavePJSlot = (pjQuests, dogId) => {
+    const prev = pjQuests?.[dogId];
+    if (!prev?.slotEnteredAt) return pjQuests ?? {};
+    return {
+        ...(pjQuests ?? {}),
+        [dogId]: { ...prev, slotTimeMs: (prev.slotTimeMs ?? 0) + (Date.now() - prev.slotEnteredAt), slotEnteredAt: null },
+    };
+};
+
+export const advancePJRaids = (pjQuests, dogId) => {
+    const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
+    return { ...(pjQuests ?? {}), [dogId]: { ...DEFAULT_PJ, ...prev, passiveRaids: (prev.passiveRaids ?? 0) + 1 } };
+};
+
+export const getPJSlotTimeMs = (pjQuests, dogId) => {
+    const d = pjQuests?.[dogId];
+    if (!d) return 0;
+    return (d.slotTimeMs ?? 0) + (d.slotEnteredAt ? Date.now() - d.slotEnteredAt : 0);
+};
+
 export const advanceDailyQuest = (setGameState, type, amount = 1) => {
     setGameState(prev => {
         const updated = advanceDailyQuestInState(prev.dailyQuests, type, amount);

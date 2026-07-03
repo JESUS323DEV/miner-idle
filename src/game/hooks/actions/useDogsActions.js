@@ -2,7 +2,7 @@ import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { ForgeConfig } from '../../config/ForgeConfig.js';
 import { PACK_TYPES, FRAGMENTS_PER_RARITY, FREE_FRAGMENTS_PER_RARITY } from '../../config/GachaConfig.js';
-import { advanceDailyQuestInState } from '../../utils/questUtils.js';
+import { advanceDailyQuestInState, enterPJSlot } from '../../utils/questUtils.js';
 export const useDogsActions = (gameState, setGameState) => {
 
     // ========== CONTRATAR PERRO MINERO ==========
@@ -28,7 +28,8 @@ export const useDogsActions = (gameState, setGameState) => {
                     ...prevState.dogs,
                     globalSlots: newSlots,
                     [dogId]: { ...dog, hired: true, assignedTo }
-                }
+                },
+                pjQuests: emptyIdx !== -1 ? enterPJSlot(prevState.pjQuests, dogId) : prevState.pjQuests,
             };
         });
     };
@@ -348,7 +349,8 @@ export const useDogsActions = (gameState, setGameState) => {
                     ...prevState[stateKey],
                     ...extraDogState,
                     [dogId]: { ...dog, hired: true, stars: 0, fragments: dog.fragments - config.unlockFragments, assignedTo }
-                }
+                },
+                pjQuests: (!isForge && !isRented && assignedTo) ? enterPJSlot(prevState.pjQuests, dogId) : prevState.pjQuests,
             };
         });
     };

@@ -157,6 +157,9 @@ const InitialGameState = {
     // ========== MISIONES DIARIAS ==========
     dailyQuests: InitialQuestsState,
 
+    // ========== MISIONES PJ ==========
+    pjQuests: {},
+
     // ========== TUTORIAL ==========
     tutorial: {
         completed: false,

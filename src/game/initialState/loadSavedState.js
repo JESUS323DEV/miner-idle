@@ -134,5 +134,6 @@ export const loadSavedState = () => {
             ...InitialQuestsState,
             ...(loaded.dailyQuests ?? {}),
         },
+        pjQuests: loaded.pjQuests ?? {},
     };
 };

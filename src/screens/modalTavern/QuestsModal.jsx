@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X, Lock, LockOpen, Check } from 'lucide-react';
+import { X, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DAILY_QUESTS_FIXED, DAILY_QUESTS_EXTRA_20, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
+import { DogsConfig } from '../../game/config/DogsConfig.js';
+import { PJ_MISSION_TEMPLATES } from '../../game/config/PJQuestsConfig.js';
+import { getPJSlotTimeMs } from '../../game/utils/questUtils.js';
+import { dogAssets } from '../../game/utils/dogAssets.js';
 import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import '../../styles/modals/RewardsModal.css';
 import '../../styles/modals/QuestsModal.css';
@@ -18,6 +22,34 @@ const pickDailyQuests = (dayNumber) => {
 const QuestsModal = ({ isOpen, onClose }) => {
     const { gameState, setGameState } = useGameContext();
     const [activeTab, setActiveTab] = useState('daily');
+    const [expandedPJDog, setExpandedPJDog] = useState(null);
+
+    const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
+    const MINER_DOGS = Object.entries(DogsConfig)
+        .sort((a, b) => (RARITY_ORDER[a[1].rarity] ?? 9) - (RARITY_ORDER[b[1].rarity] ?? 9) || (a[1].order ?? 99) - (b[1].order ?? 99))
+        .map(([id]) => id);
+
+    const handleClaimPJMission = (dogId, missionId, reward) => {
+        setGameState(prev => {
+            const prevPJ = prev.pjQuests?.[dogId] ?? {};
+            return {
+                ...prev,
+                dogs: { ...prev.dogs, [dogId]: { ...prev.dogs[dogId], fragments: (prev.dogs[dogId]?.fragments ?? 0) + reward } },
+                pjQuests: { ...prev.pjQuests, [dogId]: { ...prevPJ, claimedMissions: [...(prevPJ.claimedMissions ?? []), missionId] } },
+            };
+        });
+    };
+
+    const handleClaimPJFinal = (dogId, reward) => {
+        setGameState(prev => {
+            const prevPJ = prev.pjQuests?.[dogId] ?? {};
+            return {
+                ...prev,
+                dogs: { ...prev.dogs, [dogId]: { ...prev.dogs[dogId], fragments: (prev.dogs[dogId]?.fragments ?? 0) + reward } },
+                pjQuests: { ...prev.pjQuests, [dogId]: { ...prevPJ, finalClaimed: true } },
+            };
+        });
+    };
 
     useEffect(() => {
         if (!isOpen) return;
@@ -150,7 +182,98 @@ const QuestsModal = ({ isOpen, onClose }) => {
                 )}
 
                 {activeTab === 'pj' && (
-                    <div className="quests-empty">Proximamente</div>
+                    <div className="pj-dog-list">
+                        {MINER_DOGS.map(dogId => {
+                            const cfg = DogsConfig[dogId];
+                            const template = PJ_MISSION_TEMPLATES[cfg.rarity];
+                            if (!template) return null;
+                            const pjData = gameState.pjQuests?.[dogId] ?? {};
+                            const claimed = pjData.claimedMissions ?? [];
+                            const finalClaimed = pjData.finalClaimed ?? false;
+                            const isExpanded = expandedPJDog === dogId;
+
+                            const getMissionProgress = (m) => {
+                                if (m.type === 'slotTime') return getPJSlotTimeMs(gameState.pjQuests, dogId);
+                                if (m.type === 'passiveRaids') return pjData.passiveRaids ?? 0;
+                                return 0;
+                            };
+                            const allMissionsDone = template.missions.every(m => claimed.includes(m.missionId));
+                            const doneMissions = template.missions.filter(m => getMissionProgress(m) >= m.target).length;
+                            const hasClaimable = template.missions.some(m => getMissionProgress(m) >= m.target && !claimed.includes(m.missionId))
+                                || (allMissionsDone && !finalClaimed);
+
+                            return (
+                                <div key={dogId} className={`pj-dog-card dog-rarity-${cfg.rarity}`}>
+                                    <div className="pj-dog-row" onClick={() => setExpandedPJDog(isExpanded ? null : dogId)}>
+                                        <img src={dogAssets[dogId]} className="pj-dog-portrait" alt={cfg.name} />
+                                        <div className="pj-dog-info">
+                                            <span className="pj-dog-name">{cfg.name}</span>
+                                            <span className={`pj-dog-rarity dog-rarity-${cfg.rarity}`}>{cfg.rarity}</span>
+                                        </div>
+                                        <div className="pj-dog-meta">
+                                            {hasClaimable && <span className="pj-notify-dot" />}
+                                            <span className="pj-progress-text">{doneMissions}/{template.missions.length}</span>
+                                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                        </div>
+                                    </div>
+
+                                    {isExpanded && (
+                                        <div className="pj-missions">
+                                            {template.missions.map(m => {
+                                                const prog = getMissionProgress(m);
+                                                const isClaimed = claimed.includes(m.missionId);
+                                                const isComplete = prog >= m.target;
+                                                const pct = Math.min(100, (prog / m.target) * 100);
+                                                const displayProg = m.type === 'slotTime'
+                                                    ? `${Math.floor(prog / 60000)}/${m.target / 60000} min`
+                                                    : `${prog}/${m.target}`;
+
+                                                return (
+                                                    <div key={m.missionId} className={`pj-mission-row ${isClaimed ? 'exhausted' : isComplete ? 'claimable' : ''}`}>
+                                                        <div className="pj-mission-info">
+                                                            <p className="pj-mission-label">{m.label}</p>
+                                                            <p className="pj-mission-prog">{displayProg}</p>
+                                                            <div className="quest-progress-bar">
+                                                                <div className={`quest-progress-fill${isComplete ? ' complete' : ''}`} style={{ width: `${pct}%` }} />
+                                                            </div>
+                                                        </div>
+                                                        <div className="pj-mission-reward">
+                                                            <span className="pj-reward-amount">+{template.missionReward} frags</span>
+                                                            <button
+                                                                className={`reward-btn ${isClaimed ? 'btn-locked' : isComplete ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
+                                                                disabled={isClaimed || !isComplete}
+                                                                onClick={() => handleClaimPJMission(dogId, m.missionId, template.missionReward)}
+                                                            >
+                                                                {isClaimed ? <Check size={18} /> : isComplete ? <LockOpen size={18} /> : <Lock size={18} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+
+                                            {allMissionsDone && (
+                                                <div className={`pj-mission-row pj-final-row ${finalClaimed ? 'exhausted' : 'claimable'}`}>
+                                                    <div className="pj-mission-info">
+                                                        <p className="pj-mission-label">Recompensa final</p>
+                                                    </div>
+                                                    <div className="pj-mission-reward">
+                                                        <span className="pj-reward-amount">+{template.finalReward} frags</span>
+                                                        <button
+                                                            className={`reward-btn ${finalClaimed ? 'btn-locked' : 'btn-claim btn-claim-icon'}`}
+                                                            disabled={finalClaimed}
+                                                            onClick={() => handleClaimPJFinal(dogId, template.finalReward)}
+                                                        >
+                                                            {finalClaimed ? <Check size={18} /> : <LockOpen size={18} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
         </div>

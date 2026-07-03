@@ -1,7 +1,7 @@
 import { RaidConfig, generateRaidLoot } from '../../config/RaidConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
-import { advanceDailyQuestInState } from '../../utils/questUtils.js';
+import { advanceDailyQuestInState, leavePJSlot, advancePJRaids } from '../../utils/questUtils.js';
 
 const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
@@ -63,6 +63,13 @@ export const useRaidActions = (gameState, setGameState) => {
 
             const { updatedDogs, updatedForgeDogs } = markDogs(prevState, dogEntries, { type: 'raid' });
 
+            let pjQuests = prevState.pjQuests ?? {};
+            for (const { id, isForge } of dogEntries) {
+                if (isForge) continue;
+                if (prevState.dogs?.[id]?.assignedTo?.globalSlot !== undefined) pjQuests = leavePJSlot(pjQuests, id);
+                pjQuests = advancePJRaids(pjQuests, id);
+            }
+
             const now = Date.now();
             let dq = advanceDailyQuestInState(prevState.dailyQuests, 'passiveSent', 1);
             if (dogEntries.length >= 3) dq = advanceDailyQuestInState(dq, 'passiveTeam3', 1);
@@ -84,6 +91,7 @@ export const useRaidActions = (gameState, setGameState) => {
                     ],
                 },
                 dailyQuests: dq,
+                pjQuests,
             };
         });
     };

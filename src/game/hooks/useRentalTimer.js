@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { DogsConfig } from '../config/DogsConfig.js';
 import { RentalConfig } from '../config/RentalConfig.js';
+import { leavePJSlot } from '../utils/questUtils.js';
 
 const getRentalDog = (currentDogs, currentActive) => {
     const hiredIds = new Set(
@@ -54,6 +55,8 @@ export const useRentalTimer = (setGameState) => {
                     }
                 }
 
+                let pjQuests = prev.pjQuests ?? {};
+                let pjChanged = false;
                 const newActive = [];
                 for (const r of (rental.active ?? [])) {
                     const newMs = Math.max(0, r.remainingMs - 1000);
@@ -62,6 +65,8 @@ export const useRentalTimer = (setGameState) => {
                         if (r.destination !== 'raid' && r.assignedSlot !== null && newSlots[r.assignedSlot] === r.dogId) {
                             newSlots[r.assignedSlot] = null;
                             slotsChanged = true;
+                            const updated = leavePJSlot(pjQuests, r.dogId);
+                            if (updated !== pjQuests) { pjQuests = updated; pjChanged = true; }
                         }
                     } else {
                         if (newMs !== r.remainingMs) changed = true;
@@ -75,6 +80,7 @@ export const useRentalTimer = (setGameState) => {
                     ...prev,
                     rental: { available, active: newActive, appearanceRemainingMs },
                     dogs: slotsChanged ? { ...prev.dogs, globalSlots: newSlots } : prev.dogs,
+                    pjQuests: pjChanged ? pjQuests : prev.pjQuests,
                 };
             });
         }, 1000);
