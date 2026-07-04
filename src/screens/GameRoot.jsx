@@ -330,9 +330,11 @@ function GameRoot({ onBack }) {
     const rect = el.getBoundingClientRect();
     const DIALOG_H = 180;
     const GAP = 14;
+    const TOP_OFFSETS = { 'automine_hint': -70 };
+    const topOffset = TOP_OFFSETS[tutActiveStep] ?? 0;
     const vh = window.innerHeight;
     if (rect.bottom + DIALOG_H + GAP <= vh) {
-      setTutDialogStyle({ top: `${rect.bottom + GAP}px`, bottom: 'auto' });
+      setTutDialogStyle({ top: `${rect.bottom + GAP + topOffset}px`, bottom: 'auto' });
     } else {
       setTutDialogStyle({ bottom: `${vh - rect.top + GAP}px`, top: 'auto' });
     }
