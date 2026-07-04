@@ -110,7 +110,7 @@
 .mine-card-diamond.mine-card-lvl3 {
     position: fixed;
     top: calc(clamp(12rem, 28.5vh, 17.5rem) - 9.1rem);
-    left: 15.5rem;
+    left: calc(13rem + 15vw);
 }
 
 /* ========== REQUERIMIENTO DE ESTRELLAS ========== */
