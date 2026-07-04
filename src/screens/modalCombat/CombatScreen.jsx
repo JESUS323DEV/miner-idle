@@ -18,6 +18,7 @@ import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
+import { advanceDailyQuestInState, advanceDailyQuest } from '../../game/utils/questUtils.js';
 import '../../styles/modals/CombatScreen.css';
 
 import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
@@ -161,7 +162,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [timer, setTimer]                       = useState(0);
     const [resultsData, setResultsData]           = useState(null);
     const [, setAbilityCooldowns] = useState({});
-    const [switchCooldowns, setSwitchCooldowns]   = useState({});
+    const [, setSwitchCooldowns]                   = useState({});
     const [swappingTo, setSwappingTo]             = useState(null);
     const [ultCooldown, setUltCooldown]           = useState(0);
     const [activeEffect, setActiveEffect]         = useState(null);
@@ -318,11 +319,18 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     : null;
                 const newRaidAttempts = { ...attempts, [activeEnemy.id]: { count: newCount, cooldownUntil } };
 
+                let dq = prev.dailyQuests;
+                if (enemyHp <= 0) {
+                    dq = advanceDailyQuestInState(dq, 'activeWins', 1);
+                    dq = advanceDailyQuestInState(dq, 'activeNoLoss', 1);
+                }
+
                 const next = {
                     ...prev,
                     raidBestStars: { ...(prev.raidBestStars ?? {}), [activeEnemy.id]: Math.max(currentBest, starsEarned) },
                     gold: prev.gold + gold,
                     raidAttempts: newRaidAttempts,
+                    dailyQuests: dq,
                 };
                 if (!rewardDogId) return next;
                 return {
@@ -461,6 +469,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (phase !== 'fight' || ultCooldown > 0 || !slots[1]) return;
         if (!fightStarted) setFightStarted(true);
         if (combatTutStep === 1) setCombatTutStep(2);
+        advanceDailyQuest(setGameState, 'abilityUses', 1);
         const activeId = slots[1];
         const cfg      = getConfig(activeId);
         const element  = cfg?.element;
@@ -538,38 +547,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     break;
             }
         }
-    };
-
-    const handleSwap = (position) => {
-        if (phase !== 'fight') return;
-        const [left, center, right] = slots;
-        const targetId = position === 'left' ? left : right;
-        if (!targetId || (switchCooldowns[targetId] ?? 0) > 0) return;
-
-        const newSlots = position === 'left'
-            ? [center, left, right]
-            : [left, right, center];
-
-        const newLeft  = newSlots[0];
-        const newRight = newSlots[2];
-
-        const oscuroReduce = [newLeft, newRight].filter(id => {
-            if (!id) return false;
-            const cfg = getConfig(id);
-            return cfg?.element === 'oscuro' && !ForgeDogsConfig[id];
-        }).length * 2;
-        const finalCd = Math.max(0, SWITCH_COOLDOWN - oscuroReduce);
-
-        setSlots(newSlots);
-        setSwappingTo(targetId);
-        setUltCooldown(0);
-        setHeatStacks(0);
-        setSwitchCooldowns(prev => ({
-            ...prev,
-            ...(newLeft  ? { [newLeft]:  finalCd } : {}),
-            ...(newRight ? { [newRight]: finalCd } : {}),
-        }));
-        setTimeout(() => setSwappingTo(null), 300);
     };
 
 

@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { RentalConfig } from '../../game/config/RentalConfig.js';
+import { enterPJSlot } from '../../game/utils/questUtils.js';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/RentalModal.css';
 
@@ -89,6 +90,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                         appearanceRemainingMs: RentalConfig.reappearanceMs,
                         active: [...(prev.rental.active ?? []), newEntry],
                     },
+                    pjQuests: enterPJSlot(prev.pjQuests, available.dogId),
                 };
             }
             return {

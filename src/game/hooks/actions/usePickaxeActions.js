@@ -1,5 +1,6 @@
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
+import { advanceDailyQuestInState } from '../../utils/questUtils.js';
 
 const getEffectiveMaxDurability = (prevState) => {
     return (prevState.dogs?.globalSlots ?? []).reduce((sum, dogId) => {
@@ -36,7 +37,8 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
                 rewards: {
                     ...prevState.rewards,
                     hasUnclaimed: prevState.rewards.hasUnclaimed || hasRepairMilestone || hasGoldSpentMilestone,
-                }
+                },
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'repairs', 1),
             };
         });
     };

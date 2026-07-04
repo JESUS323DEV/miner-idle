@@ -1,6 +1,7 @@
 import { RaidConfig, generateRaidLoot } from '../../config/RaidConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
+import { advanceDailyQuestInState, leavePJSlot, advancePJRaids } from '../../utils/questUtils.js';
 
 const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
 
@@ -62,7 +63,16 @@ export const useRaidActions = (gameState, setGameState) => {
 
             const { updatedDogs, updatedForgeDogs } = markDogs(prevState, dogEntries, { type: 'raid' });
 
+            let pjQuests = prevState.pjQuests ?? {};
+            for (const { id, isForge } of dogEntries) {
+                if (isForge) continue;
+                if (prevState.dogs?.[id]?.assignedTo?.globalSlot !== undefined) pjQuests = leavePJSlot(pjQuests, id);
+                pjQuests = advancePJRaids(pjQuests, id);
+            }
+
             const now = Date.now();
+            let dq = advanceDailyQuestInState(prevState.dailyQuests, 'passiveSent', 1);
+            if (dogEntries.length >= 3) dq = advanceDailyQuestInState(dq, 'passiveTeam3', 1);
             return {
                 ...prevState,
                 dogs: updatedDogs,
@@ -74,12 +84,14 @@ export const useRaidActions = (gameState, setGameState) => {
                         ...prevState.raid.passiveRaids,
                         {
                             raidId,
-                            dogEntries,  // [{ id, isForge }]
+                            dogEntries,
                             startedAt: now,
                             returnAt: now + (durationOverride ?? raid.duration) * 1000,
                         },
                     ],
                 },
+                dailyQuests: dq,
+                pjQuests,
             };
         });
     };
@@ -122,6 +134,9 @@ export const useRaidActions = (gameState, setGameState) => {
                 }
             }
 
+            let dq = advanceDailyQuestInState(prevState.dailyQuests, 'passiveClaimed', 1);
+            if (loot.fragments?.length) dq = advanceDailyQuestInState(dq, 'passiveShards', 1);
+            if ((RARITY_RANK[raid.minRarity] ?? 0) >= RARITY_RANK['epic']) dq = advanceDailyQuestInState(dq, 'passiveEpic', 1);
             return {
                 ...prevState,
                 gold: prevState.gold + (loot.gold ?? 0),
@@ -132,6 +147,7 @@ export const useRaidActions = (gameState, setGameState) => {
                     ...prevState.raid,
                     passiveRaids: prevState.raid.passiveRaids.filter(r => r.raidId !== raidId),
                 },
+                dailyQuests: dq,
             };
         });
     };

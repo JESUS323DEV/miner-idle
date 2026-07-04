@@ -5,9 +5,11 @@ import TavernDogSlot from './TavernDogSlot.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
+import QuestsModal from './QuestsModal.jsx';
 import '../../styles/modals/Roulette.css';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
+import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
@@ -16,6 +18,7 @@ import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
 import { formatNumber2 } from '../../game/utils/formatters.js';
 import { PACK_TYPES } from '../../game/config/GachaConfig';
+import { getQuestsByIds } from '../../game/config/QuestsConfig.js';
 
 import tutorialPrincipal from "../../assets/tutorial/mascotas/principal.webp"
 import tutorialMina from "../../assets/tutorial/mascotas/mina.webp"
@@ -53,6 +56,7 @@ import menaIron from "../../assets/ui/icons-menas/menas-iron/mena-iron3.webp"
 import menaDiamond from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp"
 
 import cambistaCoin from "../../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
+import iconRewards from "../../assets/ui/icons-hud/hud-modals/modal-tavern/rewards.webp"
 import iconRuleta from "../../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
 import iconTragaperras from "../../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
 import iconLogo from "../../assets/landing-pico-pata/logo.webp"
@@ -273,6 +277,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         }));
     };
 
+    const [showQuests, setShowQuests] = useState(false);
     const [showDogsIntro, setShowDogsIntro] = useState(false);
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
     const [cambistaTab, setCambistaTab] = useState('materiales');
@@ -338,6 +343,24 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const rouletteHasFree = !gameState.lastFreeSpinGold || gameState.lastFreeSpinGold < todayMidnight()
         || !gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight();
 
+    const _dq = gameState.dailyQuests;
+    const _dqQuests = getQuestsByIds(_dq?.activeQuestIds ?? []);
+    const _dqProgress = _dq?.progress ?? {};
+    const _dqClaimed = _dq?.claimed ?? [];
+    const hasClaimableQuest = _dqQuests.some(q => {
+        if (_dqClaimed.includes(q.id)) return false;
+        let prog;
+        if (q.type === 'questsDone') prog = _dqClaimed.length;
+        else if (q.type === 'passiveActive') prog = gameState.raid?.passiveRaids?.length ?? 0;
+        else if (q.type === 'mineFullSlots') {
+            const allDogs = Object.values(gameState.dogs ?? {});
+            prog = ['bronze', 'iron', 'diamond'].every(m => allDogs.some(d => d?.assignedTo?.mineComp === m)) ? 1 : 0;
+        } else {
+            prog = _dqProgress[q.id] ?? 0;
+        }
+        return prog >= q.target;
+    });
+
     const currentDogsData = dogTab === 'mineros' ? dogs : forgeDogs;
     const currentDogsConfig = dogTab === 'mineros' ? DogsConfig : ForgeDogsConfig;
     const rarityHasAction = {};
@@ -376,7 +399,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     <ArrowLeft size={16} /> Volver
                 </button>
             )}
-            {bartenderHired && view === 'main' && (
+            {bartenderHired && view === 'main' && !showQuests && (
                 <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
 
 
@@ -415,6 +438,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
+                            <button
+                                className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
+                            >
+                                <img src={iconRewards} alt="misiones" style={{ width: 52, height: 52, objectFit: 'contain' }} />
+                            </button>
                             {!bartenderHired && (() => {
                                 const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
                                 const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
@@ -1298,6 +1327,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 )}
 
             </div>
+            {showQuests && <QuestsModal isOpen={showQuests} onClose={() => setShowQuests(false)} />}
         </div>
     );
 };

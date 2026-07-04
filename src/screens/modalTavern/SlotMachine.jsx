@@ -3,6 +3,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
+import { enterPJSlot } from '../../game/utils/questUtils.js';
 
 import coinTavern    from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
 import ladyIcon      from "../../assets/ui/icons-pets/mineros/lady-icon.webp";
@@ -142,6 +143,7 @@ export default function SlotMachine({ guaranteed }) {
                                         fragments: Math.max(dog?.fragments ?? 0, config.unlockFragments),
                                     },
                                 },
+                                pjQuests: emptyIdx !== -1 ? enterPJSlot(prev.pjQuests, winner.id) : prev.pjQuests,
                             };
                         });
                         const prize = {

@@ -7,6 +7,7 @@ import { InitialDogsState } from './InitialDogsState.js';
 import { InitialForgeDogsState } from './InitialForgeDogsState.js';
 import { InitialRentalState } from './InitialRentalState.js';
 import InitialMinesState from './InitialMinesState.js';
+import InitialQuestsState from './InitialQuestsState.js';
 
 const SAVE_KEY = 'ladyHungryGame';
 
@@ -129,5 +130,21 @@ export const loadSavedState = () => {
             fragmentRewards: mergedFR,
             coinRewards: mergedCR,
         },
+        dailyQuests: {
+            ...InitialQuestsState,
+            ...(loaded.dailyQuests ?? {}),
+        },
+        pjQuests: (() => {
+            const pj = { ...(loaded.pjQuests ?? {}) };
+            const slots = loaded.dogs?.globalSlots ?? [];
+            const now = Date.now();
+            slots.forEach(dogId => {
+                if (!dogId) return;
+                if (!pj[dogId]?.slotEnteredAt) {
+                    pj[dogId] = { slotTimeMs: 0, slotEnteredAt: now, passiveRaids: 0, claimedMissions: [], finalClaimed: false, ...(pj[dogId] ?? {}) };
+                }
+            });
+            return pj;
+        })(),
     };
 };
