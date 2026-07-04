@@ -330,9 +330,11 @@ function GameRoot({ onBack }) {
     const rect = el.getBoundingClientRect();
     const DIALOG_H = 180;
     const GAP = 14;
+    const TOP_OFFSETS = { 'automine_hint': -70 };
+    const topOffset = TOP_OFFSETS[tutActiveStep] ?? 0;
     const vh = window.innerHeight;
     if (rect.bottom + DIALOG_H + GAP <= vh) {
-      setTutDialogStyle({ top: `${rect.bottom + GAP}px`, bottom: 'auto' });
+      setTutDialogStyle({ top: `${rect.bottom + GAP + topOffset}px`, bottom: 'auto' });
     } else {
       setTutDialogStyle({ bottom: `${vh - rect.top + GAP}px`, top: 'auto' });
     }
@@ -930,6 +932,12 @@ function GameRoot({ onBack }) {
             onShowGoldCost={showGoldCost}
             tierIngotCost={tierIngotCost}
             materialIngotCost={materialUpgradeCost?.ingot}
+            onAutomineUpgrade={handleAutomineUpgrade}
+            automineLevel={gameState.automineUpgradeLevel ?? 0}
+            automineMax={AutomineConfig.chargeUpgrades.length}
+            automineNextCost={AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? null}
+            canAffordAutomineUpgrade={(gameState.automineUpgradeLevel ?? 0) < AutomineConfig.chargeUpgrades.length && gameState.gold >= (AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? Infinity)}
+            automineUnlocked={gameState.automine?.unlocked ?? false}
           />
         </div>
 
@@ -1280,20 +1288,21 @@ function GameRoot({ onBack }) {
                 {tutorialStep === 'stamina_hint' && <TutorialPointer step="stamina_hint" />}
               </button>
               {(() => {
-                const level = gameState.automineUpgradeLevel ?? 0;
-                const atMax = level >= AutomineConfig.chargeUpgrades.length;
-                const next = atMax ? null : AutomineConfig.chargeUpgrades[level];
-                const lockedUpgrade = !gameState.automine?.unlocked;
+                const locked = !gameState.automine?.unlocked;
+                const poderCooldownUntil = gameState.poderCooldownUntil;
+                const onCooldown = !!poderCooldownUntil && now < poderCooldownUntil;
+                const cooldownSecs = onCooldown ? Math.ceil((poderCooldownUntil - now) / 1000) : 0;
+                const allAvailable = gameState.automine?.charges?.every(c => c.available) ?? true;
                 return (
                   <button
-                    className={`sat-btn sat-upgrade sat-pos-upgrade${atMax ? ' at-max' : ''}${!atMax && !lockedUpgrade && gameState.gold < next.cost ? ' cant-afford' : ''}${lockedUpgrade ? ' locked-tutorial' : ''}`}
-                    onClick={handleAutomineUpgrade}
-                    disabled={lockedUpgrade || atMax || gameState.gold < next?.cost}
-                    title={lockedUpgrade ? 'Desbloquea el autominar primero' : atMax ? 'Mejora al máximo' : `Mejorar recarga (-${next.reductionSeconds}s) — ${next.cost} oro`}
+                    className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}`}
+                    onClick={handleActivatePoder}
+                    disabled={locked || onCooldown || allAvailable}
+                    title={locked ? 'Desbloquea el autominar primero' : onCooldown ? `Disponible en ${cooldownSecs}s` : 'Recargar 2 cargas de autominar'}
                   >
                     <div className="sat-upgrade-inner">
-                      <img src={satUpgrade} alt="Mejorar" className="sat-upgrade-arrow" />
-                      <span className="sat-upgrade-overlay">{atMax ? 'Max' : `${level}/${AutomineConfig.chargeUpgrades.length}`}</span>
+                      <img src={satUpgrade} alt="Recargar" className="sat-upgrade-arrow" />
+                      <span className="sat-upgrade-overlay">{onCooldown ? `${cooldownSecs}s` : '2'}</span>
                     </div>
                   </button>
                 );
