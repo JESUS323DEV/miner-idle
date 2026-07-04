@@ -107,14 +107,26 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
         });
     };
 
-    // ========== PODER ==========
+    // ========== PODER — recarga hasta 2 cargas, cooldown 30s ==========
     const handleActivatePoder = () => {
         setGameState(prevState => {
             const now = Date.now();
             if (prevState.poderCooldownUntil && now < prevState.poderCooldownUntil) return prevState;
-            // Efecto: por definir. Por ahora activa un uso extra de automine sin gastar carga
+            if (!prevState.automine?.unlocked) return prevState;
+
+            let recharged = 0;
+            const newCharges = prevState.automine.charges.map(c => {
+                if (!c.available && recharged < 2) {
+                    recharged++;
+                    return { available: true, cooldownUntil: null };
+                }
+                return c;
+            });
+            if (recharged === 0) return prevState;
+
             return {
                 ...prevState,
+                automine: { ...prevState.automine, charges: newCharges },
                 poderCooldownUntil: now + (AutomineConfig.poderCooldown * 1000),
             };
         });

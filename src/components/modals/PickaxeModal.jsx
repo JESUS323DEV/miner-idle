@@ -69,6 +69,12 @@ const PickaxeModal = ({
     onShowGoldCost = null,
     materialIngotCost = null,
     tierIngotCost = null,
+    onAutomineUpgrade = null,
+    automineLevel = 0,
+    automineMax = 4,
+    automineNextCost = null,
+    canAffordAutomineUpgrade = false,
+    automineUnlocked = false,
 }) => {
     if (!isOpen) return null;
 
@@ -147,7 +153,25 @@ const PickaxeModal = ({
 
                 <div className="cont-snack-stamina">
                     <div className="snack1-stamina">
-                        <p>Snack Durabilidad (Próximamente)</p>
+                        {!automineUnlocked ? (
+                            <p>Mejora Recarga<br/><small>(Desbloquea autominar)</small></p>
+                        ) : automineLevel >= automineMax ? (
+                            <p>Recarga<br/>al máximo</p>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+                                <p style={{ margin: 0, fontSize: '0.72rem' }}>Recarga autominar<br/>Nv {automineLevel}/{automineMax}</p>
+                                <button
+                                    className={`btn-upgrade${!canAffordAutomineUpgrade ? ' locked' : ''}`}
+                                    onClick={onAutomineUpgrade}
+                                    disabled={!canAffordAutomineUpgrade}
+                                >
+                                    <span style={{ fontSize: '0.75rem', display: 'block' }}>Mejorar</span>
+                                    <span className="info-tier">
+                                        {formatNumber(automineNextCost)}<img src={iconGold} alt="Gold" />
+                                    </span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className="snack2-repair">
                         <p>Snack Reparación (Próximamente)</p>

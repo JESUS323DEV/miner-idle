@@ -782,6 +782,11 @@ button:not(:disabled) .lock-price-badge img {
     opacity: 0.45;
 }
 
+.sat-upgrade.on-cooldown {
+    border-color: rgba(255, 160, 40, 0.5);
+    opacity: 0.7;
+}
+
 /* ---- Poder — circular ---- */
 .sat-poder {
     width: 1.7rem;
