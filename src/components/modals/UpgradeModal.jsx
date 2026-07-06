@@ -99,7 +99,7 @@ const UpgradeModal = ({
 
 
                                 <span className='info-gold'>
-                                    coste: {formatNumber(cost)}
+                                    {formatNumber(cost)}
                                     <img className='iconGold' src={iconGold} alt="Gold" />
                                     {coinCost !== undefined && (
                                         <> {coinCost} <img className='iconGold2' src={coinTavern} alt="coinTavern" /></>
@@ -277,10 +277,7 @@ const UpgradeModal = ({
                                     )}
                                 </div>
 
-                                {/* BEBIDA — placeholder */}
-                                <div className='snack2'>
-                                    <p>🥤 Bebida (Próximamente)</p>
-                                </div>
+                              
 
                                 {/* PASTEL — placeholder (comentado)
                                 <div style={{

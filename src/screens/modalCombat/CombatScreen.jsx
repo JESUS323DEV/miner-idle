@@ -813,17 +813,27 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             const miners = hiredDogs.filter(d => !ForgeDogsConfig[d.id]).sort(byStars);
                             const forge  = hiredDogs.filter(d =>  ForgeDogsConfig[d.id]).sort(byStars);
 
+                            const minerSelected = !!team[1];
+                            const selectedMinerCfg = minerSelected ? getConfig(team[1]) : null;
+
                             return (
                                 <>
                                     {miners.length > 0 && (
                                         <div className="cdl-section">
-                                            <span className="cdl-section-title"><Pickaxe size={12} /> Mineros</span>
-                                            <div className="combat-dogs-grid">
-                                                {miners.map(renderCard)}
-                                            </div>
+                                            <span className="cdl-section-title">
+                                                <Pickaxe size={12} /> Mineros
+                                                {minerSelected && (
+                                                    <span className="cdl-section-selected-text">{selectedMinerCfg?.name}</span>
+                                                )}
+                                            </span>
+                                            {!minerSelected && (
+                                                <div className="combat-dogs-grid">
+                                                    {miners.map(renderCard)}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
-                                    {forge.length > 0 && (
+                                    {forge.length > 0 && minerSelected && (
                                         <div className="cdl-section">
                                             <span className="cdl-section-title"><Flame size={12} /> Forja</span>
                                             <div className="combat-dogs-grid">
