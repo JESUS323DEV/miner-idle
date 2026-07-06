@@ -654,7 +654,7 @@ function GameRoot({ onBack }) {
   // ===== RENDER =====
   const [debugOpen, setDebugOpen] = useState(false);
   const MINER_DOGS = ['lady','tokio','tuka','muna','chihuahua','bully','smoke','nupito','boxer','druh','gordo','zeus'];
-  const FORGE_DOGS  = ['pip','koda','milo','rocky','bruno','max','rex','toby','buddy'];
+  const FORGE_DOGS  = ['pip','koda','milo','rocky','bruno','max','rex','toby','buddy','dayo'];
   const handleDebugSetStars = (dogId, delta) => {
     setGameState(prev => {
       const dog = prev.dogs[dogId];
@@ -719,6 +719,12 @@ function GameRoot({ onBack }) {
                 <button onClick={() => handleDebugSetStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
               </div>
             ))}
+            {/* COMBATE */}
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>COMBATE</span>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, raidAttempts: {} }))}
+              style={{ fontSize:10, padding:'2px 4px', background:'#220033', color:'#cc88ff', border:'1px solid #cc88ff', borderRadius:3, cursor:'pointer' }}
+            >reset cooldowns</button>
             {/* FORJA */}
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>FORJA</span>
             <button

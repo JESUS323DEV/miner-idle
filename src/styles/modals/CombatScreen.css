@@ -918,6 +918,12 @@
     border: 1px solid rgba(79,195,247,0.3);
 }
 
+.effect-electrico {
+    color: #ffe033;
+    background: rgba(255,224,51,0.1);
+    border: 1px solid rgba(255,224,51,0.3);
+}
+
 .effect-fuego {
     color: #ff6b35;
     background: rgba(255,107,53,0.1);
