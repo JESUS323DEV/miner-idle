@@ -39,12 +39,6 @@
     z-index: -1;
 }
 
-.modal-content h2 {
-    color: white;
-    width: 100%;
-    padding-bottom: 1rem;
-}
-
 /* ===== LAYOUT INTERIOR ===== */
 .modal {
     display: flex;
@@ -73,35 +67,11 @@
     height: 30px;
 }
 
-/* ===== TUTORIAL POINTER ===== */
-.title-modal {
-    position: absolute;
-    top: 7.5rem;
-    left: 7.4rem;
-    font-size: 3rem;
-    z-index: 20;
-}
-
-@keyframes point-right {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    50% {
-        transform: translateX(10px);
-    }
-}
-
-.title-modal p {
-    color: #FFD700;
-}
 
 /* ===== SECCIÓN ICONO + NIVEL ===== */
 .modal-info {
     text-align: center;
-    gap: 3rem;
+    gap: 1.5rem;
 
     display: flex;
     justify-content: center;
@@ -128,7 +98,7 @@
 }
 
 .gold-info img {
-    width: 100px;
+    width: 150px;
     height: auto;
 
 }
@@ -235,10 +205,6 @@
     width: 100%;
 }
 
-.cont-snacks h3 {
-    font-size: 1.5rem;
-    color: white;
-}
 
 .container-snacks {
     width: 100%;
@@ -250,13 +216,12 @@
     color: white;
     border: 1px solid rgba(225, 112, 0, 0.736);
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
-    flex-direction: column;
     gap: 0.5rem;
     background-color: rgba(0, 0, 0, 0.467);
     padding: 0.5rem 0.5rem;
-    min-width: 170px;
+    width: 100%;
     margin: auto;
 }
 
@@ -303,45 +268,110 @@
 
 
 
-/* Placeholder próximamente */
-.snack2 {
-    width: 40%;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    opacity: 0.7;
-    border: 1px solid rgba(225, 112, 0, 0.736);
-    min-width: 170px;
-}
-
 
 /*================================cont-snack-stamina=====================*/
 
 .cont-snack-stamina {
-
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    gap: 0.8rem;
-
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0 0.6rem;
 }
 
-.snack1-stamina,
-.snack2-repair {
-
+.snack1-stamina {
     text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    border: 1px solid rgba(225, 112, 0, 0.736);
-    min-width: 170px;
-    padding: 3rem 0;
-    background-color: rgba(0, 0, 0, 0.467);
+    border: 1px solid rgba(225, 112, 0, 0.7);
+    flex: 1;
+    min-width: 0;
+    padding: 0.9rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
 
+.snack2-repair {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+    color: white;
+    border: 1px solid rgba(180, 90, 0, 0.3);
+    flex: 1;
+    min-width: 0;
+    padding: 0.9rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+}
 
+/* ===== SLOT UPGRADE — contenido del slot de mejora ===== */
+.slot-upgrade-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 0.45rem;
+    width: 100%;
+}
+
+.slot-upgrade-title {
+    margin: 0;
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 215, 130, 0.95);
+    line-height: 1.3;
+}
+
+.slot-upgrade-lvl {
+    font-size: 0.68rem;
+    color: #ffd740;
+    font-weight: 600;
+}
+
+.btn-slot-upgrade {
+    background: linear-gradient(145deg, #5a2d00, #924600);
+    color: #ffd740;
+    border: 1.5px solid rgba(255, 185, 50, 0.65);
+    border-radius: 5px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-slot-upgrade:hover:not(:disabled) {
+    background: linear-gradient(145deg, #924600, #c06000);
+    transform: scale(1.04);
+}
+
+.btn-slot-upgrade.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slot-soon-name {
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 165, 80, 0.45);
+}
+
+.slot-soon-tag {
+    font-size: 0.55rem;
+    color: rgba(255, 130, 0, 0.35);
+    font-style: italic;
 }
 
 /* ===== TUTORIAL IN-MODAL ===== */
@@ -362,17 +392,6 @@
     animation: tutorial-scale-pulse 0.85s ease-in-out infinite;
 }
 
-@keyframes point-down {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(7px);
-    }
-}
 
 .tutorial-hand-above {
     font-size: 2.2rem;

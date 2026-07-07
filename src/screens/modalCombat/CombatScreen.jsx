@@ -97,7 +97,7 @@ const ELEMENT_ICON = {
 
 const MINER_COMBAT_INFO = {
     fuego:     { ult: 'Bola de fuego',   passive: 'Golpe de daño directo. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
-    electrico: { ult: 'Bola electrica',  passive: 'Activa golpes dobles durante X taps. Cantidad aumenta con rareza y estrellas.' },
+    electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Usala 3 veces para igualar el daño de una bola de fuego.' },
     tierra:    { ult: 'Terremoto',       passive: 'Golpe de daño directo mas potente. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
     agua:      { ult: 'Pistola de agua', passive: 'Multiplica el daño durante X taps. Multiplicador y taps aumentan con rareza y estrellas.' },
     oscuro:    { ult: 'Furia',           passive: 'Los proximos X taps hacen daño extra segun la HP actual del enemigo.' },
@@ -167,6 +167,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [ultCooldown, setUltCooldown]           = useState(0);
     const [activeEffect, setActiveEffect]         = useState(null);
     const [heatStacks, setHeatStacks]             = useState(0);
+    const [electricStacks, setElectricStacks]     = useState(0);
     const [autoUlt, setAutoUlt]                   = useState(false);
     const [autoFiring, setAutoFiring]             = useState(false);
     const [combatTutStep, setCombatTutStep]       = useState(null);
@@ -437,6 +438,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const defense = activeEnemy?.defense ?? 0;
         dmg = Math.round(Math.max(1, dmg - defense));
 
+        const activeCfg = activeId ? getConfig(activeId) : null;
+        const isElectricMiner = activeCfg?.element === 'electrico' && !ForgeDogsConfig[activeId];
+        if (isElectricMiner && electricStacks > 0) {
+            const stars = gameState.dogs?.[activeId]?.stars ?? 0;
+            const base  = activeCfg.rarity === 'legendary' ? 15 : activeCfg.rarity === 'epic' ? 10 : 5;
+            dmg += electricStacks * (base + stars * 0.6);
+        }
         const isGuaranteedDouble = activeEffect?.type === 'doubleHits' && activeEffect.remaining > 0;
         const isDoubleHit = isGuaranteedDouble || Math.random() < passive.doubleHitChance;
         setEnemyHp(prev => Math.max(0, prev - (isDoubleHit ? dmg * 2 : dmg)));
@@ -492,9 +500,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     break;
                 }
                 case 'electrico': {
-                    const stars = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const base  = cfg.rarity === 'legendary' ? 6 : cfg.rarity === 'epic' ? 4 : 2;
-                    setActiveEffect({ type: 'doubleHits', remaining: Math.round(base + stars * 0.4) });
+                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const baseDmg = cfg.rarity === 'legendary' ? 15 : 10;
+                    const baseCd  = cfg.rarity === 'legendary' ? 5 : 6;
+                    const cdStep  = cfg.rarity === 'legendary' ? 0.2 : 0.3;
+                    setUltCooldown(Math.round(baseCd - stars * cdStep));
+                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 10)));
+                    setElectricStacks(prev => Math.min(3, prev + 1));
                     break;
                 }
                 case 'tierra': {
@@ -573,6 +585,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setAbilityCooldowns({});
         setSwitchCooldowns({});
         setHeatStacks(0);
+        setElectricStacks(0);
         setActiveEffect(null);
         setUltCooldown(0);
         setEnemyHp(activeEnemy.hp);
@@ -813,17 +826,27 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             const miners = hiredDogs.filter(d => !ForgeDogsConfig[d.id]).sort(byStars);
                             const forge  = hiredDogs.filter(d =>  ForgeDogsConfig[d.id]).sort(byStars);
 
+                            const minerSelected = !!team[1];
+                            const selectedMinerCfg = minerSelected ? getConfig(team[1]) : null;
+
                             return (
                                 <>
                                     {miners.length > 0 && (
                                         <div className="cdl-section">
-                                            <span className="cdl-section-title"><Pickaxe size={12} /> Mineros</span>
-                                            <div className="combat-dogs-grid">
-                                                {miners.map(renderCard)}
-                                            </div>
+                                            <span className="cdl-section-title">
+                                                <Pickaxe size={12} /> Mineros
+                                                {minerSelected && (
+                                                    <span className="cdl-section-selected-text">{selectedMinerCfg?.name}</span>
+                                                )}
+                                            </span>
+                                            {!minerSelected && (
+                                                <div className="combat-dogs-grid">
+                                                    {miners.map(renderCard)}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
-                                    {forge.length > 0 && (
+                                    {forge.length > 0 && minerSelected && (
                                         <div className="cdl-section">
                                             <span className="cdl-section-title"><Flame size={12} /> Forja</span>
                                             <div className="combat-dogs-grid">
@@ -975,6 +998,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {heatStacks > 0 && (
                             <span className="combat-effect-badge effect-fuego">
                                 <Flame size={11} color="#ff6b35" /> {heatStacks}
+                            </span>
+                        )}
+                        {electricStacks > 0 && (
+                            <span className="combat-effect-badge effect-electrico">
+                                <Zap size={11} color="#ffe033" /> {electricStacks}/3
                             </span>
                         )}
                     </div>

@@ -63,6 +63,7 @@ const dogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
     rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
+    dayo: forgeIcon1,
 };
 
 const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };

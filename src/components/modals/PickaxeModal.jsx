@@ -97,7 +97,7 @@ const PickaxeModal = ({
                     {/* INFO PICO */}
                     <div className="pickaxe-modal-info">
                         <p>Pico {getMaterialName(pickaxeMaterial)} {currentLevel}</p>
-                        <img src={iconImage} loading="lazy" alt="Pickaxe" />
+                        <img src={iconImage} alt="Pickaxe" />
                     </div>
 
                     {/* ZONA DE UPGRADE */}
@@ -110,7 +110,7 @@ const PickaxeModal = ({
                                 disabled={!canAfford}
                                 data-tutorial="tut-pickaxe-modal"
                             >
-                                <img src={buttonImage} loading="lazy" alt="Upgrade" />
+                                <img src={buttonImage} alt="Upgrade" />
                                 <span className="info-tier">
                                     {formatNumber(cost)}<img src={iconGold} alt="Gold" />
                                     {tierIngotCost && (
@@ -128,7 +128,7 @@ const PickaxeModal = ({
                                 onClick={() => { onShowGoldCost?.(materialCost); onUpgradeMaterial(); }}
                                 disabled={!canAffordMaterial}
                             >
-                                <img src={materialButtonImage} loading="lazy" alt="Upgrade Material" />
+                                <img src={materialButtonImage} alt="Upgrade Material" />
                             </button>
                         )}
 
@@ -154,27 +154,40 @@ const PickaxeModal = ({
                 <div className="cont-snack-stamina">
                     <div className="snack1-stamina">
                         {!automineUnlocked ? (
-                            <p>Mejora Recarga<br/><small>(Desbloquea autominar)</small></p>
+                            <div className="slot-upgrade-content">
+                                <p className="slot-upgrade-title">Recarga Autominar</p>
+                                <small className="slot-soon-tag">Desbloquea autominar</small>
+                            </div>
                         ) : automineLevel >= automineMax ? (
-                            <p>Recarga<br/>al máximo</p>
+                            <div className="slot-upgrade-content">
+                                <p className="slot-upgrade-title">Recarga Autominar</p>
+                                <small className="slot-soon-tag">Al maximo</small>
+                            </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
-                                <p style={{ margin: 0, fontSize: '0.72rem' }}>Recarga autominar<br/>Nv {automineLevel}/{automineMax}</p>
+                            <div className="slot-upgrade-content">
+                                <div>
+
+                                    <p className="slot-upgrade-title">Recarga Autominar</p>
+                                    <span className="slot-upgrade-lvl">Nv {automineLevel}</span>
+                                </div>
+
                                 <button
-                                    className={`btn-upgrade${!canAffordAutomineUpgrade ? ' locked' : ''}`}
+                                    className={`btn-slot-upgrade${!canAffordAutomineUpgrade ? ' locked' : ''}`}
                                     onClick={onAutomineUpgrade}
                                     disabled={!canAffordAutomineUpgrade}
                                 >
-                                    <span style={{ fontSize: '0.75rem', display: 'block' }}>Mejorar</span>
+                                    Mejorar
                                     <span className="info-tier">
                                         {formatNumber(automineNextCost)}<img src={iconGold} alt="Gold" />
                                     </span>
+
                                 </button>
                             </div>
                         )}
                     </div>
                     <div className="snack2-repair">
-                        <p>Snack Reparación (Próximamente)</p>
+                        <span className="slot-soon-name">Snack Reparacion</span>
+                        <span className="slot-soon-tag">Proximamente</span>
                     </div>
                 </div>
 

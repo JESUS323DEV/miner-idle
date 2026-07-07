@@ -104,10 +104,16 @@ export const loadSavedState = () => {
         migratedDogs[key] = updated;
     });
 
+    const mergedForgeDogs = {
+        ...InitialForgeDogsState,
+        ...(loaded.forgeDogs ?? {}),
+    };
+
     return {
         ...InitialGameState,
         ...loaded,
         dogs: migratedDogs,
+        forgeDogs: mergedForgeDogs,
         yacimientos: migratedYac,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,

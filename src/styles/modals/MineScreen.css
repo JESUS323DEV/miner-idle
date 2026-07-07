@@ -321,8 +321,6 @@
     align-items: center;
     gap: 5px;
     padding-top: 1rem;
-
-
 }
 
 /* Si hay 3 menas, la tercera ocupa 2 columnas (centrada abajo) */
@@ -402,8 +400,6 @@
 /* ========== ICONO DE VENA ========== */
 
 .vein-icon img {
-    width: 130px;
-    height: 80px;
     object-fit: contain;
 }
 

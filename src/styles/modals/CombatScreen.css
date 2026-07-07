@@ -417,6 +417,15 @@
 }
 
 
+.cdl-section-selected-text {
+    margin-left: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: rgba(255, 220, 120, 0.7);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
 .combat-dogs-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -907,6 +916,12 @@
     color: #4fc3f7;
     background: rgba(79,195,247,0.1);
     border: 1px solid rgba(79,195,247,0.3);
+}
+
+.effect-electrico {
+    color: #ffe033;
+    background: rgba(255,224,51,0.1);
+    border: 1px solid rgba(255,224,51,0.3);
 }
 
 .effect-fuego {

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import '../../styles/modals/MinesMapModal.css';
 import '../../styles/modals/MineScreen.css';
 import MinesConfig from '../../game/config/MinesConfig.js';
@@ -7,6 +7,13 @@ import { DogsConfig, RARITY_COLORS } from '../../game/config/DogsConfig.js';
 import { SESSION_DURATION, COOLDOWN_DURATION } from '../../game/initialState/InitialYacimientosState.js';
 import { MineCompanionConfig, ELEMENT_COLORS } from '../../game/config/MineCompanionConfig.js';
 import { formatNumber2 } from '../../game/utils/formatters.js';
+
+// Posición de cada boca de túnel como fracción del tamaño de la imagen fuente
+const TUNNEL_POS = {
+    bronze:  { lvl1: { x: 0.25, y: 0.35 }, lvl2: { x: 0.47, y: 0.29 }, lvl3: { x: 0.74, y: 0.30 } },
+    iron:    { lvl1: { x: 0.21, y: 0.33 }, lvl2: { x: 0.46, y: 0.27 }, lvl3: { x: 0.80, y: 0.27 } },
+    diamond: { lvl1: { x: 0.21, y: 0.29 }, lvl2: { x: 0.46, y: 0.26 }, lvl3: { x: 0.74, y: 0.29 } },
+};
 
 const BIOME_INTRO = {
     bronze:  { title: "Mina de Bronce",   text: "Explora minas de extracción para conseguir materiales con tu pico y desbloquea puestos mineros donde tus mascotas trabajarán por ti incluso cuando no estés minando. Después, convierte las menas en valiosos lingotes en la forja para mejorar tu equipo y seguir avanzando." },
@@ -80,12 +87,49 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
     const { unlockedTypes, bestScores } = mines;
     const minesConfig = MinesConfig;
 
+    const containerRef = useRef(null);
+    const [cardPositions, setCardPositions] = useState({});
     const [showIntro, setShowIntro] = useState(false);
     const [compAnimTick, setCompAnimTick] = useState(0);
     const lastCompTickRef = useRef(null);
     const [preEntryMine, setPreEntryMine] = useState(null);
     const [selectedCompanion, setSelectedCompanion] = useState(null);
     const [mineCompModalOpen, setMineCompModalOpen] = useState(false);
+
+    useLayoutEffect(() => {
+        if (!isOpen || !selectedBiome || !bgImage || !containerRef.current) return;
+
+        const compute = () => {
+            if (!containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            const contW = rect.width;
+            const contH = rect.height;
+            const img = new Image();
+            img.onload = () => {
+                const imgW = img.naturalWidth;
+                const imgH = img.naturalHeight;
+                const scale = Math.max(contW / imgW, contH / imgH);
+                const renderedW = imgW * scale;
+                const renderedH = imgH * scale;
+                const offsetX = (contW - renderedW) / 2;
+                const offsetY = (contH - renderedH) / 2;
+                const tunnels = TUNNEL_POS[selectedBiome] ?? {};
+                const positions = {};
+                for (const [level, pos] of Object.entries(tunnels)) {
+                    positions[level] = {
+                        left: Math.round(pos.x * renderedW + offsetX),
+                        top: Math.round(pos.y * renderedH + offsetY),
+                    };
+                }
+                setCardPositions(positions);
+            };
+            img.src = bgImage;
+        };
+
+        compute();
+        window.addEventListener('resize', compute);
+        return () => window.removeEventListener('resize', compute);
+    }, [isOpen, selectedBiome, bgImage]);
 
     useEffect(() => {
         if (!isOpen || !selectedBiome) return;
@@ -137,7 +181,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
 
     return (
         <div className="modal-overlay1" >
-            <div className="mines-modal-content" onClick={(e) => e.stopPropagation()}
+            <div className="mines-modal-content" ref={containerRef} onClick={(e) => e.stopPropagation()}
                 style={{ backgroundImage: bgImage ? `url(${bgImage})` : 'none' }}
             >
                 {showIntro && BIOME_INTRO[selectedBiome] && (
@@ -171,8 +215,11 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
 
+                        const pos = cardPositions[level];
                         return (
-                            <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}>
+                            <div key={type} className={`mine-card mine-card-${baseMineType} mine-card-${level}`}
+                                style={pos ? { position: 'absolute', left: pos.left, top: pos.top, transform: 'translate(-50%, -50%)' } : undefined}
+                            >
                                 <button
                                     className={`btn-enter-mine${!set1Complete ? ' locked' : ''}`}
                                     onClick={() => { if (set1Complete) { setPreEntryMine(type); setSelectedCompanion(null); } }}
@@ -195,8 +242,11 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                         const baseMineType = type.replace('_lvl2', '').replace('_lvl3', '');
                         const level = type.includes('_lvl3') ? 'lvl3' : type.includes('_lvl2') ? 'lvl2' : 'lvl1';
 
+                        const pos2 = cardPositions[level];
                         return (
-                            <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}>
+                            <div key={type} className={`mine-card locked mine-card-${baseMineType} mine-card-${level}`}
+                                style={pos2 ? { position: 'absolute', left: pos2.left, top: pos2.top, transform: 'translate(-50%, -50%)' } : undefined}
+                            >
                                 {config.requiresStars && !meetsStarRequirement && (
                                     <span className="mine-star-req">
                                         {config.requiresStars.stars} estrellas {config.requiresStars.mineType}

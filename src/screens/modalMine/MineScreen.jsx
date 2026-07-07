@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
 import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
@@ -85,6 +85,7 @@ const MineScreen = ({ isOpen, onClose }) => {
 
   const currentMine = gameState.mines.currentMine;
 
+  const [veinImgSize, setVeinImgSize] = useState({ w: 130, h: 80, marginTop: 0 });
   const [showCompleted, setShowCompleted] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [animTriggers, setAnimTriggers] = useState({});
@@ -95,6 +96,16 @@ const MineScreen = ({ isOpen, onClose }) => {
   const automineRef = useRef(null);
   const mineContentRef = useRef(null);
   const currentMineRef = useRef(currentMine);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !mineContentRef.current) return;
+    const contentH = mineContentRef.current.getBoundingClientRect().height;
+    const availableH = Math.max(160, contentH - 240);
+    const imgH = Math.max(80, Math.min(110, Math.round(availableH / 2 * 0.65)));
+    const veinGroupH = 2 * imgH + 21;
+    const marginTop = Math.max(0, Math.round((availableH - veinGroupH) / 2));
+    setVeinImgSize({ w: Math.round(imgH * 1.625), h: imgH, marginTop });
+  }, [isOpen]);
   useEffect(() => { currentMineRef.current = currentMine; }, [currentMine]);
 
   const totalRemaining = currentMine?.veins?.reduce((s, v) => s + v.remaining, 0) ?? 1;
@@ -256,7 +267,7 @@ const MineScreen = ({ isOpen, onClose }) => {
 
 
         {/* VENAS */}
-        <div className="veins-container">
+        <div className="veins-container" style={{ marginTop: veinImgSize.marginTop }}>
           {currentMine.veins.map((vein) => (
             <Vein
               key={vein.id}
@@ -269,6 +280,7 @@ const MineScreen = ({ isOpen, onClose }) => {
               earthTrigger={earthTriggers[vein.id] || null}
               electricTrigger={electricVeinTrigger?.veinId === vein.id ? electricVeinTrigger : null}
               waterTrigger={waterVeinTrigger?.veinId === vein.id ? waterVeinTrigger : null}
+              veinImgSize={veinImgSize}
             />
           ))}
         </div>
@@ -412,7 +424,7 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
 
 // ===================== VENA (solo visual, no clickeable) =====================
 
-const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthTrigger, electricTrigger, waterTrigger }) => {
+const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthTrigger, electricTrigger, waterTrigger, veinImgSize }) => {
   const [isShaking, setIsShaking] = useState(false);
   const [isEarthFlash, setIsEarthFlash] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState([]);
@@ -486,7 +498,7 @@ const Vein = ({ vein, menaImg, hudImg, ingotImg, animTrigger, ultTrigger, earthT
       className={`vein vein-auto${isShaking ? ' shake' : ''}${isDepleted ? ' depleted' : ''}${isEarthFlash ? ' vein-earth-flash' : ''}`}
     >
       <div className="vein-icon">
-        <img src={menaImg} alt="mena" className="vein-img" />
+        <img src={menaImg} alt="mena" className="vein-img" style={{ width: veinImgSize.w, height: veinImgSize.h }} />
       </div>
       <div className="vein-counter">{vein.remaining}/{vein.max}</div>
 

@@ -8,4 +8,5 @@ export const InitialForgeDogsState = {
     rex:   { id: 'rex',   hired: false, assignedTo: null, stars: 0, fragments: 0 },
     toby:  { id: 'toby',  hired: false, assignedTo: null, stars: 0, fragments: 0 },
     buddy: { id: 'buddy', hired: false, assignedTo: null, stars: 0, fragments: 0 },
+    dayo:  { id: 'dayo',  hired: false, assignedTo: null, stars: 0, fragments: 0 },
 };

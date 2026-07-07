@@ -81,7 +81,7 @@ const UpgradeModal = ({
                     <div className="modal-info">
 
                         <div className='gold-info'>
-                            <img src={iconImage} loading='lazy' alt="icon" />
+                            <img src={iconImage} alt="icon" />
                             <p>{currentLevel}</p>
                         </div>
 
@@ -94,12 +94,12 @@ const UpgradeModal = ({
                                     disabled={!canAfford}
                                     data-tutorial={tutorialHint === 'goldPerSecond' ? 'tut-gold-modal' : tutorialHint === 'stamina' ? 'tut-stamina-modal' : undefined}
                                 >
-                                    <img src={buttonImage} loading='lazy' alt="Upgrade" />
+                                    <img src={buttonImage} alt="Upgrade" />
                                 </button>
 
 
                                 <span className='info-gold'>
-                                    coste: {formatNumber(cost)}
+                                    {formatNumber(cost)}
                                     <img className='iconGold' src={iconGold} alt="Gold" />
                                     {coinCost !== undefined && (
                                         <> {coinCost} <img className='iconGold2' src={coinTavern} alt="coinTavern" /></>
@@ -117,7 +117,7 @@ const UpgradeModal = ({
                                         onClick={secondUpgrade.onUpgrade}
                                         disabled={!secondUpgrade.canAfford}
                                     >
-                                        <img src={buttonImage} loading='lazy' alt="Upgrade" />
+                                        <img src={buttonImage} alt="Upgrade" />
                                     </button>
                                     <span className='info-gold'>
                                         coste: {formatNumber(secondUpgrade.cost)}
@@ -136,7 +136,7 @@ const UpgradeModal = ({
                             onClick={onRefill}
                             disabled={!canAffordRefill}
                         >
-                            <img src={refillButtonImage} loading='lazy' alt="Recargar" />
+                            <img src={refillButtonImage} alt="Recargar" />
                             <p>{refillCost} Oro</p>
                         </button>
                     )}*/}
@@ -277,10 +277,7 @@ const UpgradeModal = ({
                                     )}
                                 </div>
 
-                                {/* BEBIDA — placeholder */}
-                                <div className='snack2'>
-                                    <p>🥤 Bebida (Próximamente)</p>
-                                </div>
+                              
 
                                 {/* PASTEL — placeholder (comentado)
                                 <div style={{

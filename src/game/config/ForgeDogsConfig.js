@@ -142,5 +142,21 @@ export const ForgeDogsConfig = {
             biomeBonus: { bronze: 0, iron: 0, diamond: 2 }
         },
         globalSlotBonus: { type: 'maxDurability', value: 5 },
-    }
+    },
+    dayo: {
+        rarity: 'legendary',
+        id: 'dayo',
+        name: 'Dayo',
+        element: 'electrico',
+        unlockCost: { gold: 1200000, tavernCoins: 26 },
+        starBonus: 0.20,
+        unlockFragments: 150,
+        starFragments: [200, 400, 600, 800, 1000],
+        forgeBonus: {
+            timeReduction: 3,
+            doubleIngot: 0.12,
+            biomeBonus: { bronze: 0, iron: 2, diamond: 1 }
+        },
+        globalSlotBonus: { type: 'burstRecharge', chance: 0.10 },
+    },
 };

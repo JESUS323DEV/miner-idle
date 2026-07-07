@@ -208,7 +208,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                         >
                                             <span className="icon-info-gold">
                                                 🔒 {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
-                                                <img src={iconGold} loading="lazy" alt="Oro" />
+                                                <img src={iconGold} alt="Oro" />
                                             </span>
                                         </button>
                                     ) : furnace.isActive ? (
@@ -236,7 +236,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                 <img src={buttonUpgrade} alt="Upgrade" />
                                                 <span className="icon-info-gold">
                                                     <small>{formatNumber(upgradeCost)}</small>
-                                                    <img src={iconGold} loading="lazy" alt="oro" />
+                                                    <img src={iconGold} alt="oro" />
                                                 </span>
                                             </span>
                                         </button>
