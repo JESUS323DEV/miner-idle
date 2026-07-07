@@ -101,7 +101,7 @@ const MineScreen = ({ isOpen, onClose }) => {
     if (!isOpen || !mineContentRef.current) return;
     const contentH = mineContentRef.current.getBoundingClientRect().height;
     const availableH = Math.max(160, contentH - 240);
-    const imgH = Math.min(110, Math.round(availableH / 2 * 0.65));
+    const imgH = Math.max(80, Math.min(110, Math.round(availableH / 2 * 0.65)));
     const veinGroupH = 2 * imgH + 21;
     const marginTop = Math.max(0, Math.round((availableH - veinGroupH) / 2));
     setVeinImgSize({ w: Math.round(imgH * 1.625), h: imgH, marginTop });
