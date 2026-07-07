@@ -378,8 +378,8 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
         {/* ULT */}
         <div className="companion-ult-row">
           {!isSessionSpeed ? (() => {
-            const pwType = ultType === 'timed_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth';
-            const pwIcon = { fire: powerFire, electric: powerElectric, water: powerWater, earth: powerEarth }[pwType];
+            const pwType = ultType === 'timed_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : ultType === 'once_earthquake' ? 'earth' : 'fury';
+            const pwIcon = { fire: powerFire, electric: powerElectric, water: powerWater, earth: powerEarth, fury: powerFuria }[pwType];
             return (
               <button
                 className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${pwType}`}

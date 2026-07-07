@@ -69,10 +69,9 @@ export const MineCompanionConfig = {
     chihuahua: {
         element: 'oscuro',
         ult: {
-            type: 'session_speed',
+            type: 'session_bounce',
             name: 'Furia',
-            baseBonus: 0.50,
-            starScale: 0.10, // → +100% at 5★
+            starRanges: [[1,1],[1,2],[1,2],[2,3],[2,3],[2,3]],
         },
     },
 
@@ -98,11 +97,9 @@ export const MineCompanionConfig = {
     nupito: {
         element: 'oscuro',
         ult: {
-            type: 'timed_speed',
+            type: 'session_bounce',
             name: 'Furia',
-            duration: 15000,
-            baseBonus: 0.30,
-            starScale: 0.06, // → +60% at 5★
+            starRanges: [[1,2],[1,2],[1,3],[2,3],[2,4],[3,4]],
         },
     },
 
@@ -135,11 +132,9 @@ export const MineCompanionConfig = {
     zeus: {
         element: 'oscuro',
         ult: {
-            type: 'timed_speed',
+            type: 'session_bounce',
             name: 'Furia',
-            duration: 10000,
-            baseBonus: 0.15,
-            starScale: 0.04, // → 35% at 5★
+            starRanges: [[1,1],[1,1],[1,2],[1,2],[1,3],[1,3]],
         },
     },
 };
