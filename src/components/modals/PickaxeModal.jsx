@@ -97,7 +97,7 @@ const PickaxeModal = ({
                     {/* INFO PICO */}
                     <div className="pickaxe-modal-info">
                         <p>Pico {getMaterialName(pickaxeMaterial)} {currentLevel}</p>
-                        <img src={iconImage} loading="lazy" alt="Pickaxe" />
+                        <img src={iconImage} alt="Pickaxe" />
                     </div>
 
                     {/* ZONA DE UPGRADE */}
@@ -110,7 +110,7 @@ const PickaxeModal = ({
                                 disabled={!canAfford}
                                 data-tutorial="tut-pickaxe-modal"
                             >
-                                <img src={buttonImage} loading="lazy" alt="Upgrade" />
+                                <img src={buttonImage} alt="Upgrade" />
                                 <span className="info-tier">
                                     {formatNumber(cost)}<img src={iconGold} alt="Gold" />
                                     {tierIngotCost && (
@@ -128,7 +128,7 @@ const PickaxeModal = ({
                                 onClick={() => { onShowGoldCost?.(materialCost); onUpgradeMaterial(); }}
                                 disabled={!canAffordMaterial}
                             >
-                                <img src={materialButtonImage} loading="lazy" alt="Upgrade Material" />
+                                <img src={materialButtonImage} alt="Upgrade Material" />
                             </button>
                         )}
 

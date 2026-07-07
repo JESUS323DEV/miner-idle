@@ -682,7 +682,7 @@ function GameRoot({ onBack }) {
           <button className="game-back-btn" onClick={onBack} title="Volver">‹</button>
         )}
         {/* DEBUG */}
-        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer' }}>
+        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer', opacity:0 }}>
           DEV
         </button>
         {debugOpen && (
@@ -787,17 +787,17 @@ function GameRoot({ onBack }) {
 
                 <div className="cont-icon-menas">
                   <div className="icon-menas">
-                    <img src={menaBronze} loading="lazy" alt="menaBronze" />
+                    <img src={menaBronze} alt="menaBronze" />
                     <span>{formatNumber2(gameState.bronze)}</span>
                   </div>
 
                   <div className="icon-menas">
-                    <img src={menaIron} loading="lazy" alt="menaIron" />
+                    <img src={menaIron} alt="menaIron" />
                     <span>{formatNumber2(gameState.iron)}</span>
                   </div>
 
                   <div className="icon-menas">
-                    <img src={menaDiamond} loading="lazy" alt="menaDiamond" />
+                    <img src={menaDiamond} alt="menaDiamond" />
                     <span>{formatNumber2(gameState.diamond)}</span>
                   </div>
                 </div>
@@ -817,17 +817,17 @@ function GameRoot({ onBack }) {
 
                 <div className="container-lingotes">
                   <div className="icon-lingotes">
-                    <img src={iconBronze} loading="lazy" alt="iconBronze" />
+                    <img src={iconBronze} alt="iconBronze" />
                     <span>{formatNumber2(gameState.bronzeIngot)}</span>
                   </div>
 
                   <div className="icon-lingotes">
-                    <img src={iconIron} loading="lazy" alt="iconIron" />
+                    <img src={iconIron} alt="iconIron" />
                     <span>{formatNumber2(gameState.ironIngot)}</span>
                   </div>
 
                   <div className="icon-lingotes">
-                    <img src={iconDiamond} loading="lazy" alt="iconDiamond" />
+                    <img src={iconDiamond} alt="iconDiamond" />
                     <span>{formatNumber2(gameState.diamondIngot)}</span>
                   </div>
                 </div>
@@ -900,7 +900,7 @@ function GameRoot({ onBack }) {
             <button
               style={{ cursor: 'default', pointerEvents: 'none' }}
             >
-              <img src={stamina1} loading="lazy" alt="Burst" />
+              <img src={stamina1} alt="Burst" />
             </button>
 
             <p>
@@ -954,7 +954,7 @@ function GameRoot({ onBack }) {
             >
               <img
                 src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)}
-                loading="lazy"
+               
                 alt="Pickaxe"
               />
             </button>

@@ -259,6 +259,7 @@ const IMAGES = [
 
 export const usePreloader = () => {
     const [loaded, setLoaded] = useState(false);
+    const imagesRef = useRef([]);
 
     useEffect(() => {
         let done = 0;
@@ -269,10 +270,11 @@ export const usePreloader = () => {
                 sfxReady.then(() => setLoaded(true));
             }
         };
-        IMAGES.forEach(src => {
+        imagesRef.current = IMAGES.map(src => {
             const img = new Image();
             img.onload = img.onerror = onImageDone;
             img.src = src;
+            return img;
         });
     }, []);
 
