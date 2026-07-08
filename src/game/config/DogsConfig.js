@@ -19,7 +19,7 @@ export const getBiomeBonusAtStars = (dogId, biome, stars = 0) => {
 //=========================LEGENDARIAS
 export const DogsConfig = {
 
-    //CHIHUAHUA LEGENDARIA DE REGALO
+    //CHIHUAHUA ÉPICA DE REGALO
     chihuahua: {
         rarity: 'epic',
         element: 'oscuro',
@@ -34,7 +34,7 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 1,
         biomeBonus: {
-            bronze: EPIC_BIOME,
+            bronze: RARE_BIOME,
             iron: 1.0,
             diamond: 1.0,
         },
@@ -193,7 +193,7 @@ export const DogsConfig = {
         }
     },
 
-    //NUPITO ÉPICA PARA MINA DE DIAMANTE
+    //NUPITO LEGENDARIA PARA MINA DE DIAMANTE
     nupito: {
         rarity: 'legendary',
         element: 'oscuro',
@@ -207,8 +207,8 @@ export const DogsConfig = {
         miningPower: 3,
         miningSpeed: 2,
         biomeBonus: {
-            bronze: RARE_BIOME,
-            iron: RARE_BIOME,
+            bronze: EPIC_BIOME,
+            iron: EPIC_BIOME,
             diamond: LEGEND_BIOME,
         },
         goldMineBonus: {

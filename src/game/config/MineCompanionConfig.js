@@ -23,6 +23,7 @@ export const BIOME_INGOT_KEY = {
 // Ult types:
 //  timed_ingots     — fuego: 1 activation, +1 lingote por automine hit durante X segundos (3s→7s)
 //  session_bounce   — electrico: 1 activation, bonus material on every automine hit whole session
+//  session_fury     — oscuro: igual que session_bounce, tipo independiente para mecánica propia futura
 //  once_earthquake  — tierra: 1 use, reduces all vein remaining by damage%, gives loot for removed hits
 //  once_water       — agua: 1 use, random multiplier to all material gains for whole session
 //  session_speed    — oscuro legendary: speed boost auto-applied from session start, no button
@@ -62,20 +63,27 @@ export const MineCompanionConfig = {
         ult: {
             type: 'once_water',
             name: 'Pistola de Agua',
-            // [min, max] multiplier, indexed by stars 0-5
             starRanges: [[2,3],[2,3],[2,4],[3,4],[3,5],[4,5]],
         },
     },
-    chihuahua: {
+    nupito: {
         element: 'oscuro',
         ult: {
-            type: 'session_bounce',
+            type: 'session_fury',
             name: 'Furia',
-            starRanges: [[1,1],[1,2],[1,2],[2,3],[2,3],[2,3]],
+            starRanges: [[1,2],[1,2],[1,3],[2,3],[2,4],[3,4]],
         },
     },
 
     // ===== ÉPICOS =====
+    chihuahua: {
+        element: 'oscuro',
+        ult: {
+            type: 'session_fury',
+            name: 'Furia',
+            starRanges: [[1,2],[1,2],[1,2],[2,3],[2,3],[2,3]],
+        },
+    },
     bully: {
         element: 'tierra',
         ult: {
@@ -92,14 +100,6 @@ export const MineCompanionConfig = {
             name: 'Pelota de Fuego',
             starDurations: [3000, 3000, 4000, 5000, 6000, 7000],
             starRanges: [[1,1],[1,1],[1,1],[1,1],[1,1],[1,2]],
-        },
-    },
-    nupito: {
-        element: 'oscuro',
-        ult: {
-            type: 'session_bounce',
-            name: 'Furia',
-            starRanges: [[1,2],[1,2],[1,3],[2,3],[2,4],[3,4]],
         },
     },
 
@@ -132,7 +132,7 @@ export const MineCompanionConfig = {
     zeus: {
         element: 'oscuro',
         ult: {
-            type: 'session_bounce',
+            type: 'session_fury',
             name: 'Furia',
             starRanges: [[1,1],[1,1],[1,2],[1,2],[1,3],[1,3]],
         },
@@ -153,10 +153,10 @@ export const getEarthquakeDamage = (dogId, stars) => {
     return Math.min(0.95, cfg.baseDamage + (cfg.starScale ?? 0) * (stars ?? 0));
 };
 
-// Helper: get the electric bonus range for a dog at given stars
+// Helper: get the electric/fury bonus range for a dog at given stars
 export const getElectricRange = (dogId, stars) => {
     const cfg = MineCompanionConfig[dogId]?.ult;
-    if (!cfg || cfg.type !== 'session_bounce') return [0, 0];
+    if (!cfg || (cfg.type !== 'session_bounce' && cfg.type !== 'session_fury')) return [0, 0];
     return cfg.starRanges[Math.min(5, stars ?? 0)] ?? [1, 1];
 };
 
