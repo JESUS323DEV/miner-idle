@@ -1,4 +1,4 @@
-﻿import { X, Lock, LockOpen } from "lucide-react";
+﻿import { X, Lock, LockOpen, CalendarCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { playSfx } from "../game/utils/sfx.js";
 import iconGold from "../assets/ui/icons-hud/hud-principal/oro1.webp";
@@ -7,6 +7,7 @@ import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legend
 import iconShardEpic from "../assets/ui/icons-pets-shards/icon-shard-epic.webp";
 import iconShardRare from "../assets/ui/icons-pets-shards/icon-shard-rare.webp";
 import "../styles/modals/RewardsModal.css"
+import { DAILY_LOGIN_REWARDS, getDailyLoginState } from "../game/config/DailyLoginConfig.js";
 import { useGameContext } from "../game/context/GameContext.jsx";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 
@@ -58,9 +59,13 @@ const fmt = (num) => {
     return num;
 };
 
-const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
+const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimDailyLogin }) => {
     const { gameState, handleClaimReward: onClaimReward, handleClaimCoinReward: onClaimCoinReward, handleClaimFragmentReward: onClaimFragmentReward } = useGameContext();
     const [activeTab, setActiveTab] = useState("gold");
+
+    useEffect(() => {
+        if (forceTab) setActiveTab(forceTab);
+    }, [forceTab]);
     const [fragmentToast, setFragmentToast] = useState(null);
 
     // Calcular unclaimed para useEffect (debe estar antes del early return)
@@ -96,6 +101,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
         return false;
     });
     const _hasFrags = Object.values(_fr).some(f => f.visible !== false && f.unlocked && !f.claimed);
+    const _dlState = getDailyLoginState(gameState.dailyLogin ?? { lastClaimedDate: null, streak: 0 });
+    const _hasDailyAvailable = !!_dlState.availableDay;
     const isTutorial = tutorialStep === 'hint_rewards';
 
     useEffect(() => {
@@ -297,8 +304,16 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                         className={`rewards-tab ${activeTab === "fragments" ? "active" : ""} ${hasUnclaimedFragments && activeTab !== "fragments" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("fragments")}
                     >
-                        <img src={iconShardLegendary}alt="fragmentos" /> 
+                        <img src={iconShardLegendary}alt="fragmentos" />
                     </button>
+                    {!isTutorial && (
+                        <button
+                            className={`rewards-tab ${activeTab === "daily" ? "active" : ""} ${_hasDailyAvailable && activeTab !== "daily" ? "tab-pulse" : ""}`}
+                            onClick={() => setActiveTab("daily")}
+                        >
+                            <CalendarCheck size={28} />
+                        </button>
+                    )}
                 </div>
 
                 {/* TAB ORO */}
@@ -473,6 +488,75 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep }) => {
                         ))}
                     </div>
                 )}
+
+                {/* TAB CONEXION DIARIA */}
+                {activeTab === "daily" && (() => {
+                    const dl = gameState.dailyLogin ?? { lastClaimedDate: null, streak: 0 };
+                    const { currentStreak, availableDay, claimedToday } = getDailyLoginState(dl);
+                    const claimedUpTo = claimedToday ? currentStreak : (availableDay ? availableDay - 1 : currentStreak);
+
+                    return (
+                        <div className="rewards-list">
+                            <div className="daily-login-header">
+                                <CalendarCheck size={18} />
+                                <span>Racha: <strong>{currentStreak} / 7</strong></span>
+                                {claimedToday && <span className="daily-badge-claimed">Reclamado hoy</span>}
+                            </div>
+                            {DAILY_LOGIN_REWARDS.map((reward, i) => {
+                                const day = i + 1;
+                                const isClaimedDay = day <= claimedUpTo;
+                                const isAvailable = !claimedToday && day === availableDay;
+                                const isLocked = !isClaimedDay && !isAvailable;
+                                const stateClass = isClaimedDay ? 'daily-claimed' : isAvailable ? 'claimable' : 'locked';
+
+                                let rewardIcon;
+                                let rewardText;
+                                if (reward.type === 'gold') {
+                                    rewardIcon = <img src={iconGold} alt="oro" className="daily-reward-icon" />;
+                                    rewardText = `+${fmt(reward.amount)} oro`;
+                                } else if (reward.type === 'coins') {
+                                    rewardIcon = <img src={iconCoin} alt="monedas" className="daily-reward-icon" />;
+                                    rewardText = `+${reward.amount} monedas`;
+                                } else {
+                                    const shardImg = reward.rarity === 'legendary' ? iconShardLegendary : iconShardRare;
+                                    rewardIcon = <img src={shardImg} alt="shards" className="daily-reward-icon" />;
+                                    rewardText = `+${reward.amount} frags ${reward.rarity}`;
+                                }
+
+                                return (
+                                    <div key={day} className={`reward-card ${stateClass}`}>
+                                        <div className="daily-day-badge">{day}</div>
+                                        <div className="reward-info">
+                                            <p className="reward-label">Dia {day}</p>
+                                            <p className="reward-progress">{rewardText}</p>
+                                        </div>
+                                        <div className="reward-right">
+                                            {rewardIcon}
+                                            {isAvailable && (
+                                                <button
+                                                    className="reward-btn btn-claim"
+                                                    onClick={() => { playSfx('rewardGold'); onClaimDailyLogin?.(); }}
+                                                >
+                                                    Obtener
+                                                </button>
+                                            )}
+                                            {isClaimedDay && (
+                                                <button className="reward-btn btn-fragment-claimed" disabled>
+                                                    <LockOpen size={16} />
+                                                </button>
+                                            )}
+                                            {isLocked && (
+                                                <button className="reward-btn btn-locked" disabled>
+                                                    <Lock size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })()}
 
             </div>
         </div>

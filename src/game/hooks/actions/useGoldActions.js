@@ -1,4 +1,5 @@
 import { CombosConfig } from '../../config/CombosConfig.js';
+import { DAILY_LOGIN_REWARDS } from '../../config/DailyLoginConfig.js';
 
 export const OFFLINE_GOLD_CONFIG = [
     { unlockCost: 25000,  rate1: 0.05, hours: 10, rate2: 0.02, cap: 100000 },
@@ -286,6 +287,34 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         });
     };
 
+    const handleClaimDailyLogin = () => {
+        const today = new Date().toISOString().split('T')[0];
+        setGameState(prev => {
+            const dl = prev.dailyLogin ?? { lastClaimedDate: null, streak: 0 };
+            if (dl.lastClaimedDate === today) return prev;
+
+            const streak = dl.streak ?? 0;
+            const lastDate = dl.lastClaimedDate;
+            let currentStreak = streak;
+
+            if (lastDate) {
+                const diff = Math.round((new Date(today) - new Date(lastDate)) / 86400000);
+                if (diff !== 1) currentStreak = 0;
+                else if (streak >= 7) currentStreak = 0;
+            }
+
+            const rewardIdx = currentStreak; // 0-based
+            const reward = DAILY_LOGIN_REWARDS[rewardIdx];
+            const newStreak = currentStreak + 1;
+
+            let updates = { dailyLogin: { lastClaimedDate: today, streak: newStreak } };
+            if (reward.type === 'gold')  updates.gold = (prev.gold ?? 0) + reward.amount;
+            if (reward.type === 'coins') updates.tavernCoins = (prev.tavernCoins ?? 0) + reward.amount;
+
+            return { ...prev, ...updates };
+        });
+    };
+
     return {
         handleMine,
         handleMineClick,
@@ -294,5 +323,6 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         handleBuyMaxStaminaUpgrade,
         handleUnlockOfflineGold,
         handleUpgradeOfflineGold,
+        handleClaimDailyLogin,
     };
 };

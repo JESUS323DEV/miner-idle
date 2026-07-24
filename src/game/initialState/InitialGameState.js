@@ -14,6 +14,12 @@ const InitialGameState = {
     goldPerSecondCostIncrease: 500, // Cuánto sube el coste por nivel
     offlineGoldLevel: -1,         // -1=bloqueado, 0=base, 1-3=mejoras
 
+    // ========== CONEXIÓN DIARIA ==========
+    dailyLogin: {
+        lastClaimedDate: null,
+        streak: 0,
+    },
+
     // ========== MATERIALES/menas ==========
     bronze: 25,
     iron: 10,

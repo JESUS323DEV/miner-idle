@@ -10,6 +10,7 @@ import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
 import { useGameActions } from "../game/hooks/useGameActions.js";
 import { OFFLINE_GOLD_CONFIG } from "../game/hooks/actions/useGoldActions.js";
+import { getDailyLoginState } from "../game/config/DailyLoginConfig.js";
 import { useAutoMining } from "../game/hooks/useAutoMining.js";
 import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
@@ -168,6 +169,7 @@ function GameRoot({ onBack }) {
   const [selectedBiome, setSelectedBiome] = useState(null);
   const [biomeSelectorOpen, setBiomeSelectorOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [dailyTabForced, setDailyTabForced] = useState(false);
   const [raidOpen, setRaidOpen] = useState(false);
   const [rentalModalOpen, setRentalModalOpen] = useState(false);
   const [combatOpen, setCombatOpen] = useState(false);
@@ -186,6 +188,17 @@ function GameRoot({ onBack }) {
   }, [gameState, isResetting]);
 
   useFragmentRewardsUnlock(gameState, setGameState);
+
+  // ===== AUTO-OPEN RECOMPENSAS DIARIAS (día 2+) =====
+  useEffect(() => {
+    const dl = gameState.dailyLogin;
+    if (!dl?.lastClaimedDate) return; // día 1 no auto-abre
+    const { availableDay } = getDailyLoginState(dl);
+    if (availableDay) {
+      setRewardsOpen(true);
+      setDailyTabForced(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ===== NUEVO JUEGO — borra save y recarga =====
   const handleNewGame = () => {
@@ -215,6 +228,7 @@ function GameRoot({ onBack }) {
     handleActivateBurst,
     handleUnlockOfflineGold,
     handleUpgradeOfflineGold,
+    handleClaimDailyLogin,
     handleUpgradePickaxeMaterial,
     handleUpgradePickaxeTier,
     handleRepairPickaxe,
@@ -1183,7 +1197,8 @@ function GameRoot({ onBack }) {
               <button
                 className={`btn-rewards ${gameState.rewards?.hasUnclaimed ||
                   Object.values(gameState.rewards?.coinRewards ?? {}).some(r => typeof r.claimed === 'boolean' && r.unlocked && !r.claimed) ||
-                  Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed && r.visible !== false)
+                  Object.values(gameState.rewards?.fragmentRewards ?? {}).some(r => r.unlocked && !r.claimed && r.visible !== false) ||
+                  !!getDailyLoginState(gameState.dailyLogin ?? { lastClaimedDate: null, streak: 0 }).availableDay
                   ? "btn-rewards-pulse" : ""
                   } ${isRewardsStep ? 'tutorial-highlight' : ''}`}
                 onClick={() => setRewardsOpen(true)}
@@ -1203,9 +1218,12 @@ function GameRoot({ onBack }) {
           isOpen={rewardsOpen}
           onClose={() => {
             setRewardsOpen(false);
+            setDailyTabForced(false);
             if (tutorialStep === 'hint_rewards') setTutorialStep('hint_rental');
           }}
           tutorialStep={tutorialStep}
+          forceTab={dailyTabForced ? 'daily' : null}
+          onClaimDailyLogin={handleClaimDailyLogin}
         />
 
         <RaidScreen

@@ -206,6 +206,7 @@ export const loadSavedState = () => {
             fragmentRewards: mergedFR,
             coinRewards: mergedCR,
         },
+        dailyLogin: loaded.dailyLogin ?? { lastClaimedDate: null, streak: 0 },
         dailyQuests: {
             ...InitialQuestsState,
             ...(loaded.dailyQuests ?? {}),
