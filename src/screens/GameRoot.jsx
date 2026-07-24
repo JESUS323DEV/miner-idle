@@ -678,9 +678,6 @@ function GameRoot({ onBack }) {
         className="game-container"
         style={{ backgroundImage: `url(${bgMain})` }}
       >
-        {onBack && (
-          <button className="game-back-btn" onClick={onBack} title="Volver">‹</button>
-        )}
         {/* DEBUG */}
         <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer', opacity:0 }}>
           DEV
@@ -843,6 +840,7 @@ function GameRoot({ onBack }) {
             onMusicVolume={handleMusicVolume}
             sfxVolume={sfxVolume}
             onSfxVolume={handleSfxVolume}
+            onBack={onBack}
           />
         </div>
 

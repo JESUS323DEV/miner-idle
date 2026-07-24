@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, ArrowLeft, User, Code2, Calendar, Layers, Instagram, Globe, RefreshCw, Info, Rocket, Swords, Cookie, WifiOff, CalendarClock, Cloud, Settings, PawPrint, Volume2, VolumeX, Palette, Monitor, Sparkles, ImagePlay, Flame, Loader, Smartphone } from "lucide-react";
 import "../../styles/modals/ModalsMenu.css";
 
-const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume, sfxVolume, onSfxVolume }) => {
+const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume, sfxVolume, onSfxVolume, onBack }) => {
     const [view, setView] = useState("main");
     if (!isOpen) return null;
 
@@ -67,6 +67,12 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume,
                             <span className="settings-item-icon"><Rocket size={18} /></span>
                             <span className="settings-item-label">Próximamente</span>
                         </button>
+                        {onBack && (
+                            <button className="settings-item" onClick={onBack}>
+                                <span className="settings-item-icon"><ArrowLeft size={18} /></span>
+                                <span className="settings-item-label">Volver al inicio</span>
+                            </button>
+                        )}
                     </div>
                 )}
 
