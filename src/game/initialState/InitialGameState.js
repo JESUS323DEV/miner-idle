@@ -12,6 +12,7 @@ const InitialGameState = {
     goldPerSecondLevel: 0,       // Nivel actual del upgrade oro/segundo
     goldPerSecondCost: 1000,      // Coste actual del upgrade
     goldPerSecondCostIncrease: 500, // Cuánto sube el coste por nivel
+    offlineGoldLevel: -1,         // -1=bloqueado, 0=base, 1-3=mejoras
 
     // ========== MATERIALES/menas ==========
     bronze: 25,

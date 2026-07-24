@@ -1,4 +1,11 @@
 import { CombosConfig } from '../../config/CombosConfig.js';
+
+export const OFFLINE_GOLD_CONFIG = [
+    { unlockCost: 25000,  rate1: 0.05, hours: 10, rate2: 0.02, cap: 100000 },
+    { upgradeCost: 50000,  rate1: 0.10, hours: 10, rate2: 0.03, cap: 120000 },
+    { upgradeCost: 75000,  rate1: 0.15, hours: 10, rate2: 0.04, cap: 140000 },
+    { upgradeCost: 100000, rate1: 0.20, hours: 10, rate2: 0.05, cap: 180000 },
+];
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
@@ -258,11 +265,34 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         });
     };
 
+    const handleUnlockOfflineGold = () => {
+        const cost = OFFLINE_GOLD_CONFIG[0].unlockCost;
+        showGoldCost(cost);
+        setGameState(prev => {
+            if (prev.offlineGoldLevel >= 0) return prev;
+            if (prev.gold < cost) return prev;
+            return { ...prev, gold: prev.gold - cost, totalGoldSpent: prev.totalGoldSpent + cost, offlineGoldLevel: 0 };
+        });
+    };
+
+    const handleUpgradeOfflineGold = () => {
+        setGameState(prev => {
+            const nextLevel = (prev.offlineGoldLevel ?? -1) + 1;
+            if (nextLevel < 1 || nextLevel > 3) return prev;
+            const cost = OFFLINE_GOLD_CONFIG[nextLevel].upgradeCost;
+            if (prev.gold < cost) return prev;
+            showGoldCost(cost);
+            return { ...prev, gold: prev.gold - cost, totalGoldSpent: prev.totalGoldSpent + cost, offlineGoldLevel: nextLevel };
+        });
+    };
+
     return {
         handleMine,
         handleMineClick,
         handleBuyGoldPerSecondUpgrade,
         handleActivateBurst,
         handleBuyMaxStaminaUpgrade,
+        handleUnlockOfflineGold,
+        handleUpgradeOfflineGold,
     };
 };

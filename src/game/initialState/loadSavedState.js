@@ -8,8 +8,75 @@ import { InitialForgeDogsState } from './InitialForgeDogsState.js';
 import { InitialRentalState } from './InitialRentalState.js';
 import InitialMinesState from './InitialMinesState.js';
 import InitialQuestsState from './InitialQuestsState.js';
+import { ForgeConfig } from '../config/ForgeConfig.js';
+import { getDogStats } from '../utils/getDogStats.js';
+import { OFFLINE_GOLD_CONFIG } from '../hooks/actions/useGoldActions.js';
 
 const SAVE_KEY = 'ladyHungryGame';
+
+const simulateOfflineForge = (state) => {
+    const now = Date.now();
+    let s = { ...state };
+
+    for (const material of ['bronze', 'iron', 'diamond']) {
+        const furnace = s.furnaces?.[material];
+        if (!furnace?.isActive || !furnace.startTime || !furnace.unlocked) continue;
+
+        const recipe = ForgeConfig.furnaces[material].recipes;
+        const durationMs = (furnace.currentDuration ?? ForgeConfig.furnaces[material].levels[furnace.level ?? 1]) * 1000;
+        const elapsed = now - furnace.startTime;
+        if (elapsed < durationMs) continue;
+
+        const forgeDog = Object.values(s.forgeDogs ?? {}).find(
+            d => d && typeof d === 'object' && d.hired && d.assignedTo === material
+        );
+        const doubleChance = forgeDog
+            ? (getDogStats(forgeDog.id, forgeDog.stars ?? 0, true)?.forgeBonus.doubleIngot ?? 0)
+            : 0;
+
+        let mineral = s[recipe.input];
+        let ingots = 0;
+        let timeLeft = elapsed;
+
+        // Primer ciclo: mineral ya descontado al iniciar la fundición
+        timeLeft -= durationMs;
+        ingots += (doubleChance > 0 && Math.random() < doubleChance) ? 2 : 1;
+
+        // Ciclos siguientes: consumen mineral
+        while (timeLeft >= durationMs && mineral >= recipe.inputAmount) {
+            mineral -= recipe.inputAmount;
+            timeLeft -= durationMs;
+            ingots += (doubleChance > 0 && Math.random() < doubleChance) ? 2 : 1;
+        }
+
+        // Arrancar siguiente ciclo si hay mineral
+        let newIsActive = false;
+        let newStartTime = null;
+        if (mineral >= recipe.inputAmount) {
+            mineral -= recipe.inputAmount;
+            newIsActive = true;
+            newStartTime = now - timeLeft;
+        }
+
+        const totalKey = material === 'bronze' ? 'totalBronzeIngotsSmelted'
+            : material === 'iron' ? 'totalIronIngotsSmelted'
+            : 'totalDiamondIngotsSmelted';
+
+        s = {
+            ...s,
+            [recipe.input]: mineral,
+            [recipe.output]: (s[recipe.output] ?? 0) + ingots,
+            totalIngotsSmelted: (s.totalIngotsSmelted ?? 0) + ingots,
+            [totalKey]: (s[totalKey] ?? 0) + ingots,
+            furnaces: {
+                ...s.furnaces,
+                [material]: { ...furnace, isActive: newIsActive, startTime: newStartTime, progress: 0 },
+            },
+        };
+    }
+
+    return s;
+};
 
 const OBSOLETE_FR_KEYS = [
     'set4Miner1Star','set4Miner2Star','set4Miner3Star','set4Miner4Star','set4Miner5Star',
@@ -109,9 +176,11 @@ export const loadSavedState = () => {
         ...(loaded.forgeDogs ?? {}),
     };
 
-    return {
+    const { savedAt, ...loadedClean } = loaded;
+
+    const baseState = {
         ...InitialGameState,
-        ...loaded,
+        ...loadedClean,
         dogs: migratedDogs,
         forgeDogs: mergedForgeDogs,
         yacimientos: migratedYac,
@@ -142,8 +211,8 @@ export const loadSavedState = () => {
             ...(loaded.dailyQuests ?? {}),
         },
         pjQuests: (() => {
-            const pj = { ...(loaded.pjQuests ?? {}) };
-            const slots = loaded.dogs?.globalSlots ?? [];
+            const pj = { ...(loadedClean.pjQuests ?? {}) };
+            const slots = loadedClean.dogs?.globalSlots ?? [];
             const now = Date.now();
             slots.forEach(dogId => {
                 if (!dogId) return;
@@ -154,4 +223,22 @@ export const loadSavedState = () => {
             return pj;
         })(),
     };
+
+    // Oro pasivo offline
+    const offlineLevel = baseState.offlineGoldLevel ?? -1;
+    if (offlineLevel >= 0 && savedAt && baseState.goldPerSecond > 0) {
+        const cfg = OFFLINE_GOLD_CONFIG[offlineLevel];
+        const elapsedSec = Math.max(0, (Date.now() - savedAt) / 1000);
+        const firstSec = Math.min(elapsedSec, cfg.hours * 3600);
+        const restSec = Math.max(0, elapsedSec - cfg.hours * 3600);
+        const earned = Math.min(
+            Math.floor(firstSec * baseState.goldPerSecond * cfg.rate1 + restSec * baseState.goldPerSecond * cfg.rate2),
+            cfg.cap
+        );
+        if (earned > 0) {
+            return simulateOfflineForge({ ...baseState, gold: baseState.gold + earned });
+        }
+    }
+
+    return simulateOfflineForge(baseState);
 };

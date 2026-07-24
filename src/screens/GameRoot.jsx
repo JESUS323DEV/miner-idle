@@ -9,6 +9,7 @@ import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
 import { useGameActions } from "../game/hooks/useGameActions.js";
+import { OFFLINE_GOLD_CONFIG } from "../game/hooks/actions/useGoldActions.js";
 import { useAutoMining } from "../game/hooks/useAutoMining.js";
 import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
 import useAutomine from "../game/hooks/useAutomine.js";
@@ -56,6 +57,8 @@ import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.webp";
 import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.webp";
 import repair from "../assets/ui/icons-hud/hud-principal/repair.webp";
 import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.webp";
+import iconRaids from "../assets/ui/icons-hud/hud-principal/raids.webp";
+import iconRewards from "../assets/ui/icons-hud/hud-principal/rewards.webp";
 
 import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
 import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.webp";
@@ -178,7 +181,7 @@ function GameRoot({ onBack }) {
   // ===== AUTO-SAVE — guarda en localStorage en cada cambio =====
   useEffect(() => {
     if (!isResetting) {
-      localStorage.setItem("ladyHungryGame", JSON.stringify(gameState));
+      localStorage.setItem("ladyHungryGame", JSON.stringify({ ...gameState, savedAt: Date.now() }));
     }
   }, [gameState, isResetting]);
 
@@ -210,6 +213,8 @@ function GameRoot({ onBack }) {
     handleBuyGoldPerSecondUpgrade,
     handleBuyMaxStaminaUpgrade,
     handleActivateBurst,
+    handleUnlockOfflineGold,
+    handleUpgradeOfflineGold,
     handleUpgradePickaxeMaterial,
     handleUpgradePickaxeTier,
     handleRepairPickaxe,
@@ -805,6 +810,14 @@ function GameRoot({ onBack }) {
             onUpgradeSnack={handleUpgradeSnack}
             onUseSnack={handleUseSnack}
             title={"Oro por segundo"}
+            offlineGoldLevel={gameState.offlineGoldLevel}
+            offlineGoldConfig={OFFLINE_GOLD_CONFIG}
+            onUnlockOfflineGold={handleUnlockOfflineGold}
+            onUpgradeOfflineGold={handleUpgradeOfflineGold}
+            canAffordOfflineGold={gameState.offlineGoldLevel === -1
+              ? gameState.gold >= OFFLINE_GOLD_CONFIG[0].unlockCost
+              : gameState.offlineGoldLevel < 3 && gameState.gold >= (OFFLINE_GOLD_CONFIG[gameState.offlineGoldLevel + 1]?.upgradeCost ?? Infinity)
+            }
           />
 
           {/* BURST */}
@@ -1132,7 +1145,7 @@ function GameRoot({ onBack }) {
                 style={{ position: 'relative', ...(raidBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
                 data-tutorial="tut-raids"
               >
-                ⚔️
+                <img src={iconRaids} alt="Raids" style={{ width: 50, height: 50, objectFit: 'contain' }} />
                 {isRaidStep && !raidOpen && <TutorialPointer step="hint_raids" />}
               </button>
             );
@@ -1181,7 +1194,7 @@ function GameRoot({ onBack }) {
                 style={{ position: 'relative', ...(rewardsBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
                 data-tutorial="tut-rewards"
               >
-                🏆
+                <img src={iconRewards} alt="Recompensas" style={{ width: 50, height: 50, objectFit: 'contain' }} />
                 {tutorialStep === 'hint_rewards' && !rewardsOpen && <TutorialPointer step="hint_rewards" />}
               </button>
             );
