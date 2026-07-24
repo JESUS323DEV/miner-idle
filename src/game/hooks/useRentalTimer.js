@@ -56,10 +56,16 @@ export const useRentalTimer = (setGameState) => {
                             if (generated) {
                                 available = generated;
                                 appearanceRemainingMs = 0;
+                                const hiredIds = new Set(
+                                    Object.values(prev.dogs ?? {})
+                                        .filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired)
+                                        .map(d => d.id)
+                                );
                                 const allEligible = Object.values(DogsConfig)
-                                    .filter(d => !['boxer','bully','chihuahua'].includes(d.id))
+                                    .filter(d => !['boxer','bully','chihuahua'].includes(d.id) && !hiredIds.has(d.id))
                                     .map(d => d.id);
-                                const next = [...recentlyShown, generated.dogId];
+                                const cleanRecent = recentlyShown.filter(id => allEligible.includes(id));
+                                const next = [...cleanRecent, generated.dogId];
                                 recentlyShown = next.length >= allEligible.length ? [] : next;
                             } else {
                                 appearanceRemainingMs = 60 * 1000;

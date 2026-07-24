@@ -1813,9 +1813,6 @@
     position: relative;
 }
 
-.dog-card-front.rental-card-available {
-    animation: rental-card-glow 1.8s ease-in-out infinite;
-}
 
 @keyframes rental-card-glow {
 
@@ -1932,6 +1929,16 @@
     background: rgba(245, 196, 66, 0.2);
     border-color: rgba(245, 196, 66, 0.6);
     color: #fde68a;
+}
+
+@keyframes rental-dest-cta-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(245, 196, 66, 0.7); transform: scale(1); }
+    50%  { box-shadow: 0 0 0 10px rgba(245, 196, 66, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 196, 66, 0); transform: scale(1); }
+}
+
+.rental-dest-cta-pulse {
+    animation: rental-dest-cta-pulse 1s infinite;
 }
 
 .rental-dest-slot:hover:not(.locked) {

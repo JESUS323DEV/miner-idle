@@ -169,7 +169,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                             <div className="rental-dest-choice">
                                                 {avail.dogId === 'zeus' && (
                                                     <button
-                                                        className="rental-dest-btn rental-dest-slot notify-pulse"
+                                                        className="rental-dest-btn rental-dest-slot rental-dest-cta-pulse"
                                                         onClick={() => handleRentDog('slot', 30 * 60 * 1000)}
                                                     >
                                                         Asignar a Oro
@@ -177,7 +177,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                                 )}
                                                 {avail.dogId === 'druh' && (
                                                     <button
-                                                        className="rental-dest-btn rental-dest-raid notify-pulse"
+                                                        className="rental-dest-btn rental-dest-raid rental-dest-cta-pulse"
                                                         onClick={() => handleRentDog('raid', 30 * 60 * 1000)}
                                                     >
                                                         Asignar a Raids
@@ -188,7 +188,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                             <>
                                                 <div className="rental-dest-choice">
                                                     <button
-                                                        className={`rental-dest-btn rental-dest-slot ${!canAfford || !hasSlot ? 'locked' : ''}`}
+                                                        className={`rental-dest-btn rental-dest-slot ${!canAfford || !hasSlot ? 'locked' : 'notify-pulse'}`}
                                                         onClick={() => handleRentDog('slot')}
                                                         disabled={!canAfford || !hasSlot}
                                                     >
@@ -196,7 +196,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                                         {!hasSlot && <span className="rental-dest-hint">sin slots</span>}
                                                     </button>
                                                     <button
-                                                        className={`rental-dest-btn rental-dest-raid ${!canAfford ? 'locked' : ''}`}
+                                                        className={`rental-dest-btn rental-dest-raid ${!canAfford ? 'locked' : 'notify-pulse'}`}
                                                         onClick={() => handleRentDog('raid')}
                                                         disabled={!canAfford}
                                                     >
