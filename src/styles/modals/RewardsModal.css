@@ -105,12 +105,21 @@
 }
 
 .reward-card.locked {
-    opacity: 0.5;
+    opacity: 0.75;
 }
 
 .reward-card.exhausted {
-    opacity: 0.3;
-    filter: grayscale(1);
+    opacity: 0.55;
+}
+
+.btn-claimed {
+    background: rgba(50, 180, 80, 0.15);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .reward-icon {
@@ -181,7 +190,7 @@
 
 .btn-locked {
     background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.25);
+    color: rgba(200, 150, 50, 0.6);
     cursor: not-allowed;
     border: 1px solid rgba(255, 255, 255, 0.08);
 }

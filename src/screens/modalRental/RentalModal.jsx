@@ -169,7 +169,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                             <div className="rental-dest-choice">
                                                 {avail.dogId === 'zeus' && (
                                                     <button
-                                                        className="rental-dest-btn rental-dest-slot"
+                                                        className="rental-dest-btn rental-dest-slot notify-pulse"
                                                         onClick={() => handleRentDog('slot', 30 * 60 * 1000)}
                                                     >
                                                         Asignar a Oro
@@ -177,7 +177,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                                 )}
                                                 {avail.dogId === 'druh' && (
                                                     <button
-                                                        className="rental-dest-btn rental-dest-raid"
+                                                        className="rental-dest-btn rental-dest-raid notify-pulse"
                                                         onClick={() => handleRentDog('raid', 30 * 60 * 1000)}
                                                     >
                                                         Asignar a Raids

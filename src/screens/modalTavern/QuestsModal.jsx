@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { playSfx } from '../../game/utils/sfx.js';
 import { X, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DAILY_QUESTS_FIXED, DAILY_QUESTS_EXTRA_20, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
@@ -30,6 +31,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
         .map(([id]) => id);
 
     const handleClaimPJMission = (dogId, missionId, reward) => {
+        playSfx('rewardShards');
         setGameState(prev => {
             const prevPJ = prev.pjQuests?.[dogId] ?? {};
             return {
@@ -41,6 +43,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
     };
 
     const handleClaimPJFinal = (dogId, reward) => {
+        playSfx('rewardShards');
         setGameState(prev => {
             const prevPJ = prev.pjQuests?.[dogId] ?? {};
             return {
@@ -101,8 +104,26 @@ const QuestsModal = ({ isOpen, onClose }) => {
 
     const hasClaimmable = activeQuests.some(q => isCompleted(q) && !isClaimed(q));
 
+    const hasPJClaimable = MINER_DOGS.some(dogId => {
+        const cfg = DogsConfig[dogId];
+        const template = PJ_MISSION_TEMPLATES[cfg.rarity];
+        if (!template) return false;
+        const pjData = gameState.pjQuests?.[dogId] ?? {};
+        const claimedM = pjData.claimedMissions ?? [];
+        const finalClaimed = pjData.finalClaimed ?? false;
+        const getProg = (m) => {
+            if (m.type === 'slotTime') return getPJSlotTimeMs(gameState.pjQuests, dogId);
+            if (m.type === 'passiveRaids') return pjData.passiveRaids ?? 0;
+            return 0;
+        };
+        const allDone = template.missions.every(m => claimedM.includes(m.missionId));
+        return template.missions.some(m => getProg(m) >= m.target && !claimedM.includes(m.missionId))
+            || (allDone && !finalClaimed);
+    });
+
     const handleClaim = (quest) => {
         if (!isCompleted(quest) || isClaimed(quest)) return;
+        playSfx('rewardCoin');
         setGameState(prev => ({
             ...prev,
             tavernCoins: (prev.tavernCoins ?? 0) + quest.reward.coins,
@@ -127,7 +148,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                         Diarias
                     </button>
                     <button
-                        className={`rewards-tab ${activeTab === 'pj' ? 'active' : ''}`}
+                        className={`rewards-tab ${activeTab === 'pj' ? 'active' : ''} ${hasPJClaimable && activeTab !== 'pj' ? 'tab-pulse' : ''}`}
                         onClick={() => setActiveTab('pj')}
                     >
                         Misiones PJ
@@ -165,7 +186,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                             <img src={coinTavern} alt="coins" style={{ width: 16, height: 16, verticalAlign: 'middle' }} />
                                         </p>
                                         <button
-                                            className={`reward-btn ${done ? 'btn-locked' : completed ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
+                                            className={`reward-btn ${done ? 'btn-claimed' : completed ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
                                             onClick={() => handleClaim(quest)}
                                             disabled={done || !completed}
                                         >
