@@ -4,4 +4,5 @@ export const InitialRentalState = {
     available: null,
     active: [],
     appearanceRemainingMs: RentalConfig.firstAppearanceMs,
+    recentlyShown: [],
 };

@@ -3,23 +3,32 @@ import { DogsConfig } from '../config/DogsConfig.js';
 import { RentalConfig } from '../config/RentalConfig.js';
 import { leavePJSlot } from '../utils/questUtils.js';
 
-const getRentalDog = (currentDogs, currentActive) => {
+const getRentalDog = (currentDogs, currentActive, recentlyShown) => {
     const hiredIds = new Set(
         Object.values(currentDogs)
             .filter(d => d && typeof d === 'object' && !Array.isArray(d) && d.hired)
             .map(d => d.id)
     );
     const rentedIds = new Set((currentActive ?? []).map(r => r.dogId));
+    const giftIds = new Set(['boxer', 'bully', 'chihuahua']);
+    const recentIds = new Set(recentlyShown ?? []);
+
     const rand = Math.random() * 100;
     const rarity = rand < RentalConfig.rarityThresholds.legendary
         ? 'legendary'
         : rand < RentalConfig.rarityThresholds.epic
             ? 'epic'
             : 'rare';
-    const giftIds = new Set(['boxer', 'bully', 'chihuahua']);
-    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
-    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id));
+
+    const eligible = (d) => !hiredIds.has(d.id) && !rentedIds.has(d.id) && !giftIds.has(d.id);
+
+    let pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && eligible(d) && !recentIds.has(d.id));
+    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => eligible(d) && !recentIds.has(d.id));
+    // Si todos ya han salido recientemente, resetear historial y volver a intentar
+    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => d.rarity === rarity && eligible(d));
+    if (pool.length === 0) pool = Object.values(DogsConfig).filter(d => eligible(d));
     if (pool.length === 0) return null;
+
     const dog = pool[Math.floor(Math.random() * pool.length)];
     return { dogId: dog.id, rarity: dog.rarity, cost: RentalConfig.costs[dog.rarity] };
 };
@@ -37,15 +46,21 @@ export const useRentalTimer = (setGameState) => {
                 const newSlots = [...(prev.dogs?.globalSlots ?? [null, null, null])];
                 let slotsChanged = false;
 
+                let recentlyShown = rental.recentlyShown ?? [];
                 if (!available) {
                     const newMs = Math.max(0, appearanceRemainingMs - 1000);
                     if (newMs !== appearanceRemainingMs) {
                         changed = true;
                         if (newMs <= 0) {
-                            const generated = getRentalDog(prev.dogs ?? {}, rental.active);
+                            const generated = getRentalDog(prev.dogs ?? {}, rental.active, recentlyShown);
                             if (generated) {
                                 available = generated;
                                 appearanceRemainingMs = 0;
+                                const allEligible = Object.values(DogsConfig)
+                                    .filter(d => !['boxer','bully','chihuahua'].includes(d.id))
+                                    .map(d => d.id);
+                                const next = [...recentlyShown, generated.dogId];
+                                recentlyShown = next.length >= allEligible.length ? [] : next;
                             } else {
                                 appearanceRemainingMs = 60 * 1000;
                             }
@@ -78,7 +93,7 @@ export const useRentalTimer = (setGameState) => {
 
                 return {
                     ...prev,
-                    rental: { available, active: newActive, appearanceRemainingMs },
+                    rental: { available, active: newActive, appearanceRemainingMs, recentlyShown },
                     dogs: slotsChanged ? { ...prev.dogs, globalSlots: newSlots } : prev.dogs,
                     pjQuests: pjChanged ? pjQuests : prev.pjQuests,
                 };

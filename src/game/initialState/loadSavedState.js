@@ -130,6 +130,7 @@ export const loadSavedState = () => {
         rental: {
             ...r,
             active: Array.isArray(r.active) ? r.active : (r.active ? [r.active] : []),
+            recentlyShown: Array.isArray(r.recentlyShown) ? r.recentlyShown : [],
         },
         rewards: {
             ...loaded.rewards,
