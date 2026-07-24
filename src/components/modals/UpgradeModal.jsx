@@ -223,6 +223,7 @@ const UpgradeModal = ({
                                             <div className="cont-text-img">
                                                 <img src={iconCookie} alt="icon-Cookie" />
                                                 <p>Galleta Lvl {snacksData.cookie.level}</p>
+                                                <small style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>Multiplica tu oro/s temporalmente</small>
                                             </div>
                                         </div>
                                         {!snacksData.cookie.unlocked ? (
@@ -276,6 +277,7 @@ const UpgradeModal = ({
                                         <div className="cont-cookie">
                                             <div className="cont-text-img">
                                                 <p>{offlineGoldLevel === -1 ? 'Oro Offline' : `Oro Offline Nv. ${offlineGoldLevel}`}</p>
+                                                <small style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>Gana oro mientras no juegas</small>
                                             </div>
                                         </div>
                                         {offlineGoldLevel === -1 ? (

@@ -45,7 +45,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4rem;
+    gap: 2rem;
     padding-top: 1rem;
 
 }
@@ -77,7 +77,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin-top: 2rem;
+    margin-top: 1rem;
 
 }
 
@@ -98,7 +98,7 @@
 }
 
 .gold-info img {
-    width: 150px;
+    width: 110px;
     height: auto;
 
 }
@@ -112,7 +112,7 @@
 .cont-btn-upgrade {
 
     min-width: 60%;
-    min-height: 100px;
+    min-height: 70px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -179,7 +179,7 @@
 
 
 .btn-upgrade img {
-    width: 150px;
+    width: 110px;
     margin: auto;
 
     display: block;
