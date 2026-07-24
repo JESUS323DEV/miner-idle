@@ -402,8 +402,8 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                 };
             }
 
-            // session_bounce (electrico): activa el bonus en cada hit del automine, toda la sesión
-            if (cfg.type === 'session_bounce') {
+            // session_bounce / session_fury: activa el bonus en cada hit del automine, toda la sesión
+            if (cfg.type === 'session_bounce' || cfg.type === 'session_fury') {
                 if (powers.electricActive || powers.ultUsed) return prevState;
                 const [eMin, eMax] = getElectricRange(companionId, stars);
                 return {

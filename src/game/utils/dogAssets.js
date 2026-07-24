@@ -19,6 +19,7 @@ import forgeIcon6 from '../../assets/ui/icons-pets/forge/forge-icon6.webp';
 import forgeIcon7 from '../../assets/ui/icons-pets/forge/forge-icon7.webp';
 import forgeIcon8 from '../../assets/ui/icons-pets/forge/forge-icon8.webp';
 import forgeIcon9 from '../../assets/ui/icons-pets/forge/forge-icon9.webp';
+import forgeDayoIcon from '../../assets/ui/icons-pets/forge/forge-dayo.webp';
 
 export const dogAssets = {
     lady: ladyIcon, tokio: tokyoIcon, tuka: tukaIcon,
@@ -28,5 +29,5 @@ export const dogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
     rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
-    dayo: forgeIcon1,
+    dayo: forgeDayoIcon,
 };

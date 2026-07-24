@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import "../../styles/modals/MineScreen.css";
-import { X } from "lucide-react";
 import MinesConfig from "../../game/config/MinesConfig.js";
 import { DogsConfig, RARITY_COLORS } from "../../game/config/DogsConfig.js";
 import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL, RARITY_AUTOMINE_INTERVAL } from "../../game/config/MineCompanionConfig.js";
@@ -175,32 +174,32 @@ const MineScreen = ({ isOpen, onClose }) => {
   }, [currentMine?.powers?.waterVeinTrigger?.seq]);
 
 
-  // Automine con delay inicial al entrar
+  // Automine: arranca al usar la habilidad (o al entrar si no hay companion)
   useEffect(() => {
     clearInterval(automineRef.current);
     if (!isOpen || !currentMine) return;
 
     const cId = currentMine.companion?.dogId ?? null;
+    if (cId && !currentMine.powers?.ultUsed) return;
+
     const rarity = cId ? DogsConfig[cId]?.rarity : null;
     const baseInterval = RARITY_AUTOMINE_INTERVAL[rarity] ?? MINE_AUTOMINE_INTERVAL;
     const furyBonus = currentMine.powers?.furyBonus ?? 0;
     const interval = Math.max(50, Math.round(baseInterval / (1 + furyBonus)));
 
-    const delay = setTimeout(() => {
-      automineRef.current = setInterval(() => {
-        const mine = currentMineRef.current;
-        if (!mine) return;
-        const available = mine.veins.filter(v => v.remaining > 0);
-        if (available.length === 0) return;
-        const vein = available[Math.floor(Math.random() * available.length)];
-        handleMineVein(vein.id, true);
-        setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
-      }, interval);
-    }, 1000);
+    automineRef.current = setInterval(() => {
+      const mine = currentMineRef.current;
+      if (!mine) return;
+      const available = mine.veins.filter(v => v.remaining > 0);
+      if (available.length === 0) return;
+      const vein = available[Math.floor(Math.random() * available.length)];
+      handleMineVein(vein.id, true);
+      setAnimTriggers(prev => ({ ...prev, [vein.id]: (prev[vein.id] || 0) + 1 }));
+    }, interval);
 
-    return () => { clearTimeout(delay); clearInterval(automineRef.current); };
+    return () => clearInterval(automineRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, currentMine?.powers?.furyBonus, currentMine?.mineType]);
+  }, [isOpen, currentMine?.powers?.furyBonus, currentMine?.mineType, currentMine?.powers?.ultUsed]);
 
   if (!isOpen || !currentMine) return null;
 
@@ -230,9 +229,6 @@ const MineScreen = ({ isOpen, onClose }) => {
           <div className="mine-title">
             <h2>{mineNames[currentMine.mineType] || currentMine.mineType}</h2>
           </div>
-          {totalRemaining === 0 && (
-            <button className="btn-exit-mine" onClick={onClose}><X /></button>
-          )}
         </div>
 
         {/* STATS */}
@@ -378,8 +374,8 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
         {/* ULT */}
         <div className="companion-ult-row">
           {!isSessionSpeed ? (() => {
-            const pwType = ultType === 'timed_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'once_water' ? 'water' : 'earth';
-            const pwIcon = { fire: powerFire, electric: powerElectric, water: powerWater, earth: powerEarth }[pwType];
+            const pwType = ultType === 'timed_ingots' ? 'fire' : ultType === 'session_bounce' ? 'electric' : ultType === 'session_fury' ? 'fury' : ultType === 'once_water' ? 'water' : ultType === 'once_earthquake' ? 'earth' : 'fury';
+            const pwIcon = { fire: powerFire, electric: powerElectric, water: powerWater, earth: powerEarth, fury: powerFuria }[pwType];
             return (
               <button
                 className={`power-btn power-btn-ult${ultTimedActive ? ' power-active' : ''}${ultDisabled ? ' power-disabled' : ''} power-btn-${pwType}`}
