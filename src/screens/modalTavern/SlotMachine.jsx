@@ -52,7 +52,7 @@ const STRIP_LEN     = 30;
 const RESULT_IDX    = 25;
 const FINAL_OFFSET  = -(RESULT_IDX - 1) * SYMBOL_H;
 const SPIN_DURATIONS = [2400, 2900, 3400];
-const SPIN_COST     = 50;
+const SPIN_COST     = 10;
 
 const rnd = (n) => Math.floor(Math.random() * n);
 
@@ -166,7 +166,7 @@ export default function SlotMachine({ guaranteed }) {
                         return;
                     }
 
-                    const frags = matchCount === 3 ? 100 : 20;
+                    const frags = matchCount === 3 ? 100 : 30;
                     const config = DogsConfig[matchId];
                     setGameState(prev => {
                         const dog = prev.dogs[matchId];
