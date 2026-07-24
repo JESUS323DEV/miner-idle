@@ -59,6 +59,7 @@ import repair from "../assets/ui/icons-hud/hud-principal/repair.webp";
 import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.webp";
 import iconRaids from "../assets/ui/icons-hud/hud-principal/raids.webp";
 import iconRewards from "../assets/ui/icons-hud/hud-principal/rewards.webp";
+import iconRent from "../assets/ui/icons-hud/hud-principal/rent.webp";
 
 import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
 import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.webp";
@@ -117,7 +118,6 @@ import bgPickaxe from "../assets/backgrounds/bg-modals-hud/fondoWorkShop.webp";
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.webp";
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.webp";
 
-import ladyIcon from "../assets/ui/icons-pets/mineros/lady-icon.webp";
 
 // ===== MINAS =====
 import InitialMinesState from "../game/initialState/InitialMinesState.js";
@@ -1154,7 +1154,7 @@ function GameRoot({ onBack }) {
           {/* ALQUILER */}
           {(() => {
             const rentalAvailable = gameState.rental?.available;
-            const activeCount = gameState.rental?.active?.length ?? 0;
+
             const isRentalStep = tutorialStep === 'hint_rental';
             const inActiveTutorial = tutorialStep !== null && tutorialStep !== 'done';
             const showRentalReady = rentalAvailable && (!inActiveTutorial || isRentalStep);
@@ -1167,10 +1167,7 @@ function GameRoot({ onBack }) {
                 style={{ position: 'relative', ...(rentalBlocked ? { opacity: 0.3, cursor: 'not-allowed' } : {}) }}
                 data-tutorial="tut-rental"
               >
-                <img src={ladyIcon} className="btn-rental-img" alt="alquiler" />
-                {activeCount > 0 && (
-                  <span className="btn-rental-active-count">{activeCount}</span>
-                )}
+                <img src={iconRent} alt="alquiler" style={{ width: 50, height: 50, objectFit: 'contain' }} />
                 {!rentalAvailable && (
                   <span className="btn-rental-timer">{formatRentalTimer(gameState.rental?.appearanceRemainingMs ?? 0)}</span>
                 )}
