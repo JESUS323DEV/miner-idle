@@ -45,6 +45,8 @@ import upgradeStamina from "../assets/ui/icons-hud/hud-modals/icon-lvl-stamina.w
 import PickAxeUp from "../assets/ui/icons-hud/hud-modals/btn-pickAxeUp.webp"
 import btnTier from "../assets/ui/icons-hud/hud-modals/btnTier.webp"
 import cookie from "../assets/ui/icons-hud/hud-modals/cookie.webp"
+import iconUnlock from "../assets/ui/icons-hud/hud-modals/unlock.webp"
+import iconOffline from "../assets/ui/icons-hud/hud-modals/off-line.webp"
 
 // ===== SAT ICONS =====
 import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.webp"
@@ -208,7 +210,7 @@ const IMAGES = [
     cofre, gold1, coinTavern, stamina1, goldOpen, repair, refillStaminaIcon, rayo,
     iconRaids, iconRewards, iconRent,
     // hud modals
-    iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier, cookie,
+    iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier, cookie, iconUnlock, iconOffline,
     // icons tavern
     iconTavernComida, iconTavernTrigo, iconTavernLupulo, iconTavernCerveza, iconTavernCraft,
     // sat

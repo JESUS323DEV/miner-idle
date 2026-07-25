@@ -71,7 +71,7 @@
 /* ===== SECCIÓN ICONO + NIVEL ===== */
 .modal-info {
     text-align: center;
-    gap: 1.5rem;
+    gap: 3rem;
 
     display: flex;
     justify-content: center;
@@ -128,18 +128,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.2rem;
+    gap: 0.3rem;
     text-shadow: 5px 2px 5px black;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     color: white;
-    min-width: 70%;
     margin: auto;
+    border: 1px solid rgb(255, 155, 6);
+    background-color: rgba(0, 3, 21, 0.792);
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.6rem;
 
 }
 
 .info-gold .iconGold {
 
-    width: 35px;
+    width: 25px;
     background-color: transparent !important;
     box-shadow: none;
 }
@@ -179,13 +182,11 @@
 
 
 .btn-upgrade img {
-    width: 110px;
+    width: 150px;
     margin: auto;
 
     display: block;
-    border-radius: 1rem;
     box-shadow: 1px 1px 10px rgb(0, 0, 0);
-    background-color: rgb(0, 0, 0);
 }
 
 /* Locked: imagen en gris */
@@ -216,8 +217,8 @@
 .snack1 {
     color: white;
     border: 1px solid rgba(225, 112, 0, 0.736);
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
     align-items: center;
     gap: 0.5rem;
     background-color: rgba(0, 0, 0, 0.467);
@@ -226,8 +227,22 @@
     margin: auto;
 }
 
+.cont-unlock-btn {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+}
+
 .snack1 button img {
     width: 20px;
+}
+
+.text-info {
+
+    font-size: 0.55rem;
 }
 
 .snack1 button span {
@@ -265,6 +280,35 @@
     width: 50px;
     margin: auto;
 }
+
+.snack-btn-price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 1px 1px 3px black;
+}
+
+.snack-btn-price img {
+    width: 16px;
+    height: auto;
+}
+
+.snack-max-level {
+    font-size: 0.625rem;
+    color: #f0a500;
+    margin: 2px 0;
+}
+
+
+.text-cookie {
+
+    text-align: center;
+    line-height: 1;
+}
+
 
 
 

@@ -4,8 +4,10 @@ import '../../styles/modals/UpgradeModal.css';
 import { X } from "lucide-react";
 
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
-import iconCookie from "../../assets/ui/icons-hud/hud-modals/cookie.webp"
+
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
+import iconUnlock from "../../assets/ui/icons-hud/hud-modals/unlock.webp"
+import iconOffline from "../../assets/ui/icons-hud/hud-modals/off-line.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 /**
@@ -34,7 +36,6 @@ const UpgradeModal = ({
     buttonImage,
 
     // ===== SNACKS =====
-    showSnacks = false,
     snacksData = null,
     tavernCoins = 0,
     onUnlockSnack = null,
@@ -208,101 +209,53 @@ const UpgradeModal = ({
                     )}
 
 
-                    {/* ===== SNACKS + ORO OFFLINE ===== */}
-                    {((showSnacks && snacksData) || offlineGoldConfig) && (
+                    {/* ===== ORO OFFLINE ===== */}
+                    {offlineGoldConfig && (
                         <div className="cont-snacks" data-tutorial="tut-snacks-modal">
-
-                            {/* GALLETA */}
-                            {showSnacks && snacksData && (
-                                <div className="container-snacks">
-                                    <div className={`snack1 ${tutorialPhase === 'snacks' ? 'tutorial-pulse' : ''}`}>
-                                        {tutorialPhase === 'snacks' && (
-                                            <span className="tutorial-hand-above">👇</span>
-                                        )}
-                                        <div className="cont-cookie">
-                                            <div className="cont-text-img">
-                                                <img src={iconCookie} alt="icon-Cookie" />
-                                                <p>Galleta Lvl {snacksData.cookie.level}</p>
-                                                <small style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>Multiplica tu oro/s temporalmente</small>
-                                            </div>
-                                        </div>
-                                        {!snacksData.cookie.unlocked ? (
-                                            <button
-                                                onClick={() => onUnlockSnack('cookie')}
-                                                disabled={tavernCoins < 5}
-                                                style={{ opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1 }}
-                                            >
-                                                <span>
-                                                    <small>Desbloquear x5</small>
-                                                    <img src={coinTavern} alt="coin-tavern" />
-                                                </span>
-                                            </button>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    onClick={() => onUseSnack('cookie')}
-                                                    disabled={tavernCoins < 1 || snacksData.cookie.active !== null || (snacksData.drink?.active !== null || snacksData.cake?.active !== null)}
-                                                    style={{ opacity: (tavernCoins < 1 || snacksData.cookie.active !== null) ? 0.5 : 1 }}
-                                                >
-                                                    {snacksData.cookie.active !== null ? (() => {
-                                                        const { startTime, duration } = snacksData.cookie.active;
-                                                        const remaining = Math.max(0, duration - Math.floor((Date.now() - startTime) / 1000));
-                                                        const mins = Math.floor(remaining / 60);
-                                                        const secs = remaining % 60;
-                                                        return <span>{mins}:{secs.toString().padStart(2, '0')}</span>;
-                                                    })() : <span>Usar x1 <img src={coinTavern} alt="usar snack" /></span>}
-                                                </button>
-                                                {snacksData.cookie.level < 3 && (
-                                                    <button
-                                                        onClick={() => onUpgradeSnack('cookie')}
-                                                        disabled={tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15)}
-                                                        style={{ opacity: tavernCoins < (snacksData.cookie.level === 1 ? 10 : 15) ? 0.5 : 1 }}
-                                                    >
-                                                        <span className="mejorar-snack">
-                                                            Mejorar {snacksData.cookie.level === 1 ? 10 : 15}
-                                                            <img src={coinTavern} alt="coin" />
-                                                        </span>
-                                                    </button>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* ORO OFFLINE */}
                             {offlineGoldConfig && (
                                 <div className="container-snacks">
-                                    <div className="snack1">
+                                    <div className={`snack1 ${tutorialPhase === 'snacks' ? 'tutorial-pulse' : ''}`}>
                                         <div className="cont-cookie">
                                             <div className="cont-text-img">
-                                                <p>{offlineGoldLevel === -1 ? 'Oro Offline' : `Oro Offline Nv. ${offlineGoldLevel}`}</p>
-                                                <small style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>Gana oro mientras no juegas</small>
+                                                <img src={iconOffline} alt="oro-offline" />
                                             </div>
                                         </div>
+
+                                        <div className='text-cookie'>
+                                            <p>{offlineGoldLevel === -1 ? 'Oro Offline' : `Oro Offline Nv. ${offlineGoldLevel}`}</p>
+
+                                            <small className='text-info'>Gana oro mientras no juegas</small>
+
+                                        </div>
+
                                         {offlineGoldLevel === -1 ? (
-                                            <button
-                                                onClick={onUnlockOfflineGold}
-                                                disabled={!canAffordOfflineGold}
-                                                style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
-                                            >
-                                                <span><small>Desbloquear {formatNumber(offlineGoldConfig[0].unlockCost)}</small><img src={iconGold} alt="gold" style={{ width: 14, height: 14 }} /></span>
-                                            </button>
+                                            <div className="cont-unlock-btn">
+                                                <button
+                                                    onClick={onUnlockOfflineGold}
+                                                    disabled={!canAffordOfflineGold}
+                                                    style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
+                                                >
+                                                    <img src={iconUnlock} alt="desbloquear" style={{ width: 80, objectFit: 'contain' }} />
+                                                </button>
+                                                <span className="snack-btn-price">{formatNumber(offlineGoldConfig[0].unlockCost)} <img src={iconGold} alt="gold" /></span>
+                                            </div>
                                         ) : (
                                             <>
-                                                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', margin: '2px 0' }}>
-                                                    10h: {offlineGoldConfig[offlineGoldLevel].rate1 * 100}% &bull; después: {offlineGoldConfig[offlineGoldLevel].rate2 * 100}% &bull; tope: {formatNumber(offlineGoldConfig[offlineGoldLevel].cap)}
-                                                </p>
                                                 {offlineGoldLevel < 3 ? (
-                                                    <button
-                                                        onClick={onUpgradeOfflineGold}
-                                                        disabled={!canAffordOfflineGold}
-                                                        style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
-                                                    >
-                                                        <span className="mejorar-snack">Mejorar {formatNumber(offlineGoldConfig[offlineGoldLevel + 1].upgradeCost)}<img src={iconGold} alt="gold" style={{ width: 14, height: 14 }} /></span>
-                                                    </button>
+                                                    <div className="cont-unlock-btn">
+                                                        <button
+                                                            onClick={onUpgradeOfflineGold}
+                                                            disabled={!canAffordOfflineGold}
+                                                            style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
+                                                        >
+                                                            <img src={buttonImage} alt="Mejorar" style={{ width: 150, objectFit: 'contain' }} />
+                                                        </button>
+                                                        <span className="snack-btn-price">{formatNumber(offlineGoldConfig[offlineGoldLevel + 1]?.upgradeCost ?? 0)} <img src={iconGold} alt="gold" /></span>
+                                                    </div>
                                                 ) : (
-                                                    <p style={{ fontSize: 10, color: '#f0a500', margin: '2px 0' }}>Nivel máximo</p>
+                                                    <p className="snack-max-level">Nivel máximo</p>
                                                 )}
                                             </>
                                         )}

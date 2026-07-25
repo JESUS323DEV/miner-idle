@@ -129,8 +129,8 @@ const STEPS = {
         showSkip: false,
     },
     hint_snacks_modal: {
-        title: "Las galletas",
-        text: "Las galletas dan un boost de oro por segundo durante un tiempo. Desbloquéalas con monedas de taberna cuando puedas.",
+        title: "Oro sin conexión",
+        text: "Desbloquea el oro offline para seguir ganando oro aunque cierres el juego. Cuanto mas lo mejores, mas acumulas mientras no juegas.",
         action: "Entendido",
         counter: null,
         showSkip: false,
