@@ -1,7 +1,7 @@
 /* ========== CONTENEDOR DEL MODAL ========== */
 .modal-overlay1 {
     position: fixed;
-    top: 9.1rem;
+    top: 5.5rem;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;

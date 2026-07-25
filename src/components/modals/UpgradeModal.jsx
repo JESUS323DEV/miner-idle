@@ -90,14 +90,14 @@ const UpgradeModal = ({
 
                         <div className='gold-info'>
                             <img src={iconImage} alt="icon" />
-                            <p>{currentLevel}</p>
+                            <p className='info-gold'>{currentLevel}</p>
                         </div>
 
                         <div className='wrap-cont-stamina'>
                             <div className='cont-btn-upgrade'>
                                 <p>{title}</p>
                                 <button
-                                    className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
+                                    className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : canAfford ? "notify-pulse" : ""}`}
                                     onClick={onUpgrade}
                                     disabled={!canAfford}
                                     data-tutorial={tutorialHint === 'goldPerSecond' ? 'tut-gold-modal' : tutorialHint === 'stamina' ? 'tut-stamina-modal' : undefined}
@@ -233,29 +233,31 @@ const UpgradeModal = ({
                                         {offlineGoldLevel === -1 ? (
                                             <div className="cont-unlock-btn">
                                                 <button
+                                                    className={canAffordOfflineGold ? "notify-pulse" : ""}
                                                     onClick={onUnlockOfflineGold}
                                                     disabled={!canAffordOfflineGold}
                                                     style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
                                                 >
-                                                    <img src={iconUnlock} alt="desbloquear" style={{ width: 80, objectFit: 'contain' }} />
+                                                    <img src={iconUnlock} alt="desbloquear" style={{ width: 130, objectFit: 'contain' }} />
                                                 </button>
-                                                <span className="snack-btn-price">{formatNumber(offlineGoldConfig[0].unlockCost)} <img src={iconGold} alt="gold" /></span>
+                                                <span className="snack-btn-price ">{formatNumber(offlineGoldConfig[0].unlockCost)} <img src={iconGold} alt="gold" /></span>
                                             </div>
                                         ) : (
                                             <>
                                                 {offlineGoldLevel < 3 ? (
                                                     <div className="cont-unlock-btn">
                                                         <button
+                                                            className={canAffordOfflineGold ? "notify-pulse" : ""}
                                                             onClick={onUpgradeOfflineGold}
                                                             disabled={!canAffordOfflineGold}
                                                             style={{ opacity: canAffordOfflineGold ? 1 : 0.5 }}
                                                         >
-                                                            <img src={buttonImage} alt="Mejorar" style={{ width: 150, objectFit: 'contain' }} />
+                                                            <img src={buttonImage} alt="Mejorar" style={{ width: 100, objectFit: 'contain' }} />
                                                         </button>
-                                                        <span className="snack-btn-price">{formatNumber(offlineGoldConfig[offlineGoldLevel + 1]?.upgradeCost ?? 0)} <img src={iconGold} alt="gold" /></span>
+                                                        <span className="snack-btn-price ">{formatNumber(offlineGoldConfig[offlineGoldLevel + 1]?.upgradeCost ?? 0)} <img src={iconGold} alt="gold" /></span>
                                                     </div>
                                                 ) : (
-                                                    <p className="snack-max-level">Nivel máximo</p>
+                                                    <p className="snack-max-level  ">Nivel máximo</p>
                                                 )}
                                             </>
                                         )}
