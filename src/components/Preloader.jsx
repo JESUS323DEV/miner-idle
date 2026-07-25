@@ -34,6 +34,9 @@ import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.webp"
 import repair from "../assets/ui/icons-hud/hud-principal/repair.webp"
 import refillStaminaIcon from "../assets/ui/icons-hud/hud-principal/refill-stamina.webp"
 import rayo from "../assets/ui/icons-hud/hud-principal/rayo.webp"
+import iconRaids from "../assets/ui/icons-hud/hud-principal/raids.webp"
+import iconRewards from "../assets/ui/icons-hud/hud-principal/rewards.webp"
+import iconRent from "../assets/ui/icons-hud/hud-principal/rent.webp"
 
 // ===== HUD MODALS =====
 import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.webp"
@@ -203,6 +206,7 @@ const IMAGES = [
     bgMain, bgGold, bgStamina, bgPickaxe, bgNupito,
     // hud principal
     cofre, gold1, coinTavern, stamina1, goldOpen, repair, refillStaminaIcon, rayo,
+    iconRaids, iconRewards, iconRent,
     // hud modals
     iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier, cookie,
     // icons tavern
