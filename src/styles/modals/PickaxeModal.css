@@ -159,3 +159,98 @@
     width: 30px;
 }
 
+/*==================================RECARGA AUTOMINAR — card propia del modal de pico=========================================*/
+.pickaxe-autominar-card {
+    color: white;
+    border: 1px solid rgba(225, 112, 0, 0.736);
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(1, 0, 9, 0.792);
+    padding: 1rem 0.5rem;
+    width: 100%;
+    margin: auto;
+    border-top-left-radius: 50px;
+}
+
+.pickaxe-autominar-icon img {
+    width: 45px;
+    margin: auto;
+}
+
+.pickaxe-autominar-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: center;
+    line-height: 1;
+}
+
+.pickaxe-autominar-text p {
+    font-size: 0.8rem;
+}
+
+.pickaxe-autominar-subtitle {
+    font-size: 0.75rem;
+}
+
+.pickaxe-autominar-action {
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.3rem;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pickaxe-autominar-btn-img {
+    width: 100px;
+    object-fit: contain;
+}
+
+.pickaxe-autominar-price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.5rem;
+    border: 1px solid #f0a40044;
+    border-radius: 10px;
+    padding: 0.3rem 0.4rem;
+}
+
+.pickaxe-autominar-price img {
+    width: 16px;
+    height: auto;
+}
+
+.pickaxe-autominar-maxlevel {
+    font-size: 0.625rem;
+    color: #f0a500;
+    margin: 2px 0;
+}
+
+@keyframes pickaxe-autominar-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+.pickaxe-autominar-action button.pickaxe-autominar-notify {
+    animation: pickaxe-autominar-pulse 0.9s ease-in-out infinite;
+}
+
+.pickaxe-autominar-action button:disabled {
+    cursor: not-allowed;
+}
+
+.pickaxe-autominar-action button:disabled img {
+    filter: grayscale(100%) brightness(0.5);
+}
+

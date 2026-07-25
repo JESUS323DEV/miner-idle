@@ -9,6 +9,8 @@ import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond
 
 // ===== ASSETS: ORO =====
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
+import iconUpgrade from "../../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.webp"
+import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 
@@ -152,36 +154,35 @@ const PickaxeModal = ({
 
 
                 <div className="cont-snack-stamina">
-                    <div className="snack1-stamina">
+                    <div className="pickaxe-autominar-card">
+                        <div className="pickaxe-autominar-icon">
+                            <img src={iconUpgrade} alt="autominar" />
+                        </div>
+
+                        <div className="pickaxe-autominar-text">
+                            <p>Recarga Autominar</p>
+                            <small className="pickaxe-autominar-subtitle">
+                                {!automineUnlocked ? 'Desbloquea autominar' : `Nv ${automineLevel}`}
+                            </small>
+                        </div>
+
                         {!automineUnlocked ? (
-                            <div className="slot-upgrade-content">
-                                <p className="slot-upgrade-title">Recarga Autominar</p>
-                                <small className="slot-soon-tag">Desbloquea autominar</small>
-                            </div>
+                            <p className="pickaxe-autominar-maxlevel">Bloqueado</p>
                         ) : automineLevel >= automineMax ? (
-                            <div className="slot-upgrade-content">
-                                <p className="slot-upgrade-title">Recarga Autominar</p>
-                                <small className="slot-soon-tag">Al maximo</small>
-                            </div>
+                            <p className="pickaxe-autominar-maxlevel">Al máximo</p>
                         ) : (
-                            <div className="slot-upgrade-content">
-                                <div>
-
-                                    <p className="slot-upgrade-title">Recarga Autominar</p>
-                                    <span className="slot-upgrade-lvl">Nv {automineLevel}</span>
-                                </div>
-
+                            <div className="pickaxe-autominar-action">
                                 <button
-                                    className={`btn-slot-upgrade${!canAffordAutomineUpgrade ? ' locked' : ''}`}
+                                    className={canAffordAutomineUpgrade ? 'pickaxe-autominar-notify' : ''}
                                     onClick={onAutomineUpgrade}
                                     disabled={!canAffordAutomineUpgrade}
                                 >
-                                    Mejorar
-                                    <span className="info-tier">
-                                        {formatNumber(automineNextCost)}<img src={iconGold} alt="Gold" />
-                                    </span>
-
+                                    <img className="pickaxe-autominar-btn-img" src={buttonUpgrade} alt="Mejorar" />
                                 </button>
+                                <span className="pickaxe-autominar-price">
+                                    {formatNumber(automineNextCost)}
+                                    <img src={iconGold} alt="gold" />
+                                </span>
                             </div>
                         )}
                     </div>
