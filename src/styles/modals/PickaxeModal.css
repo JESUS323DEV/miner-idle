@@ -141,10 +141,16 @@
 }
 
 .info-tier {
+
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 12px;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    border: 1px solid #f0a40044;
+    border-radius: 10px;
+    padding: 0.3rem 0.4rem;
+    background: #010014bc;
 }
 
 .info-tier img {
@@ -213,7 +219,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.2rem;
-    font-size: 0.5rem;
+    font-size: 0.6rem;
     border: 1px solid #f0a40044;
     border-radius: 10px;
     padding: 0.3rem 0.4rem;
@@ -253,4 +259,3 @@
 .pickaxe-autominar-action button:disabled img {
     filter: grayscale(100%) brightness(0.5);
 }
-

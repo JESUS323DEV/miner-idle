@@ -107,7 +107,7 @@ const PickaxeModal = ({
 
                         {pickaxeTier < 5 ? (
                             <button
-                                className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : ""}`}
+                                className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : canAfford ? "notify-pulse" : ""}`}
                                 onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
                                 disabled={!canAfford}
                                 data-tutorial="tut-pickaxe-modal"
