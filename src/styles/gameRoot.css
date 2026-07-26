@@ -439,6 +439,10 @@
     animation: notifyPulse 1.8s ease-in-out infinite;
 }
 
+.notify-wave {
+    animation: pulse 1.5s infinite;
+}
+
 .btn-notify-dot {
     position: relative;
 }

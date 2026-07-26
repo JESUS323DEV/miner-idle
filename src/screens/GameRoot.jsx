@@ -18,6 +18,7 @@ import useAutomineCooldown from "../game/hooks/useAutomineCooldown.js";
 import useDogsAutomine from "../game/hooks/useDogsAutomine.js";
 import { useBackgroundMusic } from "../game/hooks/useBackgroundMusic.js";
 import { useFloatingNumbers } from "../game/hooks/useFloatingNumbers.js";
+import { useAffordNotify } from "../game/hooks/useAffordNotify.js";
 import { useBurst } from "../game/hooks/useBurst.js";
 import { useGoldTrickle } from "../game/hooks/useGoldTrickle.js";
 import { useRentalTimer } from "../game/hooks/useRentalTimer.js";
@@ -514,6 +515,24 @@ function GameRoot({ onBack }) {
     (gameState[materialUpgradeCost?.ingot?.type] ?? 0) >=
     (materialUpgradeCost?.ingot?.amount || 0);
 
+  // ===== AVISOS "PENDIENTE" DE LOS BOTONES + DEL HUD =====
+  const canAffordAutomineUpgradeVar = (gameState.automineUpgradeLevel ?? 0) < AutomineConfig.chargeUpgrades.length
+    && gameState.gold >= (AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? Infinity);
+  const canAffordOfflineGoldVar = gameState.offlineGoldLevel === -1
+    ? gameState.gold >= OFFLINE_GOLD_CONFIG[0].unlockCost
+    : gameState.offlineGoldLevel < 3 && gameState.gold >= (OFFLINE_GOLD_CONFIG[gameState.offlineGoldLevel + 1]?.upgradeCost ?? Infinity);
+  const staminaCoinCost = gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10);
+
+  const canAffordAnyGoldPerSec = gameState.gold >= gameState.goldPerSecondCost || canAffordOfflineGoldVar;
+  const canAffordAnyStamina = (gameState.gold >= gameState.maxStaminaCost && gameState.tavernCoins >= staminaCoinCost)
+    || (gameState.gold >= gameState.burstRechargeCost && gameState.burstRechargeLevel < 55)
+    || (gameState.gold >= gameState.burstPowerCost && gameState.burstPowerLevel < 55);
+  const canAffordAnyPickaxe = canAffordTierUpgrade || canAffordAutomineUpgradeVar;
+
+  const [unseenGoldPerSec, markSeenGoldPerSec] = useAffordNotify(canAffordAnyGoldPerSec);
+  const [unseenStamina, markSeenStamina] = useAffordNotify(canAffordAnyStamina);
+  const [unseenPickaxe, markSeenPickaxe] = useAffordNotify(canAffordAnyPickaxe);
+
   // Devuelve imagen del pico según material y tier actual
   const getPickaxeIcon = (material, tier) => {
     const icons = {
@@ -850,9 +869,10 @@ function GameRoot({ onBack }) {
               onClick={() => {
                 if (tutorialStep !== 0) setTutorialStep(null);
                 setOpenModal("goldPerSecond");
+                markSeenGoldPerSec();
               }}
               disabled={!gameState.tutorial?.completed && tutorialStep !== 0}
-              className={`openDisplay1 ${tutorialStep === 0 && openModal === null ? "tutorial-highlight" : ""}`}
+              className={`openDisplay1 ${tutorialStep === 0 && openModal === null ? "tutorial-highlight" : ""} ${unseenGoldPerSec ? "notify-wave" : ""}`}
               style={{ position: "relative" }}
               data-tutorial="tut-0"
             >
@@ -891,10 +911,7 @@ function GameRoot({ onBack }) {
             offlineGoldConfig={OFFLINE_GOLD_CONFIG}
             onUnlockOfflineGold={handleUnlockOfflineGold}
             onUpgradeOfflineGold={handleUpgradeOfflineGold}
-            canAffordOfflineGold={gameState.offlineGoldLevel === -1
-              ? gameState.gold >= OFFLINE_GOLD_CONFIG[0].unlockCost
-              : gameState.offlineGoldLevel < 3 && gameState.gold >= (OFFLINE_GOLD_CONFIG[gameState.offlineGoldLevel + 1]?.upgradeCost ?? Infinity)
-            }
+            canAffordOfflineGold={canAffordOfflineGoldVar}
           />
 
           {/* BURST */}
@@ -913,10 +930,10 @@ function GameRoot({ onBack }) {
 
             {/* Mejora burst — abre modal con duración y recarga */}
             <button
-              className={`openDisplay2 ${tutorialStep === 1 ? 'tutorial-highlight' : ''}`}
+              className={`openDisplay2 ${tutorialStep === 1 ? 'tutorial-highlight' : ''} ${unseenStamina ? "notify-wave" : ""}`}
               style={tutorialStep === 1 ? { position: 'relative', zIndex: 600 } : {}}
               data-tutorial="tut-1"
-              onClick={() => { setTutorialStep(null); setOpenModal("maxStamina"); }}
+              onClick={() => { setTutorialStep(null); setOpenModal("maxStamina"); markSeenStamina(); }}
             >
               <img src={refillStaminaIcon} alt="Mejorar burst" />
             </button>
@@ -928,14 +945,14 @@ function GameRoot({ onBack }) {
             onClose={() => { setOpenModal(null); setTutorialStep(null); }}
             currentLevel={`Nv. ${gameState.maxStaminaLevel} `}
             cost={gameState.maxStaminaCost}
-            coinCost={gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10)}
+            coinCost={staminaCoinCost}
             onUpgrade={() => {
               handleBuyMaxStaminaUpgrade();
               if (!gameState.tutorial?.completed) setOpenModal(null);
             }}
             canAfford={
               gameState.gold >= gameState.maxStaminaCost &&
-              gameState.tavernCoins >= (gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10))
+              gameState.tavernCoins >= staminaCoinCost
             }
             tutorialPhase={!gameState.tutorial?.staminaUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
             tutorialHint="stamina"
@@ -978,9 +995,10 @@ function GameRoot({ onBack }) {
               onClick={() => {
                 setTutorialStep(null);
                 setOpenModal("pickaxe");
+                markSeenPickaxe();
               }}
               disabled={!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed}
-              className={`openDisplay3 ${tutorialStep === 2 ? 'tutorial-highlight' : ''}`}
+              className={`openDisplay3 ${tutorialStep === 2 ? 'tutorial-highlight' : ''} ${unseenPickaxe ? "notify-wave" : ""}`}
               style={tutorialStep === 2 ? { position: 'relative', zIndex: 600 } : {}}
               data-tutorial="tut-2"
             >
@@ -1029,7 +1047,7 @@ function GameRoot({ onBack }) {
             automineLevel={gameState.automineUpgradeLevel ?? 0}
             automineMax={AutomineConfig.chargeUpgrades.length}
             automineNextCost={AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? null}
-            canAffordAutomineUpgrade={(gameState.automineUpgradeLevel ?? 0) < AutomineConfig.chargeUpgrades.length && gameState.gold >= (AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? Infinity)}
+            canAffordAutomineUpgrade={canAffordAutomineUpgradeVar}
             automineUnlocked={gameState.automine?.unlocked ?? false}
           />
         </div>
