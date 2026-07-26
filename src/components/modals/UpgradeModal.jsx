@@ -8,6 +8,8 @@ import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.web
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import iconUnlock from "../../assets/ui/icons-hud/hud-modals/unlock.webp"
 import iconOffline from "../../assets/ui/icons-hud/hud-modals/off-line.webp"
+import iconStaminaRecharge from "../../assets/ui/icons-hud/hud-principal/stamina-2.webp"
+import iconBurstPower from "../../assets/ui/icons-hud/hud-principal/stamina-3.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 /**
@@ -150,11 +152,48 @@ const UpgradeModal = ({
                     )}*/}
 
 
-                    {/* SNACKS STAMINA — próximamente */}
+                    {/* MEJORAS DE BURST — recarga menor (solo visual de momento, sin lógica) */}
                     {showStaminaSnacks && !snacksData && (
-                        <div className="cont-snack-stamina">
-                            <div className='snack1-stamina'><p>Snack Stamina (Próximamente)</p></div>
-                            <div className='snack2-repair'><p>Snack (Próximamente)</p></div>
+                        <div className="cont-snacks">
+                            <div className="container-snacks">
+                                <div className="snack1">
+                                    <div className="cont-cookie-2">
+                                        <img src={iconStaminaRecharge} alt="recarga" />
+                                    </div>
+
+                                    <div className="text-cookie">
+                                        <p>Recarga Burst</p>
+                                        <small className="text-info">Reduce el tiempo de recarga</small>
+                                    </div>
+
+                                    <div className="cont-unlock-btn">
+                                        <button>
+                                            <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
+                                        </button>
+                                        <span className="snack-btn-price">???</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="container-snacks">
+                                <div className="snack1">
+                                    <div className="cont-cookie-2">
+                                        <img src={iconBurstPower} alt="poder burst" />
+                                    </div>
+
+                                    <div className="text-cookie">
+                                        <p>Poder Burst</p>
+                                        <small className="text-info">Aumenta el oro extra del burst</small>
+                                    </div>
+
+                                    <div className="cont-unlock-btn">
+                                        <button>
+                                            <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
+                                        </button>
+                                        <span className="snack-btn-price">???</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
 

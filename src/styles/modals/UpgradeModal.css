@@ -241,9 +241,9 @@
     gap: 0.3rem;
 }
 
-.snack1 button img {
-    width: 20px;
-}
+
+
+
 
 .text-info {
 
@@ -251,12 +251,15 @@
 }
 
 
-
-
-
 .cont-cookie img {
-    width: 50px;
+    width: 40px;
     margin: auto;
+}
+
+.cont-cookie-2 img {
+
+width: 30px;
+margin: auto;
 }
 
 .snack-btn-price {
