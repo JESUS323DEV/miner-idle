@@ -12,7 +12,9 @@ const InitialGameState = {
     goldPerSecondLevel: 0,       // Nivel actual del upgrade oro/segundo
     goldPerSecondCost: 1000,      // Coste actual del upgrade
     goldPerSecondCostIncrease: 500, // Cuánto sube el coste por nivel
-    offlineGoldLevel: -1,         // -1=bloqueado, 0=base, 1-3=mejoras
+    offlineGoldLevel: -1,         // -1=bloqueado, 0=desbloqueado (rate1/cap ya van al máximo)
+    offlineHoursLevel: 0,         // mejora de horas offline (0-30), independiente de offlineGoldLevel
+    offlineRate2Level: 0,         // mejora de rendimiento offline pasada la ventana (0-19)
 
     // ========== CONEXIÓN DIARIA ==========
     dailyLogin: {

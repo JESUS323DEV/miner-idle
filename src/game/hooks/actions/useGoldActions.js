@@ -7,6 +7,24 @@ export const OFFLINE_GOLD_CONFIG = [
     { upgradeCost: 75000,  rate1: 0.15, hours: 10, rate2: 0.04, cap: 140000 },
     { upgradeCost: 100000, rate1: 0.20, hours: 10, rate2: 0.05, cap: 180000 },
 ];
+// rate1/cap ya no escalan por nivel: al desbloquear se congelan en el máximo (nivel 3).
+export const OFFLINE_RATE1_FROZEN = OFFLINE_GOLD_CONFIG[3].rate1;
+export const OFFLINE_CAP_FROZEN = OFFLINE_GOLD_CONFIG[3].cap;
+
+// ===== HORAS OFFLINE — mejora nueva, sustituye la progresión vieja de Oro Offline =====
+export const OFFLINE_HOURS_BASE = 10;       // horas en nivel 0 (justo al desbloquear)
+export const OFFLINE_HOURS_STEP_MIN = 20;   // minutos que suma cada nivel
+export const OFFLINE_HOURS_MAX_LEVEL = 30;  // tope: 10h + 30*20min = 20h
+export const getOfflineHoursCost = (nextLevel) =>
+    nextLevel <= 24 ? nextLevel * 2000 : 48000 + (nextLevel - 24) * 10000;
+
+// ===== RENDIMIENTO OFFLINE — mejora nueva, sube rate2 (ritmo pasada la ventana de horas) =====
+export const OFFLINE_RATE2_BASE = 0.01;     // 1% en nivel 0 (justo al desbloquear)
+export const OFFLINE_RATE2_STEP = 0.01;     // +1% por nivel
+export const OFFLINE_RATE2_MAX_LEVEL = 19;  // tope: 1% + 19*1% = 20% (iguala rate1, nunca lo supera)
+export const getOfflineRate2Cost = (nextLevel) =>
+    nextLevel <= 15 ? nextLevel * 2000 : 30000 + (nextLevel - 15) * 10000;
+
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
@@ -330,14 +348,61 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         });
     };
 
-    const handleUpgradeOfflineGold = () => {
-        setGameState(prev => {
-            const nextLevel = (prev.offlineGoldLevel ?? -1) + 1;
-            if (nextLevel < 1 || nextLevel > 3) return prev;
-            const cost = OFFLINE_GOLD_CONFIG[nextLevel].upgradeCost;
-            if (prev.gold < cost) return prev;
-            showGoldCost(cost);
-            return { ...prev, gold: prev.gold - cost, totalGoldSpent: prev.totalGoldSpent + cost, offlineGoldLevel: nextLevel };
+    const handleBuyOfflineHours = () => {
+        const level = gameState.offlineHoursLevel ?? 0;
+        if (level >= OFFLINE_HOURS_MAX_LEVEL) return;
+        const cost = getOfflineHoursCost(level + 1);
+        if (gameState.gold < cost) return;
+
+        showGoldCost(cost);
+        setGameState(prevState => {
+            const prevLevel = prevState.offlineHoursLevel ?? 0;
+            if (prevLevel >= OFFLINE_HOURS_MAX_LEVEL) return prevState;
+            const prevCost = getOfflineHoursCost(prevLevel + 1);
+            if (prevState.gold < prevCost) return prevState;
+
+            const newGoldSpent = prevState.totalGoldSpent + prevCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - prevCost,
+                totalGoldSpent: newGoldSpent,
+                offlineHoursLevel: prevLevel + 1,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
+            };
+        });
+    };
+
+    const handleBuyOfflineRate2 = () => {
+        const level = gameState.offlineRate2Level ?? 0;
+        if (level >= OFFLINE_RATE2_MAX_LEVEL) return;
+        const cost = getOfflineRate2Cost(level + 1);
+        if (gameState.gold < cost) return;
+
+        showGoldCost(cost);
+        setGameState(prevState => {
+            const prevLevel = prevState.offlineRate2Level ?? 0;
+            if (prevLevel >= OFFLINE_RATE2_MAX_LEVEL) return prevState;
+            const prevCost = getOfflineRate2Cost(prevLevel + 1);
+            if (prevState.gold < prevCost) return prevState;
+
+            const newGoldSpent = prevState.totalGoldSpent + prevCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - prevCost,
+                totalGoldSpent: newGoldSpent,
+                offlineRate2Level: prevLevel + 1,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
+            };
         });
     };
 
@@ -378,7 +443,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         handleBuyBurstRecharge,
         handleBuyBurstPower,
         handleUnlockOfflineGold,
-        handleUpgradeOfflineGold,
+        handleBuyOfflineHours,
+        handleBuyOfflineRate2,
         handleClaimDailyLogin,
     };
 };

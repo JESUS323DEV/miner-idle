@@ -8,6 +8,7 @@ import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.web
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import iconUnlock from "../../assets/ui/icons-hud/hud-modals/unlock.webp"
 import iconOffline from "../../assets/ui/icons-hud/hud-modals/off-line.webp"
+import iconOfflineRate2 from "../../assets/ui/icons-hud/hud-modals/off-line2.webp"
 import iconStaminaRecharge from "../../assets/ui/icons-hud/hud-principal/stamina-2.webp"
 import iconBurstPower from "../../assets/ui/icons-hud/hud-principal/stamina-3.webp"
 
@@ -66,6 +67,14 @@ const UpgradeModal = ({
     onUnlockOfflineGold = null,
     onUpgradeOfflineGold = null,
     canAffordOfflineGold = false,
+    offlineHoursLevel = 0,
+    offlineHoursMax = 30,
+    offlineHoursNextCost = 0,
+    onUpgradeOfflineRate2 = null,
+    offlineRate2Level = 0,
+    offlineRate2Max = 19,
+    offlineRate2NextCost = 0,
+    canAffordOfflineRate2 = false,
 
 }) => {
     // Tick para forzar re-render del timer del snack cada segundo
@@ -295,7 +304,7 @@ const UpgradeModal = ({
                                         </div>
 
                                         <div className='text-cookie'>
-                                            <p>{offlineGoldLevel === -1 ? 'Oro Offline' : `Oro Offline Nv. ${offlineGoldLevel}`}</p>
+                                            <p>{offlineGoldLevel === -1 ? 'Oro Offline' : `Oro Offline Nv. ${offlineHoursLevel}`}</p>
 
                                             <small className='text-info'>Gana oro mientras no juegas</small>
 
@@ -315,7 +324,7 @@ const UpgradeModal = ({
                                             </div>
                                         ) : (
                                             <>
-                                                {offlineGoldLevel < 3 ? (
+                                                {offlineHoursLevel < offlineHoursMax ? (
                                                     <div className="cont-unlock-btn">
                                                         <button
                                                             className={canAffordOfflineGold ? "notify-pulse" : ""}
@@ -325,12 +334,46 @@ const UpgradeModal = ({
                                                         >
                                                             <img src={buttonImage} alt="Mejorar" style={{ width: 100, objectFit: 'contain' }} />
                                                         </button>
-                                                        <span className="snack-btn-price ">{formatNumber(offlineGoldConfig[offlineGoldLevel + 1]?.upgradeCost ?? 0)} <img src={iconGold} alt="gold" /></span>
+                                                        <span className="snack-btn-price ">{formatNumber(offlineHoursNextCost)} <img src={iconGold} alt="gold" /></span>
                                                     </div>
                                                 ) : (
                                                     <p className="snack-max-level  ">Nivel máximo</p>
                                                 )}
                                             </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* RENDIMIENTO OFFLINE — sube rate2, solo visible tras desbloquear Oro Offline */}
+                            {offlineGoldLevel >= 0 && (
+                                <div className="container-snacks">
+                                    <div className="snack1">
+                                        <div className="cont-cookie">
+                                            <div className="cont-text-img">
+                                                <img src={iconOfflineRate2} alt="rendimiento-offline" />
+                                            </div>
+                                        </div>
+
+                                        <div className='text-cookie'>
+                                            <p>Rendimiento Offline Nv. {offlineRate2Level}</p>
+                                            <small className='text-info'>Sube el oro offline pasada la ventana de horas</small>
+                                        </div>
+
+                                        {offlineRate2Level < offlineRate2Max ? (
+                                            <div className="cont-unlock-btn">
+                                                <button
+                                                    className={canAffordOfflineRate2 ? "notify-pulse" : ""}
+                                                    onClick={onUpgradeOfflineRate2}
+                                                    disabled={!canAffordOfflineRate2}
+                                                    style={{ opacity: canAffordOfflineRate2 ? 1 : 0.5 }}
+                                                >
+                                                    <img src={buttonImage} alt="Mejorar" style={{ width: 100, objectFit: 'contain' }} />
+                                                </button>
+                                                <span className="snack-btn-price ">{formatNumber(offlineRate2NextCost)} <img src={iconGold} alt="gold" /></span>
+                                            </div>
+                                        ) : (
+                                            <p className="snack-max-level  ">Nivel máximo</p>
                                         )}
                                     </div>
                                 </div>

@@ -9,7 +9,7 @@ import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
 import { useGameActions } from "../game/hooks/useGameActions.js";
-import { OFFLINE_GOLD_CONFIG } from "../game/hooks/actions/useGoldActions.js";
+import { OFFLINE_GOLD_CONFIG, OFFLINE_HOURS_MAX_LEVEL, getOfflineHoursCost, OFFLINE_RATE2_MAX_LEVEL, getOfflineRate2Cost } from "../game/hooks/actions/useGoldActions.js";
 import { getDailyLoginState } from "../game/config/DailyLoginConfig.js";
 import { useAutoMining } from "../game/hooks/useAutoMining.js";
 import useSnackBuffs from "../game/hooks/useSnackBuffs.js";
@@ -240,7 +240,8 @@ function GameRoot({ onBack }) {
     handleBuyBurstPower,
     handleActivateBurst,
     handleUnlockOfflineGold,
-    handleUpgradeOfflineGold,
+    handleBuyOfflineHours,
+    handleBuyOfflineRate2,
     handleClaimDailyLogin,
     handleUpgradePickaxeMaterial,
     handleUpgradePickaxeTier,
@@ -535,10 +536,14 @@ function GameRoot({ onBack }) {
     && gameState.gold >= getPoderUpgradeCost((gameState.autominePoderLevel ?? 0) + 1);
   const canAffordOfflineGoldVar = gameState.offlineGoldLevel === -1
     ? gameState.gold >= OFFLINE_GOLD_CONFIG[0].unlockCost
-    : gameState.offlineGoldLevel < 3 && gameState.gold >= (OFFLINE_GOLD_CONFIG[gameState.offlineGoldLevel + 1]?.upgradeCost ?? Infinity);
+    : (gameState.offlineHoursLevel ?? 0) < OFFLINE_HOURS_MAX_LEVEL
+      && gameState.gold >= getOfflineHoursCost((gameState.offlineHoursLevel ?? 0) + 1);
+  const canAffordOfflineRate2Var = gameState.offlineGoldLevel >= 0
+    && (gameState.offlineRate2Level ?? 0) < OFFLINE_RATE2_MAX_LEVEL
+    && gameState.gold >= getOfflineRate2Cost((gameState.offlineRate2Level ?? 0) + 1);
   const staminaCoinCost = gameState.maxStaminaLevel < 10 ? 1 : 1 + (gameState.maxStaminaLevel - 10);
 
-  const canAffordAnyGoldPerSec = gameState.gold >= gameState.goldPerSecondCost || canAffordOfflineGoldVar;
+  const canAffordAnyGoldPerSec = gameState.gold >= gameState.goldPerSecondCost || canAffordOfflineGoldVar || canAffordOfflineRate2Var;
   const canAffordAnyStamina = (gameState.gold >= gameState.maxStaminaCost && gameState.tavernCoins >= staminaCoinCost)
     || (gameState.gold >= gameState.burstRechargeCost && gameState.burstRechargeLevel < 55)
     || (gameState.gold >= gameState.burstPowerCost && gameState.burstPowerLevel < 55);
@@ -937,8 +942,16 @@ function GameRoot({ onBack }) {
             offlineGoldLevel={gameState.offlineGoldLevel}
             offlineGoldConfig={OFFLINE_GOLD_CONFIG}
             onUnlockOfflineGold={handleUnlockOfflineGold}
-            onUpgradeOfflineGold={handleUpgradeOfflineGold}
+            onUpgradeOfflineGold={handleBuyOfflineHours}
             canAffordOfflineGold={canAffordOfflineGoldVar}
+            offlineHoursLevel={gameState.offlineHoursLevel ?? 0}
+            offlineHoursMax={OFFLINE_HOURS_MAX_LEVEL}
+            offlineHoursNextCost={getOfflineHoursCost((gameState.offlineHoursLevel ?? 0) + 1)}
+            onUpgradeOfflineRate2={handleBuyOfflineRate2}
+            offlineRate2Level={gameState.offlineRate2Level ?? 0}
+            offlineRate2Max={OFFLINE_RATE2_MAX_LEVEL}
+            offlineRate2NextCost={getOfflineRate2Cost((gameState.offlineRate2Level ?? 0) + 1)}
+            canAffordOfflineRate2={canAffordOfflineRate2Var}
           />
 
           {/* BURST */}

@@ -10,7 +10,14 @@ import InitialMinesState from './InitialMinesState.js';
 import InitialQuestsState from './InitialQuestsState.js';
 import { ForgeConfig } from '../config/ForgeConfig.js';
 import { getDogStats } from '../utils/getDogStats.js';
-import { OFFLINE_GOLD_CONFIG } from '../hooks/actions/useGoldActions.js';
+import {
+    OFFLINE_RATE1_FROZEN,
+    OFFLINE_RATE2_BASE,
+    OFFLINE_RATE2_STEP,
+    OFFLINE_CAP_FROZEN,
+    OFFLINE_HOURS_BASE,
+    OFFLINE_HOURS_STEP_MIN,
+} from '../hooks/actions/useGoldActions.js';
 
 const SAVE_KEY = 'ladyHungryGame';
 
@@ -231,16 +238,20 @@ export const loadSavedState = () => {
         })(),
     };
 
-    // Oro pasivo offline
+    // Oro pasivo offline — rate1/cap congelados al máximo desde el desbloqueo,
+    // horas según offlineHoursLevel, rate2 según offlineRate2Level
     const offlineLevel = baseState.offlineGoldLevel ?? -1;
     if (offlineLevel >= 0 && savedAt && baseState.goldPerSecond > 0) {
-        const cfg = OFFLINE_GOLD_CONFIG[offlineLevel];
+        const hoursLevel = baseState.offlineHoursLevel ?? 0;
+        const windowSec = (OFFLINE_HOURS_BASE * 60 + hoursLevel * OFFLINE_HOURS_STEP_MIN) * 60;
+        const rate2Level = baseState.offlineRate2Level ?? 0;
+        const rate2 = OFFLINE_RATE2_BASE + rate2Level * OFFLINE_RATE2_STEP;
         const elapsedSec = Math.max(0, (Date.now() - savedAt) / 1000);
-        const firstSec = Math.min(elapsedSec, cfg.hours * 3600);
-        const restSec = Math.max(0, elapsedSec - cfg.hours * 3600);
+        const firstSec = Math.min(elapsedSec, windowSec);
+        const restSec = Math.max(0, elapsedSec - windowSec);
         const earned = Math.min(
-            Math.floor(firstSec * baseState.goldPerSecond * cfg.rate1 + restSec * baseState.goldPerSecond * cfg.rate2),
-            cfg.cap
+            Math.floor(firstSec * baseState.goldPerSecond * OFFLINE_RATE1_FROZEN + restSec * baseState.goldPerSecond * rate2),
+            OFFLINE_CAP_FROZEN
         );
         if (earned > 0) {
             return simulateOfflineForge({ ...baseState, gold: baseState.gold + earned });
