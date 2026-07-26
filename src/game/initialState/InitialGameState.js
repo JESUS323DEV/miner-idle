@@ -72,6 +72,7 @@ const InitialGameState = {
         isActive: false
     },
     automineUpgradeLevel: 0,
+    autominePoderLevel: 0,
     poderCooldownUntil: null,
 
     // ========== COMBOS ==========

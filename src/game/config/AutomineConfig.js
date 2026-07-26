@@ -21,8 +21,10 @@ export const AutomineConfig = {
     ],
     // 25s → 20s → 15s → 10s → 7s al máximo nivel
 
-    // ===== PODER =====
-    poderCooldown: 30,       // segundos de cooldown entre usos
+    // ===== PODER — mejora de cooldown =====
+    poderCooldownBase: 40,   // segundos de cooldown en nivel 0
+    poderCooldownFloor: 15,  // suelo mínimo de cooldown
+    poderMaxLevel: 25,       // 40s - 25 = 15s (tope)
 
     // ===== VELOCIDAD =====
     clickInterval: 140,

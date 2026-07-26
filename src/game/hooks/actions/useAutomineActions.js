@@ -8,6 +8,14 @@ const getEffectiveRecovery = (upgradeLevel) => {
     return AutomineConfig.chargeRecoveryTime - reduction;
 };
 
+// Poder Autominar: 40s base, -1s por nivel, suelo 15s (25 niveles)
+const getPoderCooldown = (level) =>
+    Math.max(AutomineConfig.poderCooldownFloor, AutomineConfig.poderCooldownBase - (level ?? 0));
+
+// Coste: 1k por nivel hasta nivel 15, luego 10k por nivel hasta el tope (25)
+export const getPoderUpgradeCost = (nextLevel) =>
+    nextLevel <= 15 ? nextLevel * 1000 : 15000 + (nextLevel - 15) * 10000;
+
 export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
 
     // ========== DESBLOQUEAR AUTOMINE ==========
@@ -124,10 +132,41 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
             });
             if (recharged === 0) return prevState;
 
+            const poderCooldown = getPoderCooldown(prevState.autominePoderLevel ?? 0);
             return {
                 ...prevState,
                 automine: { ...prevState.automine, charges: newCharges },
-                poderCooldownUntil: now + (AutomineConfig.poderCooldown * 1000),
+                poderCooldownUntil: now + (poderCooldown * 1000),
+            };
+        });
+    };
+
+    // ========== MEJORAR PODER (baja el cooldown) ==========
+    const handleBuyAutominePoder = () => {
+        const level = gameState.autominePoderLevel ?? 0;
+        if (level >= AutomineConfig.poderMaxLevel) return;
+        const cost = getPoderUpgradeCost(level + 1);
+        if (gameState.gold < cost) return;
+
+        showGoldCost(cost);
+        setGameState(prevState => {
+            const prevLevel = prevState.autominePoderLevel ?? 0;
+            if (prevLevel >= AutomineConfig.poderMaxLevel) return prevState;
+            const prevCost = getPoderUpgradeCost(prevLevel + 1);
+            if (prevState.gold < prevCost) return prevState;
+
+            const newGoldSpent = prevState.totalGoldSpent + prevCost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - prevCost,
+                totalGoldSpent: newGoldSpent,
+                autominePoderLevel: prevLevel + 1,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                }
             };
         });
     };
@@ -138,5 +177,6 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
         handleStopAutomine,
         handleAutomineUpgrade,
         handleActivatePoder,
+        handleBuyAutominePoder,
     };
 };

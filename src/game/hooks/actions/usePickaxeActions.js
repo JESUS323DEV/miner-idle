@@ -113,6 +113,8 @@ export const usePickaxeActions = (gameState, setGameState, showGoldCost) => {
                 newMaterial = "diamond";
             }
 
+            if (!newMaterial) return prevState;
+
             const newGoldPerMine = prevState.pickaxe.goldPerMineByMaterial[newMaterial];
             const upgradeCost = prevState.pickaxe.materialUpgradeCosts?.[prevState.pickaxe.material];
             const goldCost = upgradeCost?.gold || 0;

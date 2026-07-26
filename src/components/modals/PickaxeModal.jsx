@@ -9,8 +9,9 @@ import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond
 
 // ===== ASSETS: ORO =====
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
-import iconUpgrade from "../../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.webp"
 import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
+import iconCardRecarga from "../../assets/ui/icons-hud/hud-modals/modal-pickaxe/card-1.webp"
+import iconCardPoder from "../../assets/ui/icons-hud/hud-modals/modal-pickaxe/card-2.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 
@@ -77,6 +78,11 @@ const PickaxeModal = ({
     automineNextCost = null,
     canAffordAutomineUpgrade = false,
     automineUnlocked = false,
+    onAutominePoderUpgrade = null,
+    autominePoderLevel = 0,
+    autominePoderMax = 25,
+    autominePoderNextCost = null,
+    canAffordAutominePoder = false,
 }) => {
     if (!isOpen) return null;
 
@@ -156,7 +162,7 @@ const PickaxeModal = ({
                 <div className="cont-snack-stamina">
                     <div className="pickaxe-autominar-card">
                         <div className="pickaxe-autominar-icon">
-                            <img src={iconUpgrade} alt="autominar" />
+                            <img src={iconCardRecarga} alt="recarga autominar" />
                         </div>
 
                         <div className="pickaxe-autominar-text">
@@ -186,9 +192,34 @@ const PickaxeModal = ({
                             </div>
                         )}
                     </div>
-                    <div className="snack2-repair">
-                        <span className="slot-soon-name">Snack Reparacion</span>
-                        <span className="slot-soon-tag">Proximamente</span>
+
+                    <div className="pickaxe-autominar-card">
+                        <div className="pickaxe-autominar-icon">
+                            <img src={iconCardPoder} alt="poder autominar" />
+                        </div>
+
+                        <div className="pickaxe-autominar-text">
+                            <p>Poder Autominar</p>
+                            <small className="pickaxe-autominar-subtitle">Nv {autominePoderLevel}</small>
+                        </div>
+
+                        {autominePoderLevel >= autominePoderMax ? (
+                            <p className="pickaxe-autominar-maxlevel">Al máximo</p>
+                        ) : (
+                            <div className="pickaxe-autominar-action">
+                                <button
+                                    className={canAffordAutominePoder ? 'pickaxe-autominar-notify' : ''}
+                                    onClick={onAutominePoderUpgrade}
+                                    disabled={!canAffordAutominePoder}
+                                >
+                                    <img className="pickaxe-autominar-btn-img" src={buttonUpgrade} alt="Mejorar" />
+                                </button>
+                                <span className="pickaxe-autominar-price">
+                                    {formatNumber(autominePoderNextCost)}
+                                    <img src={iconGold} alt="gold" />
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
 

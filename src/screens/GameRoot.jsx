@@ -27,6 +27,7 @@ import { useFragmentRewardsUnlock } from "../game/hooks/useFragmentRewardsUnlock
 import { useTutorialTriggers } from "../game/hooks/useTutorialTriggers.js";
 import { useTavernTick } from "../game/hooks/useTavernTick.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
+import { getPoderUpgradeCost } from "../game/hooks/actions/useAutomineActions.js";
 import { formatNumber, formatNumber2, formatRentalTimer } from "../game/utils/formatters.js";
 import { InitialDogsState } from "../game/initialState/InitialDogsState.js";
 import { InitialForgeDogsState } from "../game/initialState/InitialForgeDogsState.js";
@@ -105,6 +106,15 @@ import pickAxeDiamond from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/
 import pickAxeDiamond1 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier1.webp";
 import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier2.webp";
 import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.webp";
+
+// ===== ASSETS: PICKAXE — nuevos, solo para el icono dentro del modal del pico =====
+import pickAxeModalStoneTier0 from "../assets/ui/icons-pickaxe/icons/stone/tier-0-stone.webp";
+import pickAxeModalStoneTier2 from "../assets/ui/icons-pickaxe/icons/stone/tier-2-stone.webp";
+import pickAxeModalBronzeTier0 from "../assets/ui/icons-pickaxe/icons/bronze/tier-0-bronze.webp";
+import pickAxeModalBronzeTier2 from "../assets/ui/icons-pickaxe/icons/bronze/tier-2-bronze.webp";
+import pickAxeModalIronTier0 from "../assets/ui/icons-pickaxe/icons/iron/tier-0-iron.webp";
+import pickAxeModalIronTier2 from "../assets/ui/icons-pickaxe/icons/iron/tier-2-iron.webp";
+import pickAxeModalDiamondTier from "../assets/ui/icons-pickaxe/icons/diamond/diamond-tier.webp";
 
 // ===== ASSETS: ICONOS PANTALLAS =====
 import mineModal from "../assets/ui/icon-mine1.webp";
@@ -253,6 +263,7 @@ function GameRoot({ onBack }) {
     handleActivateAutomine,
     handleStopAutomine,
     handleAutomineUpgrade,
+    handleBuyAutominePoder,
     handleActivatePoder,
     handleUnlockTavern,
     handleUnlockMinesMap,
@@ -392,6 +403,7 @@ function GameRoot({ onBack }) {
     handleActivateAutomine,
     handleStopAutomine,
     handleAutomineUpgrade,
+    handleBuyAutominePoder,
     handleActivatePoder,
     handleUnlockTavern,
     handleUnlockMinesMap,
@@ -511,6 +523,7 @@ function GameRoot({ onBack }) {
     gameState.pickaxe.materialUpgradeCosts?.[gameState.pickaxe.material];
   const canAffordMaterialUpgrade =
     gameState.pickaxe.tier === 5 &&
+    gameState.pickaxe.material !== 'diamond' &&
     gameState.gold >= (materialUpgradeCost?.gold || 0) &&
     (gameState[materialUpgradeCost?.ingot?.type] ?? 0) >=
     (materialUpgradeCost?.ingot?.amount || 0);
@@ -518,6 +531,8 @@ function GameRoot({ onBack }) {
   // ===== AVISOS "PENDIENTE" DE LOS BOTONES + DEL HUD =====
   const canAffordAutomineUpgradeVar = (gameState.automineUpgradeLevel ?? 0) < AutomineConfig.chargeUpgrades.length
     && gameState.gold >= (AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? Infinity);
+  const canAffordAutominePoderVar = (gameState.autominePoderLevel ?? 0) < AutomineConfig.poderMaxLevel
+    && gameState.gold >= getPoderUpgradeCost((gameState.autominePoderLevel ?? 0) + 1);
   const canAffordOfflineGoldVar = gameState.offlineGoldLevel === -1
     ? gameState.gold >= OFFLINE_GOLD_CONFIG[0].unlockCost
     : gameState.offlineGoldLevel < 3 && gameState.gold >= (OFFLINE_GOLD_CONFIG[gameState.offlineGoldLevel + 1]?.upgradeCost ?? Infinity);
@@ -527,7 +542,7 @@ function GameRoot({ onBack }) {
   const canAffordAnyStamina = (gameState.gold >= gameState.maxStaminaCost && gameState.tavernCoins >= staminaCoinCost)
     || (gameState.gold >= gameState.burstRechargeCost && gameState.burstRechargeLevel < 55)
     || (gameState.gold >= gameState.burstPowerCost && gameState.burstPowerLevel < 55);
-  const canAffordAnyPickaxe = canAffordTierUpgrade || canAffordAutomineUpgradeVar;
+  const canAffordAnyPickaxe = canAffordTierUpgrade || canAffordAutomineUpgradeVar || canAffordAutominePoderVar;
 
   const [unseenGoldPerSec, markSeenGoldPerSec] = useAffordNotify(canAffordAnyGoldPerSec);
   const [unseenStamina, markSeenStamina] = useAffordNotify(canAffordAnyStamina);
@@ -549,6 +564,18 @@ function GameRoot({ onBack }) {
     // tier 0→0, 1→1, 2→1, 3→2, 4→2, 5→3
     const assetMap = [0, 1, 1, 2, 2, 3];
     return icons[material]?.[assetMap[tier]] || pickAxeStone;
+  };
+
+  // Icono nuevo, usado SOLO dentro del modal del pico (HUD y botón de autominar siguen con getPickaxeIcon)
+  const getPickaxeModalIcon = (material, tier) => {
+    if (material === 'diamond') return pickAxeModalDiamondTier;
+    const icons = {
+      stone: [pickAxeModalStoneTier0, pickAxeModalStoneTier2],
+      bronze: [pickAxeModalBronzeTier0, pickAxeModalBronzeTier2],
+      metal: [pickAxeModalIronTier0, pickAxeModalIronTier2],
+    };
+    const spriteIndex = tier >= 2 ? 1 : 0;
+    return icons[material]?.[spriteIndex] || pickAxeModalStoneTier0;
   };
 
   useRentalTimer(setGameState);
@@ -1029,7 +1056,7 @@ function GameRoot({ onBack }) {
             tutorialStep0Active={!gameState.tutorial?.completed}
             tutorialHint="pickaxe"
             buttonImage={btnTier}
-            iconImage={getPickaxeIcon(
+            iconImage={getPickaxeModalIcon(
               gameState.pickaxe.material,
               gameState.pickaxe.tier,
             )}
@@ -1049,6 +1076,11 @@ function GameRoot({ onBack }) {
             automineNextCost={AutomineConfig.chargeUpgrades[gameState.automineUpgradeLevel ?? 0]?.cost ?? null}
             canAffordAutomineUpgrade={canAffordAutomineUpgradeVar}
             automineUnlocked={gameState.automine?.unlocked ?? false}
+            onAutominePoderUpgrade={handleBuyAutominePoder}
+            autominePoderLevel={gameState.autominePoderLevel ?? 0}
+            autominePoderMax={AutomineConfig.poderMaxLevel}
+            autominePoderNextCost={getPoderUpgradeCost((gameState.autominePoderLevel ?? 0) + 1)}
+            canAffordAutominePoder={canAffordAutominePoderVar}
           />
         </div>
 
