@@ -241,6 +241,14 @@
     gap: 0.3rem;
 }
 
+.cont-unlock-btn button:disabled {
+    cursor: not-allowed;
+}
+
+.cont-unlock-btn button:disabled img {
+    filter: grayscale(100%) brightness(0.5);
+}
+
 
 
 

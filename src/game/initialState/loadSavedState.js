@@ -192,6 +192,12 @@ export const loadSavedState = () => {
         totalIronMined: loaded.totalIronMined ?? 0,
         totalIngotsSmelted: loaded.totalIngotsSmelted ?? 0,
         totalBronzeIngotsSmelted: loaded.totalBronzeIngotsSmelted ?? 0,
+        // Migración: burstRechargeLevel/burstPowerLevel se separaron de maxStaminaLevel.
+        // Saves antiguos sin estos campos heredan el nivel de maxStaminaLevel como punto de partida.
+        burstRechargeLevel: loaded.burstRechargeLevel ?? Math.min(55, loaded.maxStaminaLevel ?? 0),
+        burstRechargeCost: loaded.burstRechargeCost ?? ((Math.min(55, loaded.maxStaminaLevel ?? 0) + 1) * 1000),
+        burstPowerLevel: loaded.burstPowerLevel ?? Math.min(55, loaded.maxStaminaLevel ?? 0),
+        burstPowerCost: loaded.burstPowerCost ?? ((Math.min(55, loaded.maxStaminaLevel ?? 0) + 1) * 1000),
         tutorial: {
             ...InitialGameState.tutorial,
             ...(loaded.tutorial ?? {}),

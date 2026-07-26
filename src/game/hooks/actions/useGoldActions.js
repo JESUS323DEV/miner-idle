@@ -266,6 +266,60 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         });
     };
 
+    const handleBuyBurstRecharge = () => {
+        const cost = gameState.burstRechargeCost;
+        if (cost > 0) showGoldCost(cost);
+
+        setGameState(prevState => {
+            const cost = prevState.burstRechargeCost;
+            if (prevState.gold < cost) return prevState;
+            if (prevState.burstRechargeLevel >= 55) return prevState;
+
+            const newLevel = prevState.burstRechargeLevel + 1;
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
+                burstRechargeLevel: newLevel,
+                burstRechargeCost: prevState.burstRechargeCost + 1000,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                },
+            };
+        });
+    };
+
+    const handleBuyBurstPower = () => {
+        const cost = gameState.burstPowerCost;
+        if (cost > 0) showGoldCost(cost);
+
+        setGameState(prevState => {
+            const cost = prevState.burstPowerCost;
+            if (prevState.gold < cost) return prevState;
+            if (prevState.burstPowerLevel >= 55) return prevState;
+
+            const newLevel = prevState.burstPowerLevel + 1;
+            const newGoldSpent = prevState.totalGoldSpent + cost;
+            const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
+
+            return {
+                ...prevState,
+                gold: prevState.gold - cost,
+                totalGoldSpent: newGoldSpent,
+                burstPowerLevel: newLevel,
+                burstPowerCost: prevState.burstPowerCost + 1000,
+                rewards: {
+                    ...prevState.rewards,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                },
+            };
+        });
+    };
+
     const handleUnlockOfflineGold = () => {
         const cost = OFFLINE_GOLD_CONFIG[0].unlockCost;
         showGoldCost(cost);
@@ -321,6 +375,8 @@ export const useGoldActions = (gameState, setGameState, showGoldCost) => {
         handleBuyGoldPerSecondUpgrade,
         handleActivateBurst,
         handleBuyMaxStaminaUpgrade,
+        handleBuyBurstRecharge,
+        handleBuyBurstPower,
         handleUnlockOfflineGold,
         handleUpgradeOfflineGold,
         handleClaimDailyLogin,

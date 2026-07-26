@@ -45,6 +45,16 @@ const UpgradeModal = ({
     onUseSnack = null,
     showStaminaSnacks = false,
 
+    // ===== MEJORAS DE BURST (recarga / poder) =====
+    burstRechargeLevel = 0,
+    burstRechargeCost = 0,
+    onUpgradeBurstRecharge = null,
+    canAffordBurstRecharge = false,
+    burstPowerLevel = 0,
+    burstPowerCost = 0,
+    onUpgradeBurstPower = null,
+    canAffordBurstPower = false,
+
     coinCost,
 
     // ===== SEGUNDO UPGRADE (opcional) =====
@@ -152,7 +162,7 @@ const UpgradeModal = ({
                     )}*/}
 
 
-                    {/* MEJORAS DE BURST — recarga menor (solo visual de momento, sin lógica) */}
+                    {/* MEJORAS DE BURST — recarga y poder */}
                     {showStaminaSnacks && !snacksData && (
                         <div className="cont-snacks">
                             <div className="container-snacks">
@@ -162,16 +172,27 @@ const UpgradeModal = ({
                                     </div>
 
                                     <div className="text-cookie">
-                                        <p>Recarga Burst</p>
-                                        <small className="text-info">Reduce el tiempo de recarga</small>
+                                        <p>Recarga Nv. {burstRechargeLevel}</p>
+                                        <small className="text-info">Reduce el tiempo de recarga del burst</small>
                                     </div>
 
-                                    <div className="cont-unlock-btn">
-                                        <button>
-                                            <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
-                                        </button>
-                                        <span className="snack-btn-price">???</span>
-                                    </div>
+                                    {burstRechargeLevel >= 55 ? (
+                                        <p className="snack-max-level">Nivel máximo</p>
+                                    ) : (
+                                        <div className="cont-unlock-btn">
+                                            <button
+                                                className={canAffordBurstRecharge ? 'notify-pulse' : ''}
+                                                onClick={onUpgradeBurstRecharge}
+                                                disabled={!canAffordBurstRecharge}
+                                            >
+                                                <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
+                                            </button>
+                                            <span className="snack-btn-price">
+                                                {formatNumber(burstRechargeCost)}
+                                                <img src={iconGold} alt="gold" />
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -182,16 +203,27 @@ const UpgradeModal = ({
                                     </div>
 
                                     <div className="text-cookie">
-                                        <p>Poder Burst</p>
+                                        <p>Oro extra Nv. {burstPowerLevel}</p>
                                         <small className="text-info">Aumenta el oro extra del burst</small>
                                     </div>
 
-                                    <div className="cont-unlock-btn">
-                                        <button>
-                                            <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
-                                        </button>
-                                        <span className="snack-btn-price">???</span>
-                                    </div>
+                                    {burstPowerLevel >= 55 ? (
+                                        <p className="snack-max-level">Nivel máximo</p>
+                                    ) : (
+                                        <div className="cont-unlock-btn">
+                                            <button
+                                                className={canAffordBurstPower ? 'notify-pulse' : ''}
+                                                onClick={onUpgradeBurstPower}
+                                                disabled={!canAffordBurstPower}
+                                            >
+                                                <img className="snack-btn-img" src={buttonImage} alt="Mejorar" />
+                                            </button>
+                                            <span className="snack-btn-price">
+                                                {formatNumber(burstPowerCost)}
+                                                <img src={iconGold} alt="gold" />
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -23,7 +23,7 @@ const GoldMine = ({ elevated = false }) => {
     const goldPerMine = pickaxe.goldPerMine;
     const canMine = pickaxe.durability > 0;
     const burstActive = gameState.burst?.active ?? false;
-    const burstLevel = gameState.maxStaminaLevel ?? 0;
+    const burstLevel = gameState.burstPowerLevel ?? 0;
     const { floats, add } = useFloatingNumbers();
     const lastClickTimeRef = useRef(null);
     const [isShaking, setIsShaking] = useState(false);

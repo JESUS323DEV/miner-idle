@@ -225,6 +225,8 @@ function GameRoot({ onBack }) {
   const {
     handleBuyGoldPerSecondUpgrade,
     handleBuyMaxStaminaUpgrade,
+    handleBuyBurstRecharge,
+    handleBuyBurstPower,
     handleActivateBurst,
     handleUnlockOfflineGold,
     handleUpgradeOfflineGold,
@@ -365,6 +367,8 @@ function GameRoot({ onBack }) {
     setGameState,
     handleBuyGoldPerSecondUpgrade,
     handleBuyMaxStaminaUpgrade,
+    handleBuyBurstRecharge,
+    handleBuyBurstPower,
     handleActivateBurst,
     handleUpgradePickaxeMaterial,
     handleUpgradePickaxeTier,
@@ -942,6 +946,14 @@ function GameRoot({ onBack }) {
             buttonImage={buttonUpgrade}
             title={"Mejorar Burst"}
             showStaminaSnacks={true}
+            burstRechargeLevel={gameState.burstRechargeLevel}
+            burstRechargeCost={gameState.burstRechargeCost}
+            onUpgradeBurstRecharge={handleBuyBurstRecharge}
+            canAffordBurstRecharge={gameState.gold >= gameState.burstRechargeCost && gameState.burstRechargeLevel < 55}
+            burstPowerLevel={gameState.burstPowerLevel}
+            burstPowerCost={gameState.burstPowerCost}
+            onUpgradeBurstPower={handleBuyBurstPower}
+            canAffordBurstPower={gameState.gold >= gameState.burstPowerCost && gameState.burstPowerLevel < 55}
           />
 
           {/* PICO */}

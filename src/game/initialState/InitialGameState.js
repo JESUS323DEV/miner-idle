@@ -33,9 +33,13 @@ const InitialGameState = {
     // ========== BURST (antes Stamina) ==========
     stamina: 15,                      // segundos restantes del burst activo (UI: X/maxStamina)
     maxStamina: 15,                   // duración máxima del burst en segundos
-    maxStaminaLevel: 0,               // nivel único — mejora duración (0-45) y recarga (0-55)
+    maxStaminaLevel: 0,               // mejora solo la duración máxima (0-45)
     maxStaminaCost: 500,
     maxStaminaCostIncrease: 2000,
+    burstRechargeLevel: 0,            // mejora la recarga del burst (0-55)
+    burstRechargeCost: 1000,
+    burstPowerLevel: 0,               // mejora el bonus de oro del burst (0-55)
+    burstPowerCost: 1000,
     burst: {
         active: false,
         recharging: false,

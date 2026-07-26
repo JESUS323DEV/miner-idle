@@ -19,7 +19,7 @@ export const useBurst = (setGameState) => {
                         return {
                             ...prev,
                             stamina: 0,
-                            burst: { active: false, recharging: true, rechargeRemaining: getRechargeTime(prev.maxStaminaLevel ?? 0) }
+                            burst: { active: false, recharging: true, rechargeRemaining: getRechargeTime(prev.burstRechargeLevel ?? 0) }
                         };
                     }
                     return { ...prev, stamina: newStamina };

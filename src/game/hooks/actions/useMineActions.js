@@ -202,7 +202,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
             // Burst bonus (solo si el jugador interactúa manualmente — sin companion)
             let burstBonus = 0;
             if (!fromAutomine && prevState.burst?.active) {
-                const burstLevel = prevState.maxStaminaLevel ?? 0;
+                const burstLevel = prevState.burstPowerLevel ?? 0;
                 let bMin = 0, bMax = 1;
                 if (burstLevel <= 1) { bMin = 0; bMax = 1; }
                 else if (burstLevel <= 5) { bMin = 0; bMax = burstLevel; }
