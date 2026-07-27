@@ -83,6 +83,7 @@ const PickaxeModal = ({
     autominePoderMax = 25,
     autominePoderNextCost = null,
     canAffordAutominePoder = false,
+    hideDuringTutorial = false,
 }) => {
     if (!isOpen) return null;
 
@@ -159,6 +160,7 @@ const PickaxeModal = ({
                 </div>
 
 
+                {!hideDuringTutorial && (
                 <div className="cont-snack-stamina">
                     <div className="pickaxe-autominar-card">
                         <div className="pickaxe-autominar-icon">
@@ -222,6 +224,7 @@ const PickaxeModal = ({
                         )}
                     </div>
                 </div>
+                )}
 
             </div>
         </div>

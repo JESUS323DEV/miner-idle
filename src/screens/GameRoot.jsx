@@ -904,7 +904,7 @@ function GameRoot({ onBack }) {
                 markSeenGoldPerSec();
               }}
               disabled={!gameState.tutorial?.completed && tutorialStep !== 0}
-              className={`openDisplay1 ${tutorialStep === 0 && openModal === null ? "tutorial-highlight" : ""} ${unseenGoldPerSec ? "notify-wave" : ""}`}
+              className={`openDisplay1 ${tutorialStep === 0 && openModal === null ? "tutorial-highlight" : ""} ${unseenGoldPerSec && gameState.tutorial?.completed ? "notify-wave" : ""}`}
               style={{ position: "relative" }}
               data-tutorial="tut-0"
             >
@@ -970,7 +970,8 @@ function GameRoot({ onBack }) {
 
             {/* Mejora burst — abre modal con duración y recarga */}
             <button
-              className={`openDisplay2 ${tutorialStep === 1 ? 'tutorial-highlight' : ''} ${unseenStamina ? "notify-wave" : ""}`}
+              disabled={!gameState.tutorial?.staminaUnlocked && !gameState.tutorial?.completed}
+              className={`openDisplay2 ${tutorialStep === 1 ? 'tutorial-highlight' : ''} ${unseenStamina && gameState.tutorial?.completed ? "notify-wave" : ""}`}
               style={tutorialStep === 1 ? { position: 'relative', zIndex: 600 } : {}}
               data-tutorial="tut-1"
               onClick={() => { setTutorialStep(null); setOpenModal("maxStamina"); markSeenStamina(); }}
@@ -998,6 +999,7 @@ function GameRoot({ onBack }) {
             tutorialHint="stamina"
             onTutorialAction={handleTutorialAction}
             tutorialStep0Active={!gameState.tutorial?.completed}
+            hideDuringTutorial={!gameState.tutorial?.completed}
             bgImage={bgStamina}
             iconImage={satEnergy}
             buttonImage={buttonUpgrade}
@@ -1038,7 +1040,7 @@ function GameRoot({ onBack }) {
                 markSeenPickaxe();
               }}
               disabled={!gameState.tutorial?.pickaxeUnlocked && !gameState.tutorial?.completed}
-              className={`openDisplay3 ${tutorialStep === 2 ? 'tutorial-highlight' : ''} ${unseenPickaxe ? "notify-wave" : ""}`}
+              className={`openDisplay3 ${tutorialStep === 2 ? 'tutorial-highlight' : ''} ${unseenPickaxe && gameState.tutorial?.completed ? "notify-wave" : ""}`}
               style={tutorialStep === 2 ? { position: 'relative', zIndex: 600 } : {}}
               data-tutorial="tut-2"
             >
@@ -1067,6 +1069,7 @@ function GameRoot({ onBack }) {
             canAfford={canAffordTierUpgrade}
             tutorialPhase={!gameState.tutorial?.pickaxeUpgradeDone && !gameState.tutorial?.completed ? 'upgrade' : null}
             tutorialStep0Active={!gameState.tutorial?.completed}
+            hideDuringTutorial={!gameState.tutorial?.completed}
             tutorialHint="pickaxe"
             buttonImage={btnTier}
             iconImage={getPickaxeModalIcon(

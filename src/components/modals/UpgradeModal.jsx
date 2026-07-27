@@ -32,6 +32,7 @@ const UpgradeModal = ({
     tutorialStep0Active = false,
     tutorialPhase = null,
     tutorialHint = null,
+    hideDuringTutorial = false,
 
     // ===== IMÁGENES =====
     bgImage,
@@ -171,8 +172,8 @@ const UpgradeModal = ({
                     )}*/}
 
 
-                    {/* MEJORAS DE BURST — recarga y poder */}
-                    {showStaminaSnacks && !snacksData && (
+                    {/* MEJORAS DE BURST — recarga y poder, ocultas durante el tutorial */}
+                    {showStaminaSnacks && !snacksData && !hideDuringTutorial && (
                         <div className="cont-snacks">
                             <div className="container-snacks">
                                 <div className="snack1">
