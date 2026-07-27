@@ -168,10 +168,9 @@ const PickaxeModal = ({
                         </div>
 
                         <div className="pickaxe-autominar-text">
-                            <p>Recarga Autominar</p>
-                            <small className="pickaxe-autominar-subtitle">
-                                {!automineUnlocked ? 'Desbloquea autominar' : `Nv ${automineLevel}`}
-                            </small>
+                            <p>Recarga {!automineUnlocked ? 'Desbloquea autominar' : `Nv ${automineLevel}`}</p>
+                            
+                            <small className="pickaxe-autominar-subtitle">Recupera las cargas de Autominar más rápido.</small>
                         </div>
 
                         {!automineUnlocked ? (
@@ -201,8 +200,9 @@ const PickaxeModal = ({
                         </div>
 
                         <div className="pickaxe-autominar-text">
-                            <p>Poder Autominar</p>
-                            <small className="pickaxe-autominar-subtitle">Nv {autominePoderLevel}</small>
+                            <p>Poder Autominar Nv {autominePoderLevel}</p>
+                            
+                            <small className="pickaxe-autominar-subtitle">Reduce el tiempo de espera de Recarga</small>
                         </div>
 
                         {autominePoderLevel >= autominePoderMax ? (
