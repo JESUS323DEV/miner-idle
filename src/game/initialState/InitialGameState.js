@@ -90,9 +90,9 @@ const InitialGameState = {
     // ========== FORJA ==========
     forgeUnlocked: false,
     furnaces: {
-        bronze: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
-        iron: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
-        diamond: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0 },
+        bronze: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0, restarting: false },
+        iron: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0, restarting: false },
+        diamond: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0, restarting: false },
     },
 
     // ========== TABERNA ==========

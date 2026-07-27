@@ -219,6 +219,22 @@
     flex-shrink: 0;
 }
 
+.forge-furnace-icon img.forge-progress-side-icon-active {
+    animation: forge-side-icon-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes forge-side-icon-glow {
+
+    0%,
+    100% {
+        filter: brightness(1) saturate(1) drop-shadow(0 0 0px rgba(255, 60, 40, 0));
+    }
+
+    50% {
+        filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 2px rgba(255, 60, 40, 0.5));
+    }
+}
+
 .forge-progress-container {
     position: relative;
     height: 0.4rem;

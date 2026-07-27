@@ -152,7 +152,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                             ...prev2,
                             furnaces: {
                                 ...prev2.furnaces,
-                                [material]: { ...f2, isActive: true, startTime: Date.now(), progress: 0 }
+                                [material]: { ...f2, isActive: true, startTime: Date.now(), progress: 0, restarting: false }
                             }
                         };
                     });
@@ -174,7 +174,8 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                         ...furnace,
                         isActive: false,
                         startTime: null,
-                        progress: 0
+                        progress: 0,
+                        restarting: hasMore
                     }
                 }
             };

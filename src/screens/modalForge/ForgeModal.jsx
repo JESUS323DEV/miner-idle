@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { ForgeConfig } from '../../game/config/ForgeConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
@@ -97,6 +97,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
     const [, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     const [dogModalTarget, setDogModalTarget] = useState(null);
     const { floats, add: addFloat } = useFloatingNumbers();
+    const pendingCollectRef = useRef({});
 
     const handleForgeAssign = (dogId) => {
         const currentEntry = Object.entries(forgeDogs).find(([, d]) => d?.assignedTo === dogModalTarget);
@@ -125,10 +126,16 @@ const ForgeModal = ({ isOpen, onClose }) => {
                     newTimers[mat] = remaining;
 
                     if (remaining === 0) {
-                        onCollectIngot(mat);
+                        if (pendingCollectRef.current[mat]) {
+                            onCollectIngot(mat);
+                            pendingCollectRef.current[mat] = false;
+                        } else {
+                            pendingCollectRef.current[mat] = true;
+                        }
                     }
                 } else {
                     newTimers[mat] = 0;
+                    pendingCollectRef.current[mat] = false;
                 }
             });
             setTimers(newTimers);
@@ -200,11 +207,11 @@ const ForgeModal = ({ isOpen, onClose }) => {
 
                                             {furnace.unlocked && (
                                                 <div className="forge-progress-wrap">
-                                                    <img src={menaAssets[mat]} alt="mena" className="forge-progress-side-icon" />
+                                                    <img src={menaAssets[mat]} alt="mena" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
                                                     <div className="forge-progress-container">
                                                         <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
                                                     </div>
-                                                    <img src={ingotAssets[mat]} alt="lingote" className="forge-progress-side-icon" />
+                                                    <img src={ingotAssets[mat]} alt="lingote" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
                                                 </div>
                                             )}
 
@@ -242,9 +249,9 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                     <div className="cont-btn-action">
                                         <div className="forge-action-row">
                                             <button
-                                                className={`forge-btn-action ${!hasEnough || furnace.isActive ? 'disabled' : ''}`}
+                                                className={`forge-btn-action ${!hasEnough || furnace.isActive || furnace.restarting ? 'disabled' : ''}`}
                                                 onClick={() => onStartSmelt(mat)}
-                                                disabled={!hasEnough || furnace.isActive}
+                                                disabled={!hasEnough || furnace.isActive || furnace.restarting}
                                             >
                                                 <img src={iconFundir} alt="Fundir" className="forge-btn-fundir-img" />
                                             </button>
