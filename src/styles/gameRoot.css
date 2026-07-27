@@ -567,8 +567,7 @@ button:not(:disabled) .lock-price-badge img {
     width: 6.5rem;
     height: 6.5rem;
     border-radius: 50%;
-    border: 2px solid rgba(150, 100, 50, 0.5);
-    background: rgba(30, 20, 10, 0.7);
+
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -576,10 +575,9 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 .automine-button.unlock img {
-    width: 72%;
-    height: 72%;
+    width: 85%;
+    height: 85%;
     object-fit: contain;
-    margin-left: 0.6rem;
 }
 
 .automine-button.unlock span {
@@ -610,22 +608,22 @@ button:not(:disabled) .lock-price-badge img {
 /* Posiciones orbitales — centro hub (2.5rem, 2.5rem), radio ~3.6rem, desde arriba */
 .sat-pos-energy {
     position: absolute;
-    top: -1.9rem;
+    top: -1.3rem;
     left: 1.1rem;
 }
 
 /* -100deg — arriba izquierda */
 .sat-pos-upgrade {
     position: absolute;
-    top: -1.5rem;
+    top: -1.2rem;
     left: 4.1rem;
 }
 
 /* -50deg  — arriba derecha  */
 .sat-pos-repair {
     position: absolute;
-    top: 1rem;
-    left: 6.55rem;
+    top: 1.8rem;
+    left: 6.1rem;
 }
 
 /*  10deg  — derecha         */
@@ -636,8 +634,6 @@ button:not(:disabled) .lock-price-badge img {
     width: 6.5rem;
     height: 6.5rem;
     border-radius: 50%;
-    border: 2px solid rgba(255, 210, 80, 0.35);
-    background: rgb(27, 27, 27);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -647,14 +643,11 @@ button:not(:disabled) .lock-price-badge img {
     transition: border-color 0.2s;
 }
 
-.automine-hub.is-active {
-    border-color: rgba(80, 255, 130, 0.7);
-    box-shadow: 0 0 10px rgba(80, 255, 130, 0.35);
-}
+
 
 .automine-hub:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.57;
 }
 
 
@@ -663,7 +656,7 @@ button:not(:disabled) .lock-price-badge img {
 .automine-hub::after {
     content: '';
     position: absolute;
-    inset: 4px;
+    inset: 6px;
     border-radius: 50%;
     background: conic-gradient(#FFD700 var(--progress2), transparent var(--progress2));
     z-index: -2;
@@ -681,10 +674,9 @@ button:not(:disabled) .lock-price-badge img {
 }
 
 .automine-hub img {
-    width: 72%;
-    height: 72%;
+    width: 80%;
+    height: 80%;
     object-fit: contain;
-    margin-left: 0.7rem;
 
 }
 

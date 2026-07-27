@@ -102,7 +102,7 @@ const STEPS = {
     },
     automine_hint: {
         title: "El Autominado",
-        text: "Golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo. Usa la activa (flecha verde) para recargar 2 cargas al instante. Puedes mejorar el tiempo de recarga desde la pantalla del pico. ¡Desblóquealo cuando puedas!",
+        text: "Golpea solo durante unos segundos. Tiene 2 cargas que se recargan con el tiempo. Usa la activa icono verde para recargar 2 cargas al instante. Puedes mejorar el tiempo de recarga desde la pantalla del pico. ¡Úsalo siempre que puedas!",
         action: "Entendido",
         counter: null,
         showSkip: false,

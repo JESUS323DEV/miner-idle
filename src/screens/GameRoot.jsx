@@ -117,6 +117,7 @@ import pickAxeModalIronTier2 from "../assets/ui/icons-pickaxe/icons/iron/tier-2-
 import pickAxeModalDiamondTier from "../assets/ui/icons-pickaxe/icons/diamond/diamond-tier.webp";
 
 // ===== ASSETS: ICONOS PANTALLAS =====
+import automineIcon from "../assets/ui/icons-hud/hud-modals/automine.webp";
 import mineModal from "../assets/ui/icon-mine1.webp";
 import iconTavern from "../assets/ui/icon-tavern1.webp";
 import iconForge from "../assets/ui/icon-forge1.webp";
@@ -1405,14 +1406,15 @@ function GameRoot({ onBack }) {
                   data-tutorial="tut-automine"
                   className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
                 >
-                  <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                  <img src={automineIcon} alt="Autominado" />
                   <span>{formatNumber(AutomineConfig.unlockCost)} oro</span>
                 </button>
               ) : (
                 <button
                   onClick={handleActivateAutomine}
                   disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive}
-                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}`}
+                  data-tutorial="tut-automine"
+                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
                   style={{
                     "--progress1": chargeTimers[0]
                       ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
@@ -1422,7 +1424,7 @@ function GameRoot({ onBack }) {
                       : "0deg",
                   }}
                 >
-                  <img src={getPickaxeIcon(gameState.pickaxe.material, gameState.pickaxe.tier)} alt="Pico" />
+                  <img src={automineIcon} alt="Autominado" />
                   <span className="automine-charge-count">{availableCharges}/2</span>
                 </button>
               )}

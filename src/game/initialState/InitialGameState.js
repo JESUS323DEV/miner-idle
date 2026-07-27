@@ -65,7 +65,7 @@ const InitialGameState = {
 
     // ========== AUTOMINE ==========
     automine: {
-        unlocked: false,
+        unlocked: true,
         maxCharges: 2,
         charges: [
             { available: true, cooldownUntil: null },
