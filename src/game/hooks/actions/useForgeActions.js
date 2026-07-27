@@ -104,6 +104,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
             return {
                 ...prevState,
                 [recipe.input]: prevState[recipe.input] - recipe.inputAmount,
+                lastForgeConsume: { material, amount: recipe.inputAmount, timestamp: Date.now() },
                 furnaces: {
                     ...prevState.furnaces,
                     [material]: {
@@ -165,6 +166,7 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                 [recipe.input]: hasMore ? prevState[recipe.input] - recipe.inputAmount : prevState[recipe.input],
                 totalIngotsSmelted: (prevState.totalIngotsSmelted ?? 0) + ingotsGained,
                 lastForgeGain: { material, amount: ingotsGained, timestamp: Date.now() },
+                ...(hasMore ? { lastForgeConsume: { material, amount: recipe.inputAmount, timestamp: Date.now() + 1 } } : {}),
                 ...(material === 'bronze'  ? { totalBronzeIngotsSmelted:  (prevState.totalBronzeIngotsSmelted  ?? 0) + ingotsGained } : {}),
                 ...(material === 'iron'    ? { totalIronIngotsSmelted:    (prevState.totalIronIngotsSmelted    ?? 0) + ingotsGained } : {}),
                 ...(material === 'diamond' ? { totalDiamondIngotsSmelted: (prevState.totalDiamondIngotsSmelted ?? 0) + ingotsGained } : {}),

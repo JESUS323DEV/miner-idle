@@ -152,6 +152,7 @@ const InitialGameState = {
     totalIronIngotsSmelted: 0,
     totalDiamondIngotsSmelted: 0,
     lastForgeGain: null,
+    lastForgeConsume: null,
 
     // ========== GACHA ==========
     gachaPity: {},

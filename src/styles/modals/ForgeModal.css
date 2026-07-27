@@ -107,34 +107,63 @@
 
 .forge-float-ingot {
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, 0);
     display: flex;
     align-items: center;
-    gap: 0.2rem;
-    font-size: 1rem;
+    gap: 0.15rem;
+    font-size: 0.55rem;
     font-weight: bold;
     color: #ffe600;
     text-shadow: -1px -1px 0 #4A2800, 1px -1px 0 #4A2800, -1px 1px 0 #4A2800, 1px 1px 0 #4A2800;
     pointer-events: none;
-    animation: forge-float-up 2.2s ease-out forwards;
+    animation: forge-float-up-small 2.2s ease-out forwards;
     z-index: 5;
+    white-space: nowrap;
 }
 
 .forge-float-ingot img {
-    width: 18px;
-    height: 18px;
+    width: 10px;
+    height: 10px;
 }
 
-@keyframes forge-float-up {
+.forge-progress-side-icon-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.forge-float-consume {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.55rem;
+    font-weight: bold;
+    color: #ff4d4d;
+    text-shadow: -1px -1px 0 #400000, 1px -1px 0 #400000, -1px 1px 0 #400000, 1px 1px 0 #400000;
+    pointer-events: none;
+    animation: forge-float-up-small 3.8s ease-out forwards;
+    z-index: 5;
+    white-space: nowrap;
+}
+
+.forge-float-consume img {
+    width: 10px;
+    height: 10px;
+}
+
+@keyframes forge-float-up-small {
     0% {
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, 0);
         opacity: 1;
     }
 
     100% {
-        transform: translate(-50%, -140%);
+        transform: translate(-50%, -22px);
         opacity: 0;
     }
 }

@@ -123,6 +123,15 @@ import forgeBronze3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-fo
 import forgeIron3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-iron3.webp"
 import forgeDiamond3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
 
+// ===== FORJA — REDISEÑO =====
+import forgeCardBronze from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-bronze.webp"
+import forgeCardIron from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-iron.webp"
+import forgeCardDiamond from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-diamond.webp"
+import forgeBg from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/forge-bg.webp"
+import forgeIconFundir from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir.webp"
+import forgeIconUpgrade from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/upgrade.webp"
+import automineIcon from "../assets/ui/icons-hud/hud-modals/automine.webp"
+
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"
 import iconTavern from "../assets/ui/icon-tavern1.webp"
@@ -236,6 +245,9 @@ const IMAGES = [
     forgeBronze1, forgeIron1, forgeDiamond1,
     forgeBronze2, forgeIron2, forgeDiamond2,
     forgeBronze3, forgeIron3, forgeDiamond3,
+    // forja — rediseño
+    forgeCardBronze, forgeCardIron, forgeCardDiamond, forgeBg,
+    forgeIconFundir, forgeIconUpgrade, automineIcon,
     // pantallas
     mineModal, iconTavern, iconForge,
     // automina

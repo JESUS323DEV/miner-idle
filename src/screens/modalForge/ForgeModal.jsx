@@ -151,6 +151,13 @@ const ForgeModal = ({ isOpen, onClose }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.lastForgeGain?.timestamp]);
 
+    useEffect(() => {
+        const consume = gameState.lastForgeConsume;
+        if (!consume) return;
+        addFloat('mena-consume', { material: consume.material, amount: consume.amount }, 3800);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState.lastForgeConsume?.timestamp]);
+
     if (!isOpen) return null;
 
     return (
@@ -207,21 +214,29 @@ const ForgeModal = ({ isOpen, onClose }) => {
 
                                             {furnace.unlocked && (
                                                 <div className="forge-progress-wrap">
-                                                    <img src={menaAssets[mat]} alt="mena" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
+                                                    <span className="forge-progress-side-icon-wrap">
+                                                        <img src={menaAssets[mat]} alt="mena" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
+                                                        {floats.filter(f => f.material === mat && f.type === 'mena-consume').map(f => (
+                                                            <span key={f.id} className="forge-float-consume">
+                                                                -{f.amount} <img src={menaAssets[mat]} alt="mena" />
+                                                            </span>
+                                                        ))}
+                                                    </span>
                                                     <div className="forge-progress-container">
                                                         <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
                                                     </div>
-                                                    <img src={ingotAssets[mat]} alt="lingote" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
+                                                    <span className="forge-progress-side-icon-wrap">
+                                                        <img src={ingotAssets[mat]} alt="lingote" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
+                                                        {floats.filter(f => f.material === mat && f.type === 'ingot').map(f => (
+                                                            <span key={f.id} className="forge-float-ingot">
+                                                                +{f.amount} <img src={ingotAssets[mat]} alt="lingote" />
+                                                            </span>
+                                                        ))}
+                                                    </span>
                                                 </div>
                                             )}
 
                                             <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
-
-                                            {floats.filter(f => f.material === mat).map(f => (
-                                                <span key={f.id} className="forge-float-ingot">
-                                                    +{f.amount} <img src={ingotAssets[mat]} alt="lingote" />
-                                                </span>
-                                            ))}
 
                                             {!furnace.unlocked && (
                                                 <button
