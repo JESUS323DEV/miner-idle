@@ -141,7 +141,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
         <div className="forge-overlay" onClick={onClose}>
             <div className="forge-content" onClick={e => e.stopPropagation()}>
                 <button className="forge-close" onClick={onClose}><X /></button>
-                <h2 className="forge-title">🔨 Forja</h2>
+                <h2 className="forge-title">Forja</h2>
 
                 <div className="forge-furnaces">
                     {MATERIALS.map(mat => {

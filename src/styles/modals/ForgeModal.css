@@ -17,15 +17,16 @@
 .forge-content {
     position: relative;
     width: 100%;
-    padding: 0.3rem 0;
+    padding: 0;
     color: white;
     padding-bottom: 5rem;
 }
 
 .forge-close {
     position: absolute;
-    top: 0.5rem;
+    top: 0.1rem;
     right: 0.5rem;
+    z-index: 50;
     background: none;
     border: none;
     color: white;
@@ -42,6 +43,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    gap: 1rem;
 }
 
 .forge-furnace {
