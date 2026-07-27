@@ -5,7 +5,7 @@
     width: 100%;
     height: calc(100vh - 5.7rem);
     z-index: 10;
-    background: rgba(0, 0, 0, 0.959);
+    background: #0a0a0a;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -17,7 +17,7 @@
 .forge-content {
     position: relative;
     width: 100%;
-    padding: 2rem 1rem;
+    padding: 0.3rem 0;
     color: white;
     padding-bottom: 5rem;
 }
@@ -42,29 +42,30 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
 }
 
 .forge-furnace {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid #7b2700;
-    border-radius: 0.5rem;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
+    min-height: 9rem;
+    padding-top: 1rem;
+    gap: 3rem;
 }
 
 .forge-furnace-bronze {
-    border-color: rgba(180, 100, 20, 0.7);
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-bronze.webp') center / 100% 100% no-repeat;
 }
 
 .forge-furnace-iron {
-    border-color: rgba(150, 160, 180, 0.6);
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-iron.webp') center / 100% 100% no-repeat;
 }
 
 .forge-furnace-diamond {
-    border-color: rgba(80, 180, 255, 0.5);
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-diamond.webp') center / 100% 100% no-repeat;
 }
+
+
 
 .forge-furnace.locked {
     border-color: #666;
@@ -74,18 +75,24 @@
 .forge-furnace-header {
     display: flex;
     align-items: center;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 1.5rem;
 }
 
-.cont-btn-action {
+.forge-action-row {
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
+    align-items: center;
     gap: 0.8rem;
-    width: 65%;
+    justify-content: center;
+}
+
+
+.forge-furnace-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
 }
 
 .forge-furnace-icon img {
@@ -104,31 +111,40 @@
     }
 }
 
+
+
 .forge-furnace-img-active {
     animation: forge-glow 1.5s ease-in-out infinite;
 }
 
 .forge-furnace-name {
-    font-size: 0.9rem;
+    display: block;
+    text-align: center;
+    font-size: 0.6rem;
 }
 
 .forge-furnace-name small {
     font-size: 0.6rem;
 }
 
-.forge-btn-action {
-    width: 100%;
-    padding: 0.6rem;
-    border: none;
-    border-radius: 0.3rem;
-    font-weight: bold;
-    cursor: pointer;
-    background: #4CAF50;
-    color: white;
-}
+
 
 .forge-btn-action.locked {
-    background: #555;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    margin-top: 0.2rem;
+}
+
+.forge-unlock-img {
+    width: 30px;
+    height: auto;
+}
+
+.forge-btn-fundir-img {
+    width: 30px;
+    height: 30px;
 }
 
 .forge-btn-action.collect {
@@ -137,7 +153,7 @@
 }
 
 .forge-btn-action.disabled {
-    background: #666;
+    background: none;
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -150,16 +166,17 @@
 
 .forge-progress-container {
     position: relative;
-    height: 2rem;
+    height: 0.4rem;
     width: 100%;
     background: #333;
     border-radius: 0.3rem;
     overflow: hidden;
+    margin-top: 0.4rem;
 }
 
 .forge-progress-bar {
     height: 100%;
-    background: #FF6B00;
+    background: #ff7701;
     transition: width 0.5s linear;
 }
 
@@ -173,18 +190,32 @@
     font-size: 0.8rem;
 }
 
+.icon-upgrade {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+
+}
+
 .icon-upgrade img {
-    width: 80px;
+    width: 30px;
     height: 30px;
-    margin-bottom: 0.5rem;
+    margin: auto;
 }
 
 .icon-info-gold {
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: start;
-    gap: 0.3rem;
-    font-size: 0.8rem;
+    gap: 0.2rem;
+    font-size: 0.6rem;
+    color: white;
+    margin: auto;
+    border-radius: 0.6rem;
+
 }
 
 .icon-info-gold img {
@@ -506,11 +537,22 @@
     border-color: rgba(255, 140, 0, 0.3);
 }
 
-.fdm-card.dog-rarity-legendary { border-color: rgba(245, 200, 66, 0.35); }
-.fdm-card.dog-rarity-epic      { border-color: rgba(180, 92, 255, 0.35); }
-.fdm-card.dog-rarity-rare      { border-color: rgba(76, 168, 255, 0.35); }
+.fdm-card.dog-rarity-legendary {
+    border-color: rgba(245, 200, 66, 0.35);
+}
 
-.fdm-card.unavailable { opacity: 0.38; cursor: default; }
+.fdm-card.dog-rarity-epic {
+    border-color: rgba(180, 92, 255, 0.35);
+}
+
+.fdm-card.dog-rarity-rare {
+    border-color: rgba(76, 168, 255, 0.35);
+}
+
+.fdm-card.unavailable {
+    opacity: 0.38;
+    cursor: default;
+}
 
 .fdm-card-img-wrap {
     position: relative;
@@ -549,14 +591,38 @@
 }
 
 /* ForgeDogModal — tabs de material */
-.fdm-mat-bronze { color: #cd8c3a; border-color: rgba(180, 100, 20, 0.4); }
-.fdm-mat-bronze.active { background: rgba(180, 100, 20, 0.25); border-color: rgba(180, 100, 20, 0.8); color: #e8a84e; }
+.fdm-mat-bronze {
+    color: #cd8c3a;
+    border-color: rgba(180, 100, 20, 0.4);
+}
 
-.fdm-mat-iron { color: #96a0b4; border-color: rgba(150, 160, 180, 0.4); }
-.fdm-mat-iron.active { background: rgba(150, 160, 180, 0.2); border-color: rgba(150, 160, 180, 0.8); color: #b4c0d0; }
+.fdm-mat-bronze.active {
+    background: rgba(180, 100, 20, 0.25);
+    border-color: rgba(180, 100, 20, 0.8);
+    color: #e8a84e;
+}
 
-.fdm-mat-diamond { color: #50b4ff; border-color: rgba(80, 180, 255, 0.4); }
-.fdm-mat-diamond.active { background: rgba(80, 180, 255, 0.15); border-color: rgba(80, 180, 255, 0.8); color: #80c8ff; }
+.fdm-mat-iron {
+    color: #96a0b4;
+    border-color: rgba(150, 160, 180, 0.4);
+}
+
+.fdm-mat-iron.active {
+    background: rgba(150, 160, 180, 0.2);
+    border-color: rgba(150, 160, 180, 0.8);
+    color: #b4c0d0;
+}
+
+.fdm-mat-diamond {
+    color: #50b4ff;
+    border-color: rgba(80, 180, 255, 0.4);
+}
+
+.fdm-mat-diamond.active {
+    background: rgba(80, 180, 255, 0.15);
+    border-color: rgba(80, 180, 255, 0.8);
+    color: #80c8ff;
+}
 
 .fdm-target-slot {
     outline: 2px solid rgba(255, 165, 0, 0.8);

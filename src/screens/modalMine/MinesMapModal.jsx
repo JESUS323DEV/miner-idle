@@ -54,9 +54,9 @@ const dogAssets = {
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import iconCoin from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
 
-import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp"
-import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.webp"
-import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp"
+import bronzeHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/bronzeHud.webp"
+import ironHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/ironHud.webp"
+import diamondHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/diamondHud.webp"
 
 import { X, PawPrint } from 'lucide-react';
 import MineDogModal from './MineDogModal.jsx';

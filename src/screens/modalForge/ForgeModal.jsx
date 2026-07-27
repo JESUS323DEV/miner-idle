@@ -24,31 +24,33 @@ const forgeDogAssets = {
 
 
 //ASSETS FORJA LVL 1
-import forgeBronze from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.webp"
-import forgeIron from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-iron.webp"
-import forgeDiamond from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-diamond.webp"
+import forgeBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-bronze.webp"
+import forgeIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-iron.webp"
+import forgeDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-diamond.webp"
 
 //ASSETS FORJA LVL 2
-import forgeBronze2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-bronze2.webp"
-import forgeIron2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-iron2.webp"
-import forgeDiamond2 from "../../assets/ui/icons-forge/forges/forge-lvl2/forge-diamond2.webp"
+import forgeBronze2 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-bronze2.webp"
+import forgeIron2 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-iron2.webp"
+import forgeDiamond2 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-diamond2.webp"
 
 //ASSETS FORJA LVL 3
-import forgeBronze3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-bronze3.webp"
-import forgeIron3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-iron3.webp"
-import forgeDiamond3 from "../../assets/ui/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
+import forgeBronze3 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-bronze3.webp"
+import forgeIron3 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-iron3.webp"
+import forgeDiamond3 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
 
-import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
+import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/upgrade.webp"
+import iconFundir from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir.webp"
+import iconUnlock from "../../assets/ui/icons-hud/hud-modals/unlock.webp"
 
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp"
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
+import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
+import ingotIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
+import ingotDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
 
-import menaBronze from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp"
-import menaIron from "../../assets/ui/icons-forge/menas-hud/ironHud.webp"
-import menaDiamond from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp"
+import menaBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/bronzeHud.webp"
+import menaIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/ironHud.webp"
+import menaDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/diamondHud.webp"
 
 import { formatNumber } from '../../game/utils/formatters.js';
 
@@ -91,7 +93,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
     const passiveRaids = gameState.raid?.passiveRaids ?? [];
 
     const [showIntro, setShowIntro] = useState(false);
-    const [timers, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
+    const [, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     const [dogModalTarget, setDogModalTarget] = useState(null);
 
     const handleForgeAssign = (dogId) => {
@@ -159,89 +161,93 @@ const ForgeModal = ({ isOpen, onClose }) => {
                         return (
                             <div key={mat} className={`forge-furnace forge-furnace-${mat} ${!furnace.unlocked ? 'locked' : ''}`}>
 
-                                {/* IZQUIERDA: imagen + nombre + slot perro */}
-                                <div className="forge-furnace-header">
-                                    <span className="forge-furnace-icon">
-                                        <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
-                                    </span>
-                                    <span className="forge-furnace-name">
-                                        {NAMES[mat]} <small>Lvl {furnace.level}</small>
-                                    </span>
-
-                                    {furnace.unlocked && (
-                                        <div className="forge-dog-slot-wrap">
-                                            <div
-                                                className={`forge-dog-slot${assignedDog ? ` dog-rarity-${ForgeDogsConfig[assignedDog.id].rarity}` : ''}`}
-                                                onClick={() => setDogModalTarget(mat)}
-                                            >
-                                                {assignedDog ? (
-                                                    <img src={forgeDogAssets[assignedDog.id]} className="forge-dog-slot-img" alt={assignedDog.id} />
-                                                ) : (
-                                                    <span className="forge-dog-slot-plus">+</span>
-                                                )}
-                                            </div>
-                                            {assignedDog && (
-                                                <span className="forge-dog-slot-name">{ForgeDogsConfig[assignedDog.id].name}</span>
+                                {/* SLOT PERRO — contenedor independiente */}
+                                {furnace.unlocked && (
+                                    <div className="forge-dog-slot-wrap">
+                                        <div
+                                            className={`forge-dog-slot${assignedDog ? ` dog-rarity-${ForgeDogsConfig[assignedDog.id].rarity}` : ''}`}
+                                            onClick={() => setDogModalTarget(mat)}
+                                        >
+                                            {assignedDog ? (
+                                                <img src={forgeDogAssets[assignedDog.id]} className="forge-dog-slot-img" alt={assignedDog.id} />
+                                            ) : (
+                                                <span className="forge-dog-slot-plus">+</span>
                                             )}
                                         </div>
-                                    )}
+                                        {assignedDog && (
+                                            <span className="forge-dog-slot-name">{ForgeDogsConfig[assignedDog.id].name}</span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* IMAGEN + NOMBRE DEL HORNO — contenedor independiente */}
+                                <div className="forge-furnace-header">
+                                    <span className="forge-furnace-visual">
+
+                                        <span className="forge-furnace-icon">
+                                            <span className="forge-furnace-name">
+                                                {NAMES[mat]} <small>Lvl {furnace.level}</small>
+                                            </span>
+
+                                            {furnace.isActive && (
+                                                <div className="forge-progress-container">
+                                                    <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
+                                                </div>
+                                            )}
+
+                                            <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
+
+                                            {!furnace.unlocked && (
+                                                <button
+                                                    className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
+                                                    onClick={() => onUnlockFurnace(mat)}
+                                                    disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
+                                                >
+                                                    <img src={iconUnlock} alt="Desbloquear" className="forge-unlock-img" />
+                                                    <span className="icon-info-gold">
+                                                        {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
+                                                        <img src={iconGold} alt="Oro" />
+                                                    </span>
+                                                </button>
+                                            )}
+
+                                        </span>
+                                    </span>
+
+
+
                                 </div>
 
                                 {/* DERECHA: receta + botones */}
-                                <div className="cont-btn-action">
-                                    <div className="forge-recipe">
-                                        <span className={`forge-recipe-stock ${hasEnough ? 'stock-ok' : 'stock-low'}`}>
-                                            ({formatNumber(stock)})
-                                        </span>
-                                        <img src={menaAssets[mat]} alt={mat} className="forge-recipe-icon" />
-                                        <span>{recipe.inputAmount}</span>
-                                        <span>→</span>
-                                        <img src={ingotAssets[mat]} alt={mat} className="forge-recipe-icon" />
-                                        <span>1</span>
-                                    </div>
+                                {furnace.unlocked && (
+                                    <div className="cont-btn-action">
+                                        <div className="forge-action-row">
+                                            <button
+                                                className={`forge-btn-action ${!hasEnough || furnace.isActive ? 'disabled' : ''}`}
+                                                onClick={() => onStartSmelt(mat)}
+                                                disabled={!hasEnough || furnace.isActive}
+                                            >
+                                                <img src={iconFundir} alt="Fundir" className="forge-btn-fundir-img" />
+                                            </button>
 
-                                    {!furnace.unlocked ? (
-                                        <button
-                                            className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
-                                            onClick={() => onUnlockFurnace(mat)}
-                                            disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
-                                        >
-                                            <span className="icon-info-gold">
-                                                🔒 {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
-                                                <img src={iconGold} alt="Oro" />
-                                            </span>
-                                        </button>
-                                    ) : furnace.isActive ? (
-                                        <div className="forge-progress-container">
-                                            <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
-                                            <span className="forge-progress-text">{timers[mat]}s</span>
+                                            {furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
+                                                <button
+                                                    className={`forge-btn-upgrade ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
+                                                    onClick={() => onUpgradeFurnace(mat)}
+                                                    disabled={gameState.gold < upgradeCost}
+                                                >
+                                                    <span className="icon-upgrade">
+                                                        <img src={buttonUpgrade} alt="Upgrade" />
+                                                        <span className="icon-info-gold">
+                                                            <small>{formatNumber(upgradeCost)}</small>
+                                                            <img src={iconGold} alt="oro" />
+                                                        </span>
+                                                    </span>
+                                                </button>
+                                            )}
                                         </div>
-                                    ) : (
-                                        <button
-                                            className={`forge-btn-action ${!hasEnough ? 'disabled' : ''}`}
-                                            onClick={() => onStartSmelt(mat)}
-                                            disabled={!hasEnough}
-                                        >
-                                            🔥 Fundir
-                                        </button>
-                                    )}
-
-                                    {furnace.unlocked && furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
-                                        <button
-                                            className={`forge-btn-upgrade ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
-                                            onClick={() => onUpgradeFurnace(mat)}
-                                            disabled={gameState.gold < upgradeCost}
-                                        >
-                                            <span className="icon-upgrade">
-                                                <img src={buttonUpgrade} alt="Upgrade" />
-                                                <span className="icon-info-gold">
-                                                    <small>{formatNumber(upgradeCost)}</small>
-                                                    <img src={iconGold} alt="oro" />
-                                                </span>
-                                            </span>
-                                        </button>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

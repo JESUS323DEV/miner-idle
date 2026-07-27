@@ -44,9 +44,9 @@ import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern
 import iconTavernCraft from "../../assets/ui/icons-hud/hud-modals/icons-tavern/craft.webp"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp"
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
+import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
+import ingotIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
+import ingotDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
 
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.webp"
 
@@ -85,7 +85,7 @@ import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.webp"
 import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.webp"
 import forgeDayoIcon from "../../assets/ui/icons-pets/forge/forge-dayo.webp"
 import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.webp"
-import forgeBadge from "../../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.webp"
+import forgeBadge from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-bronze.webp"
 
 const ELEMENT_ICON = {
     fuego: { Icon: Flame, color: '#ff6b35' },

@@ -92,14 +92,14 @@ import pickAxeDiamond2 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante
 import pickAxeDiamond3 from "../assets/ui/icons-pickaxe/Pickaxe/pickaxe-diamante/diamond-tier3.webp"
 
 // ===== LINGOTES =====
-import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
-import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.webp"
-import iconDiamond from "../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
+import iconBronze from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
+import iconIron from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
+import iconDiamond from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
 
 // ===== MENAS HUD =====
-import menaBronzeHud from "../assets/ui/icons-forge/menas-hud/bronzeHud.webp"
-import menaIronHud from "../assets/ui/icons-forge/menas-hud/ironHud.webp"
-import menaDiamondHud from "../assets/ui/icons-forge/menas-hud/diamondHud.webp"
+import menaBronzeHud from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/bronzeHud.webp"
+import menaIronHud from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/ironHud.webp"
+import menaDiamondHud from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/diamondHud.webp"
 
 // ===== MENAS MINA =====
 import menaBronze1 from "../assets/ui/icons-menas/menas-bronze/mena-bronze1.webp"
@@ -113,15 +113,15 @@ import menaDiamond2 from "../assets/ui/icons-menas/menas-diamond/mena-diamond2.w
 import menaDiamond3 from "../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp"
 
 // ===== HORNOS =====
-import forgeBronze1 from "../assets/ui/icons-forge/forges/forge-lvl1/forge-bronze.webp"
-import forgeIron1 from "../assets/ui/icons-forge/forges/forge-lvl1/forge-iron.webp"
-import forgeDiamond1 from "../assets/ui/icons-forge/forges/forge-lvl1/forge-diamond.webp"
-import forgeBronze2 from "../assets/ui/icons-forge/forges/forge-lvl2/forge-bronze2.webp"
-import forgeIron2 from "../assets/ui/icons-forge/forges/forge-lvl2/forge-iron2.webp"
-import forgeDiamond2 from "../assets/ui/icons-forge/forges/forge-lvl2/forge-diamond2.webp"
-import forgeBronze3 from "../assets/ui/icons-forge/forges/forge-lvl3/forge-bronze3.webp"
-import forgeIron3 from "../assets/ui/icons-forge/forges/forge-lvl3/forge-iron3.webp"
-import forgeDiamond3 from "../assets/ui/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
+import forgeBronze1 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-bronze.webp"
+import forgeIron1 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-iron.webp"
+import forgeDiamond1 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-diamond.webp"
+import forgeBronze2 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-bronze2.webp"
+import forgeIron2 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-iron2.webp"
+import forgeDiamond2 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl2/forge-diamond2.webp"
+import forgeBronze3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-bronze3.webp"
+import forgeIron3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-iron3.webp"
+import forgeDiamond3 from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
 
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"

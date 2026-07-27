@@ -3,9 +3,9 @@ import '../../styles/modals/PickaxeModal.css';
 import '../../styles/modals/UpgradeModal.css';
 
 // ===== ASSETS: LINGOTES =====
-import lingoteBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp"
-import lingoteIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp"
-import lingoteDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp"
+import lingoteBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
+import lingoteIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
+import lingoteDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
 
 // ===== ASSETS: ORO =====
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"

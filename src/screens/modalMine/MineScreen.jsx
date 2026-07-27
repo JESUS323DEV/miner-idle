@@ -26,13 +26,13 @@ import menaDiamond1 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond
 import menaDiamond2 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond2.webp";
 import menaDiamond3 from "../../assets/ui/icons-menas/menas-diamond/mena-diamond3.webp";
 
-import bronzeHud from "../../assets/ui/icons-forge/menas-hud/bronzeHud.webp";
-import ironHud from "../../assets/ui/icons-forge/menas-hud/ironHud.webp";
-import diamondHud from "../../assets/ui/icons-forge/menas-hud/diamondHud.webp";
+import bronzeHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/bronzeHud.webp";
+import ironHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/ironHud.webp";
+import diamondHud from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/diamondHud.webp";
 
-import ingotBronze from "../../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
-import ingotIron from "../../assets/ui/icons-forge/lingotes/lingote-iron.webp";
-import ingotDiamond from "../../assets/ui/icons-forge/lingotes/lingote-diamond.webp";
+import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp";
+import ingotIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp";
+import ingotDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp";
 const ingotAssets = { bronze: ingotBronze, iron: ingotIron, diamond: ingotDiamond };
 
 import ladyIcon from "../../assets/ui/icons-pets/mineros/lady-icon.webp";

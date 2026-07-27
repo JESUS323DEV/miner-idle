@@ -64,13 +64,13 @@ import iconRaids from "../assets/ui/icons-hud/hud-principal/raids.webp";
 import iconRewards from "../assets/ui/icons-hud/hud-principal/rewards.webp";
 import iconRent from "../assets/ui/icons-hud/hud-principal/rent.webp";
 
-import iconBronze from "../assets/ui/icons-forge/lingotes/lingote-bronze.webp";
-import iconIron from "../assets/ui/icons-forge/lingotes/lingote-iron.webp";
-import iconDiamond from "../assets/ui/icons-forge/lingotes/lingote-diamond.webp";
+import iconBronze from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp";
+import iconIron from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp";
+import iconDiamond from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp";
 
-import menaBronze from "../assets/ui/icons-forge/menas-hud/bronzeHud.webp";
-import menaIron from "../assets/ui/icons-forge/menas-hud/ironHud.webp";
-import menaDiamond from "../assets/ui/icons-forge/menas-hud/diamondHud.webp";
+import menaBronze from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/bronzeHud.webp";
+import menaIron from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/ironHud.webp";
+import menaDiamond from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/menas-hud/diamondHud.webp";
 
 // ===== ASSETS: FONDOS =====
 import bgMain from "../assets/backgrounds/fondo4.webp";
