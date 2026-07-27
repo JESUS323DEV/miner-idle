@@ -97,8 +97,46 @@
     width: 100%;
 }
 
+.forge-furnace-icon {
+    position: relative;
+}
+
 .forge-furnace-icon img {
     width: 80px;
+}
+
+.forge-float-ingot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffe600;
+    text-shadow: -1px -1px 0 #4A2800, 1px -1px 0 #4A2800, -1px 1px 0 #4A2800, 1px 1px 0 #4A2800;
+    pointer-events: none;
+    animation: forge-float-up 2.2s ease-out forwards;
+    z-index: 5;
+}
+
+.forge-float-ingot img {
+    width: 18px;
+    height: 18px;
+}
+
+@keyframes forge-float-up {
+    0% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -140%);
+        opacity: 0;
+    }
 }
 
 @keyframes forge-glow {
@@ -166,6 +204,21 @@
     cursor: not-allowed;
 }
 
+.forge-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    width: 100%;
+    min-width: 6rem;
+    margin-top: 0.4rem;
+}
+
+.forge-furnace-icon img.forge-progress-side-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
 .forge-progress-container {
     position: relative;
     height: 0.4rem;
@@ -173,7 +226,6 @@
     background: #333;
     border-radius: 0.3rem;
     overflow: hidden;
-    margin-top: 0.4rem;
 }
 
 .forge-progress-bar {

@@ -3,6 +3,8 @@ import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
 import { getDogStats } from '../../utils/getDogStats.js';
 
+const FORGE_RESTART_DELAY_MS = 600;
+
 export const useForgeActions = (gameState, setGameState, showGoldCost) => {
 
     // ========== DESBLOQUEAR FORJA ==========
@@ -141,11 +143,28 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                 }
             }
 
+            if (hasMore) {
+                setTimeout(() => {
+                    setGameState(prev2 => {
+                        const f2 = prev2.furnaces[material];
+                        if (f2.isActive) return prev2;
+                        return {
+                            ...prev2,
+                            furnaces: {
+                                ...prev2.furnaces,
+                                [material]: { ...f2, isActive: true, startTime: Date.now(), progress: 0 }
+                            }
+                        };
+                    });
+                }, FORGE_RESTART_DELAY_MS);
+            }
+
             return {
                 ...prevState,
                 [recipe.output]: prevState[recipe.output] + ingotsGained,
                 [recipe.input]: hasMore ? prevState[recipe.input] - recipe.inputAmount : prevState[recipe.input],
                 totalIngotsSmelted: (prevState.totalIngotsSmelted ?? 0) + ingotsGained,
+                lastForgeGain: { material, amount: ingotsGained, timestamp: Date.now() },
                 ...(material === 'bronze'  ? { totalBronzeIngotsSmelted:  (prevState.totalBronzeIngotsSmelted  ?? 0) + ingotsGained } : {}),
                 ...(material === 'iron'    ? { totalIronIngotsSmelted:    (prevState.totalIronIngotsSmelted    ?? 0) + ingotsGained } : {}),
                 ...(material === 'diamond' ? { totalDiamondIngotsSmelted: (prevState.totalDiamondIngotsSmelted ?? 0) + ingotsGained } : {}),
@@ -153,8 +172,8 @@ export const useForgeActions = (gameState, setGameState, showGoldCost) => {
                     ...prevState.furnaces,
                     [material]: {
                         ...furnace,
-                        isActive: hasMore,
-                        startTime: hasMore ? Date.now() : null,
+                        isActive: false,
+                        startTime: null,
                         progress: 0
                     }
                 }

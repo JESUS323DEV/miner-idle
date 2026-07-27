@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { ForgeConfig } from '../../game/config/ForgeConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import { useFloatingNumbers } from '../../game/hooks/useFloatingNumbers.js';
 import ForgeDogModal from './ForgeDogModal';
 import '../../styles/modals/ForgeModal.css';
 
@@ -95,6 +96,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
     const [showIntro, setShowIntro] = useState(false);
     const [, setTimers] = useState({ bronze: 0, iron: 0, diamond: 0 });
     const [dogModalTarget, setDogModalTarget] = useState(null);
+    const { floats, add: addFloat } = useFloatingNumbers();
 
     const handleForgeAssign = (dogId) => {
         const currentEntry = Object.entries(forgeDogs).find(([, d]) => d?.assignedTo === dogModalTarget);
@@ -134,6 +136,13 @@ const ForgeModal = ({ isOpen, onClose }) => {
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.furnaces]);
+
+    useEffect(() => {
+        const gain = gameState.lastForgeGain;
+        if (!gain) return;
+        addFloat('ingot', { material: gain.material, amount: gain.amount }, 2200);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState.lastForgeGain?.timestamp]);
 
     if (!isOpen) return null;
 
@@ -189,13 +198,23 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                 {NAMES[mat]} <small>Lvl {furnace.level}</small>
                                             </span>
 
-                                            {furnace.isActive && (
-                                                <div className="forge-progress-container">
-                                                    <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
+                                            {furnace.unlocked && (
+                                                <div className="forge-progress-wrap">
+                                                    <img src={menaAssets[mat]} alt="mena" className="forge-progress-side-icon" />
+                                                    <div className="forge-progress-container">
+                                                        <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
+                                                    </div>
+                                                    <img src={ingotAssets[mat]} alt="lingote" className="forge-progress-side-icon" />
                                                 </div>
                                             )}
 
                                             <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
+
+                                            {floats.filter(f => f.material === mat).map(f => (
+                                                <span key={f.id} className="forge-float-ingot">
+                                                    +{f.amount} <img src={ingotAssets[mat]} alt="lingote" />
+                                                </span>
+                                            ))}
 
                                             {!furnace.unlocked && (
                                                 <button
