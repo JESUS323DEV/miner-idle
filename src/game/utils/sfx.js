@@ -9,6 +9,7 @@ import sfxRewardShardsUrl from '../../assets/audio/sfx/only-rewards-shards.mp3';
 import sfxFinalMinaUrl    from '../../assets/audio/sfx/only-final-mina.mp3';
 import sfxSendRaidUrl     from '../../assets/audio/sfx/only-send-raid.mp3';
 import sfxFreeInvocUrl    from '../../assets/audio/sfx/rewards-raids-invocaciones-free.mp3';
+import sfxFurnaceUrl      from '../../assets/audio/sfx/furnace.mp3';
 
 let audioCtx = null;
 const buffers = {};
@@ -26,6 +27,7 @@ const SFX_CONFIG = {
     finalMina:    { offset: 0.0, gain: 1.0 },
     sendRaid:     { offset: 0.0, gain: 1.0 },
     freeInvoc:    { offset: 0.0, gain: 1.0 },
+    furnace:      { offset: 0.0, gain: 0.15, loop: true },
 };
 
 const SFX_SOURCES = {
@@ -40,6 +42,7 @@ const SFX_SOURCES = {
     finalMina:    sfxFinalMinaUrl,
     sendRaid:     sfxSendRaidUrl,
     freeInvoc:    sfxFreeInvocUrl,
+    furnace:      sfxFurnaceUrl,
 };
 
 const ensureCtx = () => {
@@ -61,18 +64,33 @@ export const sfxReady = Promise.all(
     Object.entries(SFX_SOURCES).map(([key, url]) => loadBuffer(key, url))
 ).catch(() => {});
 
+const loopingSources = {};
+
 export const playBuffer = (key) => {
     if (!audioCtx || !buffers[key]) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const { offset = 0, duration, gain: gainMult = 1.0 } = SFX_CONFIG[key] ?? {};
+    const { offset = 0, duration, gain: gainMult = 1.0, loop = false } = SFX_CONFIG[key] ?? {};
+    if (loop && loopingSources[key]) return;
     const source = audioCtx.createBufferSource();
     source.buffer = buffers[key];
+    source.loop = loop;
     const gain = audioCtx.createGain();
     gain.gain.value = parseFloat(localStorage.getItem('sfx_volume') ?? '0.09') * gainMult;
     source.connect(gain);
     gain.connect(audioCtx.destination);
     source.start(0, offset);
     if (duration != null) source.stop(audioCtx.currentTime + duration);
+    if (loop) {
+        loopingSources[key] = source;
+        source.onended = () => { loopingSources[key] = null; };
+    }
+};
+
+export const stopSfx = (key) => {
+    const source = loopingSources[key];
+    if (!source) return;
+    try { source.stop(); } catch { /* already stopped */ }
+    loopingSources[key] = null;
 };
 
 export const playSfx = playBuffer;

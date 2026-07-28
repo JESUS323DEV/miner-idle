@@ -128,7 +128,7 @@ import forgeCardBronze from "../assets/ui/icons-hud/hud-modals/modal-forge/icons
 import forgeCardIron from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-iron.webp"
 import forgeCardDiamond from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/card-diamond.webp"
 import forgeBg from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/bg-forge/forge-bg.webp"
-import forgeIconFundir from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir.webp"
+import forgeIconFundir from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir2.webp"
 import forgeIconUpgrade from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/upgrade.webp"
 import automineIcon from "../assets/ui/icons-hud/hud-modals/automine.webp"
 

@@ -4,6 +4,7 @@ import { ForgeConfig } from '../../game/config/ForgeConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { useFloatingNumbers } from '../../game/hooks/useFloatingNumbers.js';
+import { playSfx, stopSfx } from '../../game/utils/sfx.js';
 import ForgeDogModal from './ForgeDogModal';
 import '../../styles/modals/ForgeModal.css';
 
@@ -16,11 +17,13 @@ import forgeIcon6 from "../../assets/ui/icons-pets/forge/forge-icon6.webp";
 import forgeIcon7 from "../../assets/ui/icons-pets/forge/forge-icon7.webp";
 import forgeIcon8 from "../../assets/ui/icons-pets/forge/forge-icon8.webp";
 import forgeIcon9 from "../../assets/ui/icons-pets/forge/forge-icon9.webp";
+import forgeDayoIcon from "../../assets/ui/icons-pets/forge/forge-dayo.webp";
 
 const forgeDogAssets = {
     pip: forgeIcon1, koda: forgeIcon2, milo: forgeIcon3,
     rocky: forgeIcon4, bruno: forgeIcon5, max: forgeIcon6,
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
+    dayo: forgeDayoIcon,
 };
 
 
@@ -40,7 +43,7 @@ import forgeIron3 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-f
 import forgeDiamond3 from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl3/forge-diamond3.webp"
 
 import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/upgrade.webp"
-import iconFundir from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir.webp"
+import iconFundir from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/fundir2.webp"
 import iconUnlock from "../../assets/ui/icons-hud/hud-modals/unlock.webp"
 
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
@@ -158,6 +161,16 @@ const ForgeModal = ({ isOpen, onClose }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.lastForgeConsume?.timestamp]);
 
+    useEffect(() => {
+        const anyActive = isOpen && MATERIALS.some(mat => gameState.furnaces[mat].isActive);
+        if (anyActive) {
+            playSfx('furnace');
+        } else {
+            stopSfx('furnace');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, MATERIALS.map(mat => gameState.furnaces[mat].isActive).join(',')]);
+
     if (!isOpen) return null;
 
     return (
@@ -238,17 +251,30 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                 </div>
                                             )}
 
-                                            <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-ready' : ''}`} />
+                                            <span className="forge-furnace-img-wrap">
+                                                <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-ready' : ''}`} />
 
-                                            {furnace.unlocked && (
-                                                <button
-                                                    className={`forge-btn-fundir-circle ${!hasEnough || furnace.isActive || furnace.restarting ? 'disabled' : ''}`}
-                                                    onClick={() => onStartSmelt(mat)}
-                                                    disabled={!hasEnough || furnace.isActive || furnace.restarting}
-                                                >
-                                                    <img src={iconFundir} alt="Fundir" className={`forge-btn-fundir-img ${!hasEnough || furnace.isActive || furnace.restarting ? '' : 'forge-furnace-img-ready'}`} />
-                                                </button>
-                                            )}
+                                                {furnace.unlocked && (
+                                                    <button
+                                                        className={`forge-btn-fundir-circle ${!hasEnough || furnace.isActive || furnace.restarting ? 'disabled' : ''}`}
+                                                        onClick={() => onStartSmelt(mat)}
+                                                        disabled={!hasEnough || furnace.isActive || furnace.restarting}
+                                                    >
+                                                        <img src={iconFundir} alt="Fundir" className={`forge-btn-fundir-img ${!hasEnough || furnace.isActive || furnace.restarting ? '' : 'forge-furnace-img-ready'}`} />
+                                                    </button>
+                                                )}
+
+                                                {furnace.unlocked && furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
+                                                    <button
+                                                        className={`forge-btn-upgrade-circle ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
+                                                        onClick={() => onUpgradeFurnace(mat)}
+                                                        disabled={gameState.gold < upgradeCost}
+                                                    >
+                                                        <img src={buttonUpgrade} alt="Mejorar" className={`forge-btn-upgrade-img ${gameState.gold < upgradeCost ? '' : 'forge-furnace-img-ready'}`} />
+                                                        <span className="forge-upgrade-price">{formatNumber(upgradeCost)} <img src={iconGold} alt="oro" /></span>
+                                                    </button>
+                                                )}
+                                            </span>
 
                                             {!furnace.unlocked && (
                                                 <>
@@ -273,28 +299,6 @@ const ForgeModal = ({ isOpen, onClose }) => {
 
                                 </div>
 
-                                {/* DERECHA: receta + botones */}
-                                {furnace.unlocked && (
-                                    <div className="cont-btn-action">
-                                        <div className="forge-action-row">
-                                            {furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
-                                                <button
-                                                    className={`forge-btn-upgrade ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
-                                                    onClick={() => onUpgradeFurnace(mat)}
-                                                    disabled={gameState.gold < upgradeCost}
-                                                >
-                                                    <span className="icon-upgrade">
-                                                        <img src={buttonUpgrade} alt="Upgrade" />
-                                                        <span className="icon-info-gold">
-                                                            <small>{formatNumber(upgradeCost)}</small>
-                                                            <img src={iconGold} alt="oro" />
-                                                        </span>
-                                                    </span>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         );
                     })}
