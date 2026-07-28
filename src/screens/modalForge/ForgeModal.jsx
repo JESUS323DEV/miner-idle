@@ -208,9 +208,11 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                     <span className="forge-furnace-visual">
 
                                         <span className="forge-furnace-icon">
-                                            <span className="forge-furnace-name">
-                                                {NAMES[mat]} <small>Lvl {furnace.level}</small>
-                                            </span>
+                                            {furnace.unlocked && (
+                                                <span className="forge-furnace-name">
+                                                    {NAMES[mat]} <small>Lvl {furnace.level}</small>
+                                                </span>
+                                            )}
 
                                             {furnace.unlocked && (
                                                 <div className="forge-progress-wrap">
@@ -239,17 +241,19 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                             <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
 
                                             {!furnace.unlocked && (
-                                                <button
-                                                    className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : ''}`}
-                                                    onClick={() => onUnlockFurnace(mat)}
-                                                    disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
-                                                >
-                                                    <img src={iconUnlock} alt="Desbloquear" className="forge-unlock-img" />
+                                                <>
+                                                    <button
+                                                        className={`forge-btn-action locked ${gameState.gold < ForgeConfig.furnaces[mat].unlockCost ? 'disabled' : 'forge-btn-affordable'}`}
+                                                        onClick={() => onUnlockFurnace(mat)}
+                                                        disabled={gameState.gold < ForgeConfig.furnaces[mat].unlockCost}
+                                                    >
+                                                        <img src={iconUnlock} alt="Desbloquear" className="forge-unlock-img" />
+                                                    </button>
                                                     <span className="icon-info-gold">
                                                         {formatNumber(ForgeConfig.furnaces[mat].unlockCost)}
                                                         <img src={iconGold} alt="Oro" />
                                                     </span>
-                                                </button>
+                                                </>
                                             )}
 
                                         </span>
