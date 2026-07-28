@@ -7,6 +7,9 @@ import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legend
 import iconShardEpic from "../assets/ui/icons-pets-shards/icon-shard-epic.webp";
 import iconShardRare from "../assets/ui/icons-pets-shards/icon-shard-rare.webp";
 import "../styles/modals/RewardsModal.css"
+import iconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp";
+import iconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp";
+import iconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp";
 import { DAILY_LOGIN_REWARDS, getDailyLoginState } from "../game/config/DailyLoginConfig.js";
 import { useGameContext } from "../game/context/GameContext.jsx";
 import { DogsConfig } from "../game/config/DogsConfig.js";
@@ -343,7 +346,12 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                         {exhausted
                                             ? <p className="reward-progress">Completado ({claimed}/{maxClaims})</p>
                                             : <>
-                                                <p className="reward-progress">{fmt(current)} / {fmt(target)}</p>
+                                                <div className="reward-progress-bar-wrap">
+                                                    <div className="reward-progress-bar-container">
+                                                        <div className="reward-progress-bar-fill" style={{ width: `${Math.min(100, (current / target) * 100)}%` }} />
+                                                    </div>
+                                                    <span className="reward-progress-cap">{fmt(target)}</span>
+                                                </div>
                                                 <p className="reward-claimed">Reclamados: {claimed}{maxClaims ? `/${maxClaims}` : ''}</p>
                                               </>
                                         }
@@ -355,7 +363,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                             onClick={() => { if (claimable) { playSfx('rewardGold'); onClaimReward(key); } }}
                                             disabled={!claimable}
                                         >
-                                            {claimable ? <LockOpen size={20} /> : <Lock size={18} />}
+                                            <img src={exhausted ? iconReclamed : claimable ? iconUnlock : iconLock} alt={exhausted ? "Completado" : claimable ? "Reclamar" : "Bloqueado"} className="reward-lock-img" />
                                         </button>
                                     </div>
                                 </div>

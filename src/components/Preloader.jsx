@@ -133,12 +133,15 @@ import forgeIconUpgrade from "../assets/ui/icons-hud/hud-modals/modal-forge/icon
 import automineIcon from "../assets/ui/icons-hud/hud-modals/automine.webp"
 
 // ===== RECOMPENSAS ORO — REDISEÑO =====
-import rewardsBgGoldMined from "../assets/ui/icons-hud/hud-modals/rewards/gold-pickaxe.webp"
-import rewardsBgGoldSpent from "../assets/ui/icons-hud/hud-modals/rewards/gold-gastado.webp"
-import rewardsBgGoldPerSecond from "../assets/ui/icons-hud/hud-modals/rewards/gold-second.webp"
-import rewardsBgClicks from "../assets/ui/icons-hud/hud-modals/rewards/taps-total.webp"
-import rewardsBgPickaxeTiers from "../assets/ui/icons-hud/hud-modals/rewards/tier-pico.webp"
-import rewardsBgRepairs from "../assets/ui/icons-hud/hud-modals/rewards/repair-total.webp"
+import rewardsBgGoldMined from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/gold-pickaxe.webp"
+import rewardsBgGoldSpent from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/gold-gastado.webp"
+import rewardsBgGoldPerSecond from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/gold-second.webp"
+import rewardsBgClicks from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/taps-total.webp"
+import rewardsBgPickaxeTiers from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/tier-pico.webp"
+import rewardsBgRepairs from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/repair-total.webp"
+import rewardsIconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp"
+import rewardsIconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp"
+import rewardsIconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp"
 
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"
@@ -258,6 +261,7 @@ const IMAGES = [
     forgeIconFundir, forgeIconUpgrade, automineIcon,
     rewardsBgGoldMined, rewardsBgGoldSpent, rewardsBgGoldPerSecond,
     rewardsBgClicks, rewardsBgPickaxeTiers, rewardsBgRepairs,
+    rewardsIconLock, rewardsIconUnlock, rewardsIconReclamed,
     // pantallas
     mineModal, iconTavern, iconForge,
     // automina
