@@ -225,7 +225,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                         ))}
                                                     </span>
                                                     <div className="forge-progress-container">
-                                                        <div className="forge-progress-bar" style={{ width: `${progress}%` }} />
+                                                        <div className={`forge-progress-bar ${furnace.isActive ? 'forge-progress-bar-active' : ''}`} style={{ width: `${progress}%` }} />
                                                     </div>
                                                     <span className="forge-progress-side-icon-wrap">
                                                         <img src={ingotAssets[mat]} alt="lingote" className={`forge-progress-side-icon ${furnace.isActive ? 'forge-progress-side-icon-active' : ''}`} />
@@ -239,6 +239,16 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                             )}
 
                                             <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-ready' : ''}`} />
+
+                                            {furnace.unlocked && (
+                                                <button
+                                                    className={`forge-btn-fundir-circle ${!hasEnough || furnace.isActive || furnace.restarting ? 'disabled' : ''}`}
+                                                    onClick={() => onStartSmelt(mat)}
+                                                    disabled={!hasEnough || furnace.isActive || furnace.restarting}
+                                                >
+                                                    <img src={iconFundir} alt="Fundir" className={`forge-btn-fundir-img ${!hasEnough || furnace.isActive || furnace.restarting ? '' : 'forge-furnace-img-ready'}`} />
+                                                </button>
+                                            )}
 
                                             {!furnace.unlocked && (
                                                 <>
@@ -267,14 +277,6 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                 {furnace.unlocked && (
                                     <div className="cont-btn-action">
                                         <div className="forge-action-row">
-                                            <button
-                                                className={`forge-btn-action ${!hasEnough || furnace.isActive || furnace.restarting ? 'disabled' : ''}`}
-                                                onClick={() => onStartSmelt(mat)}
-                                                disabled={!hasEnough || furnace.isActive || furnace.restarting}
-                                            >
-                                                <img src={iconFundir} alt="Fundir" className={`forge-btn-fundir-img ${!hasEnough || furnace.isActive || furnace.restarting ? '' : 'forge-furnace-img-ready'}`} />
-                                            </button>
-
                                             {furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
                                                 <button
                                                     className={`forge-btn-upgrade ${gameState.gold < upgradeCost ? 'disabled' : ''}`}
