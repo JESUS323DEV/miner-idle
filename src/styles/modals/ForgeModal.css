@@ -190,6 +190,24 @@
     animation: forge-glow 1.5s ease-in-out infinite;
 }
 
+@keyframes forge-furnace-ready-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: brightness(1) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+    }
+
+    50% {
+        transform: scale(1.02);
+        filter: brightness(1.15) drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+    }
+}
+
+.forge-furnace-img-ready {
+    animation: forge-furnace-ready-pulse 1.5s ease-in-out infinite;
+}
+
 .forge-furnace-name {
     display: block;
     text-align: center;

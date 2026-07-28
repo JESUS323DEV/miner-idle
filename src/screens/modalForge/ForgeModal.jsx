@@ -238,7 +238,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                 </div>
                                             )}
 
-                                            <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-active' : ''}`} />
+                                            <img src={forgeAssets[mat][furnace.level]} alt={mat} className={`forge-furnace-img ${furnace.isActive ? 'forge-furnace-img-ready' : ''}`} />
 
                                             {!furnace.unlocked && (
                                                 <>
@@ -272,7 +272,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                                                 onClick={() => onStartSmelt(mat)}
                                                 disabled={!hasEnough || furnace.isActive || furnace.restarting}
                                             >
-                                                <img src={iconFundir} alt="Fundir" className="forge-btn-fundir-img" />
+                                                <img src={iconFundir} alt="Fundir" className={`forge-btn-fundir-img ${!hasEnough || furnace.isActive || furnace.restarting ? '' : 'forge-furnace-img-ready'}`} />
                                             </button>
 
                                             {furnace.level < ForgeConfig.furnaces[mat].maxLevel && (
