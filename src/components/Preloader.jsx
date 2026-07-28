@@ -132,6 +132,14 @@ import forgeIconFundir from "../assets/ui/icons-hud/hud-modals/modal-forge/icons
 import forgeIconUpgrade from "../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/icons-modal/upgrade.webp"
 import automineIcon from "../assets/ui/icons-hud/hud-modals/automine.webp"
 
+// ===== RECOMPENSAS ORO — REDISEÑO =====
+import rewardsBgGoldMined from "../assets/ui/icons-hud/hud-modals/rewards/gold-pickaxe.webp"
+import rewardsBgGoldSpent from "../assets/ui/icons-hud/hud-modals/rewards/gold-gastado.webp"
+import rewardsBgGoldPerSecond from "../assets/ui/icons-hud/hud-modals/rewards/gold-second.webp"
+import rewardsBgClicks from "../assets/ui/icons-hud/hud-modals/rewards/taps-total.webp"
+import rewardsBgPickaxeTiers from "../assets/ui/icons-hud/hud-modals/rewards/tier-pico.webp"
+import rewardsBgRepairs from "../assets/ui/icons-hud/hud-modals/rewards/repair-total.webp"
+
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"
 import iconTavern from "../assets/ui/icon-tavern1.webp"
@@ -248,6 +256,8 @@ const IMAGES = [
     // forja — rediseño
     forgeCardBronze, forgeCardIron, forgeCardDiamond, forgeBg,
     forgeIconFundir, forgeIconUpgrade, automineIcon,
+    rewardsBgGoldMined, rewardsBgGoldSpent, rewardsBgGoldPerSecond,
+    rewardsBgClicks, rewardsBgPickaxeTiers, rewardsBgRepairs,
     // pantallas
     mineModal, iconTavern, iconForge,
     // automina

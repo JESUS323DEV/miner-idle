@@ -88,6 +88,10 @@
     gap: 10px;
 }
 
+.rewards-list-gold {
+    margin: 0 -20px;
+}
+
 .reward-card {
     display: flex;
     align-items: center;
@@ -98,6 +102,16 @@
     padding: 12px;
 }
 
+.gold-milestone-card {
+    justify-content: flex-end;
+    border: none;
+}
+
+.gold-milestone-card .reward-info {
+    flex: none;
+    text-align: right;
+}
+
 .reward-card.claimable {
     border: 2px solid #f0a500;
     background: rgba(240, 165, 0, 0.07);
@@ -106,6 +120,34 @@
 
 .reward-card.locked {
     opacity: 0.75;
+}
+
+.gold-milestone-card.claimable {
+    border: none;
+}
+
+.reward-card.reward-card-goldMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/gold-pickaxe.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.reward-card-goldSpentMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/gold-gastado.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.reward-card-goldPerSecondMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/gold-second.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.reward-card-clickMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/taps-total.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.reward-card-pickaxeMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/tier-pico.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.reward-card-repairMilestones {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/repair-total.webp') center / 100% 100% no-repeat;
 }
 
 .reward-card.exhausted {

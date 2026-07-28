@@ -10,6 +10,7 @@ export const useAffordNotify = (canAfford) => {
 
     useEffect(() => {
         if (canAfford && !prevRef.current) setUnseen(true);
+        else if (!canAfford) setUnseen(false);
         prevRef.current = canAfford;
     }, [canAfford]);
 

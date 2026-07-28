@@ -318,7 +318,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
 
                 {/* TAB ORO */}
                 {activeTab === "gold" && (
-                    <div className="rewards-list">
+                    <div className="rewards-list rewards-list-gold">
                         {[...goldRewardsList].sort((a, b) => {
                             const ea = isExhausted(a.key), eb = isExhausted(b.key);
                             if (ea && !eb) return 1;
@@ -337,8 +337,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                             const maxClaims = rewards[key].maxClaims;
 
                             return (
-                                <div key={key} className={`reward-card ${exhausted ? "exhausted" : claimable ? "claimable" : "locked"}`}>
-                                    <span className="reward-icon">{icon}</span>
+                                <div key={key} className={`reward-card reward-card-${key} gold-milestone-card ${exhausted ? "exhausted" : claimable ? "claimable" : "locked"}`}>
                                     <div className="reward-info">
                                         <p className="reward-label">{label}</p>
                                         {exhausted
