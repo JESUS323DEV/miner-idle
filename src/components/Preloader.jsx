@@ -142,6 +142,16 @@ import rewardsBgRepairs from "../assets/ui/icons-hud/hud-modals/rewards/rewards-
 import rewardsIconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp"
 import rewardsIconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp"
 import rewardsIconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp"
+import rewardsCoinMinaBronze from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-bronze.webp"
+import rewardsCoinMinaIron from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-iron.webp"
+import rewardsCoinMinaDiamond from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-diamond.webp"
+import rewardsCoinFurnaceBronze from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-bronze.webp"
+import rewardsCoinFurnaceIron from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-iron.webp"
+import rewardsCoinFurnaceDiamond from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-diamond.webp"
+import rewardsCoinUpPickaxe from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/up-pickaxe.webp"
+import rewardsCoinUpFurnace from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/up-furnace.webp"
+import rewardsCoinAutominar from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/autominar.webp"
+import rewardsCoinPoderAutominar from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/poder-autominar.webp"
 
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"
@@ -262,6 +272,9 @@ const IMAGES = [
     rewardsBgGoldMined, rewardsBgGoldSpent, rewardsBgGoldPerSecond,
     rewardsBgClicks, rewardsBgPickaxeTiers, rewardsBgRepairs,
     rewardsIconLock, rewardsIconUnlock, rewardsIconReclamed,
+    rewardsCoinMinaBronze, rewardsCoinMinaIron, rewardsCoinMinaDiamond,
+    rewardsCoinFurnaceBronze, rewardsCoinFurnaceIron, rewardsCoinFurnaceDiamond,
+    rewardsCoinUpPickaxe, rewardsCoinUpFurnace, rewardsCoinAutominar, rewardsCoinPoderAutominar,
     // pantallas
     mineModal, iconTavern, iconForge,
     // automina

@@ -102,14 +102,21 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
             const newGoldSpent = prevState.totalGoldSpent + prevUpgrade.cost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const newLevel = prevLevel + 1;
+            const coinKey = `automineCharge${newLevel}`;
+            const coinReward = prevState.rewards.coinRewards[coinKey];
+
             return {
                 ...prevState,
                 gold: prevState.gold - prevUpgrade.cost,
                 totalGoldSpent: newGoldSpent,
-                automineUpgradeLevel: prevLevel + 1,
+                automineUpgradeLevel: newLevel,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || (coinReward && !coinReward.unlocked),
+                    coinRewards: coinReward
+                        ? { ...prevState.rewards.coinRewards, [coinKey]: { ...coinReward, unlocked: true } }
+                        : prevState.rewards.coinRewards,
                 }
             };
         });
@@ -158,14 +165,21 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
             const newGoldSpent = prevState.totalGoldSpent + prevCost;
             const hasGoldSpentMilestone = checkMilestone(prevState.rewards.goldSpentMilestones, newGoldSpent);
 
+            const newPoderLevel = prevLevel + 1;
+            const poderCoinKey = newPoderLevel % 5 === 0 ? `poderAutominarLvl${newPoderLevel}` : null;
+            const poderCoinReward = poderCoinKey ? prevState.rewards.coinRewards[poderCoinKey] : null;
+
             return {
                 ...prevState,
                 gold: prevState.gold - prevCost,
                 totalGoldSpent: newGoldSpent,
-                autominePoderLevel: prevLevel + 1,
+                autominePoderLevel: newPoderLevel,
                 rewards: {
                     ...prevState.rewards,
-                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone,
+                    hasUnclaimed: prevState.rewards.hasUnclaimed || hasGoldSpentMilestone || (poderCoinReward && !poderCoinReward.unlocked),
+                    coinRewards: poderCoinReward
+                        ? { ...prevState.rewards.coinRewards, [poderCoinKey]: { ...poderCoinReward, unlocked: true } }
+                        : prevState.rewards.coinRewards,
                 }
             };
         });

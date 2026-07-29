@@ -129,11 +129,42 @@ export const loadSavedState = () => {
         if (mergedFR[k] && !mergedFR[k].claimed) mergedFR[k] = { ...mergedFR[k], visible: true };
     });
 
-    // Merge coinRewards: añade nuevas entradas
+    // Merge coinRewards: añade nuevas entradas y sincroniza reward de las únicas aún no reclamadas
     const mergedCR = { ...(loaded.rewards?.coinRewards ?? {}) };
     Object.keys(InitialRewardsState.coinRewards).forEach(k => {
-        if (!(k in mergedCR)) mergedCR[k] = InitialRewardsState.coinRewards[k];
+        if (!(k in mergedCR)) {
+            mergedCR[k] = InitialRewardsState.coinRewards[k];
+        } else if (mergedCR[k].claimed === false && typeof InitialRewardsState.coinRewards[k].reward === 'number') {
+            mergedCR[k] = { ...mergedCR[k], reward: InitialRewardsState.coinRewards[k].reward };
+        } else if (Array.isArray(mergedCR[k].claimed) && Array.isArray(InitialRewardsState.coinRewards[k].tiers)) {
+            mergedCR[k] = { ...mergedCR[k], tiers: InitialRewardsState.coinRewards[k].tiers };
+        }
     });
+    // Migración cadenas de coinRewards: si el save es viejo y no tiene "visible",
+    // solo se oculta lo que el jugador aún no había alcanzado; lo ya desbloqueado se deja visible
+    const COIN_CHAIN_FOLLOWERS = [
+        'unlockBronzeLvl2', 'unlockBronzeLvl3', 'unlockIronLvl2', 'unlockIronLvl3',
+        'unlockDiamondLvl2', 'unlockDiamondLvl3', 'pickaxeMetal', 'pickaxeDiamond',
+        'forgeIron', 'forgeDiamond',
+    ];
+    COIN_CHAIN_FOLLOWERS.forEach(k => {
+        if (mergedCR[k] && mergedCR[k].visible === undefined) {
+            mergedCR[k] = { ...mergedCR[k], visible: !!mergedCR[k].unlocked };
+        }
+    });
+    // Migración automineCharge: desbloquea retroactivamente los niveles ya subidos antes de este cambio
+    const savedAutomineLevel = loaded.automineUpgradeLevel ?? 0;
+    for (let i = 1; i <= savedAutomineLevel; i++) {
+        const k = `automineCharge${i}`;
+        if (mergedCR[k]) mergedCR[k] = { ...mergedCR[k], unlocked: true, visible: true };
+    }
+
+    // Migración poderAutominar: desbloquea retroactivamente los hitos de 5 en 5 ya alcanzados
+    const savedPoderLevel = loaded.autominePoderLevel ?? 0;
+    for (let lvl = 5; lvl <= savedPoderLevel; lvl += 5) {
+        const k = `poderAutominarLvl${lvl}`;
+        if (mergedCR[k]) mergedCR[k] = { ...mergedCR[k], unlocked: true, visible: true };
+    }
 
     // Migración yacimientos
     const savedYac = loaded.yacimientos;

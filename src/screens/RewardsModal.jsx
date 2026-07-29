@@ -211,7 +211,6 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
             ? milestone.firstStep
             : milestone.firstStep + milestone.step * milestone.claimed.length;
         const currentValues = {
-            pickaxeTiers: rewards.pickaxeMilestones.totalTiers,
             forgeUpgrades: (gameState.furnaces.bronze.level - 1) +
                 (gameState.furnaces.iron.level - 1) +
                 (gameState.furnaces.diamond.level - 1),
@@ -242,10 +241,26 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
         { key: "repairMilestones", icon: "🔧", label: "Reparaciones" },
     ];
 
+    const coinCardBg = {
+        firstBronzeMine: 'coin-card-mina-bronze', unlockBronzeLvl2: 'coin-card-mina-bronze', unlockBronzeLvl3: 'coin-card-mina-bronze',
+        firstIronMine: 'coin-card-mina-iron', unlockIronLvl2: 'coin-card-mina-iron', unlockIronLvl3: 'coin-card-mina-iron',
+        firstDiamondMine: 'coin-card-mina-diamond', unlockDiamondLvl2: 'coin-card-mina-diamond', unlockDiamondLvl3: 'coin-card-mina-diamond',
+        forgeBronze: 'coin-card-furnace-bronze',
+        forgeIron: 'coin-card-furnace-iron',
+        forgeDiamond: 'coin-card-furnace-diamond',
+        pickaxeBronze: 'coin-card-up-pickaxe', pickaxeMetal: 'coin-card-up-pickaxe', pickaxeDiamond: 'coin-card-up-pickaxe',
+        forgeUpgrades: 'coin-card-up-furnace',
+        automineCharge1: 'coin-card-autominar', automineCharge2: 'coin-card-autominar',
+        automineCharge3: 'coin-card-autominar', automineCharge4: 'coin-card-autominar',
+        poderAutominarLvl5: 'coin-card-poder-autominar', poderAutominarLvl10: 'coin-card-poder-autominar',
+        poderAutominarLvl15: 'coin-card-poder-autominar', poderAutominarLvl20: 'coin-card-poder-autominar',
+        poderAutominarLvl25: 'coin-card-poder-autominar',
+    };
+
     const uniqueCoinRewardsList = [
-        { key: "firstBronzeMine", icon: "🟤", label: "Primera entrada mina bronce" },
-        { key: "firstIronMine", icon: "⚙️", label: "Primera entrada mina hierro" },
-        { key: "firstDiamondMine", icon: "💎", label: "Primera entrada mina diamante" },
+        { key: "firstBronzeMine", icon: "🟤", label: "Primera entrada mina bronce I" },
+        { key: "firstIronMine", icon: "⚙️", label: "Primera entrada mina hierro I" },
+        { key: "firstDiamondMine", icon: "💎", label: "Primera entrada mina diamante I" },
         { key: "unlockBronzeLvl2", icon: "🟤", label: "Desbloquear Mina Bronce II" },
         { key: "unlockIronLvl2", icon: "⚙️", label: "Desbloquear Mina Hierro II" },
         { key: "unlockDiamondLvl2", icon: "💎", label: "Desbloquear Mina Diamante II" },
@@ -258,10 +273,18 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
         { key: "forgeBronze", icon: "🏭", label: "Desbloquear Forja Bronce" },
         { key: "forgeIron", icon: "🏭", label: "Desbloquear Forja Hierro" },
         { key: "forgeDiamond", icon: "🏭", label: "Desbloquear Forja Diamante" },
+        { key: "automineCharge1", icon: "⚡", label: "Recarga Autominar nivel 1" },
+        { key: "automineCharge2", icon: "⚡", label: "Recarga Autominar nivel 2" },
+        { key: "automineCharge3", icon: "⚡", label: "Recarga Autominar nivel 3" },
+        { key: "automineCharge4", icon: "⚡", label: "Recarga Autominar nivel 4" },
+        { key: "poderAutominarLvl5", icon: "⚡", label: "Poder Autominar nivel 5" },
+        { key: "poderAutominarLvl10", icon: "⚡", label: "Poder Autominar nivel 10" },
+        { key: "poderAutominarLvl15", icon: "⚡", label: "Poder Autominar nivel 15" },
+        { key: "poderAutominarLvl20", icon: "⚡", label: "Poder Autominar nivel 20" },
+        { key: "poderAutominarLvl25", icon: "⚡", label: "Poder Autominar nivel 25" },
     ];
 
     const progressiveCoinRewardsList = [
-        { key: "pickaxeTiers", icon: "🪓", label: "Tiers de pico" },
         { key: "forgeUpgrades", icon: "🏭", label: "Mejoras de forja" },
     ];
 
@@ -321,7 +344,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
 
                 {/* TAB ORO */}
                 {activeTab === "gold" && (
-                    <div className="rewards-list rewards-list-gold">
+                    <div className="rewards-list">
                         {[...goldRewardsList].sort((a, b) => {
                             const ea = isExhausted(a.key), eb = isExhausted(b.key);
                             if (ea && !eb) return 1;
@@ -387,11 +410,10 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                         }).map(({ key, icon, label, type }) => {
                             if (type === 'unique') {
                                 const reward = coinRewards[key];
-                                if (!reward || reward.claimed) return null;
+                                if (!reward || reward.claimed || reward.visible === false) return null;
                                 const claimable = isUniqueCoinClaimable(key);
                                 return (
-                                    <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
-                                        <span className="reward-icon">{icon}</span>
+                                    <div key={key} className={`reward-card ${coinCardBg[key] || ''} gold-milestone-card ${claimable ? "claimable" : "locked"}`}>
                                         <div className="reward-info">
                                             <p className="reward-label">{label}</p>
                                             <p className="reward-claimed">Pendiente</p>
@@ -399,11 +421,11 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                         <div className="reward-right">
                                             <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                             <button
-                                                className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
+                                                className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                                 onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
                                                 disabled={!claimable}
                                             >
-                                                {claimable ? "Obtener" : "🔒"}
+                                                <img src={claimable ? iconUnlock : iconLock} alt={claimable ? "Reclamar" : "Bloqueado"} className="reward-lock-img" />
                                             </button>
                                         </div>
                                     </div>
@@ -415,8 +437,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                             const reward = getProgressiveCoinReward(key);
                             const claimed = milestone.claimed.length;
                             return (
-                                <div key={key} className={`reward-card ${claimable ? "claimable" : "locked"}`}>
-                                    <span className="reward-icon">{icon}</span>
+                                <div key={key} className={`reward-card ${coinCardBg[key] || ''} gold-milestone-card ${claimable ? "claimable" : "locked"}`}>
                                     <div className="reward-info">
                                         <p className="reward-label">{label}</p>
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
@@ -424,11 +445,11 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                     <div className="reward-right">
                                         <p className="reward-amount">+{fmt(reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
                                         <button
-                                            className={`reward-btn ${claimable ? "btn-claim" : "btn-locked"}`}
+                                            className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                             onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
                                             disabled={!claimable}
                                         >
-                                            {claimable ? "Obtener" : "🔒"}
+                                            <img src={claimable ? iconUnlock : iconLock} alt={claimable ? "Reclamar" : "Bloqueado"} className="reward-lock-img" />
                                         </button>
                                     </div>
                                 </div>

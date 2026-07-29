@@ -62,6 +62,17 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
         });
     };
 
+    // Cadenas de recompensas de monedas: al reclamar una, se hace visible la siguiente
+    const COIN_REWARD_CHAINS = [
+        ['firstBronzeMine', 'unlockBronzeLvl2', 'unlockBronzeLvl3'],
+        ['firstIronMine', 'unlockIronLvl2', 'unlockIronLvl3'],
+        ['firstDiamondMine', 'unlockDiamondLvl2', 'unlockDiamondLvl3'],
+        ['pickaxeBronze', 'pickaxeMetal', 'pickaxeDiamond'],
+        ['forgeBronze', 'forgeIron', 'forgeDiamond'],
+        ['automineCharge1', 'automineCharge2', 'automineCharge3', 'automineCharge4'],
+        ['poderAutominarLvl5', 'poderAutominarLvl10', 'poderAutominarLvl15', 'poderAutominarLvl20', 'poderAutominarLvl25'],
+    ];
+
     // ========== RECLAMAR RECOMPENSA DE MONEDAS ==========
     const handleClaimCoinReward = (key) => {
         setGameState(prevState => {
@@ -73,22 +84,31 @@ export const useRewardsActions = (gameState, setGameState, showGoldGain, showTav
                 if (coinReward.claimed) return prevState;
 
                 showTavernGain(coinReward.reward);
+
+                const updatedCoinRewards = {
+                    ...prevState.rewards.coinRewards,
+                    [key]: { ...coinReward, claimed: true }
+                };
+                for (const chain of COIN_REWARD_CHAINS) {
+                    const idx = chain.indexOf(key);
+                    if (idx >= 0 && idx < chain.length - 1) {
+                        const nextKey = chain[idx + 1];
+                        updatedCoinRewards[nextKey] = { ...updatedCoinRewards[nextKey], visible: true };
+                    }
+                }
+
                 return {
                     ...prevState,
                     tavernCoins: prevState.tavernCoins + coinReward.reward,
                     rewards: {
                         ...prevState.rewards,
-                        coinRewards: {
-                            ...prevState.rewards.coinRewards,
-                            [key]: { ...coinReward, claimed: true }
-                        }
+                        coinRewards: updatedCoinRewards
                     }
                 };
             }
 
             // PROGRESIVO — claimed es array
             const currentValues = {
-                pickaxeTiers: prevState.rewards.pickaxeMilestones.totalTiers,
                 forgeUpgrades: (prevState.furnaces.bronze.level - 1) +
                     (prevState.furnaces.iron.level - 1) +
                     (prevState.furnaces.diamond.level - 1),

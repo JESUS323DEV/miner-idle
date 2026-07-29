@@ -88,10 +88,6 @@
     gap: 10px;
 }
 
-.rewards-list-gold {
-    margin: 0 -20px;
-}
-
 .reward-card {
     display: flex;
     align-items: center;
@@ -105,12 +101,19 @@
 .gold-milestone-card {
     justify-content: flex-end;
     border: none;
-    min-height: 9rem;
+    min-height: 7.6rem;
 }
 
 .gold-milestone-card .reward-info {
-    flex: none;
+    flex: 1;
+    min-width: 0;
+    max-width: 45%;
+    margin-left: auto;
     text-align: right;
+}
+
+.gold-milestone-card .reward-label {
+    font-size: 12px !important;
 }
 
 .reward-card.claimable {
@@ -125,6 +128,46 @@
 
 .gold-milestone-card.claimable {
     border: none;
+}
+
+.reward-card.coin-card-mina-bronze {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-bronze.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-mina-iron {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-iron.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-mina-diamond {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-diamond.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-furnace-bronze {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-bronze.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-furnace-iron {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-iron.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-furnace-diamond {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/furnace-diamond.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-up-pickaxe {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/up-pickaxe.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-up-furnace {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/up-furnace.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-autominar {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/autominar.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.coin-card-poder-autominar {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/poder-autominar.webp') center / 100% 100% no-repeat;
 }
 
 .reward-card.reward-card-goldMilestones {

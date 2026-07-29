@@ -131,45 +131,44 @@ const InitialRewardsState = {
         // ===== ÚNICOS — se reclaman una vez =====
 
         // MINAS — primera entrada
-        firstBronzeMine: { claimed: false, unlocked: false, reward: 1, label: 'Primera entrada mina bronce' },
-        firstIronMine: { claimed: false, unlocked: false, reward: 2, label: 'Primera entrada mina hierro' },
-        firstDiamondMine: { claimed: false, unlocked: false, reward: 3, label: 'Primera entrada mina diamante' },
+        firstBronzeMine: { claimed: false, unlocked: false, visible: true, reward: 5, label: 'Primera entrada mina bronce I' },
+        firstIronMine: { claimed: false, unlocked: false, visible: true, reward: 10, label: 'Primera entrada mina hierro I' },
+        firstDiamondMine: { claimed: false, unlocked: false, visible: true, reward: 20, label: 'Primera entrada mina diamante I' },
 
         // MINAS — desbloqueo lvl2
-        unlockBronzeLvl2: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Mina Bronce II' },
-        unlockIronLvl2: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Mina Hierro II' },
-        unlockDiamondLvl2: { claimed: false, unlocked: false, reward: 3, label: 'Desbloquear Mina Diamante II' },
+        unlockBronzeLvl2: { claimed: false, unlocked: false, visible: false, reward: 10, label: 'Desbloquear Mina Bronce II' },
+        unlockIronLvl2: { claimed: false, unlocked: false, visible: false, reward: 15, label: 'Desbloquear Mina Hierro II' },
+        unlockDiamondLvl2: { claimed: false, unlocked: false, visible: false, reward: 25, label: 'Desbloquear Mina Diamante II' },
 
         // MINAS — desbloqueo lvl3
-        unlockBronzeLvl3: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Mina Bronce III' },
-        unlockIronLvl3: { claimed: false, unlocked: false, reward: 3, label: 'Desbloquear Mina Hierro III' },
-        unlockDiamondLvl3: { claimed: false, unlocked: false, reward: 5, label: 'Desbloquear Mina Diamante III' },
+        unlockBronzeLvl3: { claimed: false, unlocked: false, visible: false, reward: 15, label: 'Desbloquear Mina Bronce III' },
+        unlockIronLvl3: { claimed: false, unlocked: false, visible: false, reward: 20, label: 'Desbloquear Mina Hierro III' },
+        unlockDiamondLvl3: { claimed: false, unlocked: false, visible: false, reward: 30, label: 'Desbloquear Mina Diamante III' },
 
         // PICO — cambio de material
-        pickaxeBronze: { claimed: false, unlocked: false, reward: 2, label: 'Pico de Bronce' },
-        pickaxeMetal: { claimed: false, unlocked: false, reward: 3, label: 'Pico de Metal' },
-        pickaxeDiamond: { claimed: false, unlocked: false, reward: 5, label: 'Pico de Diamante' },
+        pickaxeBronze: { claimed: false, unlocked: false, visible: true, reward: 15, label: 'Pico de Bronce' },
+        pickaxeMetal: { claimed: false, unlocked: false, visible: false, reward: 30, label: 'Pico de Metal' },
+        pickaxeDiamond: { claimed: false, unlocked: false, visible: false, reward: 50, label: 'Pico de Diamante' },
 
         // FORJA — desbloqueo
-        forgeBronze: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Forja Bronce' },
-        forgeIron: { claimed: false, unlocked: false, reward: 1, label: 'Desbloquear Forja Hierro' },
-        forgeDiamond: { claimed: false, unlocked: false, reward: 2, label: 'Desbloquear Forja Diamante' },
+        forgeBronze: { claimed: false, unlocked: false, visible: true, reward: 20, label: 'Desbloquear Forja Bronce' },
+        forgeIron: { claimed: false, unlocked: false, visible: false, reward: 30, label: 'Desbloquear Forja Hierro' },
+        forgeDiamond: { claimed: false, unlocked: false, visible: false, reward: 50, label: 'Desbloquear Forja Diamante' },
+
+        // AUTOMINE — mejoras de recarga
+        automineCharge1: { claimed: false, unlocked: false, visible: true, reward: 20, label: 'Recarga Autominar nivel 1' },
+        automineCharge2: { claimed: false, unlocked: false, visible: false, reward: 30, label: 'Recarga Autominar nivel 2' },
+        automineCharge3: { claimed: false, unlocked: false, visible: false, reward: 40, label: 'Recarga Autominar nivel 3' },
+        automineCharge4: { claimed: false, unlocked: false, visible: false, reward: 50, label: 'Recarga Autominar nivel 4' },
+
+        // AUTOMINE — Poder Autominar (cooldown, 25 niveles, hitos cada 5)
+        poderAutominarLvl5: { claimed: false, unlocked: false, visible: true, reward: 5, label: 'Poder Autominar nivel 5' },
+        poderAutominarLvl10: { claimed: false, unlocked: false, visible: false, reward: 5, label: 'Poder Autominar nivel 10' },
+        poderAutominarLvl15: { claimed: false, unlocked: false, visible: false, reward: 10, label: 'Poder Autominar nivel 15' },
+        poderAutominarLvl20: { claimed: false, unlocked: false, visible: false, reward: 15, label: 'Poder Autominar nivel 20' },
+        poderAutominarLvl25: { claimed: false, unlocked: false, visible: false, reward: 20, label: 'Poder Autominar nivel 25' },
 
         // ===== PROGRESIVOS — dan monedas por hito =====
-
-        // TIER DEL PICO
-        pickaxeTiers: {
-            claimed: [],
-            firstStep: 1,
-            step: 1,
-            label: 'Tiers de pico',
-            tiers: [
-                { upTo: 5, base: 1, increase: 0, max: 1 },
-                { upTo: 10, base: 1, increase: 0, max: 1 },
-                { upTo: 20, base: 2, increase: 0, max: 2 },
-                { upTo: Infinity, base: 3, increase: 0, max: 3 },
-            ],
-        },
 
         // MEJORAS DE FORJA
         forgeUpgrades: {
@@ -178,9 +177,9 @@ const InitialRewardsState = {
             step: 1,
             label: 'Mejoras de forja',
             tiers: [
-                { upTo: 3, base: 1, increase: 0, max: 1 },
-                { upTo: 6, base: 1, increase: 0, max: 1 },
-                { upTo: Infinity, base: 2, increase: 0, max: 2 },
+                { upTo: 3, base: 20, increase: 0, max: 20 },
+                { upTo: 6, base: 20, increase: 0, max: 20 },
+                { upTo: Infinity, base: 30, increase: 0, max: 30 },
             ],
         },
     },
