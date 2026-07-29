@@ -1,4 +1,4 @@
-﻿import { X, Lock, LockOpen, CalendarCheck } from "lucide-react";
+﻿import { X, CalendarCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { playSfx } from "../game/utils/sfx.js";
 import iconGold from "../assets/ui/icons-hud/hud-principal/oro1.webp";
@@ -62,6 +62,8 @@ const getShardCardBg = (r) => {
     }
     return 'shard-card-generic';
 };
+
+const DAILY_CARD_BGS = ['shard-card-basic', 'shard-card-epic', 'shard-card-generic', 'shard-card-legend'];
 
 const CyclingImg = ({ srcs }) => {
     const [idx, setIdx] = useState(0);
@@ -560,42 +562,41 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                 let rewardIcon;
                                 let rewardText;
                                 if (reward.type === 'gold') {
-                                    rewardIcon = <img src={iconGold} alt="oro" className="daily-reward-icon" />;
+                                    rewardIcon = <img src={iconGold} alt="oro" className="daily-big-icon" />;
                                     rewardText = `+${fmt(reward.amount)} oro`;
                                 } else if (reward.type === 'coins') {
-                                    rewardIcon = <img src={iconCoin} alt="monedas" className="daily-reward-icon" />;
+                                    rewardIcon = <img src={iconCoin} alt="monedas" className="daily-big-icon" />;
                                     rewardText = `+${reward.amount} monedas`;
                                 } else {
-                                    const shardImg = reward.rarity === 'legendary' ? iconShardLegendary : iconShardRare;
-                                    rewardIcon = <img src={shardImg} alt="shards" className="daily-reward-icon" />;
+                                    const shardImg = reward.rarity === 'legendary' ? iconShardLegendary : reward.rarity === 'epic' ? iconShardEpic : iconShardRare;
+                                    rewardIcon = <img src={shardImg} alt="shards" className="daily-big-icon" />;
                                     rewardText = `+${reward.amount} frags ${reward.rarity}`;
                                 }
 
                                 return (
-                                    <div key={day} className={`reward-card ${stateClass}`}>
-                                        <div className="daily-day-badge">{day}</div>
+                                    <div key={day} className={`reward-card ${DAILY_CARD_BGS[i % DAILY_CARD_BGS.length]} gold-milestone-card fragment-reward-card ${stateClass}`}>
+                                        <span className="shard-card-icon-wrap daily-big-icon-wrap">{rewardIcon}</span>
                                         <div className="reward-info">
                                             <p className="reward-label">Dia {day}</p>
                                             <p className="reward-progress">{rewardText}</p>
                                         </div>
                                         <div className="reward-right">
-                                            {rewardIcon}
                                             {isAvailable && (
                                                 <button
-                                                    className="reward-btn btn-claim"
+                                                    className="reward-btn btn-claim btn-claim-icon"
                                                     onClick={() => { playSfx('rewardGold'); onClaimDailyLogin?.(); }}
                                                 >
-                                                    Obtener
+                                                    <img src={iconUnlock} alt="Reclamar" className="reward-lock-img" />
                                                 </button>
                                             )}
                                             {isClaimedDay && (
                                                 <button className="reward-btn btn-fragment-claimed" disabled>
-                                                    <LockOpen size={16} />
+                                                    <img src={iconReclamed} alt="Completado" className="reward-lock-img" />
                                                 </button>
                                             )}
                                             {isLocked && (
                                                 <button className="reward-btn btn-locked" disabled>
-                                                    <Lock size={16} />
+                                                    <img src={iconLock} alt="Bloqueado" className="reward-lock-img" />
                                                 </button>
                                             )}
                                         </div>

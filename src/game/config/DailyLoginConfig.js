@@ -1,11 +1,11 @@
 export const DAILY_LOGIN_REWARDS = [
-    { day: 1, type: 'gold',   amount: 500 },
-    { day: 2, type: 'coins',  amount: 2 },
-    { day: 3, type: 'gold',   amount: 1500 },
-    { day: 4, type: 'shards', rarity: 'rare',      amount: 20 },
-    { day: 5, type: 'gold',   amount: 3000 },
-    { day: 6, type: 'coins',  amount: 5 },
-    { day: 7, type: 'shards', rarity: 'legendary',  amount: 50 },
+    { day: 1, type: 'gold',   amount: 10000 },
+    { day: 2, type: 'shards', rarity: 'rare',      amount: 20 },
+    { day: 3, type: 'coins',  amount: 15 },
+    { day: 4, type: 'gold',   amount: 30000 },
+    { day: 5, type: 'shards', rarity: 'epic',       amount: 40 },
+    { day: 6, type: 'coins',  amount: 30 },
+    { day: 7, type: 'shards', rarity: 'legendary',  amount: 80 },
 ];
 
 const today = () => new Date().toISOString().split('T')[0];
