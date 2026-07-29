@@ -23,17 +23,18 @@
 
 .rewards-tabs {
     display: flex;
+    justify-content: space-between;
     gap: 10px;
     margin: 15px 0;
 }
 
 .rewards-tab {
     position: relative;
-    flex: 1;
-    padding: 8px 6px;
-    border: 1px solid rgba(180, 120, 40, 0.3);
+    flex: 0 0 auto;
+    padding: 0;
+    border: none;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.04);
+    background: none;
     color: rgba(255, 255, 255, 0.6);
     font-size: 11px;
     cursor: pointer;
@@ -42,32 +43,28 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .rewards-tab img {
-    width: 28px;
-    height: 28px;
+    width: 65px;
+    height: 100%;
     object-fit: contain;
+    filter: brightness(0.85);
 }
 
-.rewards-tab:nth-child(3) img {
-    width: 38px;
-    height: 38px;
+.rewards-tab.active img {
+    filter: brightness(1.2) drop-shadow(0 0 6px rgba(240, 165, 0, 0.7));
 }
 
-.rewards-tab.active {
-    background: #c47f00;
-    border-color: #f0a500;
-    color: #1a0e00;
-    font-weight: bold;
-}
+
 
 @keyframes tab-pulse {
-    0%, 100% { border-color: rgba(180, 120, 40, 0.3); box-shadow: none; }
-    50%       { border-color: #f0a500; box-shadow: 0 0 8px rgba(240, 165, 0, 0.5); }
+    0%, 100% { filter: brightness(0.85); }
+    50%       { filter: brightness(1.2) drop-shadow(0 0 6px rgba(240, 165, 0, 0.7)); }
 }
 
-.tab-pulse {
+.tab-pulse img {
     animation: tab-pulse 1.2s ease-in-out infinite;
 }
 

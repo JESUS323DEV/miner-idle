@@ -156,6 +156,10 @@ import rewardsShardBasic from "../assets/ui/icons-hud/hud-modals/rewards/rewards
 import rewardsShardEpic from "../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/epic.webp"
 import rewardsShardLegend from "../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/legend.webp"
 import rewardsShardGeneric from "../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/generic.webp"
+import rewardsTabGold from "../assets/ui/icons-hud/hud-modals/rewards/btn-gold.webp"
+import rewardsTabCoin from "../assets/ui/icons-hud/hud-modals/rewards/btn-coin.webp"
+import rewardsTabShards from "../assets/ui/icons-hud/hud-modals/rewards/btn-shards.webp"
+import rewardsTabDaily from "../assets/ui/icons-hud/hud-modals/rewards/btn-daily.webp"
 
 // ===== ICONOS PANTALLA =====
 import mineModal from "../assets/ui/icon-mine1.webp"
@@ -280,6 +284,7 @@ const IMAGES = [
     rewardsCoinFurnaceBronze, rewardsCoinFurnaceIron, rewardsCoinFurnaceDiamond,
     rewardsCoinUpPickaxe, rewardsCoinUpFurnace, rewardsCoinAutominar, rewardsCoinPoderAutominar,
     rewardsShardBasic, rewardsShardEpic, rewardsShardLegend, rewardsShardGeneric,
+    rewardsTabGold, rewardsTabCoin, rewardsTabShards, rewardsTabDaily,
     // pantallas
     mineModal, iconTavern, iconForge,
     // automina

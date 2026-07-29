@@ -7,6 +7,10 @@ import iconShardLegendary from "../assets/ui/icons-pets-shards/icon-shard-legend
 import iconShardEpic from "../assets/ui/icons-pets-shards/icon-shard-epic.webp";
 import iconShardRare from "../assets/ui/icons-pets-shards/icon-shard-rare.webp";
 import "../styles/modals/RewardsModal.css"
+import iconTabGold from "../assets/ui/icons-hud/hud-modals/rewards/btn-gold.webp";
+import iconTabCoin from "../assets/ui/icons-hud/hud-modals/rewards/btn-coin.webp";
+import iconTabShards from "../assets/ui/icons-hud/hud-modals/rewards/btn-shards.webp";
+import iconTabDaily from "../assets/ui/icons-hud/hud-modals/rewards/btn-daily.webp";
 import iconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp";
 import iconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp";
 import iconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp";
@@ -331,26 +335,26 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                         className={`rewards-tab ${activeTab === "gold" ? "active" : ""} ${hasUnclaimedGold && activeTab !== "gold" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("gold")}
                     >
-                        <img src={iconGold}alt="oro" />
+                        <img src={iconTabGold} alt="oro" />
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "coins" ? "active" : ""} ${hasUnclaimedCoins && activeTab !== "coins" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("coins")}
                     >
-                        <img src={iconCoin}alt="monedas" /> 
+                        <img src={iconTabCoin} alt="monedas" />
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === "fragments" ? "active" : ""} ${hasUnclaimedFragments && activeTab !== "fragments" ? "tab-pulse" : ""}`}
                         onClick={() => setActiveTab("fragments")}
                     >
-                        <img src={iconShardLegendary}alt="fragmentos" />
+                        <img src={iconTabShards} alt="fragmentos" />
                     </button>
                     {!isTutorial && (
                         <button
                             className={`rewards-tab ${activeTab === "daily" ? "active" : ""} ${_hasDailyAvailable && activeTab !== "daily" ? "tab-pulse" : ""}`}
                             onClick={() => setActiveTab("daily")}
                         >
-                            <CalendarCheck size={28} />
+                            <img src={iconTabDaily} alt="diaria" />
                         </button>
                     )}
                 </div>
