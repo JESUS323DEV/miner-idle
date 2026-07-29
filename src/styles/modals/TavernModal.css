@@ -733,6 +733,144 @@
     vertical-align: middle;
 }
 
+/* ===== GRID DE INTERCAMBIO (Comerciante) ===== */
+.tavern-exchange-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+    width: 100%;
+}
+
+.tavern-exchange-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 1rem 0.4rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 8px;
+}
+
+.tavern-exchange-item.tavern-exchange-bg-bronzeIngot {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/bronze.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-exchange-item.tavern-exchange-bg-ironIngot {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/iron.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-exchange-item.tavern-exchange-bg-diamondIngot {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/diamond.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-exchange-icon-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.tavern-exchange-col .conv-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.tavern-exchange-icon-btn .conv-icon {
+    width: 33px;
+    height: 33px;
+}
+
+.tavern-exchange-icon-btn.conv-locked {
+    cursor: not-allowed;
+}
+
+.tavern-exchange-col-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.tavern-exchange-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.tavern-exchange-col-ingot {
+    position: relative;
+}
+
+.tavern-exchange-col-coin {
+    position: relative;
+}
+
+.tavern-exchange-qty-amount {
+    position: absolute;
+    top: 70%;
+    left: 6px;
+    white-space: nowrap;
+}
+
+.tavern-exchange-qty-coins {
+    position: absolute;
+    top: 70%;
+    left: 6px;
+    white-space: nowrap;
+}
+
+.tavern-exchange-arrow-vertical {
+    color: rgba(255, 210, 80, 0.7);
+    font-size: 1.1rem;
+    font-weight: bold;
+    transform: rotate(90deg);
+}
+
+.tavern-exchange-qty {
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.tavern-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+}
+
+.tavern-stepper-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.tavern-stepper-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.tavern-stepper-icon {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+
+.tavern-stepper-qty {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: 1.2rem;
+    text-align: center;
+}
+
 /* ===== CAMBISTA REDISEÑO ===== */
 .tavern-conv-card {
     display: flex;

@@ -1,7 +1,7 @@
 export const useTavernActions = (gameState, setGameState, showGoldCost, showTavernCost, showTavernGain) => {
 
     // ========== CONVERTIR LINGOTES EN MONEDAS ==========
-    const handleConvertMaterial = (materialType) => {
+    const handleConvertMaterial = (materialType, times = 1) => {
         setGameState(prevState => {
             const conversions = {
                 bronzeIngot: { amount: 10, coins: 1 },
@@ -10,13 +10,15 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
             };
             const conversion = conversions[materialType];
             if (!conversion) return prevState;
-            if (prevState[materialType] < conversion.amount) return prevState;
+            const totalAmount = conversion.amount * times;
+            const totalCoins = conversion.coins * times;
+            if (prevState[materialType] < totalAmount) return prevState;
 
-            showTavernGain(conversion.coins);
+            showTavernGain(totalCoins);
             return {
                 ...prevState,
-                [materialType]: prevState[materialType] - conversion.amount,
-                tavernCoins: prevState.tavernCoins + conversion.coins,
+                [materialType]: prevState[materialType] - totalAmount,
+                tavernCoins: prevState.tavernCoins + totalCoins,
                 totalExchanges: (prevState.totalExchanges ?? 0) + 1,
             };
         });

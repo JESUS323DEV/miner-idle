@@ -55,6 +55,11 @@ import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade
 
 // ===== TAVERN MODAL ICONS =====
 import cambistaCoin from "../assets/ui/icons-hud/hud-modals/modal-tavern/cambista-coin.webp"
+import exchangeBgBronze from "../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/bronze.webp"
+import exchangeBgIron from "../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/iron.webp"
+import exchangeBgDiamond from "../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/diamond.webp"
+import iconSelectLeft from "../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/select-left.webp"
+import iconSelectRight from "../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/select-right.webp"
 import cambistaMateriales from "../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.webp"
 import iconRuleta from "../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
 import iconTragaperras from "../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
@@ -255,6 +260,8 @@ const IMAGES = [
     satEnergy, satRepair, satUpgrade,
     // tavern
     cambistaCoin, cambistaMateriales, iconRuleta, iconTragaperras,
+    exchangeBgBronze, exchangeBgIron, exchangeBgDiamond,
+    iconSelectLeft, iconSelectRight,
     // landing
     landingLogo, landingAyudantes, landingMinas, landingPicos, landingProduccionOro,
     // picos
