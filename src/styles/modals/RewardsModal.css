@@ -96,6 +96,7 @@
     border: 1px solid rgba(180, 120, 40, 0.2);
     border-radius: 10px;
     padding: 12px;
+
 }
 
 .gold-milestone-card {
@@ -110,6 +111,12 @@
     max-width: 45%;
     margin-left: auto;
     text-align: right;
+}
+
+.fragment-reward-card .reward-info {
+    max-width: none;
+    margin-left: 0;
+    text-align: left;
 }
 
 .gold-milestone-card .reward-label {
@@ -337,6 +344,56 @@
 .reward-card.fragment-claimed {
     opacity: 0.45;
     border-color: rgba(255, 255, 255, 0.1);
+}
+
+.reward-card.shard-card-basic {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/basic.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.shard-card-epic {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/epic.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.shard-card-legend {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/legend.webp') center / 100% 100% no-repeat;
+}
+
+.reward-card.shard-card-generic {
+    background: url('../../assets/ui/icons-hud/hud-modals/rewards/rewards-shards/generic.webp') center / 100% 100% no-repeat;
+}
+
+.shard-card-icon-wrap {
+    margin-left: 1rem;
+}
+
+.shard-cycling-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    transition: opacity 0.3s;
+}
+
+.rewards-list-fragments {
+    position: relative;
+
+}
+
+.shard-frag-line {
+    margin: 2px 0;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.shard-frag-condition {
+    margin: 2px 0;
+    font-size: 1px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.reward-amount-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
 }
 
 .btn-fragment-claimed {

@@ -46,6 +46,19 @@ const dogIconMap = {
     rex: forgeIcon7, toby: forgeIcon8, buddy: forgeIcon9,
 };
 
+// Rareza de los perros usados en las cadenas de fragmentos con dog fijo (boxer/pip=rare, bully/rocky=epic, nupito/rex=legendary)
+const shardChainDogRarity = { boxer: 'rare', pip: 'rare', bully: 'epic', rocky: 'epic', nupito: 'legendary', rex: 'legendary' };
+
+const getShardCardBg = (r) => {
+    if (r.dogs) {
+        const rarity = shardChainDogRarity[r.dogs[0]?.dogId];
+        if (rarity === 'rare') return 'shard-card-basic';
+        if (rarity === 'epic') return 'shard-card-epic';
+        if (rarity === 'legendary') return 'shard-card-legend';
+    }
+    return 'shard-card-generic';
+};
+
 const CyclingImg = ({ srcs }) => {
     const [idx, setIdx] = useState(0);
     useEffect(() => {
@@ -53,7 +66,7 @@ const CyclingImg = ({ srcs }) => {
         const t = setInterval(() => setIdx(i => (i + 1) % srcs.length), 3000);
         return () => clearInterval(t);
     }, [srcs.length]);
-    return <img src={srcs[idx]} alt="" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, transition: 'opacity 0.3s' }} />;
+    return <img src={srcs[idx]} alt="" className="shard-cycling-img" />;
 };
 
 const fmt = (num) => {
@@ -380,7 +393,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                         }
                                     </div>
                                     <div className="reward-right">
-                                        {!exhausted && <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>}
+                                        {!exhausted && <p className="reward-amount">+{fmt(reward)} <img src={iconGold} alt="gold" className="reward-amount-icon" /></p>}
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                             onClick={() => { if (claimable) { playSfx('rewardGold'); onClaimReward(key); } }}
@@ -419,7 +432,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                             <p className="reward-claimed">Pendiente</p>
                                         </div>
                                         <div className="reward-right">
-                                            <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
+                                            <p className="reward-amount">+{fmt(reward.reward)} <img src={iconCoin} alt="coin" className="reward-amount-icon" /></p>
                                             <button
                                                 className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                                 onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
@@ -443,7 +456,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                         <p className="reward-claimed">Reclamados: {claimed}</p>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">+{fmt(reward)} <img src={iconCoin} alt="coin" style={{ width: 16, height: 16, verticalAlign: 'middle' }} /></p>
+                                        <p className="reward-amount">+{fmt(reward)} <img src={iconCoin} alt="coin" className="reward-amount-icon" /></p>
                                         <button
                                             className={`reward-btn ${claimable ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                             onClick={() => { if (claimable) { playSfx('rewardCoin'); onClaimCoinReward(key); } }}
@@ -460,7 +473,7 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
 
                 {/* TAB FRAGMENTOS */}
                 {activeTab === "fragments" && (
-                    <div className="rewards-list" style={{ position: "relative" }}>
+                    <div className="rewards-list rewards-list-fragments">
                         {fragmentToast && (
                             <div className="fragment-toast">{fragmentToast}</div>
                         )}
@@ -474,7 +487,8 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                             if (!a.unlocked && b.unlocked) return 1;
                             return 0;
                         }).map(([key, r]) => (
-                            <div key={key} className={`reward-card ${r.claimed ? "fragment-claimed" : r.unlocked ? "claimable" : "locked"}`}>
+                            <div key={key} className={`reward-card ${getShardCardBg(r)} gold-milestone-card fragment-reward-card ${r.claimed ? "fragment-claimed" : r.unlocked ? "claimable" : "locked"}`}>
+                                <span className="shard-card-icon-wrap">
                                 <CyclingImg srcs={
                                     r.dogs
                                         ? r.dogs.map(d => dogIconMap[d.dogId]).filter(Boolean)
@@ -484,32 +498,34 @@ const RewardsModal = ({ isOpen, onClose, tutorialStep, forceTab = null, onClaimD
                                                 ? [iconShardRare, iconShardEpic, iconShardLegendary]
                                                 : [dogIconMap[r.dogId]].filter(Boolean)
                                 } />
+                                </span>
+                                
                                 <div className="reward-info">
                                     <p className="reward-label">{r.label}</p>
                                     {r.dogs
                                         ? r.dogs.map(({ dogId, amount }) => (
-                                            <p key={dogId} style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
-                                                ×{amount} fragmentos de {dogId}
+                                            <p key={dogId} className="shard-frag-line">
+                                                ×{amount} frags de {dogId}
                                             </p>
                                         ))
                                         : r.randomFragments
                                             ? r.randomFragments.map(({ rarity, amount }) => (
-                                                <p key={rarity} style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>
-                                                    ×{amount} frags {rarity}
+                                                <p key={rarity} className="shard-frag-line">
+                                                    ×{amount} frags {rarity === 'legendary' ? 'legend' : rarity}
                                                 </p>
                                             ))
                                             : r.amount > 0
-                                                ? <p style={{ margin: "2px 0", fontSize: "13px", color: "rgba(255,255,255,0.65)" }}>×{r.amount} fragmentos</p>
-                                                : <p style={{ margin: "2px 0", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>Condición para la recompensa final</p>
+                                                ? <p className="shard-frag-line">×{r.amount} frags</p>
+                                                : <p className="shard-frag-condition">Condición para la recompensa final</p>
                                     }
                                 </div>
                                 <div className="reward-right">
                                     <button
-                                        className={`reward-btn ${r.claimed ? "btn-fragment-claimed" : r.unlocked ? "btn-claim" : "btn-locked"}`}
+                                        className={`reward-btn ${r.claimed ? "btn-fragment-claimed" : r.unlocked ? "btn-claim btn-claim-icon" : "btn-locked"}`}
                                         onClick={() => { if (!r.claimed && r.unlocked) { playSfx('rewardShards'); claimFragment(key); } }}
                                         disabled={r.claimed || !r.unlocked}
                                     >
-                                        {r.claimed ? "✅" : "Obtener"}
+                                        <img src={r.claimed ? iconReclamed : r.unlocked ? iconUnlock : iconLock} alt={r.claimed ? "Completado" : r.unlocked ? "Reclamar" : "Bloqueado"} className="reward-lock-img" />
                                     </button>
                                 </div>
                             </div>
