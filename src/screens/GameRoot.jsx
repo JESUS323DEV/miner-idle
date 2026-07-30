@@ -302,6 +302,8 @@ function GameRoot({ onBack }) {
     handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
+    handleSendOrder,
+    handleClaimOrder,
   } = useGameActions(
     gameState,
     setGameState,
@@ -441,6 +443,8 @@ function GameRoot({ onBack }) {
     handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
+    handleSendOrder,
+    handleClaimOrder,
     showGoldCost,
     showGoldGain,
     showTavernCost,

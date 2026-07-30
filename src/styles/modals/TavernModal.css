@@ -190,7 +190,6 @@
 }
 
 .tavern-dog-slot-wrap {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -208,14 +207,16 @@
 
 .tavern-dog-panel {
     position: absolute;
-    top: 0;
-    left: calc(100% + 8px);
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
     background: rgba(10, 5, 0, 0.95);
     border: 1px solid rgba(255, 195, 60, 0.4);
     border-radius: 10px;
     padding: 6px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     max-height: 220px;
     overflow-y: auto;
@@ -962,6 +963,27 @@
 .conv-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+.tavern-order-card {
+    position: relative;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    border: none;
+}
+
+.tavern-order-card.tavern-order-bg-trigo {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/trigo.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-order-card.tavern-order-bg-lupulo {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/lupulo.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-order-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
 }
 
 .dogs-grid {

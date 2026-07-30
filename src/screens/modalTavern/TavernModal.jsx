@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
-import TavernDogSlot from './TavernDogSlot.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -11,12 +10,19 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
+import '../../styles/modals/RaidScreen.css';
+import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
+import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
+import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
-import { formatNumber2 } from '../../game/utils/formatters.js';
+import { formatNumber2, formatRentalTimer } from '../../game/utils/formatters.js';
 import { PACK_TYPES } from '../../game/config/GachaConfig';
 import { getQuestsByIds } from '../../game/config/QuestsConfig.js';
 
@@ -89,6 +95,9 @@ import forgeDayoIcon from "../../assets/ui/icons-pets/forge/forge-dayo.webp"
 import staminaIcon from "../../assets/ui/icons-hud/hud-principal/stamina-1.webp"
 import forgeBadge from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-bronze.webp"
 
+const LADY_FRAMES = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
+const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
+
 const ELEMENT_ICON = {
     fuego: { Icon: Flame, color: '#ff6b35' },
     electrico: { Icon: Zap, color: '#FFD700' },
@@ -143,8 +152,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         handleUpgradeStar: onUpgradeStar,
         handleOpenPack: onOpenPack,
         handleFreePull: onFreePull,
+        handleSendOrder: onSendOrder,
+        handleClaimOrder: onClaimOrder,
     } = useGameContext();
-    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
+    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {}, tavernOrders = {} } = gameState;
     const hireBartender = () => {
         const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
         if (gameState.gold < costGold || tavernCoins < costCoins) return;
@@ -267,23 +278,47 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         }));
     };
 
-    const buyProvision = (id, costPerUnit, buyAmount) => {
-        const current = tavernStock[id] ?? 0;
-        const max = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
-        if (current >= max) return;
-        const total = costPerUnit * buyAmount;
-        if (gameState.gold < total) return;
-        setGameState(prev => ({
-            ...prev,
-            gold: prev.gold - total,
-            tavernStock: { ...prev.tavernStock, [id]: Math.min(max, current + buyAmount) },
-        }));
+    const getOrderDogPool = () => {
+        const pool = [];
+        Object.entries(dogs).forEach(([id, dog]) => {
+            if (id === 'globalSlots' || !dog || typeof dog !== 'object' || !dog.hired) return;
+            const busy = dog.assignedTo && dog.assignedTo.globalSlot === undefined;
+            pool.push({ id, dog, cfg: DogsConfig[id], isForge: false, busy });
+        });
+        Object.entries(forgeDogs).forEach(([id, dog]) => {
+            if (!dog || typeof dog !== 'object' || !dog.hired) return;
+            const busy = dog.assignedTo && dog.assignedTo.globalSlot === undefined;
+            pool.push({ id, dog, cfg: ForgeDogsConfig[id], isForge: true, busy });
+        });
+        const rarityOrder = { legendary: 0, epic: 1, rare: 2 };
+        pool.sort((a, b) => (rarityOrder[a.cfg?.rarity] ?? 9) - (rarityOrder[b.cfg?.rarity] ?? 9));
+        return pool;
     };
 
     const [showQuests, setShowQuests] = useState(false);
     const [showDogsIntro, setShowDogsIntro] = useState(false);
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
     const [exchangeQty, setExchangeQty] = useState({ bronzeIngot: 1, ironIngot: 1, diamondIngot: 1 });
+    const [orderQty, setOrderQty] = useState({ trigo: 1, lupulo: 1 });
+    const [orderDogPicker, setOrderDogPicker] = useState(null);
+    const [now, setNow] = useState(Date.now());
+    const [ladyFrameIndex, setLadyFrameIndex] = useState(0);
+    const [ladyWaitFrameIndex, setLadyWaitFrameIndex] = useState(0);
+
+    useEffect(() => {
+        const t = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(t);
+    }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setLadyFrameIndex(prev => (prev + 1) % 4), 150);
+        return () => clearInterval(t);
+    }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setLadyWaitFrameIndex(prev => (prev + 1) % 2), 2000);
+        return () => clearInterval(t);
+    }, []);
     const [showBrewPanel, setShowBrewPanel] = useState(false);
     const [showSobresIntro, setShowSobresIntro] = useState(false);
     const [view, setView] = useState('main');
@@ -506,7 +541,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         </div>
                                     )}
                                 </div>
-                                <TavernDogSlot gameState={gameState} setGameState={setGameState} />
                                 </div>
                             )}
                             <div className="tavern-bottom-bar">
@@ -578,31 +612,105 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             })}
                         </div>
                         <div className="tavern-conversions">
-                            {bartenderHired && (() => {
-                                const provIcons = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo, cerveza: iconTavernCerveza };
+                            {(() => {
+                                const provIcons = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo };
                                 return (
                                     <>
-                                        <span className="tavern-section-label">Provisiones</span>
+                                        <span className="tavern-section-label">Pedidos</span>
                                         {TavernConfig.provisions.map(prov => {
-                                            const current = tavernStock[prov.id] ?? 0;
-                                            const total = prov.costPerUnit * prov.buyAmount;
+                                            const matId = prov.id;
+                                            const current = tavernStock[matId] ?? 0;
                                             const maxForProv = materialsMax;
-                                            const isFull = current >= maxForProv;
-                                            const canBuy = !isFull && gameState.gold >= total;
+                                            const qty = orderQty[matId] ?? 1;
+                                            const total = prov.costPerUnit * prov.buyAmount * qty;
+                                            const canAfford = gameState.gold >= total;
+                                            const maxQty = Math.max(1, Math.floor(gameState.gold / (prov.costPerUnit * prov.buyAmount)));
+                                            const changeQty = (delta) => setOrderQty(prev => ({ ...prev, [matId]: Math.min(maxQty, Math.max(1, (prev[matId] ?? 1) + delta)) }));
+                                            const order = tavernOrders[matId] ?? null;
+                                            const ready = order && now >= order.returnAt;
+                                            const orderProgress = order ? Math.min(1, (now - order.startedAt) / (order.returnAt - order.startedAt)) : 0;
+
                                             return (
-                                                <div key={prov.id} className={`tavern-conv-card ${!canBuy ? 'conv-locked' : ''}`}>
+                                                <div key={matId} className={`tavern-conv-card tavern-order-card tavern-order-bg-${matId} ${!bartenderHired ? 'conv-locked' : ''}`}>
                                                     <div className="conv-left">
-                                                        <img src={provIcons[prov.id]} className="conv-icon" />
+                                                        <img src={provIcons[matId]} className="conv-icon" />
                                                         <div className="conv-details">
                                                             <span className="conv-ratio">{prov.label} · {current}/{maxForProv}</span>
-                                                            <span className={`conv-stock ${canBuy ? 'conv-stock-ok' : 'conv-stock-low'}`}>
-                                                                {formatNumber2(total)} <img src={iconGold} className="conv-small-icon" />
-                                                            </span>
+                                                            {!bartenderHired ? (
+                                                                <span className="conv-stock conv-stock-low">Desbloquea al cantinero</span>
+                                                            ) : order ? (
+                                                                ready ? (
+                                                                    <span className="conv-stock conv-stock-ok">Pedido listo</span>
+                                                                ) : (
+                                                                    <span className="conv-stock conv-stock-low">En camino...</span>
+                                                                )
+                                                            ) : (
+                                                                <span className={`conv-stock ${canAfford ? 'conv-stock-ok' : 'conv-stock-low'}`}>
+                                                                    {formatNumber2(total)} <img src={iconGold} className="conv-small-icon" />
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    <button onClick={() => buyProvision(prov.id, prov.costPerUnit, prov.buyAmount)} disabled={!canBuy} className="conv-btn">
-                                                        {isFull ? 'MAX' : `+${prov.buyAmount}`}
-                                                    </button>
+
+                                                    {bartenderHired && (
+                                                        order ? (
+                                                            ready ? (
+                                                                <div className="rip-actions">
+                                                                    <img
+                                                                        src={LADY_WAIT_FRAMES[ladyWaitFrameIndex]}
+                                                                        className="raid-lady-sprite raid-lady-wait"
+                                                                        alt="lady"
+                                                                    />
+                                                                    <button onClick={() => onClaimOrder(matId)} className="conv-btn">Reclamar</button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="raid-lady-track">
+                                                                    <img
+                                                                        src={LADY_FRAMES[ladyFrameIndex]}
+                                                                        className="raid-lady-sprite"
+                                                                        alt="lady"
+                                                                        style={{ left: `${Math.min(92, Math.max(8, orderProgress * 100))}%` }}
+                                                                    />
+                                                                    <span className="raid-lady-timer">{formatRentalTimer(order.returnAt - now)}</span>
+                                                                </div>
+                                                            )
+                                                        ) : (
+                                                            <div className="tavern-order-controls">
+                                                                <div className="tavern-stepper">
+                                                                    <button className="tavern-stepper-btn" onClick={() => changeQty(-1)} disabled={qty <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
+                                                                    <span className="tavern-stepper-qty">{qty}</span>
+                                                                    <button className="tavern-stepper-btn" onClick={() => changeQty(1)} disabled={qty >= maxQty}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
+                                                                </div>
+                                                                <div className="tavern-dog-slot-wrap">
+                                                                    <div className="global-dog-slot" onClick={() => setOrderDogPicker(p => p === matId ? null : matId)}>
+                                                                        <span className="global-dog-slot-plus">+</span>
+                                                                    </div>
+                                                                    {orderDogPicker === matId && (
+                                                                        <div className="tavern-dog-panel">
+                                                                            {getOrderDogPool().length === 0 && (
+                                                                                <span className="tavern-dog-panel-empty">Sin mascotas</span>
+                                                                            )}
+                                                                            {getOrderDogPool().map(({ id, cfg, busy, isForge }) => (
+                                                                                <div
+                                                                                    key={id}
+                                                                                    className={`tavern-dog-panel-item dog-rarity-${cfg?.rarity}${busy ? ' unavailable' : ''}`}
+                                                                                    onClick={() => {
+                                                                                        if (busy || !canAfford) return;
+                                                                                        onSendOrder(matId, id, isForge, qty);
+                                                                                        setOrderDogPicker(null);
+                                                                                        setOrderQty(prev => ({ ...prev, [matId]: 1 }));
+                                                                                    }}
+                                                                                >
+                                                                                    <img src={isForge ? forgeDogAssets[id] : dogAssets[id]} className="tavern-dog-panel-img" alt={id} />
+                                                                                    <span className="tavern-dog-panel-name">{cfg?.name ?? id}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    )}
                                                 </div>
                                             );
                                         })}

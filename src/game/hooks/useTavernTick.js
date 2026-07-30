@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { TavernConfig } from '../config/TavernConfig.js';
 
 const TICK_INTERVAL_MS = 30000;
 
@@ -51,38 +50,6 @@ export const useTavernTick = (setGameState) => {
                 };
             });
         }, TICK_INTERVAL_MS);
-        return () => clearInterval(interval);
-    }, [setGameState]);
-
-    // Perro de taberna: recompra provisiones automáticamente
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setGameState(prev => {
-                if (!prev.bartenderHired || !prev.tavernDogSlot) return prev;
-
-                const stock = prev.tavernStock ?? {};
-                const materialsMax = prev.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
-                let newStock = { ...stock };
-                let gold = prev.gold;
-                let changed = false;
-
-                for (const prov of TavernConfig.provisions) {
-                    const current = newStock[prov.id] ?? 0;
-                    if (current <= 1) {
-                        const needed = materialsMax - current;
-                        const total = prov.costPerUnit * needed;
-                        if (gold >= total) {
-                            newStock[prov.id] = materialsMax;
-                            gold -= total;
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (!changed) return prev;
-                return { ...prev, tavernStock: newStock, gold };
-            });
-        }, 5000);
         return () => clearInterval(interval);
     }, [setGameState]);
 };

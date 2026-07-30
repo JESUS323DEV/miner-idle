@@ -99,6 +99,7 @@ const InitialGameState = {
     tavernCoins: 1,
     tavernUnlocked: false,
     tavernStock: { comida: 0, trigo: 0, lupulo: 0, cerveza: 0 },
+    tavernOrders: { trigo: null, lupulo: null },
     tavernActiveClients: 0,
     tavernLastTick: null,
     tavernSalaryDue: null,
