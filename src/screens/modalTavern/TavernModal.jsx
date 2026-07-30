@@ -439,9 +439,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         { id: 'ruleta', icon: iconRuleta, notify: rouletteHasFree },
                         { id: 'tragaperras', icon: iconTragaperras, notify: !gameState.slotWelcomeDone },
                     ];
-                    if (bartenderHired) {
-                        ZONES.push({ id: 'mejorasTaberna', icon: iconTavernCraft, notify: stockNeedsAttention });
-                    }
                     return (
                         <div className="tavern-scene">
                             <button
@@ -466,6 +463,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                             {bartenderHired && (
                                 <div className="tavern-left-controls">
+                                <button
+                                    className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
+                                >
+                                    <img src={iconTavernCraft} alt="mejoras taberna" className="tavern-brew-btn-icon" />
+                                </button>
                                 <div className="tavern-brew-anchor">
                                     <button
                                         className="tavern-brew-btn"
