@@ -120,13 +120,14 @@
 .tavern-stock-hud {
     position: fixed;
     top: 5.5rem;
+    max-width: 430px;
     left: 0;
     right: 0;
     margin: 0 auto;
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 4px 12px;
+    padding: 6px 12px;
     background: rgba(8, 4, 0, 0.85);
     border-bottom: 1px solid rgba(255, 195, 60, 0.15);
     z-index: 12;
@@ -211,14 +212,13 @@
 /* ===== CRAFTEO CERVEZA ===== */
 .tavern-left-controls {
     position: absolute;
-    top: 1.1rem;
+    top: 0.8rem;
+    
     border: 1px solid rgba(255, 196, 60, 0.107);
     padding: 0.4rem;
     background-color: #030200c8;
     border-radius: 10px;
-    left: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.8rem;
     z-index: 5;
@@ -665,7 +665,6 @@
     background-size: cover;
 
 }
-
 
 .tavern-cambista::before {
     content: '';
@@ -1779,6 +1778,13 @@
     border-color: #444;
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.pack-open-btn-coin {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-left: 2px;
 }
 
 /* RESULTADO MINI */

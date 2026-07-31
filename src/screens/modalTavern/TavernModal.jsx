@@ -13,7 +13,7 @@ import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
 import '../../styles/modals/UpgradeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
-import { computeTavernClients } from '../../game/hooks/useTavernTick.js';
+import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
@@ -44,6 +44,7 @@ import iconTavernLupulo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/
 import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
 import iconTavernCraft from "../../assets/ui/icons-hud/hud-modals/icons-tavern/craft.webp"
 import iconTavernUp from "../../assets/ui/icons-hud/hud-modals/icons-tavern/tavern-up.webp"
+import iconTavernClientes from "../../assets/ui/icons-hud/hud-modals/icons-tavern/clientes.webp"
 import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
@@ -456,12 +457,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     ];
                     return (
                         <div className="tavern-scene">
-                            <button
-                                className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
-                                onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
-                            >
-                                <img src={iconRewards} alt="misiones" style={{ width: 52, height: 52, objectFit: 'contain' }} />
-                            </button>
                             {!bartenderHired && (() => {
                                 const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
                                 const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
@@ -476,17 +471,32 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 );
                             })()}
 
-                            {bartenderHired && (
-                                <div className="tavern-left-controls">
-                                    <button
-                                        className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
-                                        onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
-                                    >
-                                        <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
-                                    </button>
-                                    <TavernDogSlot gameState={gameState} setGameState={setGameState} />
-                                </div>
-                            )}
+                            <div className="tavern-left-controls">
+                                <button
+                                    className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
+                                >
+                                    <img src={iconRewards} alt="misiones" className="tavern-quests-icon" />
+                                </button>
+                                {bartenderHired && (
+                                    <>
+                                        <button
+                                            className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                            onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
+                                        >
+                                            <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
+                                        </button>
+                                        <button
+                                            className="tavern-brew-btn"
+                                            onClick={(e) => { e.stopPropagation(); setView('clientes'); }}
+                                        >
+                                            <img src={iconTavernClientes} alt="clientes" className="tavern-brew-btn-icon" />
+                                        </button>
+                                        <TavernDogSlot gameState={gameState} setGameState={setGameState} />
+                                    </>
+                                )}
+                            </div>
+                            
                             <div className="tavern-bottom-bar">
                                 {ZONES.map(z => (
                                     <button
@@ -606,11 +616,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {view === 'mejorasTaberna' && (
                     <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
                         <h2 className="tavern-title">Mejoras de Taberna</h2>
+                        <p className="tavern-subtitle">Amplía el almacén y acelera la producción de cerveza</p>
                         {(() => {
                             const nextUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
                             const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost && tavernCoins >= (nextUpgrade.coins ?? 0);
                             return (
-                                <div className="cont-snacks">
+                                <div className="tavern-conversions">
                                     <div className="container-snacks">
                                         <div className="snack1">
                                             <div className="cont-cookie-2">
@@ -712,6 +723,63 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 </div>
                             );
                         })()}
+                    </div>
+                )}
+
+                {view === 'clientes' && (
+                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
+                        <h2 className="tavern-title">Clientes</h2>
+                        <p className="tavern-subtitle">Cuanta más cerveza tengas en stock, más clientes atraes y más oro ganas cada 30s</p>
+                        <div className="tavern-conversions">
+                            <span className="tavern-section-label">Estado actual</span>
+                            <div className="tavern-conv-card">
+                                <div className="conv-left">
+                                    <div className="conv-details">
+                                        <span className="conv-ratio">{tavernStock.cerveza ?? 0} cerveza en stock</span>
+                                        <span className="conv-stock conv-stock-ok">
+                                            {activeClients} clientes · +{formatNumber2(computeTavernGold(activeClients))} oro / 30s
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span className="tavern-section-label">Mejoras</span>
+                            <div className="container-snacks">
+                                <div className="snack1">
+                                    <div className="cont-cookie-2">
+                                        <img src={iconTavernClientes} alt="mas clientes" />
+                                    </div>
+                                    <div className="text-cookie">
+                                        <p>Más clientes</p>
+                                        <small className="text-info">Aumenta el máximo de clientes que puedes atender</small>
+                                    </div>
+                                    <p className="snack-max-level">Próximamente</p>
+                                </div>
+                            </div>
+                            <div className="container-snacks">
+                                <div className="snack1">
+                                    <div className="cont-cookie-2">
+                                        <img src={coinTavern} alt="propinas" />
+                                    </div>
+                                    <div className="text-cookie">
+                                        <p>Propinas</p>
+                                        <small className="text-info">Los clientes dejan oro extra de propina</small>
+                                    </div>
+                                    <p className="snack-max-level">Próximamente</p>
+                                </div>
+                            </div>
+                            <div className="container-snacks">
+                                <div className="snack1">
+                                    <div className="cont-cookie-2">
+                                        <img src={iconGold} alt="publicidad" />
+                                    </div>
+                                    <div className="text-cookie">
+                                        <p>Publicidad</p>
+                                        <small className="text-info">Atrae clientes con menos cerveza en stock</small>
+                                    </div>
+                                    <p className="snack-max-level">Próximamente</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -1267,7 +1335,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     disabled={!canOpen}
                                                     onClick={() => { pendingSfxRef.current = 'rewardShards'; onOpenPack(pack.id, packTab === 'forja'); }}
                                                 >
-                                                    Abrir — {pack.cost} <img src={coinTavern} alt="coin" style={{ width: 14, height: 14, verticalAlign: 'middle', marginLeft: 2 }} />
+                                                    Abrir — {pack.cost} <img src={coinTavern} alt="coin" className="pack-open-btn-coin" />
                                                 </button>
                                             </div>
                                         </div>
