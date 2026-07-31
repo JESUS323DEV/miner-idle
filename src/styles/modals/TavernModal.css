@@ -211,18 +211,20 @@
 
 /* ===== CRAFTEO CERVEZA ===== */
 .tavern-left-controls {
-    position: absolute;
-    top: 0.8rem;
-    
+    margin: 0.68rem auto;
     border: 1px solid rgba(255, 196, 60, 0.107);
     padding: 0.4rem;
     background-color: #030200c8;
     border-radius: 10px;
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 0.8rem;
     z-index: 5;
+    width: fit-content;
 }
+
+
 
 .tavern-brew-anchor {
     display: flex;

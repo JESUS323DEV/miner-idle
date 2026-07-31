@@ -471,44 +471,46 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 );
                             })()}
 
-                            <div className="tavern-left-controls">
-                                <button
-                                    className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
-                                    onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
-                                >
-                                    <img src={iconRewards} alt="misiones" className="tavern-quests-icon" />
-                                </button>
-                                {bartenderHired && (
-                                    <>
-                                        <button
-                                            className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
-                                            onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
-                                        >
-                                            <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
-                                        </button>
-                                        <button
-                                            className="tavern-brew-btn"
-                                            onClick={(e) => { e.stopPropagation(); setView('clientes'); }}
-                                        >
-                                            <img src={iconTavernClientes} alt="clientes" className="tavern-brew-btn-icon" />
-                                        </button>
-                                        <TavernDogSlot gameState={gameState} setGameState={setGameState} />
-                                    </>
-                                )}
-                            </div>
                             
-                            <div className="tavern-bottom-bar">
-                                {ZONES.map(z => (
+                                <div className="tavern-left-controls">
                                     <button
-                                        key={z.id}
-                                        className={`tavern-zone-btn${z.notify ? ' tavern-zone-notify' : ''}`}
-                                        onClick={() => setView(z.id)}
+                                        className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
+                                        onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
                                     >
-                                        <img src={z.icon} alt={z.id} />
+                                        <img src={iconRewards} alt="misiones" className="tavern-quests-icon" />
                                     </button>
-                                ))}
+                                    {bartenderHired && (
+                                        <>
+                                            <button
+                                                className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                                onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
+                                            >
+                                                <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
+                                            </button>
+                                            <button
+                                                className="tavern-brew-btn"
+                                                onClick={(e) => { e.stopPropagation(); setView('clientes'); }}
+                                            >
+                                                <img src={iconTavernClientes} alt="clientes" className="tavern-brew-btn-icon" />
+                                            </button>
+                                            <TavernDogSlot gameState={gameState} setGameState={setGameState} />
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="tavern-bottom-bar">
+                                    {ZONES.map(z => (
+                                        <button
+                                            key={z.id}
+                                            className={`tavern-zone-btn${z.notify ? ' tavern-zone-notify' : ''}`}
+                                            onClick={() => setView(z.id)}
+                                        >
+                                            <img src={z.icon} alt={z.id} />
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        
                     );
                 })()}
 
