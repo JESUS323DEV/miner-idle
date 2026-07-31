@@ -57,7 +57,8 @@
 .tavern-title {
     color: #FFD700;
     text-align: center;
-    padding-bottom: 1rem;
+    width: 100%;
+
 
 
 }
@@ -67,6 +68,27 @@
     margin-bottom: 1.25rem;
     font-size: 1.5rem;
     color: #FFD700;
+}
+
+.tavern-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem auto;
+
+}
+
+.tavern-back-btn-inline {
+
+    display: flex;
+    align-items: center;
+    background: none;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.tavern-back-btn-inline:hover {
+    color: white;
 }
 
 .tavern-subtitle {
@@ -222,6 +244,17 @@
     gap: 0.8rem;
     z-index: 5;
     width: fit-content;
+}
+
+.tavern-left-controls-extra {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.tavern-hud-locked {
+    opacity: 0.45;
+    pointer-events: none;
 }
 
 
@@ -390,7 +423,8 @@
     width: 70%;
     margin: 0 auto;
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     overflow: hidden;
 }

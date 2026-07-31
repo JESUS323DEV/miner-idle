@@ -402,14 +402,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${tavernBg})`, overflowY: view === 'main' ? 'hidden' : 'auto' }}>
-            {view !== 'main' && (
+            {view !== 'main' && view !== 'cambista' && (
                 <button className="tavern-back-btn-fixed" onClick={(e) => { e.stopPropagation(); setView('main'); if (view === 'sobres') setInvocPrizeData(null); }}>
                     <ArrowLeft size={16} /> Volver
                 </button>
             )}
-            {bartenderHired && (view === 'main' || view === 'cambista') && !showQuests && (
+            {(view === 'main' || view === 'cambista') && !showQuests && (
                 <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
-                    <div className='tavern-wrap'>
+                    <div className={`tavern-wrap${!bartenderHired ? ' tavern-hud-locked' : ''}`}>
                         <div className="tavern-stock-hud-group">
                             {[
                                 { key: 'trigo', icon: iconTavernTrigo, label: 'trigo' },
@@ -417,7 +417,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             ].map(({ key, icon, label }) => {
                                 const qty = tavernStock[key] ?? 0;
                                 return (
-                                    <div key={key} className={`tavern-stock-item-col${qty <= 1 ? ' tavern-stock-zero' : ''}`}>
+                                    <div key={key} className={`tavern-stock-item-col${bartenderHired && qty <= 1 ? ' tavern-stock-zero' : ''}`}>
                                         <img src={icon} className="tavern-stock-icon" alt={label} />
                                         <span>{qty}/{materialsMax}</span>
                                     </div>
@@ -431,7 +431,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </div>
                         </div>
 
-                        <div className={`tavern-stock-item-col${(tavernStock.cerveza ?? 0) <= 1 ? ' tavern-stock-zero' : ''}`}>
+                        <div className={`tavern-stock-item-col${bartenderHired && (tavernStock.cerveza ?? 0) <= 1 ? ' tavern-stock-zero' : ''}`}>
                             <img src={iconTavernCerveza} className="tavern-stock-icon" alt="cerveza" />
                             <span>{tavernStock.cerveza ?? 0}/{createdMax}</span>
                         </div>
@@ -444,7 +444,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 </div>
             )}
             <div className="tavern-content" onClick={(e) => e.stopPropagation()}>
-                {view === 'main' && !bartenderHired && <button className="tavern-close" onClick={onClose}><X /></button>}
 
                 {/* MAIN — escena interactiva */}
                 {view === 'main' && (() => {
@@ -471,53 +470,61 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 );
                             })()}
 
-                            
-                                <div className="tavern-left-controls">
-                                    <button
-                                        className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
-                                        onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
-                                    >
-                                        <img src={iconRewards} alt="misiones" className="tavern-quests-icon" />
-                                    </button>
-                                    {bartenderHired && (
-                                        <>
-                                            <button
-                                                className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
-                                                onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
-                                            >
-                                                <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
-                                            </button>
-                                            <button
-                                                className="tavern-brew-btn"
-                                                onClick={(e) => { e.stopPropagation(); setView('clientes'); }}
-                                            >
-                                                <img src={iconTavernClientes} alt="clientes" className="tavern-brew-btn-icon" />
-                                            </button>
-                                            <TavernDogSlot gameState={gameState} setGameState={setGameState} />
-                                        </>
-                                    )}
-                                </div>
 
-                                <div className="tavern-bottom-bar">
-                                    {ZONES.map(z => (
-                                        <button
-                                            key={z.id}
-                                            className={`tavern-zone-btn${z.notify ? ' tavern-zone-notify' : ''}`}
-                                            onClick={() => setView(z.id)}
-                                        >
-                                            <img src={z.icon} alt={z.id} />
-                                        </button>
-                                    ))}
+                            <div className="tavern-left-controls">
+                                <button
+                                    className={`tavern-quests-btn${hasClaimableQuest ? ' tavern-zone-notify' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); setShowQuests(true); }}
+                                >
+                                    <img src={iconRewards} alt="misiones" className="tavern-quests-icon" />
+                                </button>
+                                <div className={`tavern-left-controls-extra${!bartenderHired ? ' tavern-hud-locked' : ''}`}>
+                                    <button
+                                        className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                        onClick={(e) => { e.stopPropagation(); if (bartenderHired) setView('mejorasTaberna'); }}
+                                    >
+                                        <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
+                                    </button>
+                                    <button
+                                        className="tavern-brew-btn"
+                                        onClick={(e) => { e.stopPropagation(); if (bartenderHired) setView('clientes'); }}
+                                    >
+                                        <img src={iconTavernClientes} alt="clientes" className="tavern-brew-btn-icon" />
+                                    </button>
+                                    <TavernDogSlot gameState={gameState} setGameState={setGameState} />
                                 </div>
                             </div>
-                        
+
+                            <div className="tavern-bottom-bar">
+                                {ZONES.map(z => (
+                                    <button
+                                        key={z.id}
+                                        className={`tavern-zone-btn${z.notify ? ' tavern-zone-notify' : ''}`}
+                                        onClick={() => setView(z.id)}
+                                    >
+                                        <img src={z.icon} alt={z.id} />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                     );
                 })()}
 
                 {/* CAMBISTA LINGOTES → MONEDAS */}
                 {view === 'cambista' && (
                     <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
-                        <h2 className="tavern-title">Comerciante</h2>
+                        <div className="tavern-title-row">
+                            
+                                <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
+                                    <ArrowLeft size={22} />
+                                </button>
+
+                                <h2 className="tavern-title">Comerciante</h2>
+
+                           
+
+                        </div>
 
                         {showCambistaIntro && (
                             <div className="forge-intro-overlay">
@@ -531,8 +538,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 }}>Entendido</button>
                             </div>
                         )}
-                        <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
-                        <div className="tavern-exchange-grid">
+                        <div className="tavern-conversions">
+                            <span className="tavern-section-label">Materiales</span>
+                            <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
+                            <div className="tavern-exchange-grid">
                             {TavernConfig.conversions.map(conv => {
                                 const stock = currentMaterials[conv.material] ?? 0;
                                 const qty = exchangeQty[conv.material] ?? 1;
@@ -566,9 +575,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     </div>
                                 );
                             })}
-                        </div>
-                        <span className="tavern-section-label">Provisiones</span>
-                        <div className="tavern-exchange-grid tavern-provision-grid">
+                            </div>
+                            <span className="tavern-section-label">Provisiones</span>
+                            <p className="tavern-subtitle">Compra trigo y lúpulo para elaborar cerveza en la Taberna</p>
+                            <div className="tavern-exchange-grid tavern-provision-grid">
                             {TavernConfig.provisions.map(prov => {
                                 const matId = prov.id;
                                 const current = tavernStock[matId] ?? 0;
@@ -610,6 +620,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     </div>
                                 );
                             })}
+                            </div>
                         </div>
                     </div>
                 )}
