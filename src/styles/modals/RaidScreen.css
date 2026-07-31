@@ -614,6 +614,19 @@
     image-rendering: pixelated;
 }
 
+.raid-lady-sprite.raid-order-lady-flip {
+    transform: translateX(-50%) scaleX(-1);
+}
+
+.raid-order-autoresend-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+}
+
 .raid-lady-wait {
     position: static;
     transform: none;

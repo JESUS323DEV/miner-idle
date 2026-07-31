@@ -189,89 +189,6 @@
     padding: 0.3rem;
 }
 
-.tavern-dog-slot-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.tavern-dog-slot-wrap .global-dog-slot {
-    width: 44px;
-    height: 44px;
-}
-
-.tavern-dog-slot-wrap .global-dog-slot-img {
-    width: 36px;
-    height: 36px;
-}
-
-.tavern-dog-panel {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 8px;
-    background: rgba(10, 5, 0, 0.95);
-    border: 1px solid rgba(255, 195, 60, 0.4);
-    border-radius: 10px;
-    padding: 6px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    max-height: 220px;
-    overflow-y: auto;
-    min-width: 130px;
-    z-index: 20;
-}
-
-.tavern-dog-panel-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    background: rgba(255,255,255,0.04);
-}
-
-.tavern-dog-panel-item:not(.unavailable):hover {
-    background: rgba(255, 195, 60, 0.12);
-    border-color: rgba(255, 195, 60, 0.3);
-}
-
-.tavern-dog-panel-item.unavailable {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.tavern-dog-panel-item.assigned {
-    border-color: rgba(255, 210, 80, 0.6);
-    background: rgba(255, 210, 80, 0.08);
-}
-
-.tavern-dog-panel-img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-}
-
-.tavern-dog-panel-name {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.9);
-    flex: 1;
-}
-
-.tavern-dog-panel-stars {
-    display: flex;
-    gap: 1px;
-}
-
-.tavern-dog-panel-empty {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.4);
-    padding: 4px;
-}
 
 .tavern-brew-btn {
     background: none;
@@ -765,6 +682,14 @@
     background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/diamond.webp') center / 100% 100% no-repeat;
 }
 
+.tavern-exchange-item.tavern-exchange-bg-trigo {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/trigo.webp') center / 100% 100% no-repeat;
+}
+
+.tavern-exchange-item.tavern-exchange-bg-lupulo {
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/lupulo.webp') center / 100% 100% no-repeat;
+}
+
 .tavern-exchange-icon-btn {
     background: none;
     border: none;
@@ -965,26 +890,6 @@
     cursor: not-allowed;
 }
 
-.tavern-order-card {
-    position: relative;
-    flex-wrap: wrap;
-    row-gap: 0.5rem;
-    border: none;
-}
-
-.tavern-order-card.tavern-order-bg-trigo {
-    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/trigo.webp') center / 100% 100% no-repeat;
-}
-
-.tavern-order-card.tavern-order-bg-lupulo {
-    background: url('../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/lupulo.webp') center / 100% 100% no-repeat;
-}
-
-.tavern-order-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
 
 .dogs-grid {
     display: grid;

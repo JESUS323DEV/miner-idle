@@ -26,6 +26,7 @@ import { useMineDogTimer } from "../game/hooks/useMineDogTimer.js";
 import { useFragmentRewardsUnlock } from "../game/hooks/useFragmentRewardsUnlock.js";
 import { useTutorialTriggers } from "../game/hooks/useTutorialTriggers.js";
 import { useTavernTick } from "../game/hooks/useTavernTick.js";
+import { useRaidOrdersTick } from "../game/hooks/useRaidOrdersTick.js";
 import { AutomineConfig } from "../game/config/AutomineConfig.js";
 import { getPoderUpgradeCost } from "../game/hooks/actions/useAutomineActions.js";
 import { formatNumber, formatNumber2, formatRentalTimer } from "../game/utils/formatters.js";
@@ -602,6 +603,7 @@ function GameRoot({ onBack }) {
 
   useBurst(setGameState);
   useTavernTick(setGameState);
+  useRaidOrdersTick(setGameState);
 
   // Cargas disponibles de automine
   const availableCharges =

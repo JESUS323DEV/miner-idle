@@ -1,7 +1,3 @@
-import { TavernConfig } from '../../config/TavernConfig.js';
-import { DogsConfig } from '../../config/DogsConfig.js';
-import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
-
 export const useTavernActions = (gameState, setGameState, showGoldCost, showTavernCost, showTavernGain) => {
 
     // ========== CONVERTIR LINGOTES EN MONEDAS ==========
@@ -99,94 +95,10 @@ export const useTavernActions = (gameState, setGameState, showGoldCost, showTave
         });
     };
 
-    // ========== ENVIAR PEDIDO (trigo/lupulo) ==========
-    const handleSendOrder = (material, dogId, isForge, times = 1) => {
-        setGameState(prevState => {
-            if (!prevState.bartenderHired) return prevState;
-            if (prevState.tavernOrders?.[material]) return prevState;
-
-            const prov = TavernConfig.provisions.find(p => p.id === material);
-            if (!prov) return prevState;
-
-            const dog = isForge ? prevState.forgeDogs?.[dogId] : prevState.dogs?.[dogId];
-            if (!dog || !dog.hired) return prevState;
-            if (dog.assignedTo && dog.assignedTo.globalSlot === undefined) return prevState;
-
-            const total = prov.costPerUnit * prov.buyAmount * times;
-            if (prevState.gold < total) return prevState;
-
-            const cfg = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
-            const stars = dog.stars ?? 0;
-            const mult = 1 + (cfg?.starBonus ?? 0) * stars;
-            const duration = TavernConfig.orders.duration / mult;
-
-            const updatedDogs = { ...prevState.dogs };
-            const updatedForgeDogs = { ...prevState.forgeDogs };
-            const globalSlots = [...(prevState.dogs.globalSlots ?? [null, null, null])];
-            if (dog.assignedTo?.globalSlot !== undefined) globalSlots[dog.assignedTo.globalSlot] = null;
-
-            if (isForge) {
-                updatedForgeDogs[dogId] = { ...dog, assignedTo: { type: 'order', material } };
-            } else {
-                updatedDogs[dogId] = { ...dog, assignedTo: { type: 'order', material } };
-            }
-            updatedDogs.globalSlots = globalSlots;
-
-            const now = Date.now();
-            return {
-                ...prevState,
-                gold: prevState.gold - total,
-                totalGoldSpent: (prevState.totalGoldSpent ?? 0) + total,
-                dogs: updatedDogs,
-                forgeDogs: updatedForgeDogs,
-                tavernOrders: {
-                    ...prevState.tavernOrders,
-                    [material]: {
-                        dogId,
-                        isForge,
-                        startedAt: now,
-                        returnAt: now + duration * 1000,
-                        amount: prov.buyAmount * times,
-                    },
-                },
-            };
-        });
-    };
-
-    // ========== RECLAMAR PEDIDO ==========
-    const handleClaimOrder = (material) => {
-        setGameState(prevState => {
-            const order = prevState.tavernOrders?.[material];
-            if (!order || Date.now() < order.returnAt) return prevState;
-
-            const { dogId, isForge, amount } = order;
-            const updatedDogs = { ...prevState.dogs };
-            const updatedForgeDogs = { ...prevState.forgeDogs };
-            if (isForge) {
-                if (updatedForgeDogs[dogId]) updatedForgeDogs[dogId] = { ...updatedForgeDogs[dogId], assignedTo: null };
-            } else {
-                if (updatedDogs[dogId]) updatedDogs[dogId] = { ...updatedDogs[dogId], assignedTo: null };
-            }
-
-            const max = prevState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
-            const current = prevState.tavernStock?.[material] ?? 0;
-
-            return {
-                ...prevState,
-                dogs: updatedDogs,
-                forgeDogs: updatedForgeDogs,
-                tavernStock: { ...prevState.tavernStock, [material]: Math.min(max, current + amount) },
-                tavernOrders: { ...prevState.tavernOrders, [material]: null },
-            };
-        });
-    };
-
     return {
         handleConvertMaterial,
         handleConvertGoldToIngot,
         handleConvertCoinsToGold,
         handleUnlockTavern,
-        handleSendOrder,
-        handleClaimOrder,
     };
 };

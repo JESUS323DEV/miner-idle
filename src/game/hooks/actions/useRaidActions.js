@@ -1,6 +1,7 @@
 import { RaidConfig, generateRaidLoot } from '../../config/RaidConfig.js';
 import { DogsConfig } from '../../config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../config/ForgeDogsConfig.js';
+import { TavernConfig } from '../../config/TavernConfig.js';
 import { advanceDailyQuestInState, leavePJSlot, advancePJRaids } from '../../utils/questUtils.js';
 
 const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 };
@@ -180,10 +181,79 @@ export const useRaidActions = (gameState, setGameState) => {
         });
     };
 
+    // ===== ENVIAR PEDIDO (tablón de envíos: trigo/lupulo) =====
+    const handleSendOrder = (material, dogId, isForge, times = 1, autoResend = false) => {
+        setGameState(prevState => {
+            if (prevState.raidOrders?.[material]) return prevState;
+
+            const prov = TavernConfig.provisions.find(p => p.id === material);
+            if (!prov) return prevState;
+
+            const dog = isForge ? prevState.forgeDogs?.[dogId] : prevState.dogs?.[dogId];
+            if (!dog || !dog.hired) return prevState;
+            if (dog.assignedTo && dog.assignedTo.globalSlot === undefined) return prevState;
+
+            const realTimes = autoResend ? 1 : times;
+            const total = prov.costPerUnit * prov.buyAmount * realTimes;
+            if (prevState.gold < total) return prevState;
+
+            const cfg = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
+            const stars = dog.stars ?? 0;
+            const mult = 1 + (cfg?.starBonus ?? 0) * stars;
+            const duration = TavernConfig.orders.duration / mult;
+
+            const { updatedDogs, updatedForgeDogs } = markDogs(prevState, [{ id: dogId, isForge }], { type: 'order', material });
+
+            const now = Date.now();
+            return {
+                ...prevState,
+                gold: prevState.gold - total,
+                totalGoldSpent: (prevState.totalGoldSpent ?? 0) + total,
+                dogs: updatedDogs,
+                forgeDogs: updatedForgeDogs,
+                raidOrders: {
+                    ...prevState.raidOrders,
+                    [material]: {
+                        dogId,
+                        isForge,
+                        startedAt: now,
+                        returnAt: now + duration * 1000,
+                        amount: prov.buyAmount * realTimes,
+                        autoResend,
+                        autoResendUntil: autoResend ? now + TavernConfig.orders.autoResendWindow * 1000 : null,
+                    },
+                },
+            };
+        });
+    };
+
+    // ===== RECLAMAR PEDIDO =====
+    const handleClaimOrder = (material) => {
+        setGameState(prevState => {
+            const order = prevState.raidOrders?.[material];
+            if (!order || Date.now() < order.returnAt) return prevState;
+
+            const { updatedDogs, updatedForgeDogs } = markDogs(prevState, [{ id: order.dogId, isForge: order.isForge }], null);
+
+            const max = prevState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+            const current = prevState.tavernStock?.[material] ?? 0;
+
+            return {
+                ...prevState,
+                dogs: updatedDogs,
+                forgeDogs: updatedForgeDogs,
+                tavernStock: { ...prevState.tavernStock, [material]: Math.min(max, current + order.amount) },
+                raidOrders: { ...prevState.raidOrders, [material]: null },
+            };
+        });
+    };
+
     return {
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
         handleCancelPassiveRaid,
         handleUnlockRaidActivas,
+        handleSendOrder,
+        handleClaimOrder,
     };
 };

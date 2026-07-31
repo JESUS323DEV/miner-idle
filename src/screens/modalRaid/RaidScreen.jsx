@@ -22,9 +22,18 @@ import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive
 import { RaidConfig, calcTeamStrength } from '../../game/config/RaidConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
+import { TavernConfig } from '../../game/config/TavernConfig.js';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/RaidScreen.css';
 import '../../styles/modals/ForgeModal.css';
+import '../../styles/modals/TavernModal.css';
+
+import iconTavernTrigo from '../../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp';
+import iconTavernLupulo from '../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp';
+import iconSelectLeft from '../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/select-left.webp';
+import iconSelectRight from '../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/select-right.webp';
+import cardBgTrigo from '../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/trigo.webp';
+import cardBgLupulo from '../../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/lupulo.webp';
 
 import iconGold         from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
 import coinTavern       from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
@@ -102,9 +111,24 @@ const RAID_CARD_BG = {
     volcano: cardBgVolcano,
 };
 
+const PROV_CARD_BG = {
+    trigo:  cardBgTrigo,
+    lupulo: cardBgLupulo,
+};
+
+const PROV_ICON = {
+    trigo:  iconTavernTrigo,
+    lupulo: iconTavernLupulo,
+};
+
+// Tablón de Envíos: pendiente de asset propio para el botón del hub, se deja oculto
+// hasta que exista (ver HUB_BUTTONS.orders). Cambiar a `true` para probarlo mientras tanto.
+const SHOW_ENVIOS_TABLON = false;
+
 const HUB_BUTTONS = {
     passive: { top: '40%', left: '22%' },
     active:  { top: '30%', left: '55%' },
+    orders:  { top: '15%', left: '38%' },
 };
 
 const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
@@ -113,11 +137,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
         handleUnlockRaidActivas,
+        handleSendOrder,
+        handleClaimOrder,
     } = useGameContext();
 
     const [now, setNow] = useState(Date.now());
     const [selectedRaid, setSelectedRaid] = useState(null);
     const [teamDogIds, setTeamDogIds] = useState([]);
+    const [selectedOrderMat, setSelectedOrderMat] = useState(null);
+    const [orderQty, setOrderQty] = useState({ trigo: 1, lupulo: 1 });
+    const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
@@ -161,6 +190,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const passiveRaids = gameState.raid?.passiveRaids ?? [];
     const dogs = gameState.dogs ?? {};
     const forgeDogs = gameState.forgeDogs ?? {};
+    const raidOrders = gameState.raidOrders ?? {};
+    const tavernStock = gameState.tavernStock ?? {};
 
     const rentalForRaids = (gameState.rental?.active ?? []).filter(r =>
         r.destination === 'raid' &&
@@ -295,6 +326,15 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 </span>
                             )}
                         </button>
+                        {SHOW_ENVIOS_TABLON && (
+                            <button
+                                className="raid-hub-btn"
+                                style={{ top: HUB_BUTTONS.orders.top, left: HUB_BUTTONS.orders.left }}
+                                onClick={() => setRaidView('orders')}
+                            >
+                                <img src={btnRaidPassive} alt="envios" className="raid-hub-btn-img" />
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -511,6 +551,133 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                         })}
                     </div>
                 </>}
+
+                {/* TABLÓN DE ENVÍOS — trigo/lupulo, mismo esqueleto que Pasivas */}
+                {raidView === 'orders' && (
+                    <div className="raid-list">
+                        {TavernConfig.provisions.map(prov => {
+                            const matId = prov.id;
+                            const current = tavernStock[matId] ?? 0;
+                            const maxStock = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+                            const order = raidOrders[matId] ?? null;
+                            const ready = order && now >= order.returnAt;
+                            const orderProgress = order ? Math.min(1, (now - order.startedAt) / (order.returnAt - order.startedAt)) : 0;
+                            const orderReturning = orderProgress > 0.5;
+                            const orderVisualProgress = orderReturning ? (1 - orderProgress) * 2 : orderProgress * 2;
+
+                            const qty = orderQty[matId] ?? 1;
+                            const roomLeft = maxStock - current;
+                            const maxQtyByRoom = Math.max(1, Math.floor(roomLeft / prov.buyAmount));
+                            const maxQtyByGold = Math.max(1, Math.floor(gameState.gold / (prov.costPerUnit * prov.buyAmount)));
+                            const maxQty = Math.min(maxQtyByRoom, maxQtyByGold);
+                            const canOrder = roomLeft >= prov.buyAmount && gameState.gold >= prov.costPerUnit * prov.buyAmount;
+                            const isSelected = selectedOrderMat === matId && !order;
+                            const dogCfg = order ? (order.isForge ? ForgeDogsConfig[order.dogId] : DogsConfig[order.dogId]) : null;
+
+                            return (
+                                <div key={matId} className="raid-entry">
+                                    <div
+                                        className={`raid-card ${isSelected ? 'raid-card-selected' : ''} ${order ? 'raid-card-active' : ''}`}
+                                        onClick={() => !order && setSelectedOrderMat(p => p === matId ? null : matId)}
+                                        style={PROV_CARD_BG[matId] ? {
+                                            backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${PROV_CARD_BG[matId]})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center 20%',
+                                        } : undefined}
+                                    >
+                                        {order ? (
+                                            <div className="raid-inline-progress">
+                                                <div className="rip-header">
+                                                    <span className="rc-name">{prov.label} · {current}/{maxStock}</span>
+                                                </div>
+                                                <div className="rip-dogs">
+                                                    <div className={`rip-dog dog-rarity-${dogCfg?.rarity}`}>
+                                                        <img src={dogAssets[order.dogId]} alt={order.dogId} />
+                                                        <span>{dogCfg?.name ?? order.dogId}</span>
+                                                    </div>
+                                                </div>
+                                                {ready ? (
+                                                    <div className="rip-actions">
+                                                        <img src={LADY_WAIT_FRAMES[waitFrameIndex]} className="raid-lady-sprite raid-lady-wait" alt="lady" />
+                                                        {!order.autoResend && (
+                                                            <button
+                                                                className="btn-claim-raid btn-claim-ready"
+                                                                onClick={e => { e.stopPropagation(); handleClaimOrder(matId); }}
+                                                            >
+                                                                Reclamar
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="raid-lady-track">
+                                                        <img
+                                                            src={LADY_FRAMES[frameIndex]}
+                                                            className={`raid-lady-sprite ${orderReturning ? 'raid-order-lady-flip' : ''}`}
+                                                            alt="lady"
+                                                            style={{ left: `${Math.min(92, Math.max(8, orderVisualProgress * 100))}%` }}
+                                                        />
+                                                        <span className="raid-lady-timer">{formatTime(order.returnAt - now)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="rc-info">
+                                                <span className="rc-name">{prov.label} · {current}/{maxStock}</span>
+                                                <span className="rc-desc">Manda un perro a por materiales.</span>
+                                                <span className="rc-meta">👥 1 perro {!canOrder && '· sin hueco/oro'}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {isSelected && (
+                                        <div className="raid-team-picker">
+                                            <label className="raid-order-autoresend-label">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={orderAutoResend[matId] ?? false}
+                                                    onChange={() => setOrderAutoResend(prev => ({ ...prev, [matId]: !prev[matId] }))}
+                                                />
+                                                Enviar 10 min
+                                            </label>
+                                            {!orderAutoResend[matId] && (
+                                                <div className="tavern-stepper">
+                                                    <button className="tavern-stepper-btn" onClick={() => setOrderQty(prev => ({ ...prev, [matId]: Math.max(1, (prev[matId] ?? 1) - 1) }))} disabled={qty <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
+                                                    <span className="tavern-stepper-qty">{qty}</span>
+                                                    <button className="tavern-stepper-btn" onClick={() => setOrderQty(prev => ({ ...prev, [matId]: Math.min(maxQty, (prev[matId] ?? 1) + 1) }))} disabled={qty >= maxQty}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
+                                                </div>
+                                            )}
+                                            <div className="raid-dogs-grid">
+                                                {availableDogs.length === 0 && (
+                                                    <p className="raid-no-dogs">Sin perros disponibles</p>
+                                                )}
+                                                {availableDogs.map(dog => {
+                                                    const cfg = getDogConfig(dog.id, dog.isForge);
+                                                    return (
+                                                        <button
+                                                            key={dog.id}
+                                                            className={`raid-dog-card dog-rarity-${cfg?.rarity}`}
+                                                            onClick={() => {
+                                                                handleSendOrder(matId, dog.id, dog.isForge, qty, orderAutoResend[matId] ?? false);
+                                                                setSelectedOrderMat(null);
+                                                                setOrderQty(prev => ({ ...prev, [matId]: 1 }));
+                                                            }}
+                                                        >
+                                                            <img src={dogAssets[dog.id]} alt={dog.id} />
+                                                            <span className="rdc-name">{cfg?.name ?? dog.id}</span>
+                                                            <span className="rdc-stars">
+                                                                {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
 
             </div>
             <PrizeOverlay prizeData={prizeQueue[0] ?? null} onAccept={() => setPrizeQueue(prev => prev.slice(1))} />

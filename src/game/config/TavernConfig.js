@@ -38,5 +38,6 @@ export const TavernConfig = {
     ],
     orders: {
         duration: 120,
+        autoResendWindow: 600,
     },
 };
