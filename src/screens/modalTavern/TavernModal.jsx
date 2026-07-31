@@ -403,7 +403,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     <ArrowLeft size={16} /> Volver
                 </button>
             )}
-            {bartenderHired && view === 'main' && !showQuests && (
+            {bartenderHired && (view === 'main' || view === 'cambista') && !showQuests && (
                 <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
 
 
@@ -542,48 +542,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </div>
                         )}
                         <p className="tavern-subtitle">Convierte materiales en monedas de taberna</p>
-                        <div className="tavern-exchange-grid tavern-provision-grid">
-                            {TavernConfig.provisions.map(prov => {
-                                const matId = prov.id;
-                                const current = tavernStock[matId] ?? 0;
-                                const qty = provisionQty[matId] ?? 1;
-                                const total = prov.costPerUnit * prov.buyAmount * qty;
-                                const max = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
-                                const roomLeft = max - current;
-                                const maxQtyByRoom = Math.max(1, Math.floor(roomLeft / prov.buyAmount));
-                                const maxQtyByGold = Math.max(1, Math.floor(gameState.gold / (prov.costPerUnit * prov.buyAmount)));
-                                const maxQty = Math.min(maxQtyByRoom, maxQtyByGold);
-                                const canBuy = gameState.gold >= total && roomLeft >= prov.buyAmount * qty;
-                                const changeQty = (delta) => setProvisionQty(prev => ({ ...prev, [matId]: Math.min(maxQty, Math.max(1, (prev[matId] ?? 1) + delta)) }));
-                                const provIconsMap = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo };
-                                return (
-                                    <div key={matId} className={`tavern-exchange-item tavern-exchange-bg-${matId}`}>
-                                        <div className="tavern-exchange-col-vertical">
-                                            <div className="tavern-exchange-col tavern-exchange-col-ingot">
-                                                <img src={provIconsMap[matId]} className={`conv-icon ${!canBuy ? 'conv-locked' : ''}`} />
-                                                <span className="tavern-exchange-qty tavern-exchange-qty-amount">{prov.buyAmount * qty}</span>
-                                            </div>
-                                            <span className="tavern-exchange-arrow-vertical">→</span>
-                                            <div className="tavern-exchange-col tavern-exchange-col-coin">
-                                                <button
-                                                    className={`tavern-exchange-icon-btn ${!canBuy ? 'conv-locked' : ''}`}
-                                                    onClick={() => { buyProvision(matId, prov.costPerUnit, prov.buyAmount, qty); setProvisionQty(prev => ({ ...prev, [matId]: 1 })); }}
-                                                    disabled={!canBuy}
-                                                >
-                                                    <img src={iconGold} className="conv-icon" />
-                                                </button>
-                                                <span className="tavern-exchange-qty tavern-exchange-qty-coins">{formatNumber2(total)}</span>
-                                            </div>
-                                        </div>
-                                        <div className="tavern-stepper">
-                                            <button className="tavern-stepper-btn" onClick={() => changeQty(-1)} disabled={qty <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
-                                            <span className="tavern-stepper-qty">{qty}</span>
-                                            <button className="tavern-stepper-btn" onClick={() => changeQty(1)} disabled={qty >= maxQty}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
                         <div className="tavern-exchange-grid">
                             {TavernConfig.conversions.map(conv => {
                                 const stock = currentMaterials[conv.material] ?? 0;
@@ -614,6 +572,50 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                             <button className="tavern-stepper-btn" onClick={() => changeQty(-1)} disabled={qty <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
                                             <span className="tavern-stepper-qty">{qty}</span>
                                             <button className="tavern-stepper-btn" onClick={() => changeQty(1)} disabled={qty >= maxQty}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <span className="tavern-section-label">Provisiones</span>
+                        <div className="tavern-exchange-grid tavern-provision-grid">
+                            {TavernConfig.provisions.map(prov => {
+                                const matId = prov.id;
+                                const current = tavernStock[matId] ?? 0;
+                                const qty = provisionQty[matId] ?? 1;
+                                const total = prov.costPerUnit * prov.buyAmount * qty;
+                                const max = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
+                                const roomLeft = max - current;
+                                const maxQtyByRoom = Math.max(1, Math.floor(roomLeft / prov.buyAmount));
+                                const maxQtyByGold = Math.max(1, Math.floor(gameState.gold / (prov.costPerUnit * prov.buyAmount)));
+                                const maxQty = Math.min(maxQtyByRoom, maxQtyByGold);
+                                const canBuy = gameState.gold >= total && roomLeft >= prov.buyAmount * qty;
+                                const changeQty = (delta) => setProvisionQty(prev => ({ ...prev, [matId]: Math.min(maxQty, Math.max(1, (prev[matId] ?? 1) + delta)) }));
+                                const provIconsMap = { trigo: iconTavernTrigo, lupulo: iconTavernLupulo };
+                                return (
+                                    <div key={matId} className={`tavern-exchange-item tavern-exchange-bg-${matId}${!bartenderHired ? ' conv-locked' : ''}`}>
+                                        {!bartenderHired && <span className="tavern-exchange-locked-badge">Requiere cantinero</span>}
+                                        <div className="tavern-exchange-col-vertical">
+                                            <div className="tavern-exchange-col tavern-exchange-col-ingot">
+                                                <img src={provIconsMap[matId]} className={`conv-icon ${!canBuy ? 'conv-locked' : ''}`} />
+                                                <span className="tavern-exchange-qty tavern-exchange-qty-amount">{prov.buyAmount * qty}</span>
+                                            </div>
+                                            <span className="tavern-exchange-arrow-vertical">→</span>
+                                            <div className="tavern-exchange-col tavern-exchange-col-coin">
+                                                <button
+                                                    className={`tavern-exchange-icon-btn ${!canBuy ? 'conv-locked' : ''}`}
+                                                    onClick={() => { buyProvision(matId, prov.costPerUnit, prov.buyAmount, qty); setProvisionQty(prev => ({ ...prev, [matId]: 1 })); }}
+                                                    disabled={!canBuy || !bartenderHired}
+                                                >
+                                                    <img src={iconGold} className="conv-icon" />
+                                                </button>
+                                                <span className="tavern-exchange-qty tavern-exchange-qty-coins">{formatNumber2(total)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="tavern-stepper">
+                                            <button className="tavern-stepper-btn" onClick={() => changeQty(-1)} disabled={qty <= 1 || !bartenderHired}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
+                                            <span className="tavern-stepper-qty">{qty}</span>
+                                            <button className="tavern-stepper-btn" onClick={() => changeQty(1)} disabled={qty >= maxQty || !bartenderHired}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
                                         </div>
                                     </div>
                                 );
