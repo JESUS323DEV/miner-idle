@@ -11,6 +11,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
+import '../../styles/modals/UpgradeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
 import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
@@ -42,6 +43,8 @@ import iconTavernTrigo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/t
 import iconTavernLupulo from "../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp"
 import iconTavernCerveza from "../../assets/ui/icons-hud/hud-modals/icons-tavern/cerveza.webp"
 import iconTavernCraft from "../../assets/ui/icons-hud/hud-modals/icons-tavern/craft.webp"
+import iconTavernUp from "../../assets/ui/icons-hud/hud-modals/icons-tavern/tavern-up.webp"
+import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
 import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
@@ -469,7 +472,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
                                 >
-                                    <img src={iconTavernCraft} alt="mejoras taberna" className="tavern-brew-btn-icon" />
+                                    <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
                                 </button>
                                 <div className="tavern-brew-anchor">
                                     <button
@@ -634,47 +637,66 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             const nextUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
                             const canUpgrade = nextUpgrade && gameState.gold >= nextUpgrade.cost && tavernCoins >= (nextUpgrade.coins ?? 0);
                             return (
-                                <div className="tavern-conversions">
-                                    <span className="tavern-section-label">Mejoras</span>
-                                    <div className={`tavern-conv-card tavern-stock-upgrade-card ${!canUpgrade ? 'conv-locked' : ''}`}>
-                                        <div className="conv-left">
-                                            <div className="conv-details">
-                                                <span className="conv-ratio">Almacén {materialsMax} → {nextUpgrade ? nextUpgrade.to : materialsMax}</span>
-                                                {nextUpgrade ? (
-                                                    <span className={`conv-stock ${canUpgrade ? 'conv-stock-ok' : 'conv-stock-low'}`}>
-                                                        {formatNumber2(nextUpgrade.cost)} <img src={iconGold} className="conv-small-icon" />
-                                                        {nextUpgrade.coins > 0 && <> {nextUpgrade.coins} <img src={coinTavern} className="conv-small-icon" /></>}
-                                                    </span>
-                                                ) : (
-                                                    <span className="conv-stock conv-stock-ok">Capacidad maxima</span>
-                                                )}
+                                <div className="cont-snacks">
+                                    <div className="container-snacks">
+                                        <div className="snack1">
+                                            <div className="cont-cookie-2">
+                                                <img src={iconTavernTrigo} alt="almacen provisiones" />
                                             </div>
+                                            <div className="text-cookie">
+                                                <p>Almacén Nv. {materialsMax}</p>
+                                                <small className="text-info">Amplía el almacén de trigo y lúpulo</small>
+                                            </div>
+                                            {!nextUpgrade ? (
+                                                <p className="snack-max-level">Capacidad máxima</p>
+                                            ) : (
+                                                <div className="cont-unlock-btn">
+                                                    <button
+                                                        className={canUpgrade ? 'notify-pulse' : ''}
+                                                        onClick={upgradeStock}
+                                                        disabled={!canUpgrade}
+                                                    >
+                                                        <img className="snack-btn-img" src={buttonUpgrade} alt="Mejorar" />
+                                                    </button>
+                                                    <span className="snack-btn-price">
+                                                        {formatNumber2(nextUpgrade.cost)} <img src={iconGold} alt="gold" />
+                                                        {nextUpgrade.coins > 0 && <> {nextUpgrade.coins} <img src={coinTavern} alt="coins" /></>}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <button onClick={upgradeStock} disabled={!canUpgrade} className="conv-btn">
-                                            {nextUpgrade ? 'Mejorar' : 'MAX'}
-                                        </button>
                                     </div>
                                     {(() => {
                                         const nextCreated = TavernConfig.createdStockUpgrades.find(u => u.to > createdMax);
                                         const canUpgradeCreated = nextCreated && gameState.gold >= nextCreated.gold && gameState.tavernCoins >= nextCreated.coins;
                                         return (
-                                            <div className={`tavern-conv-card tavern-stock-upgrade-card ${!canUpgradeCreated ? 'conv-locked' : ''}`}>
-                                                <div className="conv-left">
-                                                    <div className="conv-details">
-                                                        <span className="conv-ratio">Almacén cerveza {createdMax} → {nextCreated ? nextCreated.to : createdMax}</span>
-                                                        {nextCreated ? (
-                                                            <span className={`conv-stock ${canUpgradeCreated ? 'conv-stock-ok' : 'conv-stock-low'}`}>
-                                                                {formatNumber2(nextCreated.gold)} <img src={iconGold} className="conv-small-icon" />
-                                                                {' '}{nextCreated.coins} <img src={coinTavern} className="conv-small-icon" />
-                                                            </span>
-                                                        ) : (
-                                                            <span className="conv-stock conv-stock-ok">Capacidad maxima</span>
-                                                        )}
+                                            <div className="container-snacks">
+                                                <div className="snack1">
+                                                    <div className="cont-cookie-2">
+                                                        <img src={iconTavernCerveza} alt="almacen cerveza" />
                                                     </div>
+                                                    <div className="text-cookie">
+                                                        <p>Almacén cerveza Nv. {createdMax}</p>
+                                                        <small className="text-info">Amplía el almacén de cerveza</small>
+                                                    </div>
+                                                    {!nextCreated ? (
+                                                        <p className="snack-max-level">Capacidad máxima</p>
+                                                    ) : (
+                                                        <div className="cont-unlock-btn">
+                                                            <button
+                                                                className={canUpgradeCreated ? 'notify-pulse' : ''}
+                                                                onClick={upgradeCreatedStock}
+                                                                disabled={!canUpgradeCreated}
+                                                            >
+                                                                <img className="snack-btn-img" src={buttonUpgrade} alt="Mejorar" />
+                                                            </button>
+                                                            <span className="snack-btn-price">
+                                                                {formatNumber2(nextCreated.gold)} <img src={iconGold} alt="gold" />
+                                                                {' '}{nextCreated.coins} <img src={coinTavern} alt="coins" />
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <button onClick={upgradeCreatedStock} disabled={!canUpgradeCreated} className="conv-btn">
-                                                    {nextCreated ? 'Mejorar' : 'MAX'}
-                                                </button>
                                             </div>
                                         );
                                     })()}
@@ -684,23 +706,33 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         const currentSecs = BREW_DURATION / 1000;
                                         const nextSecs = nextBrew ? nextBrew.duration / 1000 : null;
                                         return (
-                                            <div className={`tavern-conv-card ${!canUpgradeBrew ? 'conv-locked' : ''}`}>
-                                                <div className="conv-left">
-                                                    <div className="conv-details">
-                                                        <span className="conv-ratio">Crafteo {currentSecs}s → {nextSecs ? `${nextSecs}s` : 'MAX'}</span>
-                                                        {nextBrew ? (
-                                                            <span className={`conv-stock ${canUpgradeBrew ? 'conv-stock-ok' : 'conv-stock-low'}`}>
-                                                                {formatNumber2(nextBrew.cost)} <img src={iconGold} className="conv-small-icon" />
-                                                                {nextBrew.coins > 0 && <> {nextBrew.coins} <img src={coinTavern} className="conv-small-icon" /></>}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="conv-stock conv-stock-ok">Velocidad maxima</span>
-                                                        )}
+                                            <div className="container-snacks">
+                                                <div className="snack1">
+                                                    <div className="cont-cookie-2">
+                                                        <img src={iconTavernCraft} alt="crafteo" />
                                                     </div>
+                                                    <div className="text-cookie">
+                                                        <p>Crafteo {currentSecs}s{nextSecs ? ` → ${nextSecs}s` : ''}</p>
+                                                        <small className="text-info">Reduce el tiempo de crafteo de cerveza</small>
+                                                    </div>
+                                                    {!nextBrew ? (
+                                                        <p className="snack-max-level">Velocidad máxima</p>
+                                                    ) : (
+                                                        <div className="cont-unlock-btn">
+                                                            <button
+                                                                className={canUpgradeBrew ? 'notify-pulse' : ''}
+                                                                onClick={upgradeBrew}
+                                                                disabled={!canUpgradeBrew}
+                                                            >
+                                                                <img className="snack-btn-img" src={buttonUpgrade} alt="Mejorar" />
+                                                            </button>
+                                                            <span className="snack-btn-price">
+                                                                {formatNumber2(nextBrew.cost)} <img src={iconGold} alt="gold" />
+                                                                {nextBrew.coins > 0 && <> {nextBrew.coins} <img src={coinTavern} alt="coins" /></>}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <button onClick={upgradeBrew} disabled={!canUpgradeBrew} className="conv-btn">
-                                                    {nextBrew ? 'Mejorar' : 'MAX'}
-                                                </button>
                                             </div>
                                         );
                                     })()}
