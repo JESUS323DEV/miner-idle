@@ -13,7 +13,7 @@ import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/ForgeModal.css';
 import '../../styles/modals/UpgradeModal.css';
 import { TavernConfig } from '../../game/config/TavernConfig';
-import { computeTavernClients, computeTavernGold } from '../../game/hooks/useTavernTick.js';
+import { computeTavernClients } from '../../game/hooks/useTavernTick.js';
 import { DogsConfig } from '../../game/config/DogsConfig';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
@@ -168,14 +168,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const BG_IMAGES = [bgTavern0, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgTavern6, bgTavern7, bgTavern8];
     const tavernBgIndex = !bartenderHired ? 0
         : activeClients <= 0 ? 1
-        : activeClients >= 10 ? 8
-        : activeClients >= 8  ? 7
-        : activeClients >= 6  ? 6
-        : activeClients >= 5  ? 5
-        : activeClients >= 4  ? 4
-        : activeClients >= 3  ? 3
-        : activeClients >= 2  ? 2
-        : 1;
+            : activeClients >= 10 ? 8
+                : activeClients >= 8 ? 7
+                    : activeClients >= 6 ? 6
+                        : activeClients >= 5 ? 5
+                            : activeClients >= 4 ? 4
+                                : activeClients >= 3 ? 3
+                                    : activeClients >= 2 ? 2
+                                        : 1;
     const tavernBg = BG_IMAGES[tavernBgIndex];
 
     const brewLevel = gameState.tavernBrewLevel ?? 0;
@@ -289,7 +289,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const [showCambistaIntro, setShowCambistaIntro] = useState(false);
     const [exchangeQty, setExchangeQty] = useState({ bronzeIngot: 1, ironIngot: 1, diamondIngot: 1 });
     const [provisionQty, setProvisionQty] = useState({ trigo: 1, lupulo: 1 });
-    const [showBrewPanel, setShowBrewPanel] = useState(false);
     const [showSobresIntro, setShowSobresIntro] = useState(false);
     const [view, setView] = useState('main');
     const [rouletteTab, setRouletteTab] = useState('gold');
@@ -409,31 +408,42 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
             )}
             {bartenderHired && (view === 'main' || view === 'cambista') && !showQuests && (
                 <div className="tavern-stock-hud" onClick={e => e.stopPropagation()}>
-
-
-                    {[
-                        { key: 'trigo',   icon: iconTavernTrigo,   label: 'trigo'   },
-                        { key: 'lupulo',  icon: iconTavernLupulo,  label: 'lupulo'  },
-                        { key: 'cerveza', icon: iconTavernCerveza, label: 'cerveza' },
-                    ].map(({ key, icon, label }) => {
-                        const qty = tavernStock[key] ?? 0;
-                        const max = key === 'cerveza' ? createdMax : materialsMax;
-                        return (
-                            <div key={key} className={`tavern-stock-item${qty <= 1 ? ' tavern-stock-zero' : ''}`}>
-                                <img src={icon} className="tavern-stock-icon" alt={label} />
-                                <span>{qty}/{max}</span>
-                            </div>
-                        );
-                    })}
-                    {activeClients > 0 && (
-                        <div className="tavern-stock-item tavern-clients-badge">
-                            <span>{activeClients} cli · +{formatNumber2(computeTavernGold(activeClients))}g</span>
+                    <div className='tavern-wrap'>
+                        <div className="tavern-stock-hud-group">
+                            {[
+                                { key: 'trigo', icon: iconTavernTrigo, label: 'trigo' },
+                                { key: 'lupulo', icon: iconTavernLupulo, label: 'lupulo' },
+                            ].map(({ key, icon, label }) => {
+                                const qty = tavernStock[key] ?? 0;
+                                return (
+                                    <div key={key} className={`tavern-stock-item-col${qty <= 1 ? ' tavern-stock-zero' : ''}`}>
+                                        <img src={icon} className="tavern-stock-icon" alt={label} />
+                                        <span>{qty}/{materialsMax}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    )}
+
+                        <div className="tavern-stock-hud-bar">
+                            <div className="brew-progress-bar">
+                                <div className="brew-progress-fill" style={{ width: `${(brew.progress ?? 0) * 100}%` }} />
+                            </div>
+                        </div>
+
+                        <div className={`tavern-stock-item-col${(tavernStock.cerveza ?? 0) <= 1 ? ' tavern-stock-zero' : ''}`}>
+                            <img src={iconTavernCerveza} className="tavern-stock-icon" alt="cerveza" />
+                            <span>{tavernStock.cerveza ?? 0}/{createdMax}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        {view === 'main' && <button className="tavern-close tavern-close-hud" onClick={onClose}><X /></button>}
+                    </div>
+
                 </div>
             )}
             <div className="tavern-content" onClick={(e) => e.stopPropagation()}>
-                {view === 'main' && <button className="tavern-close" onClick={onClose}><X /></button>}
+                {view === 'main' && !bartenderHired && <button className="tavern-close" onClick={onClose}><X /></button>}
 
                 {/* MAIN — escena interactiva */}
                 {view === 'main' && (() => {
@@ -468,50 +478,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                             {bartenderHired && (
                                 <div className="tavern-left-controls">
-                                <button
-                                    className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
-                                    onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
-                                >
-                                    <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
-                                </button>
-                                <div className="tavern-brew-anchor">
                                     <button
-                                        className="tavern-brew-btn"
-                                        onClick={(e) => { e.stopPropagation(); setShowBrewPanel(p => !p); }}
+                                        className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                        onClick={(e) => { e.stopPropagation(); setView('mejorasTaberna'); }}
                                     >
-                                        {showBrewPanel
-                                            ? <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={28} color="white" /></div>
-                                            : <img src={iconTavernCraft} alt="craft" className="tavern-brew-btn-icon" />
-                                        }
+                                        <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
                                     </button>
-                                    {showBrewPanel && (
-                                        <div className="tavern-brew-panel" onClick={e => e.stopPropagation()}>
-                                            <div className="brew-slots">
-                                                <div className="brew-slot">
-                                                    <span className="brew-slot-label">Cebada</span>
-                                                    <span className="brew-slot-qty">{tavernStock.trigo ?? 0}</span>
-                                                </div>
-                                                <span className="brew-plus">+</span>
-                                                <div className="brew-slot">
-                                                    <span className="brew-slot-label">Lupulo</span>
-                                                    <span className="brew-slot-qty">{tavernStock.lupulo ?? 0}</span>
-                                                </div>
-                                                <span className="brew-plus">=</span>
-                                                <div className="brew-slot brew-slot-result">
-                                                    <span className="brew-slot-label">Cerveza</span>
-                                                    <span className="brew-slot-qty">{tavernStock.cerveza ?? 0}</span>
-                                                </div>
-                                            </div>
-                                            <div className="brew-progress-bar">
-                                                <div className="brew-progress-fill" style={{ width: `${(brew.progress ?? 0) * 100}%` }} />
-                                            </div>
-                                            <span className="brew-status-label">
-                                                {brew.isActive ? 'Elaborando...' : ((tavernStock.trigo ?? 0) < 1 || (tavernStock.lupulo ?? 0) < 1) ? 'Sin materiales' : 'Esperando...'}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                                <TavernDogSlot gameState={gameState} setGameState={setGameState} />
+                                    <TavernDogSlot gameState={gameState} setGameState={setGameState} />
                                 </div>
                             )}
                             <div className="tavern-bottom-bar">
