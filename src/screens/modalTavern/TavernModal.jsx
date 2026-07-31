@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { X, ArrowLeft, Coins, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import RouletteGold from './RouletteGold.jsx';
+import TavernDogSlot from './TavernDogSlot.jsx';
 import RouletteShards from './RouletteShards.jsx';
 import SlotMachine from './SlotMachine.jsx';
 import PrizeOverlay from '../../components/PrizeOverlay.jsx';
@@ -507,6 +508,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         </div>
                                     )}
                                 </div>
+                                <TavernDogSlot gameState={gameState} setGameState={setGameState} />
                                 </div>
                             )}
                             <div className="tavern-bottom-bar">

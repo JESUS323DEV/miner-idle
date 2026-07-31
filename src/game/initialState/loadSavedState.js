@@ -204,6 +204,7 @@ export const loadSavedState = () => {
                 (typeof a.biome === 'string' && typeof a.slotId === 'number') ||
                 a.type === 'raid' ||
                 a.type === 'order' ||
+                a.tavern === true ||
                 typeof a.mineComp === 'string';
             if (!valid) updated = { ...updated, assignedTo: null };
         }
@@ -219,7 +220,7 @@ export const loadSavedState = () => {
         if (!dog || typeof dog !== 'object' || Array.isArray(dog)) return;
         const a = dog.assignedTo;
         if (a !== null && a !== undefined && typeof a === 'object') {
-            const valid = typeof a.globalSlot === 'number' || a.type === 'raid' || a.type === 'order';
+            const valid = typeof a.globalSlot === 'number' || a.type === 'raid' || a.type === 'order' || a.tavern === true;
             if (!valid) mergedForgeDogs[key] = { ...dog, assignedTo: null };
         }
     });
