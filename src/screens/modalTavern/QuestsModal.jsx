@@ -170,7 +170,15 @@ const QuestsModal = ({ isOpen, onClose }) => {
                 <div className="quests-scroll-area">
                 {activeTab === 'daily' && (
                     <div className="rewards-list">
-                        {activeQuests.map((quest, i) => {
+                        {[...activeQuests].sort((a, b) => {
+                            const da = isClaimed(a), db = isClaimed(b);
+                            if (da && !db) return 1;
+                            if (!da && db) return -1;
+                            const ca = isCompleted(a) && !da, cb = isCompleted(b) && !db;
+                            if (ca && !cb) return -1;
+                            if (!ca && cb) return 1;
+                            return 0;
+                        }).map((quest, i) => {
                             const prog = getProgress(quest);
                             const completed = isCompleted(quest);
                             const done = isClaimed(quest);

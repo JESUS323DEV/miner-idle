@@ -626,7 +626,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             {phase === 'biome' && (
                 <div className="combat-biome-select">
                     <button className="combat-back-btn combat-biome-back" onClick={onBack ?? onClose}><ChevronLeft /></button>
-                    <h2 className="combat-title">Raids Activas</h2>
+                    <h2 className="combat-title">Asaltos</h2>
                     <p className="combat-subtitle">Elige un bioma</p>
                     <div className="combat-early-warning">
                         Sistema en fase muy temprana. Puede contener errores o cambios bruscos de balance.

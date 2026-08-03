@@ -88,7 +88,7 @@ const STEPS = {
     },
     hint_raids: {
         title: "¡Envía una raid!",
-        text: "Abre el menú de raids y entra en Raids Pasivas.",
+        text: "Abre el menú de raids y entra en Expediciones.",
         action: null,
         counter: null,
         showSkip: false,

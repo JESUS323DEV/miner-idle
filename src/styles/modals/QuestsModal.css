@@ -1,7 +1,7 @@
 .quests-panel {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, #14181d 0%, #1e2329 100%);
+    background: #0a0a0a;
     color: white;
     display: flex;
     flex-direction: column;

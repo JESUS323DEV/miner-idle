@@ -160,7 +160,7 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume,
                                     <div className="feature-item">
                                         <span className="feature-icon"><Swords size={18} /></span>
                                         <div className="feature-info">
-                                            <span className="feature-name">Raids activas</span>
+                                            <span className="feature-name">Asaltos</span>
                                             <span className="feature-desc">Combate en tiempo real con tu equipo de mascotas.</span>
                                         </div>
                                     </div>
