@@ -997,13 +997,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         const { Icon, color } = ELEMENT_ICON[config.element];
                                                         return (
                                                             <>
-                                                                <div className="dog-stat-divider">Activa</div>
+                                                                <div className="dog-stat-divider">Activa en combate</div>
                                                                 <div className="dog-stat-activa">
                                                                     <span className="dog-activa-icon"><Icon size={13} color={color} /></span>
                                                                     {MineCompanionConfig[dog.id].ult.name}
                                                                 </div>
-                                                                <div className="dog-stat-divider">Combate</div>
-                                                                <div className="dog-stat-passive"><b>Pasiva:</b> {COMBAT_PASSIVE_BY_ELEMENT[config.element]}</div>
+                                                                <div className="dog-stat-passive">{COMBAT_PASSIVE_BY_ELEMENT[config.element]}</div>
                                                             </>
                                                         );
                                                     })()}
