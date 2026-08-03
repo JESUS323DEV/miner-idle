@@ -185,6 +185,15 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const createdMax = gameState.tavernCreatedMaxStock ?? TavernConfig.createdMaxStock;
     const materialsMax = gameState.tavernProvisionMaxStock ?? TavernConfig.provisionsMaxStock;
 
+    const nextStockUpgrade = TavernConfig.stockUpgrades.find(u => u.to > materialsMax);
+    const nextCreatedUpgrade = TavernConfig.createdStockUpgrades.find(u => u.to > createdMax);
+    const nextBrewUpgrade = TavernConfig.brewUpgrades.find(u => u.level > (gameState.tavernBrewLevel ?? 0));
+    const canAffordTavernUpgrade = bartenderHired && (
+        (nextStockUpgrade && gameState.gold >= nextStockUpgrade.cost && tavernCoins >= (nextStockUpgrade.coins ?? 0)) ||
+        (nextCreatedUpgrade && gameState.gold >= nextCreatedUpgrade.gold && gameState.tavernCoins >= nextCreatedUpgrade.coins) ||
+        (nextBrewUpgrade && gameState.gold >= nextBrewUpgrade.cost && tavernCoins >= (nextBrewUpgrade.coins ?? 0))
+    );
+
     useEffect(() => {
         if (!bartenderHired) return;
         const interval = setInterval(() => {
@@ -480,7 +489,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 </button>
                                 <div className={`tavern-left-controls-extra${!bartenderHired ? ' tavern-hud-locked' : ''}`}>
                                     <button
-                                        className={`tavern-brew-btn${stockNeedsAttention ? ' tavern-zone-notify' : ''}`}
+                                        className={`tavern-brew-btn${(stockNeedsAttention || canAffordTavernUpgrade) ? ' tavern-zone-notify' : ''}`}
                                         onClick={(e) => { e.stopPropagation(); if (bartenderHired) setView('mejorasTaberna'); }}
                                     >
                                         <img src={iconTavernUp} alt="mejoras taberna" className="tavern-brew-btn-icon" />
