@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
 import { ArrowLeft, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
-import { DAILY_QUESTS_FIXED, DAILY_QUESTS_EXTRA_20, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
+import { DAILY_QUESTS_FIXED, DAILY_QUESTS_DAY2, DAILY_QUESTS_DAY3, DAILY_QUESTS_DAY4, DAILY_QUESTS_DAY5, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { PJ_MISSION_TEMPLATES } from '../../game/config/PJQuestsConfig.js';
 import { getPJSlotTimeMs } from '../../game/utils/questUtils.js';
@@ -20,11 +20,28 @@ import '../../styles/modals/TavernModal.css';
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
+const FIXED_DAY_POOLS = {
+    1: DAILY_QUESTS_FIXED,
+    2: DAILY_QUESTS_DAY2,
+    3: DAILY_QUESTS_DAY3,
+    4: DAILY_QUESTS_DAY4,
+    5: DAILY_QUESTS_DAY5,
+};
+
 const pickDailyQuests = (dayNumber) => {
-    if (dayNumber === 1) return DAILY_QUESTS_FIXED.map(q => q.id);
-    const pool = dayNumber === 2 ? DAILY_QUESTS_EXTRA_20 : ALL_DAILY_QUESTS;
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 10).map(q => q.id);
+    const fixedPool = FIXED_DAY_POOLS[dayNumber];
+    if (fixedPool) return fixedPool.map(q => q.id);
+
+    const shuffled = [...ALL_DAILY_QUESTS].sort(() => Math.random() - 0.5);
+    const usedTypes = new Set();
+    const picked = [];
+    for (const q of shuffled) {
+        if (usedTypes.has(q.type)) continue;
+        usedTypes.add(q.type);
+        picked.push(q.id);
+        if (picked.length >= 15) break;
+    }
+    return picked;
 };
 
 const QuestsModal = ({ isOpen, onClose }) => {
