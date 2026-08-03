@@ -18,7 +18,7 @@ import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
-import { advanceDailyQuestInState, advanceDailyQuest } from '../../game/utils/questUtils.js';
+import { advanceDailyQuestInState, advanceDailyQuest, advancePJActiveUse } from '../../game/utils/questUtils.js';
 import '../../styles/modals/CombatScreen.css';
 
 import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
@@ -323,9 +323,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 const newRaidAttempts = { ...attempts, [activeEnemy.id]: { count: newCount, cooldownUntil } };
 
                 let dq = prev.dailyQuests;
+                let pjQuests = prev.pjQuests;
                 if (enemyHp <= 0) {
                     dq = advanceDailyQuestInState(dq, 'activeWins', 1);
                     dq = advanceDailyQuestInState(dq, 'activeNoLoss', 1);
+                    if (slots[1] && !ForgeDogsConfig[slots[1]]) pjQuests = advancePJActiveUse(pjQuests, slots[1]);
                 }
 
                 const next = {
@@ -334,6 +336,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     gold: prev.gold + gold,
                     raidAttempts: newRaidAttempts,
                     dailyQuests: dq,
+                    pjQuests,
                 };
                 if (!rewardDogId) return next;
                 return {

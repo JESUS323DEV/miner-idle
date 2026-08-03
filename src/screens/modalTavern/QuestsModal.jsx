@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
-import { ArrowLeft, Lock, LockOpen, Check, ChevronDown, ChevronUp, Pickaxe, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Pickaxe, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DAILY_QUESTS_FIXED, DAILY_QUESTS_DAY2, DAILY_QUESTS_DAY3, DAILY_QUESTS_DAY4, DAILY_QUESTS_DAY5, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
@@ -51,6 +51,17 @@ const FIXED_DAY_POOLS = {
     3: DAILY_QUESTS_DAY3,
     4: DAILY_QUESTS_DAY4,
     5: DAILY_QUESTS_DAY5,
+};
+
+const getVisiblePJMissions = (missions, claimedIds) => {
+    const groups = [];
+    for (let i = 0; i < missions.length; i += 2) groups.push(missions.slice(i, i + 2));
+    const visible = [];
+    for (const group of groups) {
+        visible.push(...group);
+        if (!group.every(m => claimedIds.includes(m.missionId))) break;
+    }
+    return visible;
 };
 
 const pickDailyQuests = (dayNumber) => {
@@ -154,6 +165,14 @@ const QuestsModal = ({ isOpen, onClose }) => {
 
     const hasClaimmable = activeQuests.some(q => isCompleted(q) && !isClaimed(q));
 
+    const getPJMissionProgress = (m, dogId, pjData) => {
+        if (m.type === 'slotTime') return getPJSlotTimeMs(gameState.pjQuests, dogId);
+        if (m.type === 'passiveRaids') return pjData.passiveRaids ?? 0;
+        if (m.type === 'mineUses') return pjData.mineUses ?? 0;
+        if (m.type === 'activeUses') return pjData.activeUses ?? 0;
+        return 0;
+    };
+
     const hasPJClaimable = MINER_DOGS.some(dogId => {
         const cfg = DogsConfig[dogId];
         const template = PJ_MISSION_TEMPLATES[cfg.rarity];
@@ -161,13 +180,9 @@ const QuestsModal = ({ isOpen, onClose }) => {
         const pjData = gameState.pjQuests?.[dogId] ?? {};
         const claimedM = pjData.claimedMissions ?? [];
         const finalClaimed = pjData.finalClaimed ?? false;
-        const getProg = (m) => {
-            if (m.type === 'slotTime') return getPJSlotTimeMs(gameState.pjQuests, dogId);
-            if (m.type === 'passiveRaids') return pjData.passiveRaids ?? 0;
-            return 0;
-        };
+        const visibleMissions = getVisiblePJMissions(template.missions, claimedM);
         const allDone = template.missions.every(m => claimedM.includes(m.missionId));
-        return template.missions.some(m => getProg(m) >= m.target && !claimedM.includes(m.missionId))
+        return visibleMissions.some(m => getPJMissionProgress(m, dogId, pjData) >= m.target && !claimedM.includes(m.missionId))
             || (allDone && !finalClaimed);
     });
 
@@ -274,14 +289,11 @@ const QuestsModal = ({ isOpen, onClose }) => {
                             const finalClaimed = pjData.finalClaimed ?? false;
                             const isExpanded = expandedPJDog === dogId;
 
-                            const getMissionProgress = (m) => {
-                                if (m.type === 'slotTime') return getPJSlotTimeMs(gameState.pjQuests, dogId);
-                                if (m.type === 'passiveRaids') return pjData.passiveRaids ?? 0;
-                                return 0;
-                            };
+                            const getMissionProgress = (m) => getPJMissionProgress(m, dogId, pjData);
+                            const visibleMissions = getVisiblePJMissions(template.missions, claimed);
                             const allMissionsDone = template.missions.every(m => claimed.includes(m.missionId));
-                            const doneMissions = template.missions.filter(m => getMissionProgress(m) >= m.target).length;
-                            const hasClaimable = template.missions.some(m => getMissionProgress(m) >= m.target && !claimed.includes(m.missionId))
+                            const doneMissions = template.missions.filter(m => claimed.includes(m.missionId)).length;
+                            const hasClaimable = visibleMissions.some(m => getMissionProgress(m) >= m.target && !claimed.includes(m.missionId))
                                 || (allMissionsDone && !finalClaimed);
 
                             return (
@@ -318,7 +330,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
 
                                     {isExpanded && (
                                         <div className="pj-missions">
-                                            {template.missions.map(m => {
+                                            {visibleMissions.map(m => {
                                                 const prog = getMissionProgress(m);
                                                 const isClaimed = claimed.includes(m.missionId);
                                                 const isComplete = prog >= m.target;
@@ -337,13 +349,13 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                                             </div>
                                                         </div>
                                                         <div className="pj-mission-reward">
-                                                            <span className="pj-reward-amount">+{template.missionReward} frags</span>
+                                                            <span className="pj-reward-amount">+{m.reward} frags</span>
                                                             <button
                                                                 className={`reward-btn ${isClaimed ? 'btn-locked' : isComplete ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
                                                                 disabled={isClaimed || !isComplete}
-                                                                onClick={() => handleClaimPJMission(dogId, m.missionId, template.missionReward)}
+                                                                onClick={() => handleClaimPJMission(dogId, m.missionId, m.reward)}
                                                             >
-                                                                {isClaimed ? <Check size={18} /> : isComplete ? <LockOpen size={18} /> : <Lock size={18} />}
+                                                                <img src={isClaimed ? iconReclamed : isComplete ? iconUnlock : iconLock} alt={isClaimed ? 'Completado' : isComplete ? 'Reclamar' : 'Bloqueado'} className="reward-lock-img" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -362,7 +374,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                                             disabled={finalClaimed}
                                                             onClick={() => handleClaimPJFinal(dogId, template.finalReward)}
                                                         >
-                                                            {finalClaimed ? <Check size={18} /> : <LockOpen size={18} />}
+                                                            <img src={finalClaimed ? iconReclamed : iconUnlock} alt={finalClaimed ? 'Completado' : 'Reclamar'} className="reward-lock-img" />
                                                         </button>
                                                     </div>
                                                 </div>

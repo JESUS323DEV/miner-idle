@@ -36,7 +36,7 @@ export const setDailyQuestMaxInState = (dq, type, value) => {
 
 // ===== PJ QUESTS =====
 
-const DEFAULT_PJ = { slotTimeMs: 0, slotEnteredAt: null, passiveRaids: 0, claimedMissions: [], finalClaimed: false };
+const DEFAULT_PJ = { slotTimeMs: 0, slotEnteredAt: null, passiveRaids: 0, mineUses: 0, activeUses: 0, claimedMissions: [], finalClaimed: false };
 
 export const enterPJSlot = (pjQuests, dogId) => {
     const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
@@ -56,6 +56,16 @@ export const leavePJSlot = (pjQuests, dogId) => {
 export const advancePJRaids = (pjQuests, dogId) => {
     const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
     return { ...(pjQuests ?? {}), [dogId]: { ...DEFAULT_PJ, ...prev, passiveRaids: (prev.passiveRaids ?? 0) + 1 } };
+};
+
+export const advancePJMineUse = (pjQuests, dogId) => {
+    const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
+    return { ...(pjQuests ?? {}), [dogId]: { ...DEFAULT_PJ, ...prev, mineUses: (prev.mineUses ?? 0) + 1 } };
+};
+
+export const advancePJActiveUse = (pjQuests, dogId) => {
+    const prev = pjQuests?.[dogId] ?? DEFAULT_PJ;
+    return { ...(pjQuests ?? {}), [dogId]: { ...DEFAULT_PJ, ...prev, activeUses: (prev.activeUses ?? 0) + 1 } };
 };
 
 export const getPJSlotTimeMs = (pjQuests, dogId) => {

@@ -1,27 +1,32 @@
 export const PJ_MISSION_TEMPLATES = {
     rare: {
         missions: [
-            { missionId: 'slot_time', label: 'Equípalo en el slot de oro 30 min acumulados', type: 'slotTime', target: 30 * 60 * 1000 },
-            { missionId: 'passive_raids', label: 'Mándalo en 3 expediciones', type: 'passiveRaids', target: 3 },
+            { missionId: 'slot_time', label: 'Equípalo en el slot de oro', type: 'slotTime', target: 30 * 60 * 1000, reward: 20 },
+            { missionId: 'passive_raids', label: 'Mándalo en 3 expediciones', type: 'passiveRaids', target: 3, reward: 20 },
+            { missionId: 'mine_uses', label: 'Llévalo a cualquier mina', type: 'mineUses', target: 5, reward: 30 },
+            { missionId: 'passive_raids_2', label: 'Mándalo en 5 expediciones', type: 'passiveRaids', target: 5, reward: 30 },
+            { missionId: 'active_uses', label: 'Úsalo en un asalto', type: 'activeUses', target: 5, reward: 40 },
         ],
-        missionReward: 20,
-        finalReward: 150,
+        finalReward: 100,
     },
     epic: {
         missions: [
-            { missionId: 'slot_time', label: 'Equípalo en el slot de oro 60 min acumulados', type: 'slotTime', target: 60 * 60 * 1000 },
-            { missionId: 'passive_raids', label: 'Mándalo en 6 expediciones', type: 'passiveRaids', target: 6 },
+            { missionId: 'slot_time', label: 'Equípalo en el slot de oro', type: 'slotTime', target: 60 * 60 * 1000, reward: 20 },
+            { missionId: 'passive_raids', label: 'Mándalo en 6 expediciones', type: 'passiveRaids', target: 6, reward: 20 },
+            { missionId: 'mine_uses', label: 'Llévalo a cualquier mina', type: 'mineUses', target: 10, reward: 30 },
+            { missionId: 'passive_raids_2', label: 'Mándalo en 10 expediciones', type: 'passiveRaids', target: 10, reward: 30 },
+            { missionId: 'active_uses', label: 'Úsalo en un asalto', type: 'activeUses', target: 10, reward: 40 },
         ],
-        missionReward: 20,
-        finalReward: 150,
+        finalReward: 100,
     },
     legendary: {
         missions: [
-            { missionId: 'slot_time', label: 'Equípalo en el slot de oro 120 min acumulados', type: 'slotTime', target: 120 * 60 * 1000 },
-            { missionId: 'passive_raids', label: 'Mándalo en 10 expediciones', type: 'passiveRaids', target: 10 },
-            // 3ª misión pendiente de definir
+            { missionId: 'slot_time', label: 'Equípalo en el slot de oro', type: 'slotTime', target: 120 * 60 * 1000, reward: 20 },
+            { missionId: 'passive_raids', label: 'Mándalo en 10 expediciones', type: 'passiveRaids', target: 10, reward: 20 },
+            { missionId: 'mine_uses', label: 'Llévalo a cualquier mina', type: 'mineUses', target: 15, reward: 30 },
+            { missionId: 'passive_raids_2', label: 'Mándalo en 15 expediciones', type: 'passiveRaids', target: 15, reward: 30 },
+            { missionId: 'active_uses', label: 'Úsalo en un asalto', type: 'activeUses', target: 15, reward: 40 },
         ],
-        missionReward: 20,
-        finalReward: 150,
+        finalReward: 100,
     },
 };
