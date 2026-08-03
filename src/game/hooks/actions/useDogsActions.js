@@ -524,7 +524,6 @@ export const useDogsActions = (gameState, setGameState) => {
                         mineCompTimer: { remaining: newRemaining, activeFrom: Date.now() },
                     },
                 },
-                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'dogsAssigned', 1),
             };
         });
     };

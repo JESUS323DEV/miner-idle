@@ -9,6 +9,7 @@ import {
     getWaterRange,
 } from '../../config/MineCompanionConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
+import { advanceDailyQuestInState } from '../../utils/questUtils.js';
 
 const BONUS_MATERIAL_DURATION = 20000; // 20s
 
@@ -153,6 +154,7 @@ export const useMineActions = (gameState, setGameState, showGoldCost) => {
                             : prevState.rewards.coinRewards.firstDiamondMine,
                     }
                 },
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'mineEntries', 1),
             };
         });
     };

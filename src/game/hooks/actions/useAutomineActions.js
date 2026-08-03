@@ -1,5 +1,6 @@
 import { AutomineConfig } from '../../config/AutomineConfig.js';
 import { checkMilestone } from '../helpers/milestoneHelpers.js';
+import { advanceDailyQuestInState } from '../../utils/questUtils.js';
 
 const getEffectiveRecovery = (upgradeLevel) => {
     const reduction = AutomineConfig.chargeUpgrades
@@ -72,7 +73,8 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
 
             return {
                 ...prevState,
-                automine: { ...prevState.automine, charges: newCharges, isActive: true }
+                automine: { ...prevState.automine, charges: newCharges, isActive: true },
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'automineUses', 1),
             };
         });
     };
@@ -144,6 +146,7 @@ export const useAutomineActions = (gameState, setGameState, showGoldCost) => {
                 ...prevState,
                 automine: { ...prevState.automine, charges: newCharges },
                 poderCooldownUntil: now + (poderCooldown * 1000),
+                dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'poderUses', 1),
             };
         });
     };

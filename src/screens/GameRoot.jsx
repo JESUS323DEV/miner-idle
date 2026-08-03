@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useMemo, useRef } from "react";
 import { playSfx } from "../game/utils/sfx.js";
+import { advanceDailyQuest } from "../game/utils/questUtils.js";
 import satUpgrade from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-upgrade.webp";
 import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.webp";
 import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.webp";
@@ -616,7 +617,10 @@ function GameRoot({ onBack }) {
   // Actualiza "now" cada segundo para los timers de automine
   useEffect(() => {
     setNow(Date.now());
-    const interval = setInterval(() => setNow(Date.now()), 1000);
+    const interval = setInterval(() => {
+      setNow(Date.now());
+      advanceDailyQuest(setGameState, 'playTime', 1);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 

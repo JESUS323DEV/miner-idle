@@ -8,6 +8,7 @@ import { dogAssets } from '../game/utils/dogAssets.js';
 import { formatRentalTimer } from '../game/utils/formatters.js';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';
+import { advanceDailyQuestInState } from '../game/utils/questUtils.js';
 
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2, common: 3 };
 
@@ -110,10 +111,11 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
         }
         setGameState(prev => {
             const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, i) => i === emptyIdx ? dogId : id);
+            const dailyQuests = advanceDailyQuestInState(prev.dailyQuests, 'dogsAssigned', 1);
             if (isForge) {
-                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [dogId]: { ...prev.forgeDogs[dogId], assignedTo: { globalSlot: emptyIdx } } } };
+                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [dogId]: { ...prev.forgeDogs[dogId], assignedTo: { globalSlot: emptyIdx } } }, dailyQuests };
             }
-            return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [dogId]: { ...prev.dogs[dogId], assignedTo: { globalSlot: emptyIdx } } } };
+            return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [dogId]: { ...prev.dogs[dogId], assignedTo: { globalSlot: emptyIdx } } }, dailyQuests };
         });
     };
 
