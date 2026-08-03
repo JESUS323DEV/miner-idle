@@ -114,7 +114,7 @@ const COMBAT_PASSIVE_BY_ELEMENT = {
     electrico: 'Cada golpe tiene probabilidad de impactar dos veces.',
     tierra: 'El enemigo recibe un porcentaje extra de daño en cada golpe.',
     agua: 'Multiplica el daño de todos los golpes durante la batalla.',
-    oscuro: 'Reduce el cooldown de la habilidad activa del perro central.',
+    oscuro: 'Los próximos taps hacen daño extra según la vida actual del enemigo.',
 };
 
 const dogAssets = {

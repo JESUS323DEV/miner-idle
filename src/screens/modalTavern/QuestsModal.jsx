@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
-import { ArrowLeft, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Lock, LockOpen, Check, ChevronDown, ChevronUp, Pickaxe, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DAILY_QUESTS_FIXED, DAILY_QUESTS_DAY2, DAILY_QUESTS_DAY3, DAILY_QUESTS_DAY4, DAILY_QUESTS_DAY5, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
@@ -19,6 +19,31 @@ import '../../styles/modals/QuestsModal.css';
 import '../../styles/modals/TavernModal.css';
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
+
+const ELEMENT_ICON = {
+    fuego: { Icon: Flame, color: '#ff6b35' },
+    electrico: { Icon: Zap, color: '#FFD700' },
+    agua: { Icon: Droplets, color: '#4fc3f7' },
+    tierra: { Icon: Mountain, color: '#8b6914' },
+    oscuro: { Icon: Moon, color: '#b45cff' },
+};
+
+const COMBAT_PASSIVE_BY_ELEMENT = {
+    fuego: 'Añade daño fijo extra por cada golpe al enemigo.',
+    electrico: 'Cada golpe tiene probabilidad de impactar dos veces.',
+    tierra: 'El enemigo recibe un porcentaje extra de daño en cada golpe.',
+    agua: 'Multiplica el daño de todos los golpes durante la batalla.',
+    oscuro: 'Los próximos taps hacen daño extra según la vida actual del enemigo.',
+};
+
+const getGoldBonusText = (b) => {
+    if (!b) return '';
+    if (b.type === 'extraGold') return `+${b.value} oro extra por picada`;
+    if (b.type === 'freeHit') return `${b.chance * 100}% de prob. de reducir la recarga picando`;
+    if (b.type === 'doubleHit') return `${b.chance * 100}% de prob. de doblar el oro minado`;
+    if (b.type === 'saveDurability') return `${b.chance * 100}% de prob. de no gastar durabilidad`;
+    return '';
+};
 
 const FIXED_DAY_POOLS = {
     1: DAILY_QUESTS_FIXED,
@@ -50,6 +75,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
     const [expandedPJDog, setExpandedPJDog] = useState(null);
 
     const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
+    const RARITY_CARD_BG = { legendary: 'shard-card-legend', epic: 'shard-card-epic', rare: 'shard-card-basic' };
     const MINER_DOGS = Object.entries(DogsConfig)
         .sort((a, b) => (RARITY_ORDER[a[1].rarity] ?? 9) - (RARITY_ORDER[b[1].rarity] ?? 9) || (a[1].order ?? 99) - (b[1].order ?? 99))
         .map(([id]) => id);
@@ -239,7 +265,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
 
                 {activeTab === 'pj' && (
                     <div className="pj-dog-list">
-                        {MINER_DOGS.map(dogId => {
+                        {MINER_DOGS.map((dogId) => {
                             const cfg = DogsConfig[dogId];
                             const template = PJ_MISSION_TEMPLATES[cfg.rarity];
                             if (!template) return null;
@@ -260,11 +286,28 @@ const QuestsModal = ({ isOpen, onClose }) => {
 
                             return (
                                 <div key={dogId} className={`pj-dog-card dog-rarity-${cfg.rarity}`}>
-                                    <div className="pj-dog-row" onClick={() => setExpandedPJDog(isExpanded ? null : dogId)}>
-                                        <img src={dogAssets[dogId]} className="pj-dog-portrait" alt={cfg.name} />
+                                    <div className={`pj-dog-row reward-card ${RARITY_CARD_BG[cfg.rarity]}`} onClick={() => setExpandedPJDog(isExpanded ? null : dogId)}>
                                         <div className="pj-dog-info">
+                                            <img src={dogAssets[dogId]} className="pj-dog-portrait" alt={cfg.name} />
                                             <span className="pj-dog-name">{cfg.name}</span>
                                             <span className={`pj-dog-rarity dog-rarity-${cfg.rarity}`}>{cfg.rarity}</span>
+                                        </div>
+                                        <div className="pj-dog-details">
+                                            {ELEMENT_ICON[cfg.element] && (() => {
+                                                const { Icon, color } = ELEMENT_ICON[cfg.element];
+                                                return (
+                                                    <span className="dog-stat-activa">
+                                                        <span className="dog-activa-icon"><Icon size={12} color={color} /></span>
+                                                        {cfg.element}
+                                                    </span>
+                                                );
+                                            })()}
+                                            <div className="dog-stat-row">
+                                                <span className="dog-stat-label"><Pickaxe size={12} /> Poder minado</span>
+                                                <span className="dog-stat-val">{cfg.miningPower}</span>
+                                            </div>
+                                            <p className="dog-stat-passive">{getGoldBonusText(cfg.goldMineBonus)}</p>
+                                            <p className="dog-stat-passive">{COMBAT_PASSIVE_BY_ELEMENT[cfg.element]}</p>
                                         </div>
                                         <div className="pj-dog-meta">
                                             {hasClaimable && <span className="pj-notify-dot" />}
