@@ -23,8 +23,8 @@
 
 .rewards-tabs {
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    justify-content: center;
+    gap: 15px;
     margin: 15px 0;
 }
 

@@ -61,6 +61,7 @@
 
 
 
+
 }
 
 .tavern-coins {
@@ -71,6 +72,8 @@
 }
 
 .tavern-title-row {
+    position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,10 +82,14 @@
 }
 
 .tavern-back-btn-inline {
-
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     background: none;
+    border: none;
     color: #aaa;
     cursor: pointer;
 }
@@ -288,8 +295,8 @@
 
 .tavern-dog-panel {
     position: absolute;
-    top: 0;
-    left: calc(100% + 8px);
+    top: calc(100% + 8px);
+    right: 0;
     background: rgba(10, 5, 0, 0.95);
     border: 1px solid rgba(255, 195, 60, 0.4);
     border-radius: 10px;

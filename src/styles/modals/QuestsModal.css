@@ -5,27 +5,15 @@
     color: white;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     padding: 20px 20px 80px;
     z-index: 1000;
 }
 
-.quests-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quests-close:hover {
-    color: white;
+.quests-scroll-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 4rem;
 }
 
 .quest-progress-bar {

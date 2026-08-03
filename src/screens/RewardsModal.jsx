@@ -15,6 +15,7 @@ import iconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/loc
 import iconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp";
 import iconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp";
 import { DAILY_LOGIN_REWARDS, getDailyLoginState } from "../game/config/DailyLoginConfig.js";
+import { DAILY_CARD_BGS } from "../game/config/RewardsCardConfig.js";
 import { useGameContext } from "../game/context/GameContext.jsx";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 
@@ -63,7 +64,6 @@ const getShardCardBg = (r) => {
     return 'shard-card-generic';
 };
 
-const DAILY_CARD_BGS = ['shard-card-basic', 'shard-card-epic', 'shard-card-generic', 'shard-card-legend'];
 
 const CyclingImg = ({ srcs }) => {
     const [idx, setIdx] = useState(0);

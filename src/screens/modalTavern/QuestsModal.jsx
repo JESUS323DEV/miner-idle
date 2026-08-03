@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import { playSfx } from '../../game/utils/sfx.js';
-import { X, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Lock, LockOpen, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DAILY_QUESTS_FIXED, DAILY_QUESTS_EXTRA_20, ALL_DAILY_QUESTS, getQuestsByIds } from '../../game/config/QuestsConfig.js';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { PJ_MISSION_TEMPLATES } from '../../game/config/PJQuestsConfig.js';
 import { getPJSlotTimeMs } from '../../game/utils/questUtils.js';
 import { dogAssets } from '../../game/utils/dogAssets.js';
+import { DAILY_CARD_BGS } from '../../game/config/RewardsCardConfig.js';
 import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import iconLock from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
+import iconUnlock from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp';
+import iconReclamed from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp';
+import iconTabDaily from '../../assets/ui/icons-hud/hud-modals/misiones-diarias/misiones-diarias.webp';
+import iconTabPJ from '../../assets/ui/icons-hud/hud-modals/misiones-diarias/misiones-pj.webp';
 import '../../styles/modals/RewardsModal.css';
 import '../../styles/modals/QuestsModal.css';
+import '../../styles/modals/TavernModal.css';
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
@@ -137,27 +144,33 @@ const QuestsModal = ({ isOpen, onClose }) => {
     return (
         <div className="rewards-backdrop" onClick={onClose}>
             <div className="quests-panel" onClick={e => e.stopPropagation()}>
-                <button className="quests-close" onClick={onClose}><X size={24} /></button>
-                <h2 style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>Misiones</h2>
+                <div className="tavern-title-row">
+                    <button className="tavern-back-btn-inline" onClick={onClose}>
+                        <ArrowLeft size={22} />
+                    </button>
+                    <h2 className="tavern-title">Misiones</h2>
+                </div>
+                <p className="tavern-subtitle">Completa misiones para ganar monedas de taberna</p>
 
                 <div className="rewards-tabs">
                     <button
                         className={`rewards-tab ${activeTab === 'daily' ? 'active' : ''} ${hasClaimmable && activeTab !== 'daily' ? 'tab-pulse' : ''}`}
                         onClick={() => setActiveTab('daily')}
                     >
-                        Diarias
+                        <img src={iconTabDaily} alt="diarias" />
                     </button>
                     <button
                         className={`rewards-tab ${activeTab === 'pj' ? 'active' : ''} ${hasPJClaimable && activeTab !== 'pj' ? 'tab-pulse' : ''}`}
                         onClick={() => setActiveTab('pj')}
                     >
-                        Misiones PJ
+                        <img src={iconTabPJ} alt="misiones pj" />
                     </button>
                 </div>
 
+                <div className="quests-scroll-area">
                 {activeTab === 'daily' && (
                     <div className="rewards-list">
-                        {activeQuests.map(quest => {
+                        {activeQuests.map((quest, i) => {
                             const prog = getProgress(quest);
                             const completed = isCompleted(quest);
                             const done = isClaimed(quest);
@@ -166,13 +179,14 @@ const QuestsModal = ({ isOpen, onClose }) => {
                             return (
                                 <div
                                     key={quest.id}
-                                    className={`reward-card ${done ? 'exhausted' : completed ? 'claimable' : 'locked'}`}
+                                    className={`reward-card ${DAILY_CARD_BGS[i % DAILY_CARD_BGS.length]} gold-milestone-card fragment-reward-card ${done ? 'fragment-claimed' : completed ? 'claimable' : 'locked'}`}
                                 >
-                                    <div className="reward-info" style={{ minWidth: 0 }}>
+                                    <span className="shard-card-icon-wrap daily-big-icon-wrap">
+                                        <img src={coinTavern} alt="coins" className="daily-big-icon" />
+                                    </span>
+                                    <div className="reward-info">
                                         <p className="reward-label">{quest.label}</p>
-                                        <p className="reward-progress" style={{ margin: '2px 0', fontSize: 12 }}>
-                                            {prog} / {quest.target}
-                                        </p>
+                                        <p className="reward-progress">{prog} / {quest.target} · +{quest.reward.coins} monedas</p>
                                         <div className="quest-progress-bar">
                                             <div
                                                 className={`quest-progress-fill${completed ? ' complete' : ''}`}
@@ -181,16 +195,12 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                         </div>
                                     </div>
                                     <div className="reward-right">
-                                        <p className="reward-amount">
-                                            +{quest.reward.coins}
-                                            <img src={coinTavern} alt="coins" style={{ width: 16, height: 16, verticalAlign: 'middle' }} />
-                                        </p>
                                         <button
-                                            className={`reward-btn ${done ? 'btn-claimed' : completed ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
+                                            className={`reward-btn ${done ? 'btn-fragment-claimed' : completed ? 'btn-claim btn-claim-icon' : 'btn-locked'}`}
                                             onClick={() => handleClaim(quest)}
                                             disabled={done || !completed}
                                         >
-                                            {done ? <Check size={18} /> : completed ? <LockOpen size={18} /> : <Lock size={18} />}
+                                            <img src={done ? iconReclamed : completed ? iconUnlock : iconLock} alt={done ? 'Completado' : completed ? 'Reclamar' : 'Bloqueado'} className="reward-lock-img" />
                                         </button>
                                     </div>
                                 </div>
@@ -296,6 +306,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                         })}
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );
