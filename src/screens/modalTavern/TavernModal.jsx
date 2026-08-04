@@ -60,6 +60,10 @@ import iconRarityLegend from "../../assets/ui/icons-hud/hud-modals/modal-ayudant
 import iconRarityEpic from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/epic.webp"
 import iconRarityRara from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/rara.webp"
 import iconRarityObtenidos from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/obtenidos.webp"
+import iconTabGratis from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/gratis.webp"
+import iconAbrirSobre from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/abrir.webp"
+import iconGratis2 from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/gratis2.webp"
+import iconBtnVacio from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp"
 
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.webp"
 
@@ -420,7 +424,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${tavernBg})`, overflowY: view === 'main' ? 'hidden' : 'auto' }}>
-            {view !== 'main' && view !== 'cambista' && view !== 'ayudantes' && (
+            {view !== 'main' && view !== 'cambista' && view !== 'ayudantes' && view !== 'sobres' && (
                 <button className="tavern-back-btn-fixed" onClick={(e) => { e.stopPropagation(); setView('main'); if (view === 'sobres') setInvocPrizeData(null); }}>
                     <ArrowLeft size={16} /> Volver
                 </button>
@@ -1331,8 +1335,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                 {/* SOBRES */}
                 {view === 'sobres' && (
-                    <div className="tavern-cambista">
-                        <h2 className="tavern-title">Invocación</h2>
+                    <div className="tavern-cambista tavern-ayudantes-view">
+                        <div className="tavern-title-row">
+                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); setInvocPrizeData(null); }}>
+                                <ArrowLeft size={22} />
+                            </button>
+                            <h2 className="tavern-title">Invocación</h2>
+                        </div>
 
                         {showSobresIntro && (
                             <div className="forge-intro-overlay">
@@ -1348,9 +1357,15 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         <div className="dog-tabs">
-                            <button className={`dog-tab-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>Mineros</button>
-                            <button className={`dog-tab-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>Forja</button>
-                            <button className={`dog-tab-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'tavern-zone-notify' : ''}`} onClick={() => setPackTab('gratis')}>Gratis</button>
+                            <button className={`dog-tab-icon-btn ${packTab === 'mineros' ? 'active' : ''}`} onClick={() => setPackTab('mineros')}>
+                                <img src={iconTabMineros} alt="mineros" />
+                            </button>
+                            <button className={`dog-tab-icon-btn ${packTab === 'forja' ? 'active' : ''}`} onClick={() => setPackTab('forja')}>
+                                <img src={iconTabForja} alt="forja" />
+                            </button>
+                            <button className={`dog-tab-icon-btn ${packTab === 'gratis' ? 'active' : ''} ${(minerHasFree || forgeHasFree) && packTab !== 'gratis' ? 'tavern-zone-notify' : ''}`} onClick={() => setPackTab('gratis')}>
+                                <img src={iconTabGratis} alt="gratis" />
+                            </button>
                         </div>
 
                         <PrizeOverlay
@@ -1385,7 +1400,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     disabled={!canOpen}
                                                     onClick={() => { pendingSfxRef.current = 'rewardShards'; onOpenPack(pack.id, packTab === 'forja'); }}
                                                 >
-                                                    Abrir — {pack.cost} <img src={coinTavern} alt="coin" className="pack-open-btn-coin" />
+                                                    <img src={iconAbrirSobre} alt="abrir" className="pack-open-btn-img" />
+                                                    <span className="pack-open-btn-price">{pack.cost} <img src={coinTavern} alt="coin" className="pack-open-btn-coin" /></span>
                                                 </button>
                                             </div>
                                         </div>
@@ -1425,7 +1441,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         disabled={!freeReady}
                                                         onClick={() => { pendingSfxRef.current = 'freeInvoc'; onFreePull(pack.id, isForge); }}
                                                     >
-                                                        {freeReady ? '🎁 Gratis' : `⏱ ${freeLabel}`}
+                                                        {freeReady ? (
+                                                            <img src={iconGratis2} alt="gratis" className="pack-free-btn-img" />
+                                                        ) : (
+                                                            <span className="pack-free-btn-empty">
+                                                                <img src={iconBtnVacio} alt="" className="pack-free-btn-img" />
+                                                                <span className="pack-free-btn-timer">{freeLabel}</span>
+                                                            </span>
+                                                        )}
                                                     </button>
                                                 </div>
                                             );
