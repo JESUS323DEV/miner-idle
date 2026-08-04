@@ -51,6 +51,15 @@ import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.web
 import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
 import ingotIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
 import ingotDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
+import hornoBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-bronze.webp"
+import hornoIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-iron.webp"
+import hornoDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/forges/forge-lvl1/forge-diamond.webp"
+import iconTabMineros from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/mineros.webp"
+import iconTabForja from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/forja.webp"
+import iconRarityLegend from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/legend.webp"
+import iconRarityEpic from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/epic.webp"
+import iconRarityRara from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/rara.webp"
+import iconRarityObtenidos from "../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/obtenidos.webp"
 
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.webp"
 
@@ -102,11 +111,11 @@ const ELEMENT_ICON = {
 };
 
 const FORGE_COMBAT_PASSIVE_BY_ELEMENT = {
-    fuego: 'Cada golpe calienta al enemigo. Cuantos mas golpes, mas daño. Cuanto mejor el perro, mas aguanta.',
-    agua: 'El activo hace mas daño cuanto mas tiempo lleva peleando sin cambiar. Mejora con la rareza.',
-    electrico: 'Cada golpe del activo tiene mas probabilidad de impactar dos veces. Mejora con la rareza.',
-    tierra: 'Cada golpe debilita la armadura del enemigo de forma permanente. Mejora con la rareza.',
-    oscuro: 'El activo hace mas daño mientras el enemigo tiene mucha vida. Mejora con la rareza.',
+    fuego: 'Más daño cuanto más calor acumula.',
+    agua: 'Más daño cuanto más dura el combate.',
+    electrico: 'Más probabilidad de golpe doble.',
+    tierra: 'Reduce la armadura del enemigo.',
+    oscuro: 'Amplifica el daño de forma fija.',
 };
 
 const COMBAT_PASSIVE_BY_ELEMENT = {
@@ -411,7 +420,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${tavernBg})`, overflowY: view === 'main' ? 'hidden' : 'auto' }}>
-            {view !== 'main' && view !== 'cambista' && (
+            {view !== 'main' && view !== 'cambista' && view !== 'ayudantes' && (
                 <button className="tavern-back-btn-fixed" onClick={(e) => { e.stopPropagation(); setView('main'); if (view === 'sobres') setInvocPrizeData(null); }}>
                     <ArrowLeft size={16} /> Volver
                 </button>
@@ -810,8 +819,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {/*======================== AYUDANTES ==================================*/}
 
                 {view === 'ayudantes' && (
-                    <div className='tavern-cambista' style={{ backgroundImage: `url(${bgCoin})` }}>
-                        <h2 className="tavern-title"> Ayudantes</h2>
+                    <div className='tavern-cambista tavern-ayudantes-view' style={{ backgroundImage: `url(${bgCoin})` }}>
+                        <div className="tavern-title-row">
+                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
+                                <ArrowLeft size={22} />
+                            </button>
+                            <h2 className="tavern-title">Ayudantes</h2>
+                        </div>
 
                         {showDogsIntro && (
                             <div className="forge-intro-overlay">
@@ -851,16 +865,16 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         {/* PESTAÑAS */}
                         <div className="dog-tabs">
                             <button
-                                className={`dog-tab-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'tavern-zone-notify' : ''}`}
+                                className={`dog-tab-icon-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => { setDogTab('mineros'); setRarityFilter(null); }}
                             >
-                                Mineros
+                                <img src={iconTabMineros} alt="mineros" />
                             </button>
                             <button
-                                className={`dog-tab-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'tavern-zone-notify' : ''}`}
+                                className={`dog-tab-icon-btn ${dogTab === 'forja' ? 'active' : ''} ${forgeHasAction && dogTab !== 'forja' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => { setDogTab('forja'); setRarityFilter(null); }}
                             >
-                                Forja
+                                <img src={iconTabForja} alt="forja" />
                             </button>
                         </div>
 
@@ -870,13 +884,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                 const hasPulse = r === 'obtenidos'
                                     ? obtenidosHasUpgrade && rarityFilter !== 'obtenidos'
                                     : rarityHasAction[r] && rarityFilter !== r;
+                                const rarityIcon = r === 'legendary' ? iconRarityLegend : r === 'epic' ? iconRarityEpic : r === 'rare' ? iconRarityRara : iconRarityObtenidos;
                                 return (
                                     <button
                                         key={r}
                                         className={`rarity-filter-btn${r !== 'obtenidos' ? ` rarity-filter-${r}` : ''}${rarityFilter === r ? ' rarity-filter-active' : ''}${hasPulse ? ' rarity-filter-pulse' : ''}`}
                                         onClick={() => setRarityFilter(rarityFilter === r ? null : r)}
                                     >
-                                        {r === 'legendary' ? 'Legendaria' : r === 'epic' ? 'Épica' : r === 'rare' ? 'Rara' : 'Obtenidos'}
+                                        <img src={rarityIcon} alt={r} />
                                     </button>
                                 );
                             })}
@@ -973,17 +988,17 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     </div>
 
                                                     <div className="dog-stat-divider">Bonus bioma</div>
-                                                    <div className="dog-stat-section">
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                    <div className="dog-stat-grid">
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaBronze} className="dog-stat-icon-lg" alt="bronce" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.bronze) ? config.biomeBonus.bronze[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.bronze) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.bronze) ? config.biomeBonus.bronze[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.bronze}</span>
                                                         </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaIron} className="dog-stat-icon-lg" alt="hierro" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.iron) ? config.biomeBonus.iron[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.iron) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.iron) ? config.biomeBonus.iron[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.iron}</span>
                                                         </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaDiamond} className="dog-stat-icon-lg" alt="diamante" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.diamond) ? config.biomeBonus.diamond[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.diamond) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.diamond) ? config.biomeBonus.diamond[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.diamond}</span>
                                                         </div>
                                                     </div>
@@ -1082,17 +1097,17 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         </div>
                                                     </div>
                                                     <div className="dog-stat-divider">Bonus bioma</div>
-                                                    <div className="dog-stat-section">
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaBronze} className="dog-stat-icon-lg" /> Bronce</span>
+                                                    <div className="dog-stat-grid">
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaBronze} className="dog-stat-icon-lg" alt="bronce" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.bronze) ? config.biomeBonus.bronze[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.bronze) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.bronze) ? config.biomeBonus.bronze[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.bronze}</span>
                                                         </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaIron} className="dog-stat-icon-lg" /> Hierro</span>
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaIron} className="dog-stat-icon-lg" alt="hierro" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.iron) ? config.biomeBonus.iron[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.iron) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.iron) ? config.biomeBonus.iron[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.iron}</span>
                                                         </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={menaDiamond} className="dog-stat-icon-lg" /> Diamante</span>
+                                                        <div className="dog-stat-grid-item">
+                                                            <img src={menaDiamond} className="dog-stat-icon-lg" alt="diamante" />
                                                             <span className={`dog-stat-val ${(Array.isArray(config.biomeBonus.diamond) ? config.biomeBonus.diamond[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.diamond) > 1 ? 'dog-stat-bonus' : ''}`}>x{Array.isArray(config.biomeBonus.diamond) ? config.biomeBonus.diamond[Math.min(5, dog.stars ?? 0)] : config.biomeBonus.diamond}</span>
                                                         </div>
                                                     </div>
@@ -1119,19 +1134,25 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         )}
                                                     </div>
                                                     <div className="dog-stat-divider">Bonus bioma</div>
-                                                    <div className="dog-stat-section">
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotBronze} className="dog-stat-icon-lg" /> Bronce</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.bronze > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.bronze}s</span>
-                                                        </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotIron} className="dog-stat-icon-lg" /> Hierro</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.iron > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.iron}s</span>
-                                                        </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotDiamond} className="dog-stat-icon-lg" /> Diamante</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.diamond > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.diamond}s</span>
-                                                        </div>
+                                                    <div className="dog-stat-grid">
+                                                        {config.forgeBonus.biomeBonus.bronze > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoBronze} className="dog-stat-icon-lg" alt="bronce" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.bronze}s</span>
+                                                            </div>
+                                                        )}
+                                                        {config.forgeBonus.biomeBonus.iron > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoIron} className="dog-stat-icon-lg" alt="hierro" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.iron}s</span>
+                                                            </div>
+                                                        )}
+                                                        {config.forgeBonus.biomeBonus.diamond > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoDiamond} className="dog-stat-icon-lg" alt="diamante" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.diamond}s</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     {config.globalSlotBonus && (
                                                         <>
@@ -1255,19 +1276,25 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     </div>
 
                                                     <div className="dog-stat-divider">Bonus bioma</div>
-                                                    <div className="dog-stat-section">
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotBronze} className="dog-stat-icon-lg" /> Bronce</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.bronze > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.bronze}s</span>
-                                                        </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotIron} className="dog-stat-icon-lg" /> Hierro</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.iron > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.iron}s</span>
-                                                        </div>
-                                                        <div className="dog-stat-row">
-                                                            <span className="dog-stat-label"><img src={ingotDiamond} className="dog-stat-icon-lg" /> Diamante</span>
-                                                            <span className={`dog-stat-val ${config.forgeBonus.biomeBonus.diamond > 0 ? 'dog-stat-bonus' : ''}`}>-{config.forgeBonus.biomeBonus.diamond}s</span>
-                                                        </div>
+                                                    <div className="dog-stat-grid">
+                                                        {config.forgeBonus.biomeBonus.bronze > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoBronze} className="dog-stat-icon-lg" alt="bronce" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.bronze}s</span>
+                                                            </div>
+                                                        )}
+                                                        {config.forgeBonus.biomeBonus.iron > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoIron} className="dog-stat-icon-lg" alt="hierro" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.iron}s</span>
+                                                            </div>
+                                                        )}
+                                                        {config.forgeBonus.biomeBonus.diamond > 0 && (
+                                                            <div className="dog-stat-grid-item">
+                                                                <img src={hornoDiamond} className="dog-stat-icon-lg" alt="diamante" />
+                                                                <span className="dog-stat-val dog-stat-bonus">-{config.forgeBonus.biomeBonus.diamond}s</span>
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {config.globalSlotBonus && (
