@@ -912,23 +912,23 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
                                         const isFlipped = flippedDog === dog.id;
                                         return (
-                                            <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
+                                            <div key={dog.id} className={`dog-card-frame dog-rarity-${config.rarity}`}>
+                                            <div className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                                 <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canUnlock && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
-                                                    <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
                                                     {config.element && ELEMENT_ICON[config.element] && (() => {
                                                         const { Icon, color } = ELEMENT_ICON[config.element];
                                                         return <span className="dog-element-icon"><Icon size={15} color={color} /></span>;
                                                     })()}
                                                     <img src={dogAssets[dog.id]} className="dog-portrait" alt={config.name} />
                                                     <div className="dog-name">{config.name}</div>
-                                                    <div className="dog-stars-row">
-                                                        {[1, 2, 3, 4, 5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
-                                                    </div>
                                                     {dog.hired ? (
                                                         stars < 5 ? (
                                                             <>
                                                                 <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNext}</div>
+                                                                <div className="dog-stars-row">
+                                                                    {[1, 2, 3, 4, 5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
+                                                                </div>
                                                                 <div className="dog-unlock-cost">
                                                                     <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
@@ -943,6 +943,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     ) : (
                                                         <>
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
+                                                            <div className="dog-stars-row">
+                                                                {[1, 2, 3, 4, 5].map(s => <span key={s} className={`dog-star ${stars >= s ? 'dog-star-active' : ''}`}>★</span>)}
+                                                            </div>
                                                             <div className="dog-unlock-cost">
                                                                 <span className={gameState.gold < goldCost ? 'cost-missing' : 'cost-ok'}>
                                                                     <img src={iconGold} alt="oro" className="cost-icon" />{goldCost >= 1000000 ? (goldCost / 1000000).toFixed(1) + 'M' : goldCost >= 1000 ? (goldCost / 1000).toFixed(0) + 'k' : goldCost}
@@ -957,7 +960,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 </div>
                                                 <div className={`dog-card dog-card-back dog-card-back-${dog.id}`}>
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
-                                                    <div className="dog-name">{config.name}</div>
 
                                                     <div className="dog-stat-section">
                                                         <div className="dog-stat-row">
@@ -1007,6 +1009,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         );
                                                     })()}
                                                 </div>
+                                            </div>
                                             </div>
                                         );
                                     })}
@@ -1066,7 +1069,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         </div>
                                         <div className={`dog-card dog-card-back ${!isForge ? `dog-card-back-${dog.id}` : ''}`}>
                                             <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
-                                            <div className="dog-name">{config.name}</div>
                                             {!isForge ? (
                                                 <>
                                                     <div className="dog-stat-section">
@@ -1192,10 +1194,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         const isFlipped = flippedDog === dog.id;
 
                                         return (
-                                            <div key={dog.id} className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
+                                            <div key={dog.id} className={`dog-card-frame dog-rarity-${config.rarity}`}>
+                                            <div className={`dog-card-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                                 <div className={`dog-card dog-card-front dog-rarity-${config.rarity} ${dog.hired ? 'dog-hired' : ''} ${!canUnlockF && !dog.hired ? 'dog-cant-afford' : ''}`}>
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(dog.id)}>ℹ</button>
-                                                    <span className={`dog-rarity-badge dog-rarity-${config.rarity}`}>{config.rarity}</span>
                                                     {config.element && ELEMENT_ICON[config.element] && (() => {
                                                         const { Icon, color } = ELEMENT_ICON[config.element];
                                                         return <span className="dog-element-icon"><Icon size={15} color={color} /></span>;
@@ -1238,7 +1240,6 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                 </div>
                                                 <div className="dog-card dog-card-back">
                                                     <button className="dog-info-btn" onClick={() => setFlippedDog(null)}>✖</button>
-                                                    <div className="dog-name">{config.name}</div>
 
                                                     <div className="dog-stat-section">
                                                         <div className="dog-stat-row">
@@ -1292,6 +1293,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         );
                                                     })()}
                                                 </div>
+                                            </div>
                                             </div>
                                         );
                                     })}

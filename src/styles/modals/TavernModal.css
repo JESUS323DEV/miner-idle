@@ -1096,13 +1096,13 @@
 }
 
 .dog-card {
-    background: rgba(0, 0, 0, 0.888);
-    border: 1px solid rgba(255, 165, 0, 0.3);
+    background: rgba(0, 0, 0, 0.527);
+    border: none;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content:center;
     gap: 4px;
     transition: all 0.2s;
     padding: 10px 6px;
@@ -1127,13 +1127,13 @@
 }
 
 .dog-portrait {
-    width: 100%;
-    height: 100px;
+    width: 100px;
+    height: 90px;
     object-fit: contain;
     border-radius: 50%;
-    margin: -10px -6px 4px -6px;
-    width: calc(100% + 12px);
+    margin: 0rem 0 0 0;
 }
+
 
 
 /* Rareza — bordes card front */
@@ -1148,6 +1148,9 @@
 .dog-card-front.dog-rarity-rare {
     border-color: #4ca8ff;
 }
+
+
+
 
 .dog-card-front.dog-rarity-common {
     border-color: #aaaaaa;
@@ -1240,17 +1243,38 @@
     cursor: not-allowed;
 }
 
+.dog-card-frame {
+    position: relative;
+    height: 290px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dog-card-frame.dog-rarity-legendary {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/modal-ayudantes/marco-legendary.webp');
+}
+
+.dog-card-frame.dog-rarity-epic {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/modal-ayudantes/marco-epic.webp');
+}
+
+.dog-card-frame.dog-rarity-rare {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/modal-ayudantes/marco-rara.webp');
+}
+
 .dog-card-wrapper {
     perspective: 600px;
-    height: 290px;
-    position: relative;
+    position: absolute;
+    inset: 5%;
 }
 
 .dog-card-front,
 .dog-card-back {
     position: absolute;
+    bottom: 0;
     width: 100%;
-    height: 100%;
+    height: 90%;
     backface-visibility: hidden;
     transition: transform 0.5s ease;
     border-radius: 10px;
@@ -1264,7 +1288,7 @@
 .dog-card-back {
     transform: rotateY(180deg);
     background: rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(255, 165, 0, 0.5);
+    border: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1383,7 +1407,8 @@
 
 .dog-stat-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
+    gap: 1rem;
     align-items: center;
     font-size: 10px;
     color: #ffcc88;
@@ -1452,7 +1477,7 @@
     color: rgba(255, 255, 255, 0.85);
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     gap: 4px;
 }

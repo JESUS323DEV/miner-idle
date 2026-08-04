@@ -24,6 +24,19 @@ export const DAILY_QUESTS_DAY2 = [
     { id: 'rental_assigned_1', label: 'Asigna un perro de alquiler', target: 1, type: 'rentalAssigned', reward: { coins: 4 } },
 ];
 
+export const DAILY_QUESTS_DAY3 = [
+    { id: 'mine_gold_15k',    label: 'Mina 15000 de oro',                  target: 15000, type: 'goldMined',       reward: { coins: 7 } },
+    { id: 'passive_team3_d3', label: 'Envía equipo de 3 perros a una expedición', target: 1, type: 'passiveTeam3',  reward: { coins: 8 } },
+    { id: 'combo_30',         label: 'Llega a combo 30',                   target: 30,    type: 'maxCombo',        reward: { coins: 5 } },
+    { id: 'play_10min',       label: 'Juega durante 10 minutos',           target: 600,   type: 'playTime',        reward: { coins: 8 } },
+    { id: 'passive_shards_d3',label: 'Consigue shards en una expedición',  target: 1,     type: 'passiveShards',   reward: { coins: 6 } },
+    { id: 'passive_send_15',  label: 'Envía 15 expediciones',              target: 15,    type: 'passiveSent',     reward: { coins: 6 } },
+    { id: 'roulette_spin_1',  label: 'Haz una tirada en la ruleta de oro', target: 1,     type: 'rouletteSpin',    reward: { coins: 5 } },
+    { id: 'mine_entries_3',   label: 'Entra en cualquier mina 3 veces',    target: 3,     type: 'mineEntries',     reward: { coins: 4 } },
+    { id: 'open_pack_1',      label: 'Abre un sobre rare o superior',      target: 1,     type: 'rareCards',       reward: { coins: 8 } },
+    { id: 'cambista_coins_2', label: 'Consigue 2 monedas con lingotes en el comerciante', target: 2, type: 'coinsFromIngots', reward: { coins: 4 } },
+];
+
 export const DAILY_QUESTS_DAY4 = [
     { id: 'active_fast',     label: 'Completa un asalto',                target: 1,    type: 'activeWins',     reward: { coins: 2 } },
     { id: 'active_ability',  label: 'Usa una habilidad en un asalto',    target: 1,    type: 'abilityUses',    reward: { coins: 2 } },
@@ -48,18 +61,7 @@ export const DAILY_QUESTS_DAY5 = [
     { id: 'open_pack_2',       label: 'Abre 3 sobres rare o superior',     target: 3,     type: 'rareCards',      reward: { coins: 15 } },
 ];
 
-export const DAILY_QUESTS_DAY3 = [
-    { id: 'mine_gold_15k',    label: 'Mina 15000 de oro',                  target: 15000, type: 'goldMined',       reward: { coins: 7 } },
-    { id: 'passive_team3_d3', label: 'Envía equipo de 3 perros a una expedición', target: 1, type: 'passiveTeam3',  reward: { coins: 8 } },
-    { id: 'combo_30',         label: 'Llega a combo 30',                   target: 30,    type: 'maxCombo',        reward: { coins: 5 } },
-    { id: 'play_10min',       label: 'Juega durante 10 minutos',           target: 600,   type: 'playTime',        reward: { coins: 8 } },
-    { id: 'passive_shards_d3',label: 'Consigue shards en una expedición',  target: 1,     type: 'passiveShards',   reward: { coins: 6 } },
-    { id: 'passive_send_15',  label: 'Envía 15 expediciones',              target: 15,    type: 'passiveSent',     reward: { coins: 6 } },
-    { id: 'roulette_spin_1',  label: 'Haz una tirada en la ruleta de oro', target: 1,     type: 'rouletteSpin',    reward: { coins: 5 } },
-    { id: 'mine_entries_3',   label: 'Entra en cualquier mina 3 veces',    target: 3,     type: 'mineEntries',     reward: { coins: 4 } },
-    { id: 'open_pack_1',      label: 'Abre un sobre rare o superior',      target: 1,     type: 'rareCards',       reward: { coins: 8 } },
-    { id: 'cambista_coins_2', label: 'Consigue 2 monedas con lingotes en el comerciante', target: 2, type: 'coinsFromIngots', reward: { coins: 4 } },
-];
+
 
 export const ALL_DAILY_QUESTS = [...DAILY_QUESTS_FIXED, ...DAILY_QUESTS_DAY2, ...DAILY_QUESTS_DAY3, ...DAILY_QUESTS_DAY4, ...DAILY_QUESTS_DAY5];
 
