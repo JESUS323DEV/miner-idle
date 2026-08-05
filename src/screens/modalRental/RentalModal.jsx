@@ -152,10 +152,10 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                             const canAfford = gameState.gold >= avail.cost;
                             const hasSlot = firstFreeSlot !== -1;
                             return (
+                                <div className={`dog-card-frame dog-rarity-${avail.rarity}`}>
                                 <div className={`dog-card-wrapper rm-avail-wrapper ${cardFlipped ? 'flipped' : ''}`}>
                                     <div className={`dog-card dog-card-front dog-rarity-${avail.rarity} rental-card-available`}>
                                         <button className="dog-info-btn" onClick={() => setCardFlipped(true)}>i</button>
-                                        <span className={`dog-rarity-badge dog-rarity-${avail.rarity}`}>{avail.rarity}</span>
                                         <img src={dogAssets[avail.dogId]} className="dog-portrait" alt={config?.name} />
                                         <div className="dog-name">{config?.name}</div>
                                         <div className="dog-stars-row">
@@ -245,6 +245,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                         </div>
                                     </div>
                                 </div>
+                                </div>
                             );
                         })()}
 
@@ -260,10 +261,10 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                 : 'Activo en Oro';
                             const isFlipped = flippedActiveIdx === idx;
                             return (
-                                <div key={idx} className={`dog-card-wrapper rm-active-wrapper ${isFlipped ? 'flipped' : ''}`}>
+                                <div key={idx} className={`dog-card-frame dog-rarity-${act.rarity}`}>
+                                <div className={`dog-card-wrapper rm-active-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                     <div className={`dog-card dog-card-front dog-rarity-${act.rarity} dog-hired`}>
                                         <button className="dog-info-btn" onClick={() => setFlippedActiveIdx(idx)}>i</button>
-                                        <span className={`dog-rarity-badge dog-rarity-${act.rarity}`}>{act.rarity}</span>
                                         <img src={dogAssets[act.dogId]} className="dog-portrait" alt={config?.name} />
                                         <div className="dog-name">{config?.name}</div>
                                         <div className={`rental-dest-status ${act.destination === 'raid' ? 'rental-dest-status-raid' : 'rental-dest-status-slot'}`}>
@@ -310,6 +311,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                             {config?.goldMineBonus?.type === 'doubleHit' && <><b>+{config.goldMineBonus.chance * 100}%</b> de doblar <img src={iconGold} className="dog-stat-icon" /> minado</>}
                                         </div>
                                     </div>
+                                </div>
                                 </div>
                             );
                         })}

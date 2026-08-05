@@ -97,12 +97,3 @@
     padding-bottom: 1rem;
 }
 
-/* Tarjeta disponible: más alta por los botones de destino + descartar */
-.rm-grid .rm-avail-wrapper {
-    height: 290px;
-}
-
-/* Tarjeta activa: portrait + estado + timer + fragmentos */
-.rm-grid .rm-active-wrapper {
-    height: 280px;
-}
