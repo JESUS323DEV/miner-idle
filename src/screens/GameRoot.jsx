@@ -1499,7 +1499,7 @@ function GameRoot({ onBack }) {
               })()}
               <button
                 data-tutorial="tut-repair"
-                className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
+                className={`sat-btn sat-repair sat-pos-repair${gameState.pickaxe.durability < effectiveMaxDurability && !gameState.automine?.isActive ? ' needs-repair' : ''}${tutorialStep === 'repair_hint' ? ' tutorial-highlight' : ''}`}
                 onClick={() => { skipUpgradeSoundRef.current = true; playSfx('repair'); handleRepairPickaxe(); }}
                 disabled={gameState.pickaxe.durability >= effectiveMaxDurability || gameState.automine?.isActive}
                 title="Reparar pico"
