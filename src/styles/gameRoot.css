@@ -608,21 +608,21 @@ button:not(:disabled) .lock-price-badge img {
 /* Posiciones orbitales — centro hub (2.5rem, 2.5rem), radio ~3.6rem, desde arriba */
 .sat-pos-energy {
     position: absolute;
-    top: -1.3rem;
+    top: -1.8rem;
     left: 1.1rem;
 }
 
 /* -100deg — arriba izquierda */
 .sat-pos-upgrade {
     position: absolute;
-    top: -1.2rem;
+    top: -1.5rem;
     left: 4.1rem;
 }
 
 /* -50deg  — arriba derecha  */
 .sat-pos-repair {
     position: absolute;
-    top: 1.8rem;
+    top: 1.2rem;
     left: 6.1rem;
 }
 
@@ -658,7 +658,7 @@ button:not(:disabled) .lock-price-badge img {
     position: absolute;
     inset: 6px;
     border-radius: 50%;
-    background: conic-gradient(#FFD700 var(--progress2), transparent var(--progress2));
+    background: conic-gradient(from 180deg, #FFD700 var(--progress2), transparent var(--progress2));
     z-index: -2;
     pointer-events: none;
 }
@@ -668,7 +668,7 @@ button:not(:disabled) .lock-price-badge img {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    background: conic-gradient(#4CAF50 var(--progress1), transparent var(--progress1));
+    background: conic-gradient(from 180deg, #4CAF50 var(--progress1), transparent var(--progress1));
     z-index: -1;
     pointer-events: none;
 }
@@ -874,6 +874,30 @@ button:not(:disabled) .lock-price-badge img {
 
 .sat-repair.needs-repair img {
     animation: sat-repair-pulse 1.8s ease-in-out infinite;
+}
+
+.sat-upgrade.needs-recharge img {
+    animation: sat-repair-pulse 1.8s ease-in-out infinite;
+}
+
+.sat-poder.burst-ready img {
+    animation: sat-repair-pulse 1.8s ease-in-out infinite;
+}
+
+.automine-hub.automine-ready img {
+    animation: automine-ready-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes automine-ready-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
 }
 
 @keyframes sat-repair-pulse {

@@ -1432,13 +1432,13 @@ function GameRoot({ onBack }) {
                   onClick={handleActivateAutomine}
                   disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive || ['stamina_hint', 'mine_tap', 'repair_hint'].includes(tutorialStep)}
                   data-tutorial="tut-automine"
-                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}${tutorialStep === 'automine_hint' ? ' btn-rewards-pulse' : ''}`}
+                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}${availableCharges > 0 && gameState.pickaxe.durability > 0 && !gameState.automine?.isActive && !['stamina_hint', 'mine_tap', 'repair_hint'].includes(tutorialStep) ? ' automine-ready' : ''}${tutorialStep === 'automine_hint' ? ' btn-rewards-pulse' : ''}`}
                   style={{
                     "--progress1": chargeTimers[0]
-                      ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                      ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 1.8}deg`
                       : "0deg",
                     "--progress2": chargeTimers[1]
-                      ? `${Math.round((1 - chargeTimers[1] / effectiveRecoveryTime) * 100) * 3.6}deg`
+                      ? `${Math.round((1 - chargeTimers[1] / effectiveRecoveryTime) * 100) * 1.8}deg`
                       : "0deg",
                   }}
                 >
@@ -1448,7 +1448,7 @@ function GameRoot({ onBack }) {
               )}
               <button
                 data-tutorial="tut-stamina"
-                className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
+                className={`sat-btn sat-poder sat-pos-energy${gameState.burst?.active ? ' on-cd' : ''}${gameState.burst?.recharging ? ' on-cd' : ''}${!gameState.burst?.active && !gameState.burst?.recharging ? ' burst-ready' : ''}${tutorialStep === 'stamina_hint' ? ' tutorial-highlight' : ''}`}
                 onClick={() => { playSfx('burst'); handleActivateBurst(); }}
                 disabled={gameState.burst?.active || gameState.burst?.recharging}
                 title={gameState.burst?.recharging ? `Recargando — ${gameState.burst.rechargeRemaining}s` : gameState.burst?.active ? 'Burst activo' : 'Activar Burst'}
@@ -1472,14 +1472,21 @@ function GameRoot({ onBack }) {
                 const poderCooldownUntil = gameState.poderCooldownUntil;
                 const onCooldown = !!poderCooldownUntil && now < poderCooldownUntil;
                 const cooldownSecs = onCooldown ? Math.ceil((poderCooldownUntil - now) / 1000) : 0;
-                const allAvailable = gameState.automine?.charges?.every(c => c.available) ?? true;
+                const chargesDepleted = gameState.automine?.charges?.every(c => !c.available) ?? false;
+                const canRecharge = chargesDepleted && !gameState.automine?.isActive;
                 return (
                   <button
                     data-tutorial="tut-automine-recharge"
-                    className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}${tutorialStep === 'automine_recharge_hint' ? ' tutorial-highlight' : ''}`}
+                    className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}${!locked && !onCooldown && canRecharge ? ' needs-recharge' : ''}${tutorialStep === 'automine_recharge_hint' ? ' tutorial-highlight' : ''}`}
                     onClick={handleActivatePoder}
-                    disabled={locked || onCooldown || allAvailable}
-                    title={locked ? 'Aún no disponible' : onCooldown ? `Disponible en ${cooldownSecs}s` : 'Recargar 2 cargas de autominar'}
+                    disabled={locked || onCooldown || !canRecharge}
+                    title={
+                      locked ? 'Aún no disponible'
+                      : onCooldown ? `Disponible en ${cooldownSecs}s`
+                      : gameState.automine?.isActive ? 'No disponible mientras el autominado está activo'
+                      : !chargesDepleted ? 'Solo se puede usar con las 2 cargas agotadas'
+                      : 'Recargar 2 cargas de autominar'
+                    }
                     style={tutorialStep === 'automine_recharge_hint' ? { zIndex: 601 } : undefined}
                   >
                     <div className="sat-upgrade-inner">
