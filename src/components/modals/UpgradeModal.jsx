@@ -108,7 +108,7 @@ const UpgradeModal = ({
 
 
                     {/* ICONO + NIVEL + BOTÓN UPGRADE */}
-                    <div className="modal-info">
+                    <div className="modal-info" data-tutorial={tutorialHint === 'goldPerSecond' ? 'tut-gold-modal' : tutorialHint === 'stamina' ? 'tut-stamina-modal' : undefined}>
 
                         <div className='gold-info'>
                             <img src={iconImage} alt="icon" />
@@ -122,7 +122,6 @@ const UpgradeModal = ({
                                     className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : canAfford ? "notify-pulse" : ""}`}
                                     onClick={onUpgrade}
                                     disabled={!canAfford}
-                                    data-tutorial={tutorialHint === 'goldPerSecond' ? 'tut-gold-modal' : tutorialHint === 'stamina' ? 'tut-stamina-modal' : undefined}
                                 >
                                     <img src={buttonImage} alt="Upgrade" />
                                 </button>

@@ -424,7 +424,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     return (
         <div className="tavern-overlay" onClick={onClose} style={{ backgroundImage: `url(${tavernBg})`, overflowY: view === 'main' ? 'hidden' : 'auto' }}>
-            {view !== 'main' && view !== 'cambista' && view !== 'ayudantes' && view !== 'sobres' && (
+            {view !== 'main' && view !== 'cambista' && view !== 'ayudantes' && view !== 'sobres' && view !== 'ruleta' && view !== 'tragaperras' && (
                 <button className="tavern-back-btn-fixed" onClick={(e) => { e.stopPropagation(); setView('main'); if (view === 'sobres') setInvocPrizeData(null); }}>
                     <ArrowLeft size={16} /> Volver
                 </button>
@@ -1469,8 +1469,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                 {/* RULETA */}
                 {view === 'ruleta' && (
-                    <div className="tavern-cambista">
-                        <h2 className="tavern-title">Ruleta</h2>
+                    <div className="tavern-cambista tavern-ayudantes-view">
+                        <div className="tavern-title-row">
+                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
+                                <ArrowLeft size={22} />
+                            </button>
+                            <h2 className="tavern-title">Ruleta</h2>
+                        </div>
 
                         <div className="dog-tabs">
                             <button
@@ -1494,8 +1499,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                 {/* TRAGAPERRAS */}
                 {view === 'tragaperras' && (
-                    <div className="tavern-cambista">
-                        <h2 className="tavern-title">Tragaperras</h2>
+                    <div className="tavern-cambista tavern-ayudantes-view">
+                        <div className="tavern-title-row">
+                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); }}>
+                                <ArrowLeft size={22} />
+                            </button>
+                            <h2 className="tavern-title">Tragaperras</h2>
+                        </div>
                         <div className="slot-center-wrapper">
                             <SlotMachine guaranteed={!gameState.slotWelcomeDone} />
                         </div>

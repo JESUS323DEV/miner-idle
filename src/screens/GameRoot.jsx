@@ -341,13 +341,13 @@ function GameRoot({ onBack }) {
       'intro':           { bottom: '14dvh' },
       'done':            { bottom: '4dvh' },
       'hint_mine_dog':   { bottom: '4dvh' },
-      'hint_gold_modal': { bottom: '2dvh' },
     };
     const STEP_TARGETS = {
       0: 'tut-0', 1: 'tut-1', 2: 'tut-2',
       'stamina_hint':    'tut-stamina',
       'repair_hint':     'tut-repair',
       'automine_hint':   'tut-automine',
+      'automine_recharge_hint': 'tut-automine-recharge',
       'hint_tavern':     'tut-tavern',
       'hint_mine':       'tut-mine',
       'hint_forge':      'tut-forge',
@@ -366,17 +366,23 @@ function GameRoot({ onBack }) {
     if (!key) { setTutDialogStyle({ bottom: '4dvh' }); return; }
     const el = document.querySelector(`[data-tutorial="${key}"]`);
     if (!el) { setTutDialogStyle({ bottom: '4dvh' }); return; }
-    const rect = el.getBoundingClientRect();
-    const DIALOG_H = 180;
-    const GAP = 14;
-    const TOP_OFFSETS = { 'automine_hint': -70 };
-    const topOffset = TOP_OFFSETS[tutActiveStep] ?? 0;
-    const vh = window.innerHeight;
-    if (rect.bottom + DIALOG_H + GAP <= vh) {
-      setTutDialogStyle({ top: `${rect.bottom + GAP + topOffset}px`, bottom: 'auto' });
-    } else {
-      setTutDialogStyle({ bottom: `${vh - rect.top + GAP}px`, top: 'auto' });
-    }
+
+    const recalc = () => {
+      const rect = el.getBoundingClientRect();
+      const DIALOG_H = 180;
+      const GAP = 14;
+      const vh = window.innerHeight;
+      if (rect.bottom + DIALOG_H + GAP <= vh) {
+        setTutDialogStyle({ top: `${rect.bottom + GAP}px`, bottom: 'auto' });
+      } else {
+        setTutDialogStyle({ bottom: `${vh - rect.top + GAP}px`, top: 'auto' });
+      }
+    };
+
+    recalc();
+    const observer = new ResizeObserver(recalc);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [tutActiveStep]);
 
   // ===== CONTEXT VALUE =====
@@ -498,8 +504,6 @@ function GameRoot({ onBack }) {
         tutorial: { ...prev.tutorial, minesHinted: true }
       }));
       setTutorialStep('stamina_hint');
-    } else if (tutorialStep === 'automine_hint') {
-      setTutorialStep('hint_rewards');
     } else if (tutorialStep === 'hint_mine_dog') {
       setTutorialStep('done');
     } else if (tutorialStep === 'done') {
@@ -1399,14 +1403,14 @@ function GameRoot({ onBack }) {
 
         {/* MENA DE ORO + AUTOMINE + SLOTS PERROS — posicionados juntos como unidad */}
         <div className="mine-scene" style={
-          (tutorialStep === 'stamina_hint' || tutorialStep === 'automine_hint' || tutorialStep === 'repair_hint' || tutorialStep === 'hint_mine_dog')
+          (tutorialStep === 'stamina_hint' || tutorialStep === 'automine_hint' || tutorialStep === 'automine_recharge_hint' || tutorialStep === 'repair_hint' || tutorialStep === 'hint_mine_dog')
             ? { zIndex: 600 }
             : undefined
         }>
           {/* AUTOMINE — posición absoluta relativa a mine-scene */}
           <div className="automine-container" style={
             tutorialStep === 'mine_tap' ? { visibility: 'hidden' }
-            : (tutorialStep === 'automine_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
+            : (tutorialStep === 'automine_hint' || tutorialStep === 'automine_recharge_hint' || tutorialStep === 'stamina_hint' || tutorialStep === 'repair_hint')
               ? { zIndex: 600 }
               : undefined
           }>
@@ -1414,9 +1418,9 @@ function GameRoot({ onBack }) {
               {!gameState.automine?.unlocked ? (
                 <button
                   onClick={handleUnlockAutomine}
-                  disabled={gameState.gold < AutomineConfig.unlockCost}
+                  disabled={gameState.gold < AutomineConfig.unlockCost || ['stamina_hint', 'mine_tap', 'repair_hint'].includes(tutorialStep)}
                   data-tutorial="tut-automine"
-                  className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
+                  className={`automine-button unlock${tutorialStep === 'automine_hint' ? ' btn-rewards-pulse' : ''}`}
                 >
                   <img src={automineIcon} alt="Autominado" />
                   <span>{formatNumber(AutomineConfig.unlockCost)} oro</span>
@@ -1424,9 +1428,9 @@ function GameRoot({ onBack }) {
               ) : (
                 <button
                   onClick={handleActivateAutomine}
-                  disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive}
+                  disabled={availableCharges <= 0 || gameState.pickaxe.durability <= 0 || gameState.automine?.isActive || ['stamina_hint', 'mine_tap', 'repair_hint'].includes(tutorialStep)}
                   data-tutorial="tut-automine"
-                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}${tutorialStep === 'automine_hint' ? ' tutorial-highlight' : ''}`}
+                  className={`automine-hub charges-${availableCharges}${gameState.automine.isActive ? ' is-active' : ''}${tutorialStep === 'automine_hint' ? ' btn-rewards-pulse' : ''}`}
                   style={{
                     "--progress1": chargeTimers[0]
                       ? `${Math.round((1 - chargeTimers[0] / effectiveRecoveryTime) * 100) * 3.6}deg`
@@ -1469,15 +1473,18 @@ function GameRoot({ onBack }) {
                 const allAvailable = gameState.automine?.charges?.every(c => c.available) ?? true;
                 return (
                   <button
-                    className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}`}
+                    data-tutorial="tut-automine-recharge"
+                    className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}${tutorialStep === 'automine_recharge_hint' ? ' tutorial-highlight' : ''}`}
                     onClick={handleActivatePoder}
                     disabled={locked || onCooldown || allAvailable}
                     title={locked ? 'Desbloquea el autominar primero' : onCooldown ? `Disponible en ${cooldownSecs}s` : 'Recargar 2 cargas de autominar'}
+                    style={tutorialStep === 'automine_recharge_hint' ? { zIndex: 601 } : undefined}
                   >
                     <div className="sat-upgrade-inner">
                       <img src={satUpgrade} alt="Recargar" className="sat-upgrade-arrow" />
                       <span className="sat-upgrade-overlay">{onCooldown ? `${cooldownSecs}s` : '2'}</span>
                     </div>
+                    {tutorialStep === 'automine_recharge_hint' && <TutorialPointer step="automine_recharge_hint" />}
                   </button>
                 );
               })()}
@@ -1499,7 +1506,7 @@ function GameRoot({ onBack }) {
             gameState={gameState}
             setGameState={setGameState}
             tutorialStep={tutorialStep}
-            hidden={tutorialStep === 'mine_tap'}
+            hidden={['stamina_hint', 'mine_tap', 'repair_hint'].includes(tutorialStep)}
             suppressFloats={openModal !== null || tavernModalOpen || forgeModalOpen || minesModalOpen || isMineScreenOpen || biomeSelectorOpen || rewardsOpen || raidOpen || rentalModalOpen || combatOpen || menuOpenModal}
           />
         </div>

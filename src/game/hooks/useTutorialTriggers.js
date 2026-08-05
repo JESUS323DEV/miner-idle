@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { AutomineConfig } from '../config/AutomineConfig.js';
 
 export const useTutorialTriggers = ({
     tutorialStep,
@@ -87,10 +86,10 @@ export const useTutorialTriggers = ({
         }
     }, [gameState.pickaxe.durability, tutorialStep]); // eslint-disable-line
 
-    // repair_hint: reparado → automine_hint
+    // repair_hint: reparado → hint_rewards
     useEffect(() => {
         if (tutorialStep === 'repair_hint' && gameState.pickaxe.durability > 0) {
-            setTutorialStep('automine_hint');
+            setTutorialStep('hint_rewards');
         }
     }, [gameState.pickaxe.durability, tutorialStep]); // eslint-disable-line
 
@@ -141,14 +140,27 @@ export const useTutorialTriggers = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tutorialStep]);
 
-    // Hint automine: primera vez que el jugador alcanza el coste de desbloqueo
+    // Mini-tutorial de autominado: arranca 5s después de terminar el tutorial principal
     useEffect(() => {
-        if (
-            !gameState.automine?.unlocked &&
-            !gameState.tutorial?.automineHinted &&
-            gameState.gold >= AutomineConfig.unlockCost
-        ) {
-            setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, automineHinted: true } }));
+        if (!gameState.tutorial?.completed) return;
+        if (gameState.tutorial?.automineHinted) return;
+        if (tutorialStep) return;
+        const timer = setTimeout(() => setTutorialStep('automine_recharge_hint'), 5000);
+        return () => clearTimeout(timer);
+    }, [gameState.tutorial?.completed, gameState.tutorial?.automineHinted, tutorialStep]); // eslint-disable-line
+
+    // automine_recharge_hint: recarga usada → automine_hint
+    useEffect(() => {
+        if (tutorialStep === 'automine_recharge_hint' && gameState.poderCooldownUntil) {
+            setTutorialStep('automine_hint');
         }
-    }, [gameState.gold]); // eslint-disable-line
+    }, [gameState.poderCooldownUntil, tutorialStep]); // eslint-disable-line
+
+    // automine_hint (mini-tutorial): autominado activado → cierra
+    useEffect(() => {
+        if (tutorialStep === 'automine_hint' && gameState.automine?.isActive) {
+            setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, automineHinted: true } }));
+            setTutorialStep(null);
+        }
+    }, [gameState.automine?.isActive, tutorialStep]); // eslint-disable-line
 };

@@ -94,7 +94,7 @@ const PickaxeModal = ({
                 onClick={(e) => e.stopPropagation()}
                 style={{ backgroundImage: `url(${bgImage})` }}
             >
-                <div className="pickaxe-modal">
+                <div className="pickaxe-modal" data-tutorial="tut-pickaxe-modal">
 
                     {/* BOTÓN CERRAR — oculto durante tutorial */}
                     {!tutorialStep0Active && (
@@ -117,7 +117,6 @@ const PickaxeModal = ({
                                 className={`btn-upgrade ${!canAfford ? "locked" : ""} ${tutorialPhase === 'upgrade' ? "tutorial-pulse" : canAfford ? "notify-pulse" : ""}`}
                                 onClick={() => { onShowGoldCost?.(cost); onUpgrade(); }}
                                 disabled={!canAfford}
-                                data-tutorial="tut-pickaxe-modal"
                             >
                                 <img src={buttonImage} alt="Upgrade" />
                                 <span className="info-tier">

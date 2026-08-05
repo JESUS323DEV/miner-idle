@@ -68,8 +68,8 @@ const InitialGameState = {
         unlocked: true,
         maxCharges: 2,
         charges: [
-            { available: true, cooldownUntil: null },
-            { available: true, cooldownUntil: null }
+            { available: false, cooldownUntil: null },
+            { available: false, cooldownUntil: null }
         ],
         isActive: false
     },

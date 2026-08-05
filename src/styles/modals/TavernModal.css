@@ -1270,20 +1270,31 @@
 
 .dog-card-wrapper {
     perspective: 600px;
+    height: 290px;
+    position: relative;
+}
+
+.dog-card-frame .dog-card-wrapper {
     position: absolute;
     inset: 5%;
+    height: auto;
 }
 
 .dog-card-front,
 .dog-card-back {
     position: absolute;
-    bottom: 0;
     width: 100%;
-    height: 90%;
+    height: 100%;
     backface-visibility: hidden;
     transition: transform 0.5s ease;
     border-radius: 10px;
 
+}
+
+.dog-card-frame .dog-card-front,
+.dog-card-frame .dog-card-back {
+    bottom: 0;
+    height: 90%;
 }
 
 .dog-card-front {
