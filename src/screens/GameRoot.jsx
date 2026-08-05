@@ -340,7 +340,6 @@ function GameRoot({ onBack }) {
     const FALLBACKS = {
       'intro':           { bottom: '14dvh' },
       'done':            { bottom: '4dvh' },
-      'hint_mine_dog':   { bottom: '4dvh' },
     };
     const STEP_TARGETS = {
       0: 'tut-0', 1: 'tut-1', 2: 'tut-2',
@@ -370,7 +369,7 @@ function GameRoot({ onBack }) {
     const recalc = () => {
       const rect = el.getBoundingClientRect();
       const DIALOG_H = 180;
-      const GAP = 14;
+      const GAP = 6;
       const vh = window.innerHeight;
       if (rect.bottom + DIALOG_H + GAP <= vh) {
         setTutDialogStyle({ top: `${rect.bottom + GAP}px`, bottom: 'auto' });
@@ -1469,7 +1468,7 @@ function GameRoot({ onBack }) {
                 {tutorialStep === 'stamina_hint' && <TutorialPointer step="stamina_hint" />}
               </button>
               {(() => {
-                const locked = !gameState.automine?.unlocked;
+                const locked = !gameState.tutorial?.automineHinted && tutorialStep !== 'automine_recharge_hint';
                 const poderCooldownUntil = gameState.poderCooldownUntil;
                 const onCooldown = !!poderCooldownUntil && now < poderCooldownUntil;
                 const cooldownSecs = onCooldown ? Math.ceil((poderCooldownUntil - now) / 1000) : 0;
@@ -1480,7 +1479,7 @@ function GameRoot({ onBack }) {
                     className={`sat-btn sat-upgrade sat-pos-upgrade${locked ? ' locked-tutorial' : ''}${onCooldown ? ' on-cooldown' : ''}${tutorialStep === 'automine_recharge_hint' ? ' tutorial-highlight' : ''}`}
                     onClick={handleActivatePoder}
                     disabled={locked || onCooldown || allAvailable}
-                    title={locked ? 'Desbloquea el autominar primero' : onCooldown ? `Disponible en ${cooldownSecs}s` : 'Recargar 2 cargas de autominar'}
+                    title={locked ? 'Aún no disponible' : onCooldown ? `Disponible en ${cooldownSecs}s` : 'Recargar 2 cargas de autominar'}
                     style={tutorialStep === 'automine_recharge_hint' ? { zIndex: 601 } : undefined}
                   >
                     <div className="sat-upgrade-inner">

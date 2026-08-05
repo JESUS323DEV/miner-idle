@@ -163,6 +163,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
         <>
             <div
                 className="global-slots-area"
+                data-tutorial="tut-mine-dog"
                 style={hidden ? { visibility: 'hidden' } : tutorialStep === 'hint_mine_dog' ? { zIndex: 600 } : undefined}
             >
                 <div className="global-dog-slots">
