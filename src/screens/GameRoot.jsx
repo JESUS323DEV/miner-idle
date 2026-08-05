@@ -1159,6 +1159,7 @@ function GameRoot({ onBack }) {
               <button
                 onClick={handleUnlockTavern}
                 disabled={gameState.gold < 1000}
+                data-tutorial="tut-tavern"
                 className={`tavern-btn tavern-locked ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''}`}
               >
                 <img src={iconTavern} alt="Icono-Taberna" />
@@ -1181,6 +1182,7 @@ function GameRoot({ onBack }) {
               <button
                 onClick={handleUnlockMinesMap}
                 disabled={gameState.gold < 2000}
+                data-tutorial="tut-mine"
                 className={`mines-map-btn mines-map-locked ${tutorialStep === 'hint_mine' ? 'tutorial-highlight' : ''}`}
               >
                 <img src={mineModal} alt="Icon1" />
@@ -1207,6 +1209,7 @@ function GameRoot({ onBack }) {
               <button
                 onClick={handleUnlockForge}
                 disabled={gameState.gold < 3000}
+                data-tutorial="tut-forge"
                 className={`forge-btn forge-btn-locked ${tutorialStep === 'hint_forge' ? 'tutorial-highlight' : ''}`}
               >
                 <img src={iconForge} alt="Icon-Forge" />
