@@ -256,7 +256,10 @@ export const useDogsActions = (gameState, setGameState) => {
         setGameState(prevState => {
             const dog = prevState.forgeDogs[dogId];
             if (!dog || !dog.hired) return prevState;
-            if (dog.assignedTo !== null) return prevState;
+
+            const currentAssignment = dog.assignedTo;
+            const isInGlobalSlot = currentAssignment && typeof currentAssignment === 'object' && currentAssignment.globalSlot !== undefined;
+            if (currentAssignment !== null && !isInGlobalSlot) return prevState;
 
             const slotTaken = Object.values(prevState.forgeDogs).some(
                 d => d && typeof d === 'object' && d.assignedTo === material
@@ -273,7 +276,7 @@ export const useDogsActions = (gameState, setGameState) => {
                 newCurrentDuration = Math.max(1, baseTime - timeReduction);
             }
 
-            return {
+            const newState = {
                 ...prevState,
                 forgeDogs: {
                     ...prevState.forgeDogs,
@@ -287,6 +290,17 @@ export const useDogsActions = (gameState, setGameState) => {
                     }
                 }
             };
+
+            if (isInGlobalSlot) {
+                newState.dogs = {
+                    ...prevState.dogs,
+                    globalSlots: (prevState.dogs.globalSlots ?? [null, null, null]).map(
+                        (id, i) => i === currentAssignment.globalSlot ? null : id
+                    ),
+                };
+            }
+
+            return newState;
         });
     };
 

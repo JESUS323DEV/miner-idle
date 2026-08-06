@@ -9,6 +9,7 @@ import { formatRentalTimer } from '../game/utils/formatters.js';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';
 import { advanceDailyQuestInState } from '../game/utils/questUtils.js';
+import ConfirmDialog from './ConfirmDialog.jsx';
 
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2, common: 3 };
 
@@ -48,6 +49,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
     const [flashFull, setFlashFull] = useState(false);
     const [activeTab, setActiveTab] = useState('minero');
     const [raritySort, setRaritySort] = useState(null);
+    const [pendingMove, setPendingMove] = useState(null);
 
     const { mineClickCount } = useGameContext();
     const { floats, add } = useFloatingNumbers();
@@ -113,7 +115,21 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
             const newSlots = (prev.dogs.globalSlots ?? [null, null, null]).map((id, i) => i === emptyIdx ? dogId : id);
             const dailyQuests = advanceDailyQuestInState(prev.dailyQuests, 'dogsAssigned', 1);
             if (isForge) {
-                return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots }, forgeDogs: { ...prev.forgeDogs, [dogId]: { ...prev.forgeDogs[dogId], assignedTo: { globalSlot: emptyIdx } } }, dailyQuests };
+                const currentDog = prev.forgeDogs[dogId];
+                const currentMaterial = typeof currentDog?.assignedTo === 'string' ? currentDog.assignedTo : null;
+                const newState = {
+                    ...prev,
+                    dogs: { ...prev.dogs, globalSlots: newSlots },
+                    forgeDogs: { ...prev.forgeDogs, [dogId]: { ...prev.forgeDogs[dogId], assignedTo: { globalSlot: emptyIdx } } },
+                    dailyQuests,
+                };
+                if (currentMaterial) {
+                    newState.furnaces = {
+                        ...prev.furnaces,
+                        [currentMaterial]: { ...prev.furnaces[currentMaterial], currentDuration: null },
+                    };
+                }
+                return newState;
             }
             return { ...prev, dogs: { ...prev.dogs, globalSlots: newSlots, [dogId]: { ...prev.dogs[dogId], assignedTo: { globalSlot: emptyIdx } } }, dailyQuests };
         });
@@ -237,13 +253,20 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                                 <span className="gds-empty">Sin mascotas {activeTab === 'minero' ? 'mineras' : 'de forja'} disponibles</span>
                             )}
                             {getDogPool().map(({ id, dog, cfg, status, isForge }) => {
-                                const unavailable = status !== 'available';
+                                const unavailable = status !== 'available' && status !== 'inFurnace';
                                 const showInfo = infoCardId === id;
                                 return (
                                     <div
                                         key={id}
                                         className={`gds-card dog-rarity-${cfg?.rarity}${unavailable ? ' unavailable' : ''}`}
-                                        onClick={() => { if (!showInfo && !unavailable) assignDog(id, isForge); }}
+                                        onClick={() => {
+                                            if (showInfo) return;
+                                            if (status === 'inFurnace') {
+                                                setPendingMove({ id, isForge, name: cfg?.name ?? id });
+                                                return;
+                                            }
+                                            if (!unavailable) assignDog(id, isForge);
+                                        }}
                                     >
                                         <button className="fdm-info-btn" onClick={e => { e.stopPropagation(); setInfoCardId(showInfo ? null : id); }}>i</button>
                                         <div className="gds-card-img-wrap">
@@ -300,6 +323,11 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                             })}
                         </div>
                     </div>
+                    <ConfirmDialog
+                        message={pendingMove ? `${pendingMove.name} ya está en un horno de Forja. ¿Moverlo a este slot de Mina de Oro?` : null}
+                        onConfirm={() => { assignDog(pendingMove.id, pendingMove.isForge); setPendingMove(null); }}
+                        onCancel={() => setPendingMove(null)}
+                    />
                 </>,
                 document.body
             )}

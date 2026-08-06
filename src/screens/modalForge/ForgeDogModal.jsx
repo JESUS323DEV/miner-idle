@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Flame, Star } from 'lucide-react';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { dogAssets } from '../../game/utils/dogAssets';
+import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 
 const MATERIALS = ['bronze', 'iron', 'diamond'];
 const MATERIAL_NAMES = { bronze: 'Bronze', iron: 'Hierro', diamond: 'Diamante' };
@@ -11,6 +12,7 @@ const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
 export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarget, forgeDogs, onAssign, onUnassign, passiveRaids = [] }) {
     const [materialFilter, setMaterialFilter] = useState(null);
     const [flippedCard, setFlippedCard] = useState(null);
+    const [pendingMove, setPendingMove] = useState(null);
 
     if (!isOpen) return null;
 
@@ -87,11 +89,19 @@ export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarg
                                 const cfg = ForgeDogsConfig[dog.id];
                                 const assignedToTarget = dog.assignedTo === targetMaterial;
                                 const inRaid = passiveRaids.some(r => r.dogIds?.includes(dog.id));
-                                const assignedElsewhere = (dog.assignedTo && !assignedToTarget) || inRaid;
+                                const isInGlobalSlot = dog.assignedTo && typeof dog.assignedTo === 'object' && dog.assignedTo.globalSlot !== undefined;
+                                const assignedElsewhere = (dog.assignedTo && !assignedToTarget && !isInGlobalSlot) || inRaid;
                                 return (
                                     <div key={dog.id} className={`fdm-card-wrapper${flippedCard === dog.id ? ' flipped' : ''}${assignedElsewhere ? ' unavailable' : ''}${assignedToTarget ? ' fdm-card-active' : ''}`}>
                                         <div className={`fdm-card fdm-card-face fdm-card-front dog-rarity-${cfg?.rarity}`}
-                                            onClick={() => !assignedElsewhere && onAssign(dog.id)}
+                                            onClick={() => {
+                                                if (assignedElsewhere) return;
+                                                if (isInGlobalSlot && !assignedToTarget) {
+                                                    setPendingMove({ id: dog.id, name: cfg?.name ?? dog.id });
+                                                    return;
+                                                }
+                                                onAssign(dog.id);
+                                            }}
                                         >
                                             <button className="fdm-info-btn" onClick={e => { e.stopPropagation(); setFlippedCard(dog.id); }}>i</button>
                                             <div className="fdm-card-img-wrap">
@@ -121,6 +131,11 @@ export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarg
                     </div>
                 </div>
             </div>
+            <ConfirmDialog
+                message={pendingMove ? `${pendingMove.name} ya está equipado en un slot de Mina de Oro. ¿Moverlo a este horno?` : null}
+                onConfirm={() => { onAssign(pendingMove.id); setPendingMove(null); }}
+                onCancel={() => setPendingMove(null)}
+            />
         </>,
         document.body
     );
