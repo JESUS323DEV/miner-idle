@@ -57,6 +57,15 @@
     filter: brightness(1.2) drop-shadow(0 0 6px rgba(240, 165, 0, 0.7));
 }
 
+/* Solo Misiones (diarias/PJ): tab activo también se agranda */
+.quests-panel .rewards-tab {
+    overflow: visible;
+}
+
+.quests-panel .rewards-tab.active img {
+    transform: scale(1.1);
+}
+
 
 
 @keyframes tab-pulse {
