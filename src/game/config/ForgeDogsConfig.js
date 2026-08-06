@@ -9,8 +9,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 50,
         starFragments: [80, 160, 240, 320, 400],
         forgeBonus: {
-            timeReduction: 0,
-            doubleIngot: 0,
+            timeReduction: 1,
+            doubleIngot: 0.03,
             biomeBonus: { bronze: 1, iron: 0, diamond: 0 }
         },
         globalSlotBonus: { type: 'goldTrickle', min: 1, max: 1 },
@@ -25,8 +25,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 50,
         starFragments: [80, 160, 240, 320, 400],
         forgeBonus: {
-            timeReduction: 0,
-            doubleIngot: 0.05,
+            timeReduction: 1,
+            doubleIngot: 0.03,
             biomeBonus: { bronze: 0, iron: 1, diamond: 0 }
         },
         globalSlotBonus: { type: 'burstRecharge', chance: 0.05 },
@@ -41,8 +41,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 50,
         starFragments: [80, 160, 240, 320, 400],
         forgeBonus: {
-            timeReduction: 0,
-            doubleIngot: 0.08,
+            timeReduction: 2,
+            doubleIngot: 0.05,
             biomeBonus: { bronze: 1, iron: 1, diamond: 0 }
         },
         globalSlotBonus: { type: 'maxDurability', value: 1 },
@@ -57,8 +57,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
-            timeReduction: 1,
-            doubleIngot: 0.05,
+            timeReduction: 2,
+            doubleIngot: 0.07,
             biomeBonus: { bronze: 2, iron: 0, diamond: 0 }
         },
         globalSlotBonus: { type: 'burstRecharge', chance: 0.05 },
@@ -73,8 +73,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
-            timeReduction: 1,
-            doubleIngot: 0.10,
+            timeReduction: 3,
+            doubleIngot: 0.09,
             biomeBonus: { bronze: 0, iron: 3, diamond: 0 }
         },
         globalSlotBonus: { type: 'goldTrickle', min: 1, max: 3 },
@@ -89,8 +89,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 100,
         starFragments: [150, 300, 450, 600, 750],
         forgeBonus: {
-            timeReduction: 1,
-            doubleIngot: 0.15,
+            timeReduction: 4,
+            doubleIngot: 0.10,
             biomeBonus: { bronze: 0, iron: 0, diamond: 4 }
         },
         globalSlotBonus: { type: 'maxDurability', value: 3 },
@@ -105,8 +105,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
-            timeReduction: 3,
-            doubleIngot: 0.05,
+            timeReduction: 6,
+            doubleIngot: 0.12,
             biomeBonus: { bronze: 2, iron: 0, diamond: 0 }
         },
         globalSlotBonus: { type: 'burstRecharge', chance: 0.08 },
@@ -121,8 +121,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
-            timeReduction: 2,
-            doubleIngot: 0.20,
+            timeReduction: 5,
+            doubleIngot: 0.17,
             biomeBonus: { bronze: 0, iron: 3, diamond: 0 }
         },
         globalSlotBonus: { type: 'goldTrickle', min: 2, max: 4 },
@@ -137,8 +137,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
-            timeReduction: 4,
-            doubleIngot: 0.25,
+            timeReduction: 8,
+            doubleIngot: 0.20,
             biomeBonus: { bronze: 0, iron: 0, diamond: 2 }
         },
         globalSlotBonus: { type: 'maxDurability', value: 5 },
@@ -153,8 +153,8 @@ export const ForgeDogsConfig = {
         unlockFragments: 150,
         starFragments: [200, 400, 600, 800, 1000],
         forgeBonus: {
-            timeReduction: 3,
-            doubleIngot: 0.12,
+            timeReduction: 7,
+            doubleIngot: 0.15,
             biomeBonus: { bronze: 0, iron: 2, diamond: 1 }
         },
         globalSlotBonus: { type: 'burstRecharge', chance: 0.10 },
