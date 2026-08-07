@@ -19,6 +19,7 @@ import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
 import { advanceDailyQuestInState, advanceDailyQuest, advancePJActiveUse } from '../../game/utils/questUtils.js';
+import { useFloatingNumbers } from '../../game/hooks/useFloatingNumbers.js';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/CombatScreen.css';
 
@@ -196,6 +197,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [autoFiring, setAutoFiring]             = useState(false);
     const [combatTutStep, setCombatTutStep]       = useState(null);
     const [fightStarted, setFightStarted]         = useState(false);
+    const [shakeKey, setShakeKey]                 = useState(0);
+    const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
 
     const SWITCH_COOLDOWN = 6;
@@ -259,6 +262,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setHeatStacks(0);
             setAutoUlt(false);
             setFightStarted(false);
+            setShakeKey(0);
         }
     }, [isOpen]);
 
@@ -441,7 +445,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         return eff;
     };
 
-    const handleTap = () => {
+    const handleTap = (e) => {
         if (phase !== 'fight') return;
         if (!fightStarted) setFightStarted(true);
         if (combatTutStep === 0) {
@@ -474,7 +478,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
         const isGuaranteedDouble = activeEffect?.type === 'doubleHits' && activeEffect.remaining > 0;
         const isDoubleHit = isGuaranteedDouble || Math.random() < passive.doubleHitChance;
-        setEnemyHp(prev => Math.max(0, prev - (isDoubleHit ? dmg * 2 : dmg)));
+        const finalDmg = isDoubleHit ? dmg * 2 : dmg;
+        setEnemyHp(prev => Math.max(0, prev - finalDmg));
+
+        setShakeKey(k => k + 1);
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        addFloat('damage', { value: finalDmg, x, y }, 900);
 
         if (passive.addHeatStack) setHeatStacks(prev => Math.min(passive.heatStackCap, prev + 1));
         if (isGuaranteedDouble) {
@@ -901,8 +913,20 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             <span className="combat-hp-text">{enemyHp} / {activeEnemy.hp}</span>
                         </div>
                         <button className={`combat-boss-portrait${combatTutStep === 0 ? ' combat-tut-highlight' : ''}`} onClick={handleTap}>
-                            <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy.name} className="combat-boss-img" />
+                            <img
+                                src={enemyImgs[activeEnemy.id]}
+                                alt={activeEnemy.name}
+                                key={shakeKey}
+                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}`}
+                            />
                             {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
+                            {floats.map(f => (
+                                f.type === 'damage' && (
+                                    <div key={f.id} className="combat-floating-damage" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                        -{f.value}
+                                    </div>
+                                )
+                            ))}
                         </button>
                     </div>
 
