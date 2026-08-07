@@ -354,8 +354,12 @@
 }
 
 .combat-sel-slot.filled {
-    border-style: solid;
-    background: rgba(255,255,255,0.06);
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .combat-sel-slot.filled img {
@@ -388,13 +392,12 @@
 }
 
 .combat-sel-slot.filled:hover {
-    border-color: #ff4444;
-    background: rgba(255,68,68,0.1);
+    filter: brightness(1.25);
 }
 
-.combat-sel-slot.dog-rarity-legendary { border-color: rgba(245,200,66,0.6); }
-.combat-sel-slot.dog-rarity-epic      { border-color: rgba(180,92,255,0.6); }
-.combat-sel-slot.dog-rarity-rare      { border-color: rgba(76,168,255,0.6); }
+.combat-sel-slot.filled.dog-rarity-legendary { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.combat-sel-slot.filled.dog-rarity-epic      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.combat-sel-slot.filled.dog-rarity-rare      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
 
 /* Grid perros */
 .combat-dogs-list {
@@ -447,26 +450,28 @@
     align-items: center;
     gap: 3px;
     padding: 8px 4px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
+    border: none;
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: filter 0.2s, transform 0.2s;
     user-select: none;
 }
 
 .cdc-element-icon {
     position: absolute;
-    top: 4px;
-    left: 5px;
+    top: 12px;
+    left: 13px;
     display: flex;
     align-items: center;
 }
 
 .cdc-info-btn {
     position: absolute;
-    top: 3px;
-    right: 4px;
+    top: 11px;
+    right: 12px;
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -525,15 +530,9 @@
     object-fit: contain;
 }
 
-.combat-dog-card.combat-dog-selected { border-color: #ffd740; background: rgba(255,215,64,0.1); }
-
-.combat-dog-card.dog-rarity-legendary { border-color: rgba(245,200,66,0.35); }
-.combat-dog-card.dog-rarity-epic      { border-color: rgba(180,92,255,0.35); }
-.combat-dog-card.dog-rarity-rare      { border-color: rgba(76,168,255,0.35); }
-
-.combat-dog-card.combat-dog-selected.dog-rarity-legendary { border-color: #f5c842; background: rgba(245,200,66,0.12); }
-.combat-dog-card.combat-dog-selected.dog-rarity-epic      { border-color: #b45cff; background: rgba(180,92,255,0.12); }
-.combat-dog-card.combat-dog-selected.dog-rarity-rare      { border-color: #4ca8ff; background: rgba(76,168,255,0.12); }
+.combat-dog-card.dog-rarity-legendary { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.combat-dog-card.dog-rarity-epic      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.combat-dog-card.dog-rarity-rare      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
 
 .combat-dog-card.unavailable { opacity: 0.35; cursor: default; }
 
@@ -558,17 +557,26 @@
 
 .combat-start-btn {
     width: 100%;
-    max-width: 280px;
-    padding: 12px;
-    border-radius: 10px;
+    max-width: 120px;
+    aspect-ratio: 3 / 1;
     border: none;
-    background: linear-gradient(135deg, #c0392b, #8b1a10);
-    color: white;
-    font-size: 1rem;
+    border-radius: 0;
+    background-color: transparent;
+    background-image: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd740;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    font-size: 0.8rem;
     font-weight: bold;
     cursor: pointer;
     margin-top: 0.5rem;
-    transition: all 0.2s;
+    margin-bottom: 12px;
+    transition: filter 0.2s, transform 0.2s;
 }
 
 .combat-start-btn:hover:not(.combat-start-disabled) {
@@ -747,30 +755,14 @@
 }
 
 .combat-floating-milestone-combo {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
-    color: #ffd740;
+    color: #7fff00;
     text-shadow:
         -1px -1px 0 #000,
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000;
-}
-
-.combat-floating-milestone-gold {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.combat-floating-milestone-gold-icon {
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
 }
 
 @keyframes combat-float-up-big {

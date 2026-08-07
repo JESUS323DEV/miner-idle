@@ -45,7 +45,6 @@ import spider2Img    from '../../assets/ui/icons-enemy/spiders/spider-2.webp';
 import spider3Img    from '../../assets/ui/icons-enemy/spiders/spider-3.webp';
 import spiderBossImg from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
 
-import goldIcon   from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
 import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
@@ -818,7 +817,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         onClick={startFight}
                         disabled={team.every(id => !id)}
                     >
-                        <Swords size={14} /> Combatir
+                        Combatir
                     </button>
 
                     <div className="combat-dogs-list">
@@ -830,18 +829,17 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 const cfg      = getConfig(dog.id);
                                 const isForge  = !!ForgeDogsConfig[dog.id];
                                 const status   = getCombatStatus(dog, isForge);
-                                const blocked  = status !== 'available';
                                 const selected = team.some(id => id === dog.id);
+                                const blocked  = status !== 'available' || selected;
                                 const elemInfo = cfg?.element ? ELEMENT_ICON[cfg.element] : null;
                                 const showInfo = infoCardId === dog.id;
                                 return (
                                     <div
                                         key={dog.id}
-                                        className={`combat-dog-card${selected ? ' combat-dog-selected' : ''}${blocked ? ' unavailable' : ''} dog-rarity-${cfg?.rarity}`}
+                                        className={`combat-dog-card${blocked ? ' unavailable' : ''} dog-rarity-${cfg?.rarity}`}
                                         onClick={() => {
                                             if (blocked || showInfo) return;
                                             setTeam(prev => {
-                                                if (selected) return prev.map(id => id === dog.id ? null : id);
                                                 const next = [...prev];
                                                 if (isForge) {
                                                     if (!next[0]) { next[0] = dog.id; return next; }
@@ -975,10 +973,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 if (f.type === 'milestone') {
                                     return (
                                         <div key={f.id} className="combat-floating-milestone-wrap" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
-                                            <div className="combat-floating-milestone-combo"><Flame size={12} /> COMBO {f.combo}!</div>
-                                            <div className="combat-floating-milestone-gold">
-                                                <img src={goldIcon} alt="oro" className="combat-floating-milestone-gold-icon" />
-                                            </div>
+                                            <div className="combat-floating-milestone-combo">COMBO {f.combo}!</div>
                                         </div>
                                     );
                                 }

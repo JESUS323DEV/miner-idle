@@ -250,6 +250,9 @@ import marco1 from "../assets/ui/icons-enemy/hud/marcos/marco-1.webp"
 import marco2 from "../assets/ui/icons-enemy/hud/marcos/marco-2.webp"
 import marco3 from "../assets/ui/icons-enemy/hud/marcos/marco-3.webp"
 import marco4 from "../assets/ui/icons-enemy/hud/marcos/marco-4.webp"
+import marcoSlotRare from "../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp"
+import marcoSlotEpic from "../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp"
+import marcoSlotLegend from "../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp"
 
 // ===== ESCENAS MINERÍA =====
 import menaGold from "../assets/scenes/mining/menaGold.webp"
@@ -348,6 +351,7 @@ const IMAGES = [
     scorpion1, scorpion2, scorpion3, scorpionBoss,
     cardBat, cardTopo, cardScorpion, cardSpiders,
     marco1, marco2, marco3, marco4,
+    marcoSlotRare, marcoSlotEpic, marcoSlotLegend,
     // escenas
     menaGold, menaGold2, menaGold3, menaGold4, menaGold5,
     picando1, picando2, mineroDescanso,
