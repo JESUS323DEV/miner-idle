@@ -683,15 +683,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         <div style={{ width: 32 }} />
                     </div>
                     <div className="combat-enemy-grid">
-                        {activeBiome.enemies.map(enemy => {
+                        {activeBiome.enemies.map((enemy, idx) => {
                             const req     = enemy.requiresStars;
                             const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
-                            const myBest  = raidBestStars[enemy.id] ?? 0;
                             const { isOnCooldown, attemptsLeft, remainingMin } = getAttemptStatus(enemy);
+                            const tier = enemy.isBoss ? 4 : idx + 1;
                             return (
                                 <button
                                     key={enemy.id}
-                                    className={`combat-enemy-card${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked || isOnCooldown ? ' combat-enemy-locked' : ''}`}
+                                    className={`combat-enemy-card combat-enemy-frame-${tier}${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked || isOnCooldown ? ' combat-enemy-locked' : ''}`}
                                     onClick={() => { if (!locked && !isOnCooldown) { setActiveEnemy(enemy); setPhase('select'); } }}
                                     disabled={locked || isOnCooldown}
                                 >
@@ -715,11 +715,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                             <img src={enemyImgs[enemy.id]} alt={enemy.name} />
                                             <span className="cec-name">{enemy.name}</span>
                                             <span className="cec-meta">❤ {enemy.hp} · {enemy.timerSec}s</span>
-                                            <div className="cec-stars">
-                                                {[1,2,3].map(s => (
-                                                    <Star key={s} size={11} fill={myBest >= s ? '#ffd740' : 'none'} color={myBest >= s ? '#ffd740' : '#444'} />
-                                                ))}
-                                            </div>
                                             {attemptsLeft < 3 && (
                                                 <span className="cec-attempts">{attemptsLeft} {attemptsLeft === 1 ? 'intento' : 'intentos'}</span>
                                             )}
