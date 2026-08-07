@@ -311,6 +311,18 @@
     height: 100%;
 }
 
+.combat-select-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+}
+
+.combat-select-header .combat-nav {
+    padding-bottom: 0;
+}
+
 .combat-title {
     color: #ffd740;
     font-size: 1.2rem;
@@ -786,15 +798,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
     gap: 4px;
     padding: 8px 6px;
-    border-radius: 12px;
-    border: 2px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
     width: 72px;
     min-height: 90px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: filter 0.15s;
     position: relative;
 }
 
@@ -825,12 +841,12 @@
 
 .combat-slot-lateral:not(.swap-on-cd):active {
     transform: scale(0.93);
-    background: rgba(255,255,255,0.12);
+    filter: brightness(1.2);
 }
 
-.combat-slot-lateral.dog-rarity-legendary { border-color: rgba(245,200,66,0.4); }
-.combat-slot-lateral.dog-rarity-epic      { border-color: rgba(180,92,255,0.4); }
-.combat-slot-lateral.dog-rarity-rare      { border-color: rgba(76,168,255,0.4); }
+.combat-slot-lateral.dog-rarity-legendary { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.combat-slot-lateral.dog-rarity-epic      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.combat-slot-lateral.dog-rarity-rare      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
 
 .combat-slot-empty {
     width: 72px;
@@ -843,14 +859,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
     gap: 5px;
     padding: 10px 8px;
-    border-radius: 14px;
-    border: 2px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
     width: 96px;
     min-height: 115px;
-    box-shadow: 0 0 18px rgba(255,255,255,0.1);
 }
 
 .combat-slot-active img {
@@ -873,9 +892,9 @@
     color: #ffd740;
 }
 
-.combat-slot-active.dog-rarity-legendary { border-color: rgba(245,200,66,0.7); box-shadow: 0 0 18px rgba(245,200,66,0.2); }
-.combat-slot-active.dog-rarity-epic      { border-color: rgba(180,92,255,0.7); box-shadow: 0 0 18px rgba(180,92,255,0.2); }
-.combat-slot-active.dog-rarity-rare      { border-color: rgba(76,168,255,0.7);  box-shadow: 0 0 18px rgba(76,168,255,0.2);  }
+.combat-slot-active.dog-rarity-legendary { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.combat-slot-active.dog-rarity-epic      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.combat-slot-active.dog-rarity-rare      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
 
 /* Animación de entrada al centro */
 @keyframes dogSwapIn {

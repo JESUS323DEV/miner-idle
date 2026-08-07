@@ -778,14 +778,16 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             {/* ===== DOG SELECT ===== */}
             {phase === 'select' && activeEnemy && (
                 <div className="combat-select">
-                    <div className="combat-nav">
-                        <button className="combat-back-btn" onClick={() => { setActiveEnemy(null); setTeam([]); setPhase('enemy'); }}>
-                            <ChevronLeft />
-                        </button>
-                        <h2 className="combat-title">{activeEnemy.name}</h2>
-                        <div style={{ width: 32 }} />
+                    <div className="combat-select-header">
+                        <div className="combat-nav">
+                            <button className="combat-back-btn" onClick={() => { setActiveEnemy(null); setTeam([]); setPhase('enemy'); }}>
+                                <ChevronLeft />
+                            </button>
+                            <h2 className="combat-title">{activeEnemy.name}</h2>
+                            <div style={{ width: 32 }} />
+                        </div>
+                        <p className="combat-subtitle-meta">❤️ {activeEnemy.hp} · ⏱ {activeEnemy.timerSec}s</p>
                     </div>
-                    <p className="combat-subtitle-meta">❤️ {activeEnemy.hp} · ⏱ {activeEnemy.timerSec}s</p>
 
                     <div className="combat-selected-slots">
                         {[0, 1, 2].map(i => {
@@ -893,9 +895,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 );
                             };
 
-                            const byStars = (a, b) => (b.stars ?? 0) - (a.stars ?? 0);
-                            const miners = hiredDogs.filter(d => !ForgeDogsConfig[d.id]).sort(byStars);
-                            const forge  = hiredDogs.filter(d =>  ForgeDogsConfig[d.id]).sort(byStars);
+                            const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
+                            const byRarityThenStars = (a, b) => {
+                                const ra = RARITY_ORDER[getConfig(a.id)?.rarity] ?? 3;
+                                const rb = RARITY_ORDER[getConfig(b.id)?.rarity] ?? 3;
+                                if (ra !== rb) return ra - rb;
+                                return (b.stars ?? 0) - (a.stars ?? 0);
+                            };
+                            const miners = hiredDogs.filter(d => !ForgeDogsConfig[d.id]).sort(byRarityThenStars);
+                            const forge  = hiredDogs.filter(d =>  ForgeDogsConfig[d.id]).sort(byRarityThenStars);
 
                             const minerSelected = !!team[1];
                             const selectedMinerCfg = minerSelected ? getConfig(team[1]) : null;
