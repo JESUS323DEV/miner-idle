@@ -157,11 +157,11 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume,
                             <details className="feature-category">
                                 <summary className="feature-category-summary"><Swords size={14} /> Gameplay</summary>
                                 <div className="features-list">
-                                    <div className="feature-item">
+                                    <div className="feature-item feature-item-done">
                                         <span className="feature-icon"><Swords size={18} /></span>
                                         <div className="feature-info">
-                                            <span className="feature-name">Asaltos</span>
-                                            <span className="feature-desc">Combate en tiempo real con tu equipo de mascotas.</span>
+                                            <span className="feature-name feature-name-done">Asaltos</span>
+                                            <span className="feature-desc feature-desc-done">Combate en tiempo real con tu equipo de mascotas.</span>
                                         </div>
                                     </div>
                                     <div className="feature-item">
@@ -279,11 +279,11 @@ const SettingsModal = ({ isOpen, onClose, onNewGame, musicVolume, onMusicVolume,
                                             <span className="feature-desc">Compite con otros jugadores y escala en el ranking global.</span>
                                         </div>
                                     </div>
-                                    <div className="feature-item">
+                                    <div className="feature-item feature-item-done">
                                         <span className="feature-icon"><WifiOff size={18} /></span>
                                         <div className="feature-info">
-                                            <span className="feature-name">Recompensas offline</span>
-                                            <span className="feature-desc">Gana recursos mientras no juegas.</span>
+                                            <span className="feature-name feature-name-done">Recompensas offline</span>
+                                            <span className="feature-desc feature-desc-done">Gana recursos mientras no juegas.</span>
                                         </div>
                                     </div>
                                     <div className="feature-item">

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
+import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
 import raidActiveSelectBg from '../../assets/audio/bg-raid-active-select.mp3';
@@ -19,6 +19,7 @@ import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
 import { advanceDailyQuestInState, advanceDailyQuest, advancePJActiveUse } from '../../game/utils/questUtils.js';
+import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/CombatScreen.css';
 
 import bat1Img    from '../../assets/ui/icons-enemy/bats/bat-1.webp';
@@ -32,6 +33,16 @@ import topo2Img    from '../../assets/ui/icons-enemy/topos/topo-2.webp';
 import topo3Img    from '../../assets/ui/icons-enemy/topos/topo-3.webp';
 import topoBossImg from '../../assets/ui/icons-enemy/topos/topo-boss.webp';
 import bgTopos     from '../../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-topos.webp';
+
+import scorpion1Img    from '../../assets/ui/icons-enemy/scorpions/scorpion-1.webp';
+import scorpion2Img    from '../../assets/ui/icons-enemy/scorpions/scorpion-2.webp';
+import scorpion3Img    from '../../assets/ui/icons-enemy/scorpions/scorpion-3.webp';
+import scorpionBossImg from '../../assets/ui/icons-enemy/scorpions/scorpion-boss.webp';
+
+import spider1Img    from '../../assets/ui/icons-enemy/spiders/sipder-1.webp';
+import spider2Img    from '../../assets/ui/icons-enemy/spiders/spider-2.webp';
+import spider3Img    from '../../assets/ui/icons-enemy/spiders/spider-3.webp';
+import spiderBossImg from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
 
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
@@ -126,11 +137,22 @@ const enemyImgs = {
     'topo-2':    topo2Img,
     'topo-3':    topo3Img,
     'topo-boss': topoBossImg,
+    'scorpion-1':    scorpion1Img,
+    'scorpion-2':    scorpion2Img,
+    'scorpion-3':    scorpion3Img,
+    'scorpion-boss': scorpionBossImg,
+    'spider-1':    spider1Img,
+    'spider-2':    spider2Img,
+    'spider-3':    spider3Img,
+    'spider-boss': spiderBossImg,
 };
 
+// scorpions/spiders reutilizan fondo mientras no tengan uno propio
 const biomeBg = {
-    bats:  bgBats,
-    moles: bgTopos,
+    bats:      bgBats,
+    moles:     bgTopos,
+    spiders:   bgBats,
+    scorpions: bgTopos,
 };
 
 const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, musicVolume = 0.08 }) => {
@@ -628,8 +650,10 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             {/* ===== BIOME SELECT ===== */}
             {phase === 'biome' && (
                 <div className="combat-biome-select">
-                    <button className="combat-back-btn combat-biome-back" onClick={onBack ?? onClose}><ChevronLeft /></button>
-                    <h2 className="combat-title">Asaltos</h2>
+                    <div className="tavern-title-row">
+                        <button className="tavern-back-btn-inline" onClick={onBack ?? onClose}><ArrowLeft size={22} /></button>
+                        <h2 className="tavern-title">Asaltos</h2>
+                    </div>
                     <p className="combat-subtitle">Elige un bioma</p>
                     <div className="combat-early-warning">
                         Sistema en fase muy temprana. Puede contener errores o cambios bruscos de balance.
@@ -638,7 +662,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {CombatConfig.biomes.map(biome => (
                             <button
                                 key={biome.id}
-                                className={`combat-biome-btn${biome.comingSoon ? ' combat-biome-soon' : ''}`}
+                                className={`combat-biome-btn combat-biome-bg-${biome.id}${biome.comingSoon ? ' combat-biome-soon' : ''}`}
                                 onClick={() => { if (!biome.comingSoon) { setActiveBiome(biome); setPhase('enemy'); } }}
                                 disabled={biome.comingSoon}
                             >

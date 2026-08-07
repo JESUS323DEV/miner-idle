@@ -116,6 +116,7 @@
     gap: 1.5rem;
     height: 100%;
     position: relative;
+    overflow-y: auto;
 }
 
 .combat-biome-back {
@@ -143,22 +144,31 @@
 }
 
 .combat-biome-btn {
-    padding: 22px 16px;
-    border-radius: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
+    aspect-ratio: 2150 / 704;
+    padding: 0 6% 0 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
     color: white;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
+    justify-content: center;
     gap: 6px;
-    transition: all 0.2s;
+    transition: filter 0.2s;
 }
 
+.combat-biome-bg-bats      { background-image: url('../../assets/ui/icons-enemy/hud/card-bat.webp'); }
+.combat-biome-bg-moles     { background-image: url('../../assets/ui/icons-enemy/hud/card-topo.webp'); }
+.combat-biome-bg-scorpions { background-image: url('../../assets/ui/icons-enemy/hud/card-scorpion.webp'); }
+.combat-biome-bg-spiders   { background-image: url('../../assets/ui/icons-enemy/hud/card-spiders.webp'); }
+
 .combat-biome-btn:hover:not(.combat-biome-soon) {
-    border-color: rgba(168, 85, 247, 0.55);
-    background: rgba(168, 85, 247, 0.12);
+    filter: brightness(1.25);
 }
 
 .combat-biome-soon {
@@ -169,6 +179,8 @@
 .cbb-name {
     font-size: 1.05rem;
     font-weight: bold;
+    text-align: right;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
 
 .cbb-soon-label {
