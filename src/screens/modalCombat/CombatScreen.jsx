@@ -45,6 +45,7 @@ import spider2Img    from '../../assets/ui/icons-enemy/spiders/spider-2.webp';
 import spider3Img    from '../../assets/ui/icons-enemy/spiders/spider-3.webp';
 import spiderBossImg from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
 
+import goldIcon   from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
 import ladyIcon   from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import tokyoIcon  from '../../assets/ui/icons-pets/mineros/tokyo-icon.webp';
 import tukaIcon   from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
@@ -129,6 +130,12 @@ const ULT_COOLDOWN_BY_ELEMENT = {
     fuego: 12, electrico: 10, tierra: 15, agua: 12, oscuro: 8,
 };
 
+const COMBO_RESET_TIME         = 1000;
+const COMBO_FIRST_MILESTONE    = 5;
+const COMBO_MILESTONE_INTERVAL = 5;
+const COMBO_GOLD_CAP           = 2000;
+const COMBO_GOLD_OVERFLOW_STEP = 20;
+
 const enemyImgs = {
     'bat-1':    bat1Img,
     'bat-2':    bat2Img,
@@ -200,6 +207,10 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [shakeKey, setShakeKey]                 = useState(0);
     const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
+    const lastTapTimeRef                          = useRef(null);
+    const comboCountRef                           = useRef(0);
+    const comboGoldRef                            = useRef(0);
+    const maxComboRef                             = useRef(0);
 
     const SWITCH_COOLDOWN = 6;
 
@@ -263,6 +274,10 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setAutoUlt(false);
             setFightStarted(false);
             setShakeKey(0);
+            comboCountRef.current = 0;
+            lastTapTimeRef.current = null;
+            comboGoldRef.current = 0;
+            maxComboRef.current = 0;
         }
     }, [isOpen]);
 
@@ -324,7 +339,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             const pct   = Math.min(1, dealt / activeEnemy.hp);
             const threshold = [...activeEnemy.rewardThresholds].reverse().find(t => pct >= t.pct) ?? null;
             const shards     = threshold?.shards ?? 0;
-            const gold       = threshold?.gold ?? 0;
+            const gold       = comboGoldRef.current;
             const starsEarned = threshold?.stars ?? 0;
 
             let rewardDogId  = null;
@@ -386,6 +401,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 defeated: enemyHp <= 0,
                 rewardDogId,
                 rewardRarity,
+                maxCombo: maxComboRef.current,
             });
             playSfx('finalMina');
             setPhase('results');
@@ -486,7 +502,24 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+        const safeX = Math.min(x, rect.width - 90);
         addFloat('damage', { value: finalDmg, x, y }, 900);
+
+        const tapNow = Date.now();
+        const gapSinceLastTap = lastTapTimeRef.current ? tapNow - lastTapTimeRef.current : null;
+        const newCombo = (gapSinceLastTap !== null && gapSinceLastTap <= COMBO_RESET_TIME) ? comboCountRef.current + 1 : 1;
+        lastTapTimeRef.current = tapNow;
+        comboCountRef.current = newCombo;
+        if (newCombo > maxComboRef.current) maxComboRef.current = newCombo;
+
+        addFloat('combo', { value: newCombo, x: safeX, y: y - 30 }, 800);
+
+        const goldPerCombo = activeEnemy?.goldPerCombo ?? 0;
+        if (goldPerCombo > 0 && newCombo >= COMBO_FIRST_MILESTONE && newCombo % COMBO_MILESTONE_INTERVAL === 0) {
+            const bonus = comboGoldRef.current < COMBO_GOLD_CAP ? newCombo * goldPerCombo : COMBO_GOLD_OVERFLOW_STEP;
+            comboGoldRef.current += bonus;
+            addFloat('milestone', { combo: newCombo, bonus, x: safeX, y: y - 70 }, 1800);
+        }
 
         if (passive.addHeatStack) setHeatStacks(prev => Math.min(passive.heatStackCap, prev + 1));
         if (isGuaranteedDouble) {
@@ -629,6 +662,10 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setUltCooldown(0);
         setEnemyHp(activeEnemy.hp);
         setTimer(activeEnemy.timerSec);
+        comboCountRef.current = 0;
+        lastTapTimeRef.current = null;
+        comboGoldRef.current = 0;
+        maxComboRef.current = 0;
         setPhase('fight');
         if (!gameState.tutorial?.combatTutDone) setCombatTutStep(0);
     };
@@ -920,13 +957,33 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}`}
                             />
                             {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
-                            {floats.map(f => (
-                                f.type === 'damage' && (
-                                    <div key={f.id} className="combat-floating-damage" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
-                                        -{f.value}
-                                    </div>
-                                )
-                            ))}
+                            {floats.map(f => {
+                                if (f.type === 'damage') {
+                                    return (
+                                        <div key={f.id} className="combat-floating-damage" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                            -{f.value}
+                                        </div>
+                                    );
+                                }
+                                if (f.type === 'combo') {
+                                    return (
+                                        <div key={f.id} className="combat-floating-combo" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                            Combo x{f.value}
+                                        </div>
+                                    );
+                                }
+                                if (f.type === 'milestone') {
+                                    return (
+                                        <div key={f.id} className="combat-floating-milestone-wrap" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                            <div className="combat-floating-milestone-combo"><Flame size={12} /> COMBO {f.combo}!</div>
+                                            <div className="combat-floating-milestone-gold">
+                                                <img src={goldIcon} alt="oro" className="combat-floating-milestone-gold-icon" />
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })}
                         </button>
                     </div>
 
@@ -1100,12 +1157,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                     </div>
                                 )}
                                 <span className="combat-result-shards">+{resultsData.shards} fragmentos</span>
-                                {resultsData.gold > 0 && (
-                                    <span className="combat-result-gold">+{resultsData.gold.toLocaleString()} oro</span>
-                                )}
                             </>
                         ) : (
                             <span className="combat-result-noreward">Sin recompensa (menos del 15%)</span>
+                        )}
+                        {resultsData.gold > 0 && (
+                            <span className="combat-result-gold">+{resultsData.gold.toLocaleString()} oro</span>
+                        )}
+                        {resultsData.maxCombo >= COMBO_FIRST_MILESTONE && (
+                            <span className="combat-result-combo">Combo máximo x{resultsData.maxCombo}</span>
                         )}
                     </div>
 
