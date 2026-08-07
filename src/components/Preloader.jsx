@@ -63,6 +63,19 @@ import iconSelectRight from "../assets/ui/icons-hud/hud-modals/modal-comerciante
 import cambistaMateriales from "../assets/ui/icons-hud/hud-modals/modal-tavern/materiales.webp"
 import iconRuleta from "../assets/ui/icons-hud/hud-modals/modal-tavern/ruleta.webp"
 import iconTragaperras from "../assets/ui/icons-hud/hud-modals/modal-tavern/traga-perras.webp"
+import iconTavernRewards from "../assets/ui/icons-hud/hud-modals/modal-tavern/rewards.webp"
+import iconTavernUp from "../assets/ui/icons-hud/hud-modals/icons-tavern/tavern-up.webp"
+import iconTavernClientes from "../assets/ui/icons-hud/hud-modals/icons-tavern/clientes.webp"
+import iconTabMineros from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/mineros.webp"
+import iconTabForja from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/forja.webp"
+import iconRarityLegend from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/legend.webp"
+import iconRarityEpic from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/epic.webp"
+import iconRarityRara from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/rara.webp"
+import iconRarityObtenidos from "../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/obtenidos.webp"
+import iconTabGratis from "../assets/ui/icons-hud/hud-modals/modal-invocacion/gratis.webp"
+import iconAbrirSobre from "../assets/ui/icons-hud/hud-modals/modal-invocacion/abrir.webp"
+import iconGratis2 from "../assets/ui/icons-hud/hud-modals/modal-invocacion/gratis2.webp"
+import iconBtnVacio from "../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp"
 
 // ===== LANDING =====
 import landingLogo from "../assets/landing-pico-pata/logo.webp"
@@ -208,6 +221,7 @@ import forgeIcon6 from "../assets/ui/icons-pets/forge/forge-icon6.webp"
 import forgeIcon7 from "../assets/ui/icons-pets/forge/forge-icon7.webp"
 import forgeIcon8 from "../assets/ui/icons-pets/forge/forge-icon8.webp"
 import forgeIcon9 from "../assets/ui/icons-pets/forge/forge-icon9.webp"
+import forgeDayoIcon from "../assets/ui/icons-pets/forge/forge-dayo.webp"
 
 // ===== ENEMIGOS COMBATE =====
 import bat1 from "../assets/ui/icons-enemy/bats/bat-1.webp"
@@ -220,6 +234,18 @@ import topo2 from "../assets/ui/icons-enemy/topos/topo-2.webp"
 import topo3 from "../assets/ui/icons-enemy/topos/topo-3.webp"
 import topoBoss from "../assets/ui/icons-enemy/topos/topo-boss.webp"
 import bgCombatTopos from "../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-topos.webp"
+import spider1 from "../assets/ui/icons-enemy/spiders/sipder-1.webp"
+import spider2 from "../assets/ui/icons-enemy/spiders/spider-2.webp"
+import spider3 from "../assets/ui/icons-enemy/spiders/spider-3.webp"
+import spiderBoss from "../assets/ui/icons-enemy/spiders/spider-boss.webp"
+import scorpion1 from "../assets/ui/icons-enemy/scorpions/scorpion-1.webp"
+import scorpion2 from "../assets/ui/icons-enemy/scorpions/scorpion-2.webp"
+import scorpion3 from "../assets/ui/icons-enemy/scorpions/scorpion-3.webp"
+import scorpionBoss from "../assets/ui/icons-enemy/scorpions/scorpion-boss.webp"
+import cardBat from "../assets/ui/icons-enemy/hud/card-bat.webp"
+import cardTopo from "../assets/ui/icons-enemy/hud/card-topo.webp"
+import cardScorpion from "../assets/ui/icons-enemy/hud/card-scorpion.webp"
+import cardSpiders from "../assets/ui/icons-enemy/hud/card-spiders.webp"
 
 // ===== ESCENAS MINERÍA =====
 import menaGold from "../assets/scenes/mining/menaGold.webp"
@@ -262,6 +288,10 @@ const IMAGES = [
     cambistaCoin, cambistaMateriales, iconRuleta, iconTragaperras,
     exchangeBgBronze, exchangeBgIron, exchangeBgDiamond,
     iconSelectLeft, iconSelectRight,
+    iconTavernRewards, iconTavernUp, iconTavernClientes,
+    iconTabMineros, iconTabForja,
+    iconRarityLegend, iconRarityEpic, iconRarityRara, iconRarityObtenidos,
+    iconTabGratis, iconAbrirSobre, iconGratis2, iconBtnVacio,
     // landing
     landingLogo, landingAyudantes, landingMinas, landingPicos, landingProduccionOro,
     // picos
@@ -306,10 +336,13 @@ const IMAGES = [
     boxerIcon, bullyIcon, chihuahuaIcon,
     // pets forja
     forgeIcon1, forgeIcon2, forgeIcon3, forgeIcon4, forgeIcon5,
-    forgeIcon6, forgeIcon7, forgeIcon8, forgeIcon9,
+    forgeIcon6, forgeIcon7, forgeIcon8, forgeIcon9, forgeDayoIcon,
     // enemigos
     bat1, bat2, bat3, batBoss, bgCombatBats,
     topo1, topo2, topo3, topoBoss, bgCombatTopos,
+    spider1, spider2, spider3, spiderBoss,
+    scorpion1, scorpion2, scorpion3, scorpionBoss,
+    cardBat, cardTopo, cardScorpion, cardSpiders,
     // escenas
     menaGold, menaGold2, menaGold3, menaGold4, menaGold5,
     picando1, picando2, mineroDescanso,
