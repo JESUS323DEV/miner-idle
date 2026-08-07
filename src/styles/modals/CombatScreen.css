@@ -820,6 +820,11 @@
     object-fit: contain;
 }
 
+.csl-img-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
 .csl-name {
     font-size: 0.54rem;
     color: rgba(255,255,255,0.55);
@@ -847,6 +852,58 @@
 .combat-slot-lateral.dog-rarity-legendary { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
 .combat-slot-lateral.dog-rarity-epic      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
 .combat-slot-lateral.dog-rarity-rare      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
+
+.combat-slot-passive-charging::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 6px;
+    padding: 2px;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: combat-passive-charge-spin 2s linear infinite;
+    pointer-events: none;
+}
+
+.combat-slot-passive-charging-agua::after   { background: conic-gradient(from 0deg, transparent, rgba(79,195,247,0.95) 30%, transparent 55%); }
+.combat-slot-passive-charging-tierra::after { background: conic-gradient(from 0deg, transparent, rgba(139,105,20,0.95) 30%, transparent 55%); }
+.combat-slot-passive-charging-oscuro::after { background: conic-gradient(from 0deg, transparent, rgba(180,92,255,0.95) 30%, transparent 55%); }
+
+@keyframes combat-passive-charge-spin {
+    to { transform: rotate(360deg); }
+}
+
+.combat-floating-slot-heat {
+    position: fixed;
+    pointer-events: none;
+    display: flex;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8));
+    animation: combat-float-up-slot 0.8s ease-out forwards;
+    z-index: 200;
+}
+
+.combat-floating-slot-double {
+    position: fixed;
+    pointer-events: none;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    color: #ffe033;
+    text-shadow:
+        -1px -1px 0 #3a2f00,
+        1px -1px 0 #3a2f00,
+        -1px 1px 0 #3a2f00,
+        1px 1px 0 #3a2f00;
+    animation: combat-float-up-slot 0.9s ease-out forwards;
+    z-index: 200;
+}
+
+@keyframes combat-float-up-slot {
+    0%   { transform: translate(-50%, -50%) translateY(0);     opacity: 1; }
+    100% { transform: translate(-50%, -50%) translateY(-30px); opacity: 0; }
+}
 
 .combat-slot-empty {
     width: 72px;

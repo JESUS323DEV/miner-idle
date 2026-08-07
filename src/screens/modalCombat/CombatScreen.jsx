@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
@@ -129,6 +130,8 @@ const ULT_COOLDOWN_BY_ELEMENT = {
     fuego: 12, electrico: 10, tierra: 15, agua: 12, oscuro: 8,
 };
 
+const CONSTANT_PASSIVE_ELEMENTS = ['agua', 'tierra', 'oscuro'];
+
 const COMBO_RESET_TIME         = 1000;
 const COMBO_FIRST_MILESTONE    = 5;
 const COMBO_MILESTONE_INTERVAL = 5;
@@ -206,6 +209,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [shakeKey, setShakeKey]                 = useState(0);
     const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
+    const leftSlotRef                             = useRef(null);
+    const rightSlotRef                            = useRef(null);
     const lastTapTimeRef                          = useRef(null);
     const comboCountRef                           = useRef(0);
     const comboGoldRef                            = useRef(0);
@@ -503,6 +508,19 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const y = e.clientY - rect.top;
         const safeX = Math.min(x, rect.width - 90);
         addFloat('damage', { value: finalDmg, x, y }, 900);
+
+        [[slots[0], leftSlotRef], [slots[2], rightSlotRef]].forEach(([lateralId, ref]) => {
+            if (!lateralId || !ForgeDogsConfig[lateralId] || !ref.current) return;
+            const lateralCfg = getConfig(lateralId);
+            const slotRect = ref.current.getBoundingClientRect();
+            const fx = slotRect.left + slotRect.width / 2;
+            const fy = slotRect.top;
+            if (lateralCfg.element === 'fuego') {
+                addFloat('slotHeat', { x: fx, y: fy }, 800);
+            } else if (lateralCfg.element === 'electrico' && isDoubleHit) {
+                addFloat('slotDouble', { x: fx, y: fy }, 900);
+            }
+        });
 
         const tapNow = Date.now();
         const gapSinceLastTap = lastTapTimeRef.current ? tapNow - lastTapTimeRef.current : null;
@@ -995,9 +1013,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {slots[0] ? (() => {
                             const id  = slots[0];
                             const cfg = getConfig(id);
+                            const charging = CONSTANT_PASSIVE_ELEMENTS.includes(cfg?.element) ? cfg.element : null;
                             return (
-                                <div key={`left-${id}`} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
-                                    <img src={getAsset(id)} alt={id} />
+                                <div key={`left-${id}`} ref={leftSlotRef} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
+                                    <div className={`csl-img-wrap${charging ? ` combat-slot-passive-charging combat-slot-passive-charging-${charging}` : ''}`}>
+                                        <img src={getAsset(id)} alt={id} />
+                                    </div>
                                     <span className="csl-name">{cfg?.name}</span>
                                 </div>
                             );
@@ -1023,9 +1044,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {slots[2] ? (() => {
                             const id  = slots[2];
                             const cfg = getConfig(id);
+                            const charging = CONSTANT_PASSIVE_ELEMENTS.includes(cfg?.element) ? cfg.element : null;
                             return (
-                                <div key={`right-${id}`} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
-                                    <img src={getAsset(id)} alt={id} />
+                                <div key={`right-${id}`} ref={rightSlotRef} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
+                                    <div className={`csl-img-wrap${charging ? ` combat-slot-passive-charging combat-slot-passive-charging-${charging}` : ''}`}>
+                                        <img src={getAsset(id)} alt={id} />
+                                    </div>
                                     <span className="csl-name">{cfg?.name}</span>
                                 </div>
                             );
@@ -1114,6 +1138,29 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             </span>
                         )}
                     </div>
+
+                    {createPortal(
+                        <>
+                            {floats.map(f => {
+                                if (f.type === 'slotHeat') {
+                                    return (
+                                        <div key={f.id} className="combat-floating-slot-heat" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                            <Flame size={16} color="#ff6b35" />
+                                        </div>
+                                    );
+                                }
+                                if (f.type === 'slotDouble') {
+                                    return (
+                                        <div key={f.id} className="combat-floating-slot-double" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
+                                            ¡Doble!
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })}
+                        </>,
+                        document.body
+                    )}
                 </div>
             )}
 
