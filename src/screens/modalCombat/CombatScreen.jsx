@@ -122,7 +122,7 @@ const FORGE_PASSIVE_INFO = {
     fuego:     'Acumula calor con cada golpe del activo. A mayor calor, mas daño inflige.',
     agua:      'Cada varios taps dispara una ola de daño extra. Cuantos mas perros de agua, mas frecuente y mas fuerte.',
     electrico: 'Incrementa la probabilidad de golpe doble del activo desde su posicion lateral.',
-    tierra:    'Cada impacto reduce la armadura del enemigo, haciendolo mas vulnerable.',
+    tierra:    'Reduce el cooldown del poder del activo, sea del elemento que sea.',
     oscuro:    'Inflige mas daño cuanta mas vida le quede al enemigo. Ideal para empezar fuerte.',
 };
 
@@ -425,6 +425,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
             oscuroPct: 0, oscuroFlatMin: 0,
             waterInterval: 0, waterBurst: 0,
+            ultCdReduction: 0, earthFullSynergy: false,
         };
 
         // Sinergia de fuego: el tope de stacks sale de cuantos fuegos hay en el equipo
@@ -504,6 +505,24 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         } else if (leftIsWater || rightIsWater) {
             eff.waterInterval = 5;
             eff.waterBurst    = 8;
+        }
+
+        // Sinergia de tierra: los laterales bajan el cooldown de CUALQUIER ultimate
+        // (no solo la de tierra). Si el central tambien es tierra, en vez de aplicar
+        // esa reduccion generica, la propia ultimate de tierra pasa a costar un fijo
+        // de 7s menos el recorte por rareza+estrellas del central.
+        const leftIsEarth   = leftCfg?.element   === 'tierra';
+        const rightIsEarth  = rightCfg?.element  === 'tierra';
+        const centerIsEarth = centerCfg?.element === 'tierra';
+
+        if (leftIsEarth && rightIsEarth) {
+            if (centerIsEarth) {
+                eff.earthFullSynergy = true;
+            } else {
+                eff.ultCdReduction = 1;
+            }
+        } else if (leftIsEarth || rightIsEarth) {
+            eff.ultCdReduction = 0.5;
         }
 
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
@@ -642,6 +661,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const element  = cfg?.element;
         const isForge  = !!ForgeDogsConfig[activeId];
         const pickDmg  = gameState.pickaxe.miningPowerByMaterial?.[gameState.pickaxe.material] ?? 2;
+        const passive  = getPassiveEffects();
 
         setUltCooldown(ULT_COOLDOWN_BY_ELEMENT[element] ?? 12);
         const defense = activeEnemy?.defense ?? 0;
@@ -670,10 +690,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 }
                 case 'tierra': {
                     const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const baseDmg = cfg.rarity === 'legendary' ? 450 : cfg.rarity === 'epic' ? 350 : 250;
-                    const baseCd  = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 13;
-                    const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
-                    setUltCooldown(Math.round(baseCd - stars * cdStep));
+                    const baseDmg = cfg.rarity === 'legendary' ? 750 : cfg.rarity === 'epic' ? 550 : 450;
+                    if (passive.earthFullSynergy) {
+                        const earthBase = cfg.rarity === 'legendary' ? 1.5 : cfg.rarity === 'epic' ? 1 : 0.5;
+                        setUltCooldown(Math.round((7 - (earthBase + stars * 0.1)) * 10) / 10);
+                    } else {
+                        const baseCd  = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 13;
+                        const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
+                        setUltCooldown(Math.round(baseCd - stars * cdStep));
+                    }
                     setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 20)));
                     break;
                 }
@@ -724,6 +749,10 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     setActiveEffect({ type: 'damageMulti', value: 2.5, remaining: 6 });
                     break;
             }
+        }
+
+        if (passive.ultCdReduction > 0) {
+            setUltCooldown(prev => Math.max(1, Math.round((prev - passive.ultCdReduction) * 10) / 10));
         }
     };
 
