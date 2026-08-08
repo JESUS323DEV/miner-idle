@@ -416,6 +416,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const eff = {
             doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
+            oscuroPct: 0, oscuroFlatMin: 0,
         };
 
         // Sinergia de fuego: el tope de stacks sale de cuantos fuegos hay en el equipo
@@ -455,6 +456,21 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.heatStackDmg = fireHeatValue(fireId, fireCfg);
         }
 
+        // Sinergia de oscuro: suma daño plano segun % de la vida ACTUAL del enemigo
+        // (no multiplica el daño del tap), sin mirar rareza/estrellas. Pega fuerte
+        // al principio de la pelea y se va apagando segun el enemigo pierde vida.
+        const leftIsOscuro   = leftCfg?.element   === 'oscuro';
+        const rightIsOscuro  = rightCfg?.element  === 'oscuro';
+        const centerIsOscuro = centerCfg?.element === 'oscuro';
+
+        if (leftIsOscuro && rightIsOscuro) {
+            eff.oscuroPct     = centerIsOscuro ? 0.05 : 0.02;
+            eff.oscuroFlatMin = centerIsOscuro ? 25 : 10;
+        } else if (leftIsOscuro || rightIsOscuro) {
+            eff.oscuroPct     = 0.01;
+            eff.oscuroFlatMin = 5;
+        }
+
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
             const cfg = getConfig(id);
             if (!cfg?.element || !ForgeDogsConfig[id]) continue;
@@ -478,13 +494,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
                         const baseAmp = cfg.rarity === 'legendary' ? 1.18 : cfg.rarity === 'epic' ? 1.15 : 1.12;
                         const step    = cfg.rarity === 'legendary' ? 0.014 : 0.006;
-                        eff.damageAmp *= baseAmp + stars * step;
-                        break;
-                    }
-                    case 'oscuro': {
-                        const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
-                        const baseAmp = cfg.rarity === 'legendary' ? 1.20 : cfg.rarity === 'epic' ? 1.15 : 1.10;
-                        const step    = cfg.rarity === 'legendary' ? 0.016 : cfg.rarity === 'epic' ? 0.01 : 0.008;
                         eff.damageAmp *= baseAmp + stars * step;
                         break;
                     }
@@ -514,6 +523,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (activeEffect?.type === 'damageMultiTaps' && activeEffect.remaining > 0) dmg *= activeEffect.value;
         if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0)
             dmg += Math.round(enemyHp * activeEffect.value);
+        if (passive.oscuroPct > 0) dmg += Math.max(passive.oscuroFlatMin, Math.round(enemyHp * passive.oscuroPct));
 
         const defense = activeEnemy?.defense ?? 0;
         dmg = Math.round(Math.max(1, dmg - defense));
