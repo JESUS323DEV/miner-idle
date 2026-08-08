@@ -426,6 +426,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             oscuroPct: 0, oscuroFlatMin: 0,
             waterInterval: 0, waterBurst: 0,
             ultCdReduction: 0, earthFullSynergy: false,
+            mixedSynergyBonus: 0,
         };
 
         // Sinergia de fuego: el tope de stacks sale de cuantos fuegos hay en el equipo
@@ -547,6 +548,20 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.doubleHitChance = electricChance(id, cfg);
         }
 
+        // Sinergias mixtas de early game: central + 2 laterales concretos (distintos
+        // entre si) dan un bonus de daño plano fijo, simple a proposito. Sin mirar
+        // rareza/estrellas, para no romper nada mientras se prueba.
+        const MIXED_SYNERGIES = {
+            agua:      'electrico+fuego',
+            oscuro:    'agua+fuego',
+            tierra:    'fuego+oscuro',
+            electrico: 'agua+fuego',
+        };
+        const lateralPair = [leftCfg?.element, rightCfg?.element].filter(Boolean).sort().join('+');
+        if (centerCfg?.element && MIXED_SYNERGIES[centerCfg.element] === lateralPair) {
+            eff.mixedSynergyBonus = 10;
+        }
+
         return eff;
     };
 
@@ -576,6 +591,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 waterTapCounterRef.current = 0;
             }
         }
+        if (passive.mixedSynergyBonus > 0) dmg += passive.mixedSynergyBonus;
 
         const waterUltActive = activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0;
         const defense = waterUltActive
