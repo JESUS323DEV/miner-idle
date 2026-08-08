@@ -457,15 +457,22 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
 
         // Sinergia de oscuro: suma daño plano segun % de la vida ACTUAL del enemigo
-        // (no multiplica el daño del tap), sin mirar rareza/estrellas. Pega fuerte
-        // al principio de la pelea y se va apagando segun el enemigo pierde vida.
+        // (no multiplica el daño del tap). Los laterales no miran rareza, pero en la
+        // sinergia completa (central tambien oscuro) la rareza del central SI importa.
         const leftIsOscuro   = leftCfg?.element   === 'oscuro';
         const rightIsOscuro  = rightCfg?.element  === 'oscuro';
         const centerIsOscuro = centerCfg?.element === 'oscuro';
 
         if (leftIsOscuro && rightIsOscuro) {
-            eff.oscuroPct     = centerIsOscuro ? 0.05 : 0.02;
-            eff.oscuroFlatMin = centerIsOscuro ? 25 : 10;
+            if (centerIsOscuro) {
+                const centerTier = { rare: [0.03, 15], epic: [0.05, 25], legendary: [0.06, 30] };
+                const [pct, min] = centerTier[centerCfg.rarity] ?? centerTier.rare;
+                eff.oscuroPct     = pct;
+                eff.oscuroFlatMin = min;
+            } else {
+                eff.oscuroPct     = 0.02;
+                eff.oscuroFlatMin = 10;
+            }
         } else if (leftIsOscuro || rightIsOscuro) {
             eff.oscuroPct     = 0.01;
             eff.oscuroFlatMin = 5;
