@@ -421,7 +421,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
     const getPassiveEffects = () => {
         const eff = {
-            doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
+            doubleHitChance: 0,
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
             oscuroPct: 0, oscuroFlatMin: 0,
             waterInterval: 0, waterBurst: 0,
@@ -525,28 +525,28 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.ultCdReduction = 0.5;
         }
 
-        for (const id of [slots[0], slots[2]].filter(Boolean)) {
-            const cfg = getConfig(id);
-            if (!cfg?.element || !ForgeDogsConfig[id]) continue;
-            {
-                switch (cfg.element) {
-                    case 'electrico': {
-                        const stars      = gameState.forgeDogs?.[id]?.stars ?? 0;
-                        const baseChance = cfg.rarity === 'legendary' ? 0.14 : cfg.rarity === 'epic' ? 0.12 : 0.10;
-                        const step       = cfg.rarity === 'rare' ? 0.008 : 0.006;
-                        eff.doubleHitChance += baseChance + stars * step;
-                        break;
-                    }
-                    case 'tierra': {
-                        const stars   = gameState.forgeDogs?.[id]?.stars ?? 0;
-                        const baseAmp = cfg.rarity === 'legendary' ? 1.18 : cfg.rarity === 'epic' ? 1.15 : 1.12;
-                        const step    = cfg.rarity === 'legendary' ? 0.014 : 0.006;
-                        eff.damageAmp *= baseAmp + stars * step;
-                        break;
-                    }
-                }
-            }
+        // Sinergia de electrico: mismo patron que fuego. 1 lateral = su propio valor,
+        // 2 laterales con central random = el mejor de los dos, sinergia completa
+        // (central tambien electrico) = se suman los dos (lo que antes pasaba siempre).
+        const electricChance = (id, cfg) => {
+            const stars      = gameState.forgeDogs?.[id]?.stars ?? 0;
+            const baseChance = cfg.rarity === 'legendary' ? 0.14 : cfg.rarity === 'epic' ? 0.12 : 0.10;
+            const step       = cfg.rarity === 'rare' ? 0.008 : 0.006;
+            return baseChance + stars * step;
+        };
+        const leftIsElectric   = leftCfg?.element   === 'electrico';
+        const rightIsElectric  = rightCfg?.element  === 'electrico';
+        const centerIsElectric = centerCfg?.element === 'electrico';
+
+        if (leftIsElectric && rightIsElectric) {
+            const leftVal  = electricChance(leftId, leftCfg);
+            const rightVal = electricChance(rightId, rightCfg);
+            eff.doubleHitChance = centerIsElectric ? leftVal + rightVal : Math.max(leftVal, rightVal);
+        } else if (leftIsElectric || rightIsElectric) {
+            const [id, cfg] = leftIsElectric ? [leftId, leftCfg] : [rightId, rightCfg];
+            eff.doubleHitChance = electricChance(id, cfg);
         }
+
         return eff;
     };
 
@@ -564,8 +564,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
         let dmg = Math.max(1, pickDmg + dogDmg);
         dmg += heatStacks * passive.heatStackDmg;
-        dmg *= passive.damageMulti;
-        dmg *= passive.damageAmp;
         if (activeEffect?.type === 'damageMulti') dmg *= activeEffect.value;
         if (activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0) dmg += activeEffect.value;
         if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0)
