@@ -417,20 +417,49 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
         };
+
+        // Sinergia de fuego: el tope de stacks sale de cuantos fuegos hay en el equipo
+        // (1 lateral / 2 laterales / 2 laterales + central), el daño por stack sigue
+        // saliendo de la rareza+estrellas de los perros de forja implicados.
+        const leftId   = slots[0];
+        const rightId  = slots[2];
+        const leftCfg  = leftId  && ForgeDogsConfig[leftId]  ? getConfig(leftId)  : null;
+        const rightCfg = rightId && ForgeDogsConfig[rightId] ? getConfig(rightId) : null;
+        const centerCfg = slots[1] ? getConfig(slots[1]) : null;
+
+        const fireHeatValue = (id, cfg) => {
+            const stars = gameState.forgeDogs?.[id]?.stars ?? 0;
+            const base  = cfg.rarity === 'legendary' ? 9 : cfg.rarity === 'epic' ? 7 : 5;
+            return base + stars * 0.6;
+        };
+
+        const leftIsFire   = leftCfg?.element   === 'fuego';
+        const rightIsFire  = rightCfg?.element  === 'fuego';
+        const centerIsFire = centerCfg?.element === 'fuego';
+
+        if (leftIsFire && rightIsFire) {
+            const leftVal  = fireHeatValue(leftId, leftCfg);
+            const rightVal = fireHeatValue(rightId, rightCfg);
+            eff.addHeatStack = true;
+            if (centerIsFire) {
+                eff.heatStackCap = 5;
+                eff.heatStackDmg = leftVal + rightVal;
+            } else {
+                eff.heatStackCap = 3;
+                eff.heatStackDmg = Math.max(leftVal, rightVal);
+            }
+        } else if (leftIsFire || rightIsFire) {
+            const [fireId, fireCfg] = leftIsFire ? [leftId, leftCfg] : [rightId, rightCfg];
+            eff.addHeatStack = true;
+            eff.heatStackCap = 2;
+            eff.heatStackDmg = fireHeatValue(fireId, fireCfg);
+        }
+
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
             const cfg = getConfig(id);
             if (!cfg?.element || !ForgeDogsConfig[id]) continue;
             {
                 switch (cfg.element) {
-                    case 'fuego': {
-                        const stars    = gameState.forgeDogs?.[id]?.stars ?? 0;
-                        const baseHeat = cfg.rarity === 'legendary' ? 9 : cfg.rarity === 'epic' ? 7 : 5;
-                        eff.heatStackDmg += baseHeat + stars * 0.6;
-                        eff.addHeatStack = true;
-                        const baseCap = cfg.rarity === 'legendary' ? 7 : cfg.rarity === 'epic' ? 5 : 3;
-                        eff.heatStackCap = Math.max(eff.heatStackCap, baseCap + (stars >= 5 ? 1 : 0));
-                        break;
-                    }
                     case 'agua': {
                         const stars     = gameState.forgeDogs?.[id]?.stars ?? 0;
                         const baseMulti = cfg.rarity === 'legendary' ? 1.30 : cfg.rarity === 'epic' ? 1.25 : 1.20;
