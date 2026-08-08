@@ -8,7 +8,7 @@ export const CombatConfig = {
                 {
                     id: 'spider-1',
                     name: 'Araña',
-                    hp: 350,
+                    hp: 500,
                     defense: 1,
                     timerSec: 20,
                     isBoss: false,

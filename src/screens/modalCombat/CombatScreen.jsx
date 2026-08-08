@@ -1330,7 +1330,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const nextUnlocked = nextEnemy && (
                             !nextEnemy.requiresStars ||
                             (raidBestStars[nextEnemy.requiresStars.enemyId] ?? 0) >= nextEnemy.requiresStars.stars
-                        );
+                        ) && !getAttemptStatus(nextEnemy).isOnCooldown;
                         return nextUnlocked ? (
                             <button
                                 className="combat-next-enemy-btn"
@@ -1340,9 +1340,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             </button>
                         ) : null;
                     })()}
-                    <button className="combat-retry-btn" onClick={() => { setPhase('select'); setTeam([]); }}>
-                        Repetir
-                    </button>
+                    {!getAttemptStatus(activeEnemy).isOnCooldown && (
+                        <button className="combat-retry-btn" onClick={() => { setPhase('select'); setTeam([]); }}>
+                            Repetir
+                        </button>
+                    )}
                     <button className="combat-exit-btn" onClick={goToBiome}>
                         Volver al inicio
                     </button>
