@@ -114,13 +114,13 @@ const MINER_COMBAT_INFO = {
     fuego:     { ult: 'Bola de fuego',   passive: 'Golpe de daño directo. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
     electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Usala 3 veces para igualar el daño de una bola de fuego.' },
     tierra:    { ult: 'Terremoto',       passive: 'Golpe de daño directo mas potente. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
-    agua:      { ult: 'Pistola de agua', passive: 'Multiplica el daño durante X taps. Multiplicador y taps aumentan con rareza y estrellas.' },
+    agua:      { ult: 'Pistola de agua', passive: 'Durante unos segundos suma daño fijo y baja la armadura del enemigo. La cantidad escala con rareza y estrellas.' },
     oscuro:    { ult: 'Furia',           passive: 'Los proximos X taps hacen daño extra segun la HP actual del enemigo.' },
 };
 
 const FORGE_PASSIVE_INFO = {
     fuego:     'Acumula calor con cada golpe del activo. A mayor calor, mas daño inflige.',
-    agua:      'Potencia al activo de forma pasiva. Su efecto aumenta con el tiempo de combate.',
+    agua:      'Cada varios taps dispara una ola de daño extra. Cuantos mas perros de agua, mas frecuente y mas fuerte.',
     electrico: 'Incrementa la probabilidad de golpe doble del activo desde su posicion lateral.',
     tierra:    'Cada impacto reduce la armadura del enemigo, haciendolo mas vulnerable.',
     oscuro:    'Inflige mas daño cuanta mas vida le quede al enemigo. Ideal para empezar fuerte.',
@@ -215,6 +215,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const comboCountRef                           = useRef(0);
     const comboGoldRef                            = useRef(0);
     const maxComboRef                             = useRef(0);
+    const waterTapCounterRef                      = useRef(0);
 
     const SWITCH_COOLDOWN = 6;
 
@@ -282,6 +283,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             lastTapTimeRef.current = null;
             comboGoldRef.current = 0;
             maxComboRef.current = 0;
+            waterTapCounterRef.current = 0;
         }
     }, [isOpen]);
 
@@ -301,13 +303,18 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             });
             setUltCooldown(prev => Math.max(0, prev - 1));
             setActiveEffect(prev => {
-                if (!prev || prev.type === 'doubleHits' || prev.type === 'damageMultiTaps' || prev.type === 'furyTaps') return prev;
+                if (!prev || prev.type === 'doubleHits' || prev.type === 'furyTaps') return prev;
                 const remaining = prev.remaining - 1;
                 return remaining <= 0 ? null : { ...prev, remaining };
             });
         }, 1000);
         return () => clearTimeout(t);
     }, [phase, timer, fightStarted]);
+
+    useEffect(() => {
+        if (!gameState.debugForceEndFight || phase !== 'fight') return;
+        setEnemyHp(0);
+    }, [gameState.debugForceEndFight]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
@@ -417,6 +424,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             doubleHitChance: 0, damageMulti: 1, damageAmp: 1,
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
             oscuroPct: 0, oscuroFlatMin: 0,
+            waterInterval: 0, waterBurst: 0,
         };
 
         // Sinergia de fuego: el tope de stacks sale de cuantos fuegos hay en el equipo
@@ -478,18 +486,31 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.oscuroFlatMin = 5;
         }
 
+        // Sinergia de agua: cada X taps se dispara un golpe extra de daño plano
+        // (chorro/olita/tsunami). Cuantos mas perros de agua, mas frecuente Y mas
+        // fuerte el golpe, sin depender de rareza/estrellas.
+        const leftIsWater   = leftCfg?.element   === 'agua';
+        const rightIsWater  = rightCfg?.element  === 'agua';
+        const centerIsWater = centerCfg?.element === 'agua';
+
+        if (leftIsWater && rightIsWater) {
+            if (centerIsWater) {
+                eff.waterInterval = 2;
+                eff.waterBurst    = 30;
+            } else {
+                eff.waterInterval = 3;
+                eff.waterBurst    = 15;
+            }
+        } else if (leftIsWater || rightIsWater) {
+            eff.waterInterval = 5;
+            eff.waterBurst    = 8;
+        }
+
         for (const id of [slots[0], slots[2]].filter(Boolean)) {
             const cfg = getConfig(id);
             if (!cfg?.element || !ForgeDogsConfig[id]) continue;
             {
                 switch (cfg.element) {
-                    case 'agua': {
-                        const stars     = gameState.forgeDogs?.[id]?.stars ?? 0;
-                        const baseMulti = cfg.rarity === 'legendary' ? 1.30 : cfg.rarity === 'epic' ? 1.25 : 1.20;
-                        const step      = cfg.rarity === 'rare' ? 0.01 : 0.02;
-                        eff.damageMulti *= baseMulti + stars * step;
-                        break;
-                    }
                     case 'electrico': {
                         const stars      = gameState.forgeDogs?.[id]?.stars ?? 0;
                         const baseChance = cfg.rarity === 'legendary' ? 0.14 : cfg.rarity === 'epic' ? 0.12 : 0.10;
@@ -527,12 +548,22 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         dmg *= passive.damageMulti;
         dmg *= passive.damageAmp;
         if (activeEffect?.type === 'damageMulti') dmg *= activeEffect.value;
-        if (activeEffect?.type === 'damageMultiTaps' && activeEffect.remaining > 0) dmg *= activeEffect.value;
+        if (activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0) dmg += activeEffect.value;
         if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0)
             dmg += Math.round(enemyHp * activeEffect.value);
         if (passive.oscuroPct > 0) dmg += Math.max(passive.oscuroFlatMin, Math.round(enemyHp * passive.oscuroPct));
+        if (passive.waterInterval > 0) {
+            waterTapCounterRef.current += 1;
+            if (waterTapCounterRef.current >= passive.waterInterval) {
+                dmg += passive.waterBurst;
+                waterTapCounterRef.current = 0;
+            }
+        }
 
-        const defense = activeEnemy?.defense ?? 0;
+        const waterUltActive = activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0;
+        const defense = waterUltActive
+            ? Math.max(0, 5 - activeEffect.armorCut)
+            : (activeEnemy?.defense ?? 0);
         dmg = Math.round(Math.max(1, dmg - defense));
 
         const activeCfg = activeId ? getConfig(activeId) : null;
@@ -592,13 +623,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 return remaining <= 0 ? null : { ...prev, remaining };
             });
         }
-        if (activeEffect?.type === 'damageMultiTaps' && activeEffect.remaining > 0) {
-            setActiveEffect(prev => {
-                if (!prev || prev.type !== 'damageMultiTaps') return prev;
-                const remaining = prev.remaining - 1;
-                return remaining <= 0 ? null : { ...prev, remaining };
-            });
-        }
         if (activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0) {
             setActiveEffect(prev => {
                 if (!prev || prev.type !== 'furyTaps') return prev;
@@ -654,10 +678,17 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     break;
                 }
                 case 'agua': {
-                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const base    = cfg.rarity === 'legendary' ? 3 : cfg.rarity === 'epic' ? 2 : 1;
-                    const tapBase = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 6 : 4;
-                    setActiveEffect({ type: 'damageMultiTaps', value: base + (stars / 5), remaining: Math.round(tapBase + stars * 0.5) });
+                    const stars       = gameState.dogs?.[activeId]?.stars ?? 0;
+                    const base        = cfg.rarity === 'legendary' ? 50 : cfg.rarity === 'epic' ? 30 : 15;
+                    const durationSec = cfg.rarity === 'legendary' ? 5 : cfg.rarity === 'epic' ? 4 : 3;
+                    const armorBase   = cfg.rarity === 'legendary' ? 3.5 : cfg.rarity === 'epic' ? 2.5 : 1.5;
+                    const armorStep   = cfg.rarity === 'rare' ? 0.2 : 0.1;
+                    setActiveEffect({
+                        type: 'damageAddTaps',
+                        value: base + stars * 3,
+                        armorCut: armorBase + stars * armorStep,
+                        remaining: durationSec,
+                    });
                     break;
                 }
                 case 'oscuro': {
@@ -729,6 +760,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         lastTapTimeRef.current = null;
         comboGoldRef.current = 0;
         maxComboRef.current = 0;
+        waterTapCounterRef.current = 0;
         setPhase('fight');
         if (!gameState.tutorial?.combatTutDone) setCombatTutStep(0);
     };
@@ -1163,9 +1195,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 x{activeEffect.value} DMG · {activeEffect.remaining}s
                             </span>
                         )}
-                        {activeEffect?.type === 'damageMultiTaps' && (
+                        {activeEffect?.type === 'damageAddTaps' && (
                             <span className="combat-effect-badge effect-buff">
-                                x{activeEffect.value.toFixed(1)} DMG · {activeEffect.remaining} taps
+                                +{activeEffect.value} DMG · {activeEffect.remaining}s
                             </span>
                         )}
                         {activeEffect?.type === 'furyTaps' && (
