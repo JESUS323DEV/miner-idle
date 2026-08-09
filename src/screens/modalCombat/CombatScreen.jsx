@@ -130,6 +130,16 @@ const ULT_COOLDOWN_BY_ELEMENT = {
     fuego: 12, electrico: 10, tierra: 15, agua: 12, oscuro: 8,
 };
 
+// Sinergias mixtas de early game: central + los 2 elementos laterales exactos
+// (sin importar el orden) que le dan bonus de daño plano por tap.
+const MIXED_SYNERGIES = {
+    agua:      'electrico+fuego',
+    oscuro:    'agua+fuego',
+    electrico: 'agua+fuego',
+};
+
+const mixedRarityValue = (cfg) => cfg?.rarity === 'legendary' ? 4 : cfg?.rarity === 'epic' ? 3 : 2;
+
 const CONSTANT_PASSIVE_ELEMENTS = ['agua', 'tierra', 'oscuro'];
 
 const COMBO_RESET_TIME         = 1000;
@@ -207,6 +217,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [combatTutStep, setCombatTutStep]       = useState(null);
     const [fightStarted, setFightStarted]         = useState(false);
     const [shakeKey, setShakeKey]                 = useState(0);
+    const [hintTick, setHintTick]                 = useState(0);
     const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
     const leftSlotRef                             = useRef(null);
@@ -326,6 +337,52 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
         return () => clearTimeout(autoFireTimerRef.current);
     }, [ultCooldown, autoUlt]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (phase !== 'select' || !team[1]) return;
+        const interval = setInterval(() => setHintTick(t => t + 1), 2200);
+        return () => clearInterval(interval);
+    }, [phase, team[1]]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const getLateralSynergyHint = (centerCfg, slotIndex, pairIndex) => {
+        if (!centerCfg?.element) return null;
+        const centerElement = centerCfg.element;
+        const otherId  = team[slotIndex === 0 ? 2 : 0];
+        const otherCfg = otherId ? getConfig(otherId) : null;
+        const mixedPair = MIXED_SYNERGIES[centerElement] ? MIXED_SYNERGIES[centerElement].split('+') : [];
+
+        if (!otherCfg) {
+            // sin nada en ninguno de los 2 laterales: cicla entre combos VALIDOS a la
+            // vez (ambos agua / electrico+fuego / fuego+electrico), nunca el mismo
+            // elemento suelto en los 2 lados a la vez (eso no es ninguna sinergia real)
+            const pairOptions = [[centerElement, centerElement]];
+            if (mixedPair.length === 2) {
+                pairOptions.push([mixedPair[0], mixedPair[1]]);
+                pairOptions.push([mixedPair[1], mixedPair[0]]);
+            }
+            const pair = pairOptions[pairIndex % pairOptions.length];
+            return slotIndex === 0 ? pair[0] : pair[1];
+        }
+        if (otherCfg.element === centerElement) return centerElement;
+        if (mixedPair.includes(otherCfg.element)) {
+            return mixedPair.find(e => e !== otherCfg.element) ?? null;
+        }
+        return null;
+    };
+
+    const getActiveMixedSynergy = () => {
+        const [leftId, centerId, rightId] = team;
+        if (!leftId || !centerId || !rightId) return null;
+        const leftCfg   = ForgeDogsConfig[leftId]  ? getConfig(leftId)  : null;
+        const rightCfg  = ForgeDogsConfig[rightId] ? getConfig(rightId) : null;
+        const centerCfg = getConfig(centerId);
+        if (!leftCfg || !rightCfg || !centerCfg?.element) return null;
+        const mixedPair = MIXED_SYNERGIES[centerCfg.element];
+        if (!mixedPair) return null;
+        const lateralPair = [leftCfg.element, rightCfg.element].filter(Boolean).sort().join('+');
+        if (lateralPair !== mixedPair) return null;
+        return { bonus: mixedRarityValue(leftCfg) + mixedRarityValue(rightCfg) + mixedRarityValue(centerCfg) };
+    };
 
     const rollRarity = (rarityPool) => {
         const total = rarityPool.reduce((s, r) => s + r.weight, 0);
@@ -563,14 +620,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         // entre si) dan un bonus de daño plano por tap. Cada uno de los 3 perros
         // implicados aporta segun su PROPIA rareza (rare +2, epic +3, legendary +4),
         // para que 3 rares no rindan igual que 3 legendarios.
-        const MIXED_SYNERGIES = {
-            agua:      'electrico+fuego',
-            oscuro:    'agua+fuego',
-            // tierra+fuego/oscuro quitada: se sentia rota (tierra de central ya pega
-            // fuerte con su ultimate, sumado a los tier1 planos de fuego y oscuro).
-            electrico: 'agua+fuego',
-        };
-        const mixedRarityValue = (cfg) => cfg?.rarity === 'legendary' ? 4 : cfg?.rarity === 'epic' ? 3 : 2;
+        // (tierra+fuego/oscuro quitada de MIXED_SYNERGIES: se sentia rota, tierra de
+        // central ya pega fuerte con su ultimate sumado a los tier1 planos de fuego y oscuro)
         const lateralPair = [leftCfg?.element, rightCfg?.element].filter(Boolean).sort().join('+');
         if (centerCfg?.element && MIXED_SYNERGIES[centerCfg.element] === lateralPair) {
             eff.mixedSynergyBonus = mixedRarityValue(leftCfg) + mixedRarityValue(rightCfg) + mixedRarityValue(centerCfg);
@@ -947,33 +998,60 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         <p className="combat-subtitle-meta">❤️ {activeEnemy.hp} · ⏱ {activeEnemy.timerSec}s</p>
                     </div>
 
-                    <div className="combat-selected-slots">
-                        {[0, 1, 2].map(i => {
-                            const id = team[i];
-                            if (id) {
-                                const cfg = getConfig(id);
-                                return (
-                                    <div
-                                        key={i}
-                                        className={`combat-sel-slot filled dog-rarity-${cfg?.rarity}`}
-                                        onClick={() => setTeam(prev => prev.map((x, j) => j === i ? null : x))}
-                                    >
-                                        <img src={getAsset(id)} alt={id} />
-                                        <span>{cfg?.name}</span>
-                                    </div>
-                                );
-                            }
+                    {(() => {
+                        const activeMixed = getActiveMixedSynergy();
+                        return (
+                            <>
+                                {activeMixed && <span className="combat-synergy-banner">¡Combo elemental!</span>}
+                                <div className="combat-selected-slots">
+                                    {[0, 1, 2].map(i => {
+                                        const id = team[i];
+                                        if (id) {
+                                            const cfg = getConfig(id);
+                                            const slotElemInfo = cfg?.element ? ELEMENT_ICON[cfg.element] : null;
+                                            return (
+                                                <div key={i} className="csel-column">
+                                                    <div
+                                                        className={`combat-sel-slot filled dog-rarity-${cfg?.rarity}`}
+                                                        onClick={() => setTeam(prev => prev.map((x, j) => j === i ? null : x))}
+                                                    >
+                                                        <img src={getAsset(id)} alt={id} />
+                                                        <span>{cfg?.name}</span>
+                                                    </div>
+                                                    {slotElemInfo && (
+                                                        <span className={`csel-center-badge${activeMixed ? ' csel-badge-glow' : ''}`}>
+                                                            <slotElemInfo.Icon size={13} color={slotElemInfo.color} />
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        }
+                            const centerId  = team[1];
+                            const centerCfg = centerId ? getConfig(centerId) : null;
+                            const hintElement = i !== 1 && centerCfg ? getLateralSynergyHint(centerCfg, i, hintTick) : null;
+                            const hintInfo = hintElement ? ELEMENT_ICON[hintElement] : null;
                             return (
-                                <div key={i} className="combat-sel-slot empty">
-                                    <span className="csel-label">{i === 1 ? 'Minero' : 'Forja'}</span>
-                                    <span>+</span>
+                                <div key={i} className="csel-column">
+                                    <div className="combat-sel-slot empty">
+                                        <span className="csel-label">{i === 1 ? 'Minero' : 'Forja'}</span>
+                                        {hintInfo ? (
+                                            <span key={`${hintElement}-${hintTick}`} className="csel-hint-icon">
+                                                <hintInfo.Icon size={18} color={hintInfo.color} />
+                                            </span>
+                                        ) : (
+                                            <span>+</span>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
-                    </div>
+                                </div>
+                            </>
+                        );
+                    })()}
 
                     <button
-                        className={`combat-start-btn${team.every(id => !id) ? ' combat-start-disabled' : ''}`}
+                        className={`combat-start-btn${team.every(id => !id) ? ' combat-start-disabled' : ' combat-start-ready'}`}
                         onClick={startFight}
                         disabled={team.every(id => !id)}
                     >
