@@ -136,6 +136,7 @@ const MIXED_SYNERGIES = {
     agua:      'electrico+fuego',
     oscuro:    'agua+fuego',
     electrico: 'agua+fuego',
+    tierra:    'electrico+fuego',
 };
 
 const mixedRarityValue = (cfg) => cfg?.rarity === 'legendary' ? 4 : cfg?.rarity === 'epic' ? 3 : 2;
@@ -382,6 +383,17 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const lateralPair = [leftCfg.element, rightCfg.element].filter(Boolean).sort().join('+');
         if (lateralPair !== mixedPair) return null;
         return { bonus: mixedRarityValue(leftCfg) + mixedRarityValue(rightCfg) + mixedRarityValue(centerCfg) };
+    };
+
+    const getActiveElementSynergy = () => {
+        const [leftId, centerId, rightId] = team;
+        if (!leftId || !centerId || !rightId) return null;
+        const leftCfg   = getConfig(leftId);
+        const centerCfg = getConfig(centerId);
+        const rightCfg  = getConfig(rightId);
+        if (!leftCfg?.element || !centerCfg?.element || !rightCfg?.element) return null;
+        if (leftCfg.element !== centerCfg.element || centerCfg.element !== rightCfg.element) return null;
+        return { element: centerCfg.element };
     };
 
     const rollRarity = (rarityPool) => {
@@ -804,6 +816,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
                     const pct     = cfg.rarity === 'legendary' ? 0.08 : cfg.rarity === 'epic' ? 0.05 : 0.03;
                     const tapBase = cfg.rarity === 'legendary' ? 4 : cfg.rarity === 'epic' ? 3 : 2;
+                    const cdBase  = cfg.rarity === 'legendary' ? 8 : cfg.rarity === 'epic' ? 9 : 10;
+                    const cdStep  = cfg.rarity === 'legendary' ? 0.3 : 0.2;
+                    setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
                     setActiveEffect({ type: 'furyTaps', value: pct, remaining: Math.round(tapBase + stars * 0.5) });
                     break;
                 }
@@ -1000,9 +1015,17 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
                     {(() => {
                         const activeMixed = getActiveMixedSynergy();
+                        const activeElementSynergy = getActiveElementSynergy();
+                        const elementSynergyInfo = activeElementSynergy ? ELEMENT_ICON[activeElementSynergy.element] : null;
+                        const anySynergyActive = !!activeMixed || !!activeElementSynergy;
                         return (
                             <>
                                 {activeMixed && <span className="combat-synergy-banner">¡Combo elemental!</span>}
+                                {activeElementSynergy && elementSynergyInfo && (
+                                    <span className={`combat-synergy-banner csb-elem-${activeElementSynergy.element}`}>
+                                        ¡Sinergia total! <elementSynergyInfo.Icon size={12} color={elementSynergyInfo.color} />
+                                    </span>
+                                )}
                                 <div className="combat-selected-slots">
                                     {[0, 1, 2].map(i => {
                                         const id = team[i];
@@ -1019,7 +1042,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                                         <span>{cfg?.name}</span>
                                                     </div>
                                                     {slotElemInfo && (
-                                                        <span className={`csel-center-badge${activeMixed ? ' csel-badge-glow' : ''}`}>
+                                                        <span className={`csel-center-badge${anySynergyActive ? ' csel-badge-glow' : ''}`}>
                                                             <slotElemInfo.Icon size={13} color={slotElemInfo.color} />
                                                         </span>
                                                     )}

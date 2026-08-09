@@ -431,6 +431,7 @@
 .combat-synergy-banner {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     color: #ffd740;
     background: rgba(255,215,64,0.12);
     border: 1px solid rgba(255,215,64,0.4);
@@ -442,6 +443,12 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+
+.csb-elem-fuego     { color: #ff6b35; background: rgba(255,107,53,0.12);  border-color: rgba(255,107,53,0.4); }
+.csb-elem-electrico { color: #FFD700; background: rgba(255,215,0,0.12);   border-color: rgba(255,215,0,0.4); }
+.csb-elem-agua       { color: #4fc3f7; background: rgba(79,195,247,0.12); border-color: rgba(79,195,247,0.4); }
+.csb-elem-tierra     { color: #8b6914; background: rgba(139,105,20,0.15); border-color: rgba(139,105,20,0.4); }
+.csb-elem-oscuro     { color: #b45cff; background: rgba(180,92,255,0.12); border-color: rgba(180,92,255,0.4); }
 
 .csel-hint-icon {
     display: flex;
