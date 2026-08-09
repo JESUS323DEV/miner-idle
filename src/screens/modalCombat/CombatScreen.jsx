@@ -112,7 +112,7 @@ const ELEMENT_ICON = {
 
 const MINER_COMBAT_INFO = {
     fuego:     { ult: 'Bola de fuego',   passive: 'Golpe de daño directo. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
-    electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Usala 3 veces para igualar el daño de una bola de fuego.' },
+    electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Cada 3er disparo es un golpe cargado con mas daño, y deja un campo de 1s que sube la prob. de golpe doble (con sinergia completa, tambien recorta la armadura del enemigo).' },
     tierra:    { ult: 'Terremoto',       passive: 'Golpe de daño directo mas potente. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
     agua:      { ult: 'Pistola de agua', passive: 'Durante unos segundos suma daño fijo y baja la armadura del enemigo. La cantidad escala con rareza y estrellas.' },
     oscuro:    { ult: 'Furia',           passive: 'Los proximos X taps hacen daño extra segun la HP actual del enemigo.' },
@@ -121,7 +121,7 @@ const MINER_COMBAT_INFO = {
 const FORGE_PASSIVE_INFO = {
     fuego:     'Acumula calor con cada golpe del activo. A mayor calor, mas daño inflige.',
     agua:      'Cada varios taps dispara una ola de daño extra. Cuantos mas perros de agua, mas frecuente y mas fuerte.',
-    electrico: 'Incrementa la probabilidad de golpe doble del activo desde su posicion lateral.',
+    electrico: 'Cada varios taps suelta un chispazo de daño extra. Cuantos mas perros de electrico, mas frecuente y mas fuerte.',
     tierra:    'Reduce el cooldown del poder del activo, sea del elemento que sea.',
     oscuro:    'Inflige mas daño cuanta mas vida le quede al enemigo. Ideal para empezar fuerte.',
 };
@@ -148,7 +148,7 @@ const ELEMENT_SYNERGY_DESC = {
     agua:      'Cada pocos taps dispara una ola de daño extra: más agua, más frecuente y más fuerte.',
     oscuro:    'Suma daño según el % de vida ACTUAL del enemigo, ideal para arrancar fuerte.',
     tierra:    'Reduce el cooldown de cualquier poder. Con los 3 de tierra, baja directo el coste de su propia ultimate.',
-    electrico: 'Sube la probabilidad de golpe doble. Con los 3 eléctricos se suman los bonus de ambos laterales.',
+    electrico: 'Cada varios taps suelta un chispazo de daño extra, como la ola de agua. Mas electricos, mas frecuente y mas fuerte.',
 };
 
 const MIXED_SYNERGY_DESC = 'Combo mixto: suma daño plano por tap según la rareza de los 3 perros implicados.';
@@ -232,6 +232,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [shakeKey, setShakeKey]                 = useState(0);
     const [hintTick, setHintTick]                 = useState(0);
     const [showSynergyCodex, setShowSynergyCodex] = useState(false);
+    const [ultImpactActive, setUltImpactActive]   = useState(false);
+    const [ultImpactElement, setUltImpactElement] = useState(null);
     const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
     const leftSlotRef                             = useRef(null);
@@ -241,6 +243,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const comboGoldRef                            = useRef(0);
     const maxComboRef                             = useRef(0);
     const waterTapCounterRef                      = useRef(0);
+    const electricTapCounterRef                   = useRef(0);
 
     const SWITCH_COOLDOWN = 6;
 
@@ -305,16 +308,18 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setFightStarted(false);
             setShakeKey(0);
             setShowSynergyCodex(false);
+            setUltImpactActive(false);
             comboCountRef.current = 0;
             lastTapTimeRef.current = null;
             comboGoldRef.current = 0;
             maxComboRef.current = 0;
             waterTapCounterRef.current = 0;
+            electricTapCounterRef.current = 0;
         }
     }, [isOpen]);
 
     useEffect(() => {
-        if (phase !== 'fight' || timer <= 0 || !fightStarted) return;
+        if (phase !== 'fight' || timer <= 0 || !fightStarted || ultImpactActive) return;
         const t = setTimeout(() => {
             setTimer(prev => prev - 1);
             setAbilityCooldowns(prev => {
@@ -335,7 +340,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             });
         }, 1000);
         return () => clearTimeout(t);
-    }, [phase, timer, fightStarted]);
+    }, [phase, timer, fightStarted, ultImpactActive]);
 
     useEffect(() => {
         if (!gameState.debugForceEndFight || phase !== 'fight') return;
@@ -508,7 +513,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             heatStackDmg: 0, addHeatStack: false, heatStackCap: 0,
             oscuroPct: 0, oscuroFlatMin: 0,
             waterInterval: 0, waterBurst: 0,
-            ultCdReduction: 0, earthFullSynergy: false,
+            electricSparkInterval: 0, electricSparkBurst: 0,
+            ultCdReduction: 0, earthFullSynergy: false, electricFullSynergy: false,
             mixedSynergyBonus: 0,
         };
 
@@ -620,26 +626,25 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.ultCdReduction = 0.5;
         }
 
-        // Sinergia de electrico: mismo patron que fuego. 1 lateral = su propio valor,
-        // 2 laterales con central random = el mejor de los dos, sinergia completa
-        // (central tambien electrico) = se suman los dos (lo que antes pasaba siempre).
-        const electricChance = (id, cfg) => {
-            const stars      = gameState.forgeDogs?.[id]?.stars ?? 0;
-            const baseChance = cfg.rarity === 'legendary' ? 0.14 : cfg.rarity === 'epic' ? 0.12 : 0.10;
-            const step       = cfg.rarity === 'rare' ? 0.008 : 0.006;
-            return baseChance + stars * step;
-        };
+        // Sinergia de electrico: "chispazo", mismo patron que la ola de agua (cada X
+        // taps suelta un golpe extra de daño plano). La ulti (ciclo de 3 disparos +
+        // campo electrico) se gestiona aparte en handleUlt/handleTap.
         const leftIsElectric   = leftCfg?.element   === 'electrico';
         const rightIsElectric  = rightCfg?.element  === 'electrico';
         const centerIsElectric = centerCfg?.element === 'electrico';
 
         if (leftIsElectric && rightIsElectric) {
-            const leftVal  = electricChance(leftId, leftCfg);
-            const rightVal = electricChance(rightId, rightCfg);
-            eff.doubleHitChance = centerIsElectric ? leftVal + rightVal : Math.max(leftVal, rightVal);
+            if (centerIsElectric) {
+                eff.electricSparkInterval = 2;
+                eff.electricSparkBurst    = 30;
+            } else {
+                eff.electricSparkInterval = 3;
+                eff.electricSparkBurst    = 15;
+            }
+            eff.electricFullSynergy = centerIsElectric;
         } else if (leftIsElectric || rightIsElectric) {
-            const [id, cfg] = leftIsElectric ? [leftId, leftCfg] : [rightId, rightCfg];
-            eff.doubleHitChance = electricChance(id, cfg);
+            eff.electricSparkInterval = 5;
+            eff.electricSparkBurst    = 8;
         }
 
         // Sinergias mixtas de early game: central + 2 laterales concretos (distintos
@@ -657,7 +662,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     };
 
     const handleTap = (e) => {
-        if (phase !== 'fight') return;
+        if (phase !== 'fight' || ultImpactActive) return;
         if (!fightStarted) setFightStarted(true);
         if (combatTutStep === 0) {
             const isForge = slots[1] ? !!ForgeDogsConfig[slots[1]] : false;
@@ -682,23 +687,27 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 waterTapCounterRef.current = 0;
             }
         }
+        if (passive.electricSparkInterval > 0) {
+            electricTapCounterRef.current += 1;
+            if (electricTapCounterRef.current >= passive.electricSparkInterval) {
+                dmg += passive.electricSparkBurst;
+                electricTapCounterRef.current = 0;
+            }
+        }
         if (passive.mixedSynergyBonus > 0) dmg += passive.mixedSynergyBonus;
 
         const waterUltActive = activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0;
+        const electricFieldActive = activeEffect?.type === 'electricField' && activeEffect.remaining > 0;
         const defense = waterUltActive
             ? Math.max(0, 5 - activeEffect.armorCut)
-            : (activeEnemy?.defense ?? 0);
+            : electricFieldActive
+                ? Math.max(0, (activeEnemy?.defense ?? 0) - activeEffect.armorCut)
+                : (activeEnemy?.defense ?? 0);
         dmg = Math.round(Math.max(1, dmg - defense));
 
-        const activeCfg = activeId ? getConfig(activeId) : null;
-        const isElectricMiner = activeCfg?.element === 'electrico' && !ForgeDogsConfig[activeId];
-        if (isElectricMiner && electricStacks > 0) {
-            const stars = gameState.dogs?.[activeId]?.stars ?? 0;
-            const base  = activeCfg.rarity === 'legendary' ? 15 : activeCfg.rarity === 'epic' ? 10 : 5;
-            dmg += electricStacks * (base + stars * 0.6);
-        }
         const isGuaranteedDouble = activeEffect?.type === 'doubleHits' && activeEffect.remaining > 0;
-        const isDoubleHit = isGuaranteedDouble || Math.random() < passive.doubleHitChance;
+        const fieldChance = (activeEffect?.type === 'electricField' && activeEffect.remaining > 0) ? activeEffect.chance : 0;
+        const isDoubleHit = isGuaranteedDouble || Math.random() < (passive.doubleHitChance + fieldChance);
         const finalDmg = isDoubleHit ? dmg * 2 : dmg;
         setEnemyHp(prev => Math.max(0, prev - finalDmg));
 
@@ -758,6 +767,16 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
     };
 
+    const triggerUltImpact = (dmg, element) => {
+        setUltImpactActive(true);
+        setUltImpactElement(element);
+        addFloat('ultDamage', { value: dmg, element }, 900);
+        setTimeout(() => {
+            setEnemyHp(prev => Math.max(0, prev - dmg));
+            setUltImpactActive(false);
+        }, 400);
+    };
+
     const handleUlt = () => {
         if (phase !== 'fight' || ultCooldown > 0 || !slots[1]) return;
         if (!fightStarted) setFightStarted(true);
@@ -766,101 +785,92 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const activeId = slots[1];
         const cfg      = getConfig(activeId);
         const element  = cfg?.element;
-        const isForge  = !!ForgeDogsConfig[activeId];
-        const pickDmg  = gameState.pickaxe.miningPowerByMaterial?.[gameState.pickaxe.material] ?? 2;
         const passive  = getPassiveEffects();
 
         setUltCooldown(ULT_COOLDOWN_BY_ELEMENT[element] ?? 12);
         const defense = activeEnemy?.defense ?? 0;
         const applyDefense = (dmg) => Math.max(1, dmg - defense);
 
-        if (!isForge) {
-            switch (element) {
-                case 'fuego': {
-                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const baseDmg = cfg.rarity === 'legendary' ? 350 : 250;
-                    const baseCd  = cfg.rarity === 'legendary' ? 10 : 12;
+        switch (element) {
+            case 'fuego': {
+                const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                const baseDmg = cfg.rarity === 'legendary' ? 350 : 250;
+                const baseCd  = cfg.rarity === 'legendary' ? 10 : 12;
+                const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
+                setUltCooldown(Math.round(baseCd - stars * cdStep));
+                triggerUltImpact(applyDefense(baseDmg + stars * 20), element);
+                break;
+            }
+            case 'electrico': {
+                const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                const baseCd  = cfg.rarity === 'legendary' ? 5 : 6;
+                const cdStep  = cfg.rarity === 'legendary' ? 0.2 : 0.3;
+                setUltCooldown(Math.round(baseCd - stars * cdStep));
+
+                const shotIndex = electricStacks; // 0 = 1er disparo, 1 = 2do, 2 = 3ero (cargado)
+                const shotBase  = cfg.rarity === 'legendary' ? [200, 300, 450][shotIndex] : [150, 175, 250][shotIndex];
+                triggerUltImpact(applyDefense(shotBase + stars * 20), element);
+
+                if (shotIndex >= 2) {
+                    setElectricStacks(0);
+                    const fieldChance = cfg.rarity === 'legendary' ? 0.5 : cfg.rarity === 'epic' ? 0.3 : 0.2;
+                    let armorCut = 0;
+                    if (passive.electricFullSynergy) {
+                        const lateralArmorCut = (id) => {
+                            const latCfg   = getConfig(id);
+                            const latStars = gameState.forgeDogs?.[id]?.stars ?? 0;
+                            const base = latCfg.rarity === 'legendary' ? 5 : latCfg.rarity === 'epic' ? 4 : 3;
+                            const step = latCfg.rarity === 'legendary' ? 1.0 : latCfg.rarity === 'epic' ? 0.6 : 0.4;
+                            return base + latStars * step;
+                        };
+                        armorCut = lateralArmorCut(slots[0]) + lateralArmorCut(slots[2]);
+                    }
+                    setActiveEffect({ type: 'electricField', chance: fieldChance, armorCut, remaining: 1 });
+                } else {
+                    setElectricStacks(prev => prev + 1);
+                }
+                break;
+            }
+            case 'tierra': {
+                const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                const baseDmg = cfg.rarity === 'legendary' ? 750 : cfg.rarity === 'epic' ? 550 : 450;
+                if (passive.earthFullSynergy) {
+                    const earthBase = cfg.rarity === 'legendary' ? 1.5 : cfg.rarity === 'epic' ? 1 : 0.5;
+                    setUltCooldown(Math.round((7 - (earthBase + stars * 0.1)) * 10) / 10);
+                } else {
+                    const baseCd  = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 13;
                     const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
                     setUltCooldown(Math.round(baseCd - stars * cdStep));
-                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 20)));
-                    break;
                 }
-                case 'electrico': {
-                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const baseDmg = cfg.rarity === 'legendary' ? 15 : 10;
-                    const baseCd  = cfg.rarity === 'legendary' ? 5 : 6;
-                    const cdStep  = cfg.rarity === 'legendary' ? 0.2 : 0.3;
-                    setUltCooldown(Math.round(baseCd - stars * cdStep));
-                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 10)));
-                    setElectricStacks(prev => Math.min(3, prev + 1));
-                    break;
-                }
-                case 'tierra': {
-                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const baseDmg = cfg.rarity === 'legendary' ? 750 : cfg.rarity === 'epic' ? 550 : 450;
-                    if (passive.earthFullSynergy) {
-                        const earthBase = cfg.rarity === 'legendary' ? 1.5 : cfg.rarity === 'epic' ? 1 : 0.5;
-                        setUltCooldown(Math.round((7 - (earthBase + stars * 0.1)) * 10) / 10);
-                    } else {
-                        const baseCd  = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 13;
-                        const cdStep  = cfg.rarity === 'legendary' ? 0.4 : 0.6;
-                        setUltCooldown(Math.round(baseCd - stars * cdStep));
-                    }
-                    setEnemyHp(prev => Math.max(0, prev - applyDefense(baseDmg + stars * 20)));
-                    break;
-                }
-                case 'agua': {
-                    const stars       = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const base        = cfg.rarity === 'legendary' ? 50 : cfg.rarity === 'epic' ? 30 : 10;
-                    const durationSec = cfg.rarity === 'legendary' ? 5 : cfg.rarity === 'epic' ? 4 : 3;
-                    const armorBase   = cfg.rarity === 'legendary' ? 3.5 : cfg.rarity === 'epic' ? 2.5 : 1.0;
-                    const armorStep   = cfg.rarity === 'rare' ? 0.2 : 0.1;
-                    const cdBase      = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 15;
-                    const cdStep      = cfg.rarity === 'legendary' ? 0.4 : cfg.rarity === 'epic' ? 0.5 : 0.6;
-                    setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
-                    setActiveEffect({
-                        type: 'damageAddTaps',
-                        value: base + stars * 3,
-                        armorCut: armorBase + stars * armorStep,
-                        remaining: durationSec,
-                    });
-                    break;
-                }
-                case 'oscuro': {
-                    const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const pct     = cfg.rarity === 'legendary' ? 0.08 : cfg.rarity === 'epic' ? 0.05 : 0.03;
-                    const tapBase = cfg.rarity === 'legendary' ? 4 : cfg.rarity === 'epic' ? 3 : 2;
-                    const cdBase  = cfg.rarity === 'legendary' ? 8 : cfg.rarity === 'epic' ? 9 : 10;
-                    const cdStep  = cfg.rarity === 'legendary' ? 0.3 : 0.2;
-                    setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
-                    setActiveEffect({ type: 'furyTaps', value: pct, remaining: Math.round(tapBase + stars * 0.5) });
-                    break;
-                }
+                triggerUltImpact(applyDefense(baseDmg + stars * 20), element);
+                break;
             }
-        } else {
-            switch (element) {
-                case 'fuego': {
-                    const dmg = applyDefense(Math.round(Math.max(5, pickDmg * 12 + heatStacks * 10)));
-                    setEnemyHp(prev => Math.max(0, prev - dmg));
-                    setHeatStacks(0);
-                    break;
-                }
-                case 'agua':
-                    setActiveEffect({ type: 'damageMulti', value: 1.8, remaining: 6 });
-                    break;
-                case 'electrico': {
-                    const dmg = applyDefense(Math.round(Math.max(5, pickDmg * 28)));
-                    setEnemyHp(prev => Math.max(0, prev - dmg));
-                    break;
-                }
-                case 'tierra': {
-                    const dmg = applyDefense(Math.round(Math.max(5, pickDmg * 35)));
-                    setEnemyHp(prev => Math.max(0, prev - dmg));
-                    break;
-                }
-                case 'oscuro':
-                    setActiveEffect({ type: 'damageMulti', value: 2.5, remaining: 6 });
-                    break;
+            case 'agua': {
+                const stars       = gameState.dogs?.[activeId]?.stars ?? 0;
+                const base        = cfg.rarity === 'legendary' ? 50 : cfg.rarity === 'epic' ? 30 : 10;
+                const durationSec = cfg.rarity === 'legendary' ? 5 : cfg.rarity === 'epic' ? 4 : 3;
+                const armorBase   = cfg.rarity === 'legendary' ? 3.5 : cfg.rarity === 'epic' ? 2.5 : 1.0;
+                const armorStep   = cfg.rarity === 'rare' ? 0.2 : 0.1;
+                const cdBase      = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 15;
+                const cdStep      = cfg.rarity === 'legendary' ? 0.4 : cfg.rarity === 'epic' ? 0.5 : 0.6;
+                setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
+                setActiveEffect({
+                    type: 'damageAddTaps',
+                    value: base + stars * 3,
+                    armorCut: armorBase + stars * armorStep,
+                    remaining: durationSec,
+                });
+                break;
+            }
+            case 'oscuro': {
+                const stars   = gameState.dogs?.[activeId]?.stars ?? 0;
+                const pct     = cfg.rarity === 'legendary' ? 0.08 : cfg.rarity === 'epic' ? 0.05 : 0.03;
+                const tapBase = cfg.rarity === 'legendary' ? 4 : cfg.rarity === 'epic' ? 3 : 2;
+                const cdBase  = cfg.rarity === 'legendary' ? 8 : cfg.rarity === 'epic' ? 9 : 10;
+                const cdStep  = cfg.rarity === 'legendary' ? 0.3 : 0.2;
+                setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
+                setActiveEffect({ type: 'furyTaps', value: pct, remaining: Math.round(tapBase + stars * 0.5) });
+                break;
             }
         }
 
@@ -903,6 +913,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         comboGoldRef.current = 0;
         maxComboRef.current = 0;
         waterTapCounterRef.current = 0;
+        electricTapCounterRef.current = 0;
         setPhase('fight');
         if (!gameState.tutorial?.combatTutDone) setCombatTutStep(0);
     };
@@ -1299,7 +1310,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 src={enemyImgs[activeEnemy.id]}
                                 alt={activeEnemy.name}
                                 key={shakeKey}
-                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}`}
+                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}`}
                             />
                             {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
                             {floats.map(f => {
@@ -1314,6 +1325,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                     return (
                                         <div key={f.id} className="combat-floating-combo" style={{ left: `${f.x}px`, top: `${f.y}px` }}>
                                             Combo x{f.value}
+                                        </div>
+                                    );
+                                }
+                                if (f.type === 'ultDamage') {
+                                    return (
+                                        <div key={f.id} className={`combat-floating-ult-damage combat-ult-damage-${f.element}`}>
+                                            -{f.value}
                                         </div>
                                     );
                                 }
@@ -1382,19 +1400,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const id      = slots[1];
                         const cfg     = getConfig(id);
                         const element = cfg?.element;
-                        const isForge = !!ForgeDogsConfig[id];
-
-                        if (isForge) {
-                            const elemInfo = element ? ELEMENT_ICON[element] : null;
-                            const ElemIcon = elemInfo?.Icon ?? Flame;
-                            const elemColor = elemInfo?.color ?? '#ff6b35';
-                            return (
-                                <div className="combat-passive-info">
-                                    <ElemIcon size={13} color={elemColor} />
-                                    <span>{FORGE_PASSIVE_INFO[element] ?? 'Activa su pasiva cuando es lateral.'}</span>
-                                </div>
-                            );
-                        }
 
                         const isReady = ultCooldown === 0;
                         const asset   = ULT_ASSET[element];
@@ -1448,6 +1453,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 <Moon size={11} color="#b45cff" /> {Math.round(activeEffect.value * 100)}% HP · {activeEffect.remaining} taps
                             </span>
                         )}
+                        {activeEffect?.type === 'electricField' && (
+                            <span className="combat-effect-badge effect-electrico">
+                                <Zap size={11} color="#ffe033" /> +{Math.round(activeEffect.chance * 100)}% doble
+                                {activeEffect.armorCut > 0 && <> · -{Math.round(activeEffect.armorCut)} armadura</>}
+                                {' '}· {activeEffect.remaining}s
+                            </span>
+                        )}
                         {heatStacks > 0 && (
                             <span className="combat-effect-badge effect-fuego">
                                 <Flame size={11} color="#ff6b35" /> {heatStacks}
@@ -1455,7 +1467,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         )}
                         {electricStacks > 0 && (
                             <span className="combat-effect-badge effect-electrico">
-                                <Zap size={11} color="#ffe033" /> {electricStacks}/3
+                                <Zap size={11} color="#ffe033" /> {electricStacks}/2
                             </span>
                         )}
                     </div>
