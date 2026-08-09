@@ -734,10 +734,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 }
                 case 'agua': {
                     const stars       = gameState.dogs?.[activeId]?.stars ?? 0;
-                    const base        = cfg.rarity === 'legendary' ? 50 : cfg.rarity === 'epic' ? 30 : 15;
+                    const base        = cfg.rarity === 'legendary' ? 50 : cfg.rarity === 'epic' ? 30 : 10;
                     const durationSec = cfg.rarity === 'legendary' ? 5 : cfg.rarity === 'epic' ? 4 : 3;
-                    const armorBase   = cfg.rarity === 'legendary' ? 3.5 : cfg.rarity === 'epic' ? 2.5 : 1.5;
+                    const armorBase   = cfg.rarity === 'legendary' ? 3.5 : cfg.rarity === 'epic' ? 2.5 : 1.0;
                     const armorStep   = cfg.rarity === 'rare' ? 0.2 : 0.1;
+                    const cdBase      = cfg.rarity === 'legendary' ? 10 : cfg.rarity === 'epic' ? 12 : 15;
+                    const cdStep      = cfg.rarity === 'legendary' ? 0.4 : cfg.rarity === 'epic' ? 0.5 : 0.6;
+                    setUltCooldown(Math.round((cdBase - stars * cdStep) * 10) / 10);
                     setActiveEffect({
                         type: 'damageAddTaps',
                         value: base + stars * 3,
