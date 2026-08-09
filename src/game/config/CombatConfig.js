@@ -38,8 +38,8 @@ export const CombatConfig = {
                 {
                     id: 'spider-3',
                     name: 'Araña Ancestral',
-                    hp: 1600,
-                    defense: 4,
+                    hp: 1000,
+                    defense: 3,
                     timerSec: 20,
                     isBoss: false,
                     requiresStars: { enemyId: 'spider-2', stars: 1 },
@@ -53,8 +53,8 @@ export const CombatConfig = {
                 {
                     id: 'spider-boss',
                     name: 'Reina Araña',
-                    hp: 3200,
-                    defense: 7,
+                    hp: 3000,
+                    defense: 5,
                     timerSec: 25,
                     isBoss: true,
                     requiresStars: { enemyId: 'spider-3', stars: 2 },
@@ -71,6 +71,7 @@ export const CombatConfig = {
             id: 'bats',
             name: 'Caverna de Murciélagos',
             comingSoon: false,
+            requiresBiomeStars: { biomeId: 'spiders', stars: 9 },
             enemies: [
                 {
                     id: 'bat-1',
@@ -142,6 +143,7 @@ export const CombatConfig = {
             id: 'moles',
             name: 'Madriguera de Topos',
             comingSoon: false,
+            requiresBiomeStars: { biomeId: 'bats', stars: 9 },
             enemies: [
                 {
                     id: 'topo-1',
@@ -213,6 +215,7 @@ export const CombatConfig = {
             id: 'scorpions',
             name: 'Foso de Escorpiones',
             comingSoon: false,
+            requiresBiomeStars: { biomeId: 'moles', stars: 9 },
             enemies: [
                 {
                     id: 'scorpion-1',

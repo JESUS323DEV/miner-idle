@@ -107,6 +107,68 @@
 }
 .combat-close-btn-sm svg { width: 22px; height: 22px; }
 
+.combat-info-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.combat-synergy-codex {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0d1117 0%, #1a1025 100%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1rem 1.5rem;
+    overflow-y: auto;
+}
+
+.csc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0.4rem;
+}
+
+.csc-section-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.4);
+    margin: 8px 0 0;
+}
+
+.csc-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+.csc-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.csc-desc {
+    font-size: 0.66rem;
+    line-height: 1.35;
+    color: rgba(255,255,255,0.75);
+    margin: 0;
+}
+
 /* ===== BIOME SELECT ===== */
 .combat-biome-select {
     display: flex;
@@ -167,13 +229,29 @@
 .combat-biome-bg-scorpions { background-image: url('../../assets/ui/icons-enemy/hud/card-scorpion.webp'); }
 .combat-biome-bg-spiders   { background-image: url('../../assets/ui/icons-enemy/hud/card-spiders.webp'); }
 
-.combat-biome-btn:hover:not(.combat-biome-soon) {
+.combat-biome-btn:hover:not(.combat-biome-soon):not(.combat-biome-locked) {
     filter: brightness(1.25);
 }
 
 .combat-biome-soon {
     opacity: 0.38;
     cursor: not-allowed;
+}
+
+.combat-biome-locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+
+.cbb-lock-icon {
+    color: rgba(255,255,255,0.5);
+}
+
+.cbb-lock-req {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.55);
+    text-align: right;
 }
 
 .cbb-name {

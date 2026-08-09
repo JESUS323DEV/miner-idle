@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock } from 'lucide-react';
+import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
 import raidActiveSelectBg from '../../assets/audio/bg-raid-active-select.mp3';
@@ -141,6 +141,18 @@ const MIXED_SYNERGIES = {
 
 const mixedRarityValue = (cfg) => cfg?.rarity === 'legendary' ? 4 : cfg?.rarity === 'epic' ? 3 : 2;
 
+const ELEMENT_LIST = ['fuego', 'agua', 'oscuro', 'tierra', 'electrico'];
+
+const ELEMENT_SYNERGY_DESC = {
+    fuego:     'Acumula calor con cada golpe: cuantos más de fuego, más stacks y más daño por stack.',
+    agua:      'Cada pocos taps dispara una ola de daño extra: más agua, más frecuente y más fuerte.',
+    oscuro:    'Suma daño según el % de vida ACTUAL del enemigo, ideal para arrancar fuerte.',
+    tierra:    'Reduce el cooldown de cualquier poder. Con los 3 de tierra, baja directo el coste de su propia ultimate.',
+    electrico: 'Sube la probabilidad de golpe doble. Con los 3 eléctricos se suman los bonus de ambos laterales.',
+};
+
+const MIXED_SYNERGY_DESC = 'Combo mixto: suma daño plano por tap según la rareza de los 3 perros implicados.';
+
 const CONSTANT_PASSIVE_ELEMENTS = ['agua', 'tierra', 'oscuro'];
 
 const COMBO_RESET_TIME         = 1000;
@@ -219,6 +231,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [fightStarted, setFightStarted]         = useState(false);
     const [shakeKey, setShakeKey]                 = useState(0);
     const [hintTick, setHintTick]                 = useState(0);
+    const [showSynergyCodex, setShowSynergyCodex] = useState(false);
     const { floats, add: addFloat }               = useFloatingNumbers();
     const autoFireTimerRef                        = useRef(null);
     const leftSlotRef                             = useRef(null);
@@ -291,6 +304,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             setAutoUlt(false);
             setFightStarted(false);
             setShakeKey(0);
+            setShowSynergyCodex(false);
             comboCountRef.current = 0;
             lastTapTimeRef.current = null;
             comboGoldRef.current = 0;
@@ -931,17 +945,35 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         Sistema en fase muy temprana. Puede contener errores o cambios bruscos de balance.
                     </div>
                     <div className="combat-biome-grid">
-                        {CombatConfig.biomes.map(biome => (
-                            <button
-                                key={biome.id}
-                                className={`combat-biome-btn combat-biome-bg-${biome.id}${biome.comingSoon ? ' combat-biome-soon' : ''}`}
-                                onClick={() => { if (!biome.comingSoon) { setActiveBiome(biome); setPhase('enemy'); } }}
-                                disabled={biome.comingSoon}
-                            >
-                                <span className="cbb-name">{biome.name}</span>
-                                {biome.comingSoon && <span className="cbb-soon-label">Próximamente</span>}
-                            </button>
-                        ))}
+                        {CombatConfig.biomes.map(biome => {
+                            const req = biome.requiresBiomeStars;
+                            const reqBiome = req ? CombatConfig.biomes.find(b => b.id === req.biomeId) : null;
+                            const reqStars = reqBiome
+                                ? reqBiome.enemies.reduce((sum, e) => sum + (raidBestStars[e.id] ?? 0), 0)
+                                : 0;
+                            const locked = !!req && reqStars < req.stars;
+                            return (
+                                <button
+                                    key={biome.id}
+                                    className={`combat-biome-btn combat-biome-bg-${biome.id}${biome.comingSoon ? ' combat-biome-soon' : ''}${locked ? ' combat-biome-locked' : ''}`}
+                                    onClick={() => { if (!biome.comingSoon && !locked) { setActiveBiome(biome); setPhase('enemy'); } }}
+                                    disabled={biome.comingSoon || locked}
+                                >
+                                    {locked ? (
+                                        <>
+                                            <Lock size={20} className="cbb-lock-icon" />
+                                            <span className="cbb-name">{biome.name}</span>
+                                            <span className="cbb-lock-req">{reqStars}/{req.stars} estrellas en {reqBiome.name}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="cbb-name">{biome.name}</span>
+                                            {biome.comingSoon && <span className="cbb-soon-label">Próximamente</span>}
+                                        </>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -1008,7 +1040,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 <ChevronLeft />
                             </button>
                             <h2 className="combat-title">{activeEnemy.name}</h2>
-                            <div style={{ width: 32 }} />
+                            <button className="combat-info-btn" onClick={() => setShowSynergyCodex(true)}>
+                                <Info size={18} />
+                            </button>
                         </div>
                         <p className="combat-subtitle-meta">❤️ {activeEnemy.hp} · ⏱ {activeEnemy.timerSec}s</p>
                     </div>
@@ -1195,6 +1229,52 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 </>
                             );
                         })()}
+                    </div>
+                </div>
+            )}
+
+            {/* ===== CODEX DE SINERGIAS ===== */}
+            {showSynergyCodex && (
+                <div className="combat-synergy-codex">
+                    <div className="combat-nav">
+                        <button className="combat-back-btn" onClick={() => setShowSynergyCodex(false)}>
+                            <ChevronLeft />
+                        </button>
+                        <h2 className="combat-title">Sinergias</h2>
+                        <div style={{ width: 32 }} />
+                    </div>
+                    <div className="csc-list">
+                        <p className="csc-section-label">Mismo elemento (los 3 iguales)</p>
+                        {ELEMENT_LIST.map(el => {
+                            const info = ELEMENT_ICON[el];
+                            return (
+                                <div key={`same-${el}`} className="csc-row">
+                                    <div className="csc-icons">
+                                        <info.Icon size={18} color={info.color} />
+                                        <info.Icon size={18} color={info.color} />
+                                        <info.Icon size={18} color={info.color} />
+                                    </div>
+                                    <p className="csc-desc">{ELEMENT_SYNERGY_DESC[el]}</p>
+                                </div>
+                            );
+                        })}
+                        <p className="csc-section-label">Combos mixtos</p>
+                        {Object.entries(MIXED_SYNERGIES).map(([centerEl, pair]) => {
+                            const [leftEl, rightEl] = pair.split('+');
+                            const centerInfo = ELEMENT_ICON[centerEl];
+                            const leftInfo   = ELEMENT_ICON[leftEl];
+                            const rightInfo  = ELEMENT_ICON[rightEl];
+                            return (
+                                <div key={`mixed-${centerEl}`} className="csc-row">
+                                    <div className="csc-icons">
+                                        <leftInfo.Icon size={18} color={leftInfo.color} />
+                                        <centerInfo.Icon size={18} color={centerInfo.color} />
+                                        <rightInfo.Icon size={18} color={rightInfo.color} />
+                                    </div>
+                                    <p className="csc-desc">{MIXED_SYNERGY_DESC}</p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}
