@@ -488,6 +488,17 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             eff.oscuroFlatMin = 5;
         }
 
+        // Freno fuego+oscuro juntos de laterales: por separado cada uno esta bien
+        // ajustado, pero juntos se disparan sin control. Se atenuan los dos segun
+        // la rareza del central, solo se libera al 100% con central legendario.
+        const fireAndDarkTogether = (leftIsFire && rightIsOscuro) || (leftIsOscuro && rightIsFire);
+        if (fireAndDarkTogether) {
+            const dampenFactor = centerCfg?.rarity === 'legendary' ? 1 : centerCfg?.rarity === 'epic' ? 0.75 : 0.5;
+            eff.heatStackDmg  *= dampenFactor;
+            eff.oscuroPct     *= dampenFactor;
+            eff.oscuroFlatMin *= dampenFactor;
+        }
+
         // Sinergia de agua: cada X taps se dispara un golpe extra de daño plano
         // (chorro/olita/tsunami). Cuantos mas perros de agua, mas frecuente Y mas
         // fuerte el golpe, sin depender de rareza/estrellas.
@@ -549,17 +560,20 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
 
         // Sinergias mixtas de early game: central + 2 laterales concretos (distintos
-        // entre si) dan un bonus de daño plano fijo, simple a proposito. Sin mirar
-        // rareza/estrellas, para no romper nada mientras se prueba.
+        // entre si) dan un bonus de daño plano por tap. Cada uno de los 3 perros
+        // implicados aporta segun su PROPIA rareza (rare +2, epic +3, legendary +4),
+        // para que 3 rares no rindan igual que 3 legendarios.
         const MIXED_SYNERGIES = {
             agua:      'electrico+fuego',
             oscuro:    'agua+fuego',
-            tierra:    'fuego+oscuro',
+            // tierra+fuego/oscuro quitada: se sentia rota (tierra de central ya pega
+            // fuerte con su ultimate, sumado a los tier1 planos de fuego y oscuro).
             electrico: 'agua+fuego',
         };
+        const mixedRarityValue = (cfg) => cfg?.rarity === 'legendary' ? 4 : cfg?.rarity === 'epic' ? 3 : 2;
         const lateralPair = [leftCfg?.element, rightCfg?.element].filter(Boolean).sort().join('+');
         if (centerCfg?.element && MIXED_SYNERGIES[centerCfg.element] === lateralPair) {
-            eff.mixedSynergyBonus = 10;
+            eff.mixedSynergyBonus = mixedRarityValue(leftCfg) + mixedRarityValue(rightCfg) + mixedRarityValue(centerCfg);
         }
 
         return eff;
@@ -642,10 +656,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         addFloat('combo', { value: newCombo, x: safeX, y: y - 30 }, 800);
 
         const goldPerCombo = activeEnemy?.goldPerCombo ?? 0;
-        if (goldPerCombo > 0 && newCombo >= COMBO_FIRST_MILESTONE && newCombo % COMBO_MILESTONE_INTERVAL === 0) {
-            const bonus = comboGoldRef.current < COMBO_GOLD_CAP ? newCombo * goldPerCombo : COMBO_GOLD_OVERFLOW_STEP;
-            comboGoldRef.current += bonus;
-            addFloat('milestone', { combo: newCombo, bonus, x: safeX, y: y - 70 }, 1800);
+        if (newCombo >= COMBO_FIRST_MILESTONE && newCombo % COMBO_MILESTONE_INTERVAL === 0) {
+            if (goldPerCombo > 0) {
+                const bonus = comboGoldRef.current < COMBO_GOLD_CAP ? newCombo * goldPerCombo : COMBO_GOLD_OVERFLOW_STEP;
+                comboGoldRef.current += bonus;
+            }
+            addFloat('milestone', { combo: newCombo, x: safeX, y: y - 70 }, 1800);
         }
 
         if (passive.addHeatStack) setHeatStacks(prev => Math.min(passive.heatStackCap, prev + 1));
