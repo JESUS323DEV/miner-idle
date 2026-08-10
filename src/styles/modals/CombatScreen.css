@@ -891,6 +891,21 @@
     50%      { filter: brightness(1.08) drop-shadow(0 0 10px rgba(79,195,247,0.6)); }
 }
 
+.combat-boss-img.combat-fury-active {
+    animation: combat-fury-splash 0.5s ease-out, combat-fury-tint 1.8s ease-in-out 0.5s infinite;
+}
+
+@keyframes combat-fury-splash {
+    0%   { transform: scale(1);    filter: brightness(1)   drop-shadow(0 0 0 transparent); }
+    30%  { transform: scale(1.12); filter: brightness(1.4) drop-shadow(0 0 25px rgba(180,92,255,0.9)); }
+    100% { transform: scale(1);    filter: brightness(1)   drop-shadow(0 0 6px rgba(180,92,255,0.5)); }
+}
+
+@keyframes combat-fury-tint {
+    0%, 100% { filter: brightness(1)    drop-shadow(0 0 4px rgba(180,92,255,0.35)); }
+    50%      { filter: brightness(1.08) drop-shadow(0 0 10px rgba(180,92,255,0.6)); }
+}
+
 .combat-floating-ult-damage {
     position: absolute;
     top: 50%;
@@ -1069,6 +1084,7 @@
 .combat-slot-passive-charging-agua::after   { background: conic-gradient(from 0deg, transparent, rgba(79,195,247,0.95) 30%, transparent 55%); }
 .combat-slot-passive-charging-tierra::after { background: conic-gradient(from 0deg, transparent, rgba(139,105,20,0.95) 30%, transparent 55%); }
 .combat-slot-passive-charging-oscuro::after { background: conic-gradient(from 0deg, transparent, rgba(180,92,255,0.95) 30%, transparent 55%); }
+.combat-slot-passive-charging-electrico::after { background: conic-gradient(from 0deg, transparent, rgba(255,215,0,0.95) 30%, transparent 55%); }
 
 @keyframes combat-passive-charge-spin {
     to { transform: rotate(360deg); }

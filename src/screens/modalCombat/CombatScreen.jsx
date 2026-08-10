@@ -112,7 +112,7 @@ const ELEMENT_ICON = {
 
 const MINER_COMBAT_INFO = {
     fuego:     { ult: 'Bola de fuego',   passive: 'Golpe de daño directo. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
-    electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Cada 3er disparo es un golpe cargado con mas daño, y deja un campo de 1s que sube la prob. de golpe doble (con sinergia completa, tambien recorta la armadura del enemigo).' },
+    electrico: { ult: 'Bola electrica',  passive: 'Daño directo con CD corto. Cada 3er disparo es un golpe cargado con mas daño.' },
     tierra:    { ult: 'Terremoto',       passive: 'Golpe de daño directo mas potente. Escala con rareza y estrellas. El CD baja a mas estrellas.' },
     agua:      { ult: 'Pistola de agua', passive: 'Durante unos segundos suma daño fijo y baja la armadura del enemigo. La cantidad escala con rareza y estrellas.' },
     oscuro:    { ult: 'Furia',           passive: 'Los proximos X taps hacen daño extra segun la HP actual del enemigo.' },
@@ -153,7 +153,7 @@ const ELEMENT_SYNERGY_DESC = {
 
 const MIXED_SYNERGY_DESC = 'Combo mixto: suma daño plano por tap según la rareza de los 3 perros implicados.';
 
-const CONSTANT_PASSIVE_ELEMENTS = ['agua', 'tierra', 'oscuro'];
+const CONSTANT_PASSIVE_ELEMENTS = ['agua', 'tierra', 'oscuro', 'electrico'];
 
 const COMBO_RESET_TIME         = 1000;
 const COMBO_FIRST_MILESTONE    = 5;
@@ -514,7 +514,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             oscuroPct: 0, oscuroFlatMin: 0,
             waterInterval: 0, waterBurst: 0,
             electricSparkInterval: 0, electricSparkBurst: 0,
-            ultCdReduction: 0, earthFullSynergy: false, electricFullSynergy: false,
+            ultCdReduction: 0, earthFullSynergy: false,
             mixedSynergyBonus: 0,
         };
 
@@ -627,8 +627,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         }
 
         // Sinergia de electrico: "chispazo", mismo patron que la ola de agua (cada X
-        // taps suelta un golpe extra de daño plano). La ulti (ciclo de 3 disparos +
-        // campo electrico) se gestiona aparte en handleUlt/handleTap.
+        // taps suelta un golpe extra de daño plano). La ulti (ciclo de 3 disparos) se
+        // gestiona aparte en handleUlt.
         const leftIsElectric   = leftCfg?.element   === 'electrico';
         const rightIsElectric  = rightCfg?.element  === 'electrico';
         const centerIsElectric = centerCfg?.element === 'electrico';
@@ -636,15 +636,14 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (leftIsElectric && rightIsElectric) {
             if (centerIsElectric) {
                 eff.electricSparkInterval = 2;
-                eff.electricSparkBurst    = 30;
+                eff.electricSparkBurst    = 100;
             } else {
                 eff.electricSparkInterval = 3;
-                eff.electricSparkBurst    = 15;
+                eff.electricSparkBurst    = 25;
             }
-            eff.electricFullSynergy = centerIsElectric;
         } else if (leftIsElectric || rightIsElectric) {
             eff.electricSparkInterval = 5;
-            eff.electricSparkBurst    = 8;
+            eff.electricSparkBurst    = 15;
         }
 
         // Sinergias mixtas de early game: central + 2 laterales concretos (distintos
@@ -697,17 +696,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (passive.mixedSynergyBonus > 0) dmg += passive.mixedSynergyBonus;
 
         const waterUltActive = activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0;
-        const electricFieldActive = activeEffect?.type === 'electricField' && activeEffect.remaining > 0;
         const defense = waterUltActive
             ? Math.max(0, 5 - activeEffect.armorCut)
-            : electricFieldActive
-                ? Math.max(0, (activeEnemy?.defense ?? 0) - activeEffect.armorCut)
-                : (activeEnemy?.defense ?? 0);
+            : (activeEnemy?.defense ?? 0);
         dmg = Math.round(Math.max(1, dmg - defense));
 
         const isGuaranteedDouble = activeEffect?.type === 'doubleHits' && activeEffect.remaining > 0;
-        const fieldChance = (activeEffect?.type === 'electricField' && activeEffect.remaining > 0) ? activeEffect.chance : 0;
-        const isDoubleHit = isGuaranteedDouble || Math.random() < (passive.doubleHitChance + fieldChance);
+        const isDoubleHit = isGuaranteedDouble || Math.random() < passive.doubleHitChance;
         const finalDmg = isDoubleHit ? dmg * 2 : dmg;
         setEnemyHp(prev => Math.max(0, prev - finalDmg));
 
@@ -813,19 +808,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
                 if (shotIndex >= 2) {
                     setElectricStacks(0);
-                    const fieldChance = cfg.rarity === 'legendary' ? 0.5 : cfg.rarity === 'epic' ? 0.3 : 0.2;
-                    let armorCut = 0;
-                    if (passive.electricFullSynergy) {
-                        const lateralArmorCut = (id) => {
-                            const latCfg   = getConfig(id);
-                            const latStars = gameState.forgeDogs?.[id]?.stars ?? 0;
-                            const base = latCfg.rarity === 'legendary' ? 5 : latCfg.rarity === 'epic' ? 4 : 3;
-                            const step = latCfg.rarity === 'legendary' ? 1.0 : latCfg.rarity === 'epic' ? 0.6 : 0.4;
-                            return base + latStars * step;
-                        };
-                        armorCut = lateralArmorCut(slots[0]) + lateralArmorCut(slots[2]);
-                    }
-                    setActiveEffect({ type: 'electricField', chance: fieldChance, armorCut, remaining: 1 });
                 } else {
                     setElectricStacks(prev => prev + 1);
                 }
@@ -1310,7 +1292,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 src={enemyImgs[activeEnemy.id]}
                                 alt={activeEnemy.name}
                                 key={shakeKey}
-                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}${activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0 ? ' combat-water-active' : ''}`}
+                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}${activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0 ? ' combat-water-active' : ''}${activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0 ? ' combat-fury-active' : ''}`}
                             />
                             {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
                             {floats.map(f => {
@@ -1451,13 +1433,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {activeEffect?.type === 'furyTaps' && (
                             <span className="combat-effect-badge effect-oscuro">
                                 <Moon size={11} color="#b45cff" /> {Math.round(activeEffect.value * 100)}% HP · {activeEffect.remaining} taps
-                            </span>
-                        )}
-                        {activeEffect?.type === 'electricField' && (
-                            <span className="combat-effect-badge effect-electrico">
-                                <Zap size={11} color="#ffe033" /> +{Math.round(activeEffect.chance * 100)}% doble
-                                {activeEffect.armorCut > 0 && <> · -{Math.round(activeEffect.armorCut)} armadura</>}
-                                {' '}· {activeEffect.remaining}s
                             </span>
                         )}
                         {heatStacks > 0 && (
