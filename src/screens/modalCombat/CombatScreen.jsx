@@ -1310,7 +1310,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 src={enemyImgs[activeEnemy.id]}
                                 alt={activeEnemy.name}
                                 key={shakeKey}
-                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}`}
+                                className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}${activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0 ? ' combat-water-active' : ''}`}
                             />
                             {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
                             {floats.map(f => {

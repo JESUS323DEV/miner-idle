@@ -336,6 +336,24 @@ function GameRoot({ onBack }) {
     return null;
   }, [openModal, tutorialStep, gameState.tutorial, rewardsOpen, rentalModalOpen, raidOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // El aviso de autominado (recarga / activar) puede saltar en cualquier momento por
+  // tiempo, da igual la pantalla en la que estés — si hay alguna modal abierta, se
+  // cierra para que el aviso se vea limpio sobre la pantalla principal.
+  useEffect(() => {
+    if (tutorialStep !== 'automine_recharge_hint' && tutorialStep !== 'automine_hint') return;
+    setOpenModal(null);
+    setMenuOpenModal(false);
+    setMinesModalOpen(false);
+    setTavernModalOpen(false);
+    setForgeModalOpen(false);
+    setBiomeSelectorOpen(false);
+    setRewardsOpen(false);
+    setRaidOpen(false);
+    setRentalModalOpen(false);
+    setCombatOpen(false);
+    setIsMineScreenOpen(false);
+  }, [tutorialStep]);
+
   useEffect(() => {
     const FALLBACKS = {
       'intro':           { bottom: '14dvh' },
