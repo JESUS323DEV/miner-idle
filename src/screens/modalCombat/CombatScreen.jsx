@@ -569,7 +569,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 eff.oscuroPct     = pct;
                 eff.oscuroFlatMin = min;
             } else {
-                eff.oscuroPct     = 0.02;
+                eff.oscuroPct     = 0.015;
                 eff.oscuroFlatMin = 10;
             }
         } else if (leftIsOscuro || rightIsOscuro) {
