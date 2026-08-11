@@ -7,15 +7,55 @@ import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.web
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
 import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
-import ladyRun1 from '../../assets/ui/lady-sprite/gordo-run/gordo-1.webp';
-import ladyRun2 from '../../assets/ui/lady-sprite/gordo-run/gordo-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/gordo-run/gordo-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/gordo-run/gordo-4.webp';
+import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
 import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
 import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
+import gordoRun1 from '../../assets/ui/lady-sprite/gordo-run/gordo-1.webp';
+import gordoRun2 from '../../assets/ui/lady-sprite/gordo-run/gordo-2.webp';
+import gordoRun3 from '../../assets/ui/lady-sprite/gordo-run/gordo-3.webp';
+import gordoRun4 from '../../assets/ui/lady-sprite/gordo-run/gordo-4.webp';
+import munaRun1 from '../../assets/ui/lady-sprite/muna-run/muna-1.webp';
+import munaRun2 from '../../assets/ui/lady-sprite/muna-run/muna-2.webp';
+import munaRun3 from '../../assets/ui/lady-sprite/muna-run/muna-3.webp';
+import munaRun4 from '../../assets/ui/lady-sprite/muna-run/muna-4.webp';
+import nupitoRun1 from '../../assets/ui/lady-sprite/nupito-run/nupito-1.webp';
+import nupitoRun2 from '../../assets/ui/lady-sprite/nupito-run/nupito-2.webp';
+import nupitoRun3 from '../../assets/ui/lady-sprite/nupito-run/nupito-3.webp';
+import nupitoRun4 from '../../assets/ui/lady-sprite/nupito-run/nupito-4.webp';
+import tukaRun1 from '../../assets/ui/lady-sprite/tuka-run/tuka-1.webp';
+import tukaRun2 from '../../assets/ui/lady-sprite/tuka-run/tuka-2.webp';
+import tukaRun3 from '../../assets/ui/lady-sprite/tuka-run/tuka-3.webp';
+import tukaRun4 from '../../assets/ui/lady-sprite/tuka-run/tuka-4.webp';
+import druhRun1 from '../../assets/ui/lady-sprite/druh-run/druh-1.webp';
+import druhRun2 from '../../assets/ui/lady-sprite/druh-run/druh-2.webp';
+import druhRun3 from '../../assets/ui/lady-sprite/druh-run/druh-3.webp';
+import druhRun4 from '../../assets/ui/lady-sprite/druh-run/druh-4.webp';
 
-const LADY_FRAMES      = [ladyRun1, ladyRun2, ladyRun3, ladyRun4];
 const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
+const RUN_SPRITES = {
+    lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
+    gordo:  [gordoRun1, gordoRun2, gordoRun3, gordoRun4],
+    muna:   [munaRun1, munaRun2, munaRun3, munaRun4],
+    nupito: [nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4],
+    tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
+    druh:   [druhRun1, druhRun2, druhRun3, druhRun4],
+};
+const RUN_SPRITE_KEYS = Object.keys(RUN_SPRITES);
+
+// Mientras no todos los perros tengan sprite propio: usa el del primer perro
+// del equipo que sí tenga uno, y si ninguno tiene, uno random pero estable
+// para esa raid/pedido en concreto (no debe cambiar en cada repintado).
+const getRunFrames = (dogEntries, seed) => {
+    for (const entry of dogEntries ?? []) {
+        const id = entry?.id ?? entry;
+        if (RUN_SPRITES[id]) return RUN_SPRITES[id];
+    }
+    const idx = Math.abs(seed ?? 0) % RUN_SPRITE_KEYS.length;
+    return RUN_SPRITES[RUN_SPRITE_KEYS[idx]];
+};
 import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
 import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
 import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
@@ -427,7 +467,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                 ) : (
                                                     <div className="raid-lady-track">
                                                         <img
-                                                            src={LADY_FRAMES[frameIndex]}
+                                                            src={getRunFrames(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id })), activeRaid.startedAt)[frameIndex]}
                                                             className="raid-lady-sprite"
                                                             alt="lady"
                                                             style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
@@ -611,7 +651,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                 ) : (
                                                     <div className="raid-lady-track">
                                                         <img
-                                                            src={LADY_FRAMES[frameIndex]}
+                                                            src={getRunFrames([{ id: order.dogId }], order.startedAt)[frameIndex]}
                                                             className={`raid-lady-sprite ${orderReturning ? 'raid-order-lady-flip' : ''}`}
                                                             alt="lady"
                                                             style={{ left: `${Math.min(92, Math.max(8, orderVisualProgress * 100))}%` }}

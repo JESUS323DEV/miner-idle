@@ -276,6 +276,34 @@ import tutorialPrincipal from "../assets/tutorial/mascotas/principal.webp"
 import tutorialMina from "../assets/tutorial/mascotas/mina.webp"
 import tutorialForja from "../assets/tutorial/mascotas/forja.webp"
 
+// ===== RAIDS PASIVAS: SPRITES CORRIENDO =====
+import ladyRunP1 from "../assets/ui/lady-sprite/lady-run/lady-1.webp"
+import ladyRunP2 from "../assets/ui/lady-sprite/lady-run/lady-2.webp"
+import ladyRunP3 from "../assets/ui/lady-sprite/lady-run/lady-3.webp"
+import ladyRunP4 from "../assets/ui/lady-sprite/lady-run/lady-4.webp"
+import ladyWaitP1 from "../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp"
+import ladyWaitP2 from "../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp"
+import gordoRunP1 from "../assets/ui/lady-sprite/gordo-run/gordo-1.webp"
+import gordoRunP2 from "../assets/ui/lady-sprite/gordo-run/gordo-2.webp"
+import gordoRunP3 from "../assets/ui/lady-sprite/gordo-run/gordo-3.webp"
+import gordoRunP4 from "../assets/ui/lady-sprite/gordo-run/gordo-4.webp"
+import munaRunP1 from "../assets/ui/lady-sprite/muna-run/muna-1.webp"
+import munaRunP2 from "../assets/ui/lady-sprite/muna-run/muna-2.webp"
+import munaRunP3 from "../assets/ui/lady-sprite/muna-run/muna-3.webp"
+import munaRunP4 from "../assets/ui/lady-sprite/muna-run/muna-4.webp"
+import nupitoRunP1 from "../assets/ui/lady-sprite/nupito-run/nupito-1.webp"
+import nupitoRunP2 from "../assets/ui/lady-sprite/nupito-run/nupito-2.webp"
+import nupitoRunP3 from "../assets/ui/lady-sprite/nupito-run/nupito-3.webp"
+import nupitoRunP4 from "../assets/ui/lady-sprite/nupito-run/nupito-4.webp"
+import tukaRunP1 from "../assets/ui/lady-sprite/tuka-run/tuka-1.webp"
+import tukaRunP2 from "../assets/ui/lady-sprite/tuka-run/tuka-2.webp"
+import tukaRunP3 from "../assets/ui/lady-sprite/tuka-run/tuka-3.webp"
+import tukaRunP4 from "../assets/ui/lady-sprite/tuka-run/tuka-4.webp"
+import druhRunP1 from "../assets/ui/lady-sprite/druh-run/druh-1.webp"
+import druhRunP2 from "../assets/ui/lady-sprite/druh-run/druh-2.webp"
+import druhRunP3 from "../assets/ui/lady-sprite/druh-run/druh-3.webp"
+import druhRunP4 from "../assets/ui/lady-sprite/druh-run/druh-4.webp"
+
 const IMAGES = [
     // fondos
     bgTavern, bgTavern1, bgTavern2, bgTavern3, bgTavern4, bgTavern5, bgTavern6, bgTavern7, bgTavern8, bgCoin, bgGold1,
@@ -359,6 +387,13 @@ const IMAGES = [
     powerFuria, powerFire, powerElectric, powerWater, powerEarth,
     // tutorial
     tutorialPrincipal, tutorialMina, tutorialForja,
+    // raids pasivas: sprites corriendo
+    ladyRunP1, ladyRunP2, ladyRunP3, ladyRunP4, ladyWaitP1, ladyWaitP2,
+    gordoRunP1, gordoRunP2, gordoRunP3, gordoRunP4,
+    munaRunP1, munaRunP2, munaRunP3, munaRunP4,
+    nupitoRunP1, nupitoRunP2, nupitoRunP3, nupitoRunP4,
+    tukaRunP1, tukaRunP2, tukaRunP3, tukaRunP4,
+    druhRunP1, druhRunP2, druhRunP3, druhRunP4,
 ];
 
 export const usePreloader = () => {
