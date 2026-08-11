@@ -7,10 +7,10 @@ import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.web
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
 import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
-import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
-import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
+import ladyRun1 from '../../assets/ui/lady-sprite/gordo-run/gordo-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/gordo-run/gordo-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/gordo-run/gordo-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/gordo-run/gordo-4.webp';
 import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
 import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
 

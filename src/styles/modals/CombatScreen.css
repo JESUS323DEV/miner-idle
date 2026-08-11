@@ -1,33 +1,3 @@
-/* ===== COMBAT TUTORIAL ===== */
-.combat-tut-highlight {
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.4);
-    border-radius: 10px;
-    animation: combat-tut-pulse 1.2s ease-in-out infinite;
-}
-@keyframes combat-tut-pulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.4); }
-    50%       { box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); }
-}
-.combat-tut-bubble {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.92);
-    color: #ffd740;
-    border: 1px solid #ffd740;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: bold;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 20;
-}
-.combat-tut-bubble--below { top: calc(100% + 10px); }
-.combat-tut-bubble--above { bottom: calc(100% + 10px); }
-
 /* ===== COMBAT SCREEN ===== */
 .combat-screen {
     position: fixed;
@@ -329,8 +299,8 @@
     height: 14%;
     background: radial-gradient(ellipse at center, rgba(255, 215, 64, 0.9) 0%, rgba(255, 215, 64, 0) 70%);
     pointer-events: none;
-    opacity: 0.3;
-    transform: scale(0.9);
+    opacity: 0.45;
+    transform: scale(0.95);
 }
 
 .combat-enemy-card img {
@@ -1392,6 +1362,27 @@
     margin: 0;
 }
 
+.combat-result-enemy-portrait {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.combat-result-enemy-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.combat-result-enemy-portrait .cre-gray {
+    filter: grayscale(100%) brightness(0.55);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, transparent calc(var(--reveal-pct) - 6%), black calc(var(--reveal-pct) + 6%), black 100%);
+    mask-image: linear-gradient(to top, transparent 0%, transparent calc(var(--reveal-pct) - 6%), black calc(var(--reveal-pct) + 6%), black 100%);
+}
+
 .combat-result-pct-wrap {
     width: 100%;
     display: flex;
@@ -1445,9 +1436,15 @@
     letter-spacing: 0.08em;
 }
 
-.combat-result-shards {
-    color: white;
-    font-size: 1.5rem;
+.combat-result-dog-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.combat-result-dog-info .combat-result-shards {
+    color: #ffd740;
+    font-size: 0.72rem;
     font-weight: bold;
 }
 

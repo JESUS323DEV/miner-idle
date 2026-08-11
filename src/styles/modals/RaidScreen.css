@@ -612,6 +612,7 @@
     width: auto;
     transform: translateX(-50%);
     image-rendering: pixelated;
+    transition: left 1s linear;
 }
 
 .raid-lady-sprite.raid-order-lady-flip {

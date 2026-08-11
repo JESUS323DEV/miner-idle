@@ -227,7 +227,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const [electricStacks, setElectricStacks]     = useState(0);
     const [autoUlt, setAutoUlt]                   = useState(false);
     const [autoFiring, setAutoFiring]             = useState(false);
-    const [combatTutStep, setCombatTutStep]       = useState(null);
     const [fightStarted, setFightStarted]         = useState(false);
     const [shakeKey, setShakeKey]                 = useState(0);
     const [hintTick, setHintTick]                 = useState(0);
@@ -437,9 +436,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             const dealt = activeEnemy.hp - Math.max(0, enemyHp);
             const pct   = Math.min(1, dealt / activeEnemy.hp);
             const threshold = [...activeEnemy.rewardThresholds].reverse().find(t => pct >= t.pct) ?? null;
-            const shards     = threshold?.shards ?? 0;
             const gold       = comboGoldRef.current;
             const starsEarned = threshold?.stars ?? 0;
+            const previousBestStars = gameState.raidBestStars?.[activeEnemy.id] ?? 0;
+            const isNewBest  = starsEarned > previousBestStars;
+            const shards     = isNewBest ? (threshold?.shards ?? 0) : Math.round((threshold?.shards ?? 0) * 0.4);
+            const isFirstBossWin = activeEnemy.isBoss && enemyHp <= 0 && previousBestStars === 0;
 
             let rewardDogId  = null;
             let rewardRarity = null;
@@ -501,6 +503,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 rewardDogId,
                 rewardRarity,
                 maxCombo: maxComboRef.current,
+                isFirstBossWin,
             });
             playSfx('finalMina');
             setPhase('results');
@@ -663,10 +666,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const handleTap = (e) => {
         if (phase !== 'fight' || ultImpactActive) return;
         if (!fightStarted) setFightStarted(true);
-        if (combatTutStep === 0) {
-            const isForge = slots[1] ? !!ForgeDogsConfig[slots[1]] : false;
-            setCombatTutStep(isForge ? 2 : 1);
-        }
         const pickDmg  = gameState.pickaxe.miningPowerByMaterial?.[gameState.pickaxe.material] ?? 2;
         const activeId = slots[1];
         const dogDmg   = activeId ? (getConfig(activeId)?.miningPower ?? 0) : 0;
@@ -775,7 +774,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const handleUlt = () => {
         if (phase !== 'fight' || ultCooldown > 0 || !slots[1]) return;
         if (!fightStarted) setFightStarted(true);
-        if (combatTutStep === 1) setCombatTutStep(2);
         advanceDailyQuest(setGameState, 'abilityUses', 1);
         const activeId = slots[1];
         const cfg      = getConfig(activeId);
@@ -872,11 +870,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         return { isOnCooldown, attemptsLeft, remainingMin };
     };
 
-    const finishCombatTut = () => {
-        setCombatTutStep(null);
-        setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, combatTutDone: true } }));
-    };
-
     const startFight = () => {
         if (team.every(id => id === null) || !activeEnemy) return;
         const centerDog = team[1] ?? null;
@@ -896,7 +889,6 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         waterTapCounterRef.current = 0;
         electricTapCounterRef.current = 0;
         setPhase('fight');
-        if (!gameState.tutorial?.combatTutDone) setCombatTutStep(0);
     };
 
     const goToBiome = () => {
@@ -1286,14 +1278,13 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             </div>
                             <span className="combat-hp-text">{enemyHp} / {activeEnemy.hp}</span>
                         </div>
-                        <button className={`combat-boss-portrait${combatTutStep === 0 ? ' combat-tut-highlight' : ''}`} onClick={handleTap}>
+                        <button className="combat-boss-portrait" onClick={handleTap}>
                             <img
                                 src={enemyImgs[activeEnemy.id]}
                                 alt={activeEnemy.name}
                                 key={shakeKey}
                                 className={`combat-boss-img${shakeKey > 0 ? ' combat-tap-shake' : ''}${ultImpactActive ? ` combat-ult-shake combat-ult-shake-${ultImpactElement}` : ''}${activeEffect?.type === 'damageAddTaps' && activeEffect.remaining > 0 ? ' combat-water-active' : ''}${activeEffect?.type === 'furyTaps' && activeEffect.remaining > 0 ? ' combat-fury-active' : ''}`}
                             />
-                            {combatTutStep === 0 && <div className="combat-tut-bubble combat-tut-bubble--below">Toca al enemigo para atacar</div>}
                             {floats.map(f => {
                                 if (f.type === 'damage') {
                                     return (
@@ -1386,29 +1377,24 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const asset   = ULT_ASSET[element];
                         return (
                             <button
-                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}${combatTutStep === 1 ? ' combat-tut-highlight' : ''}`}
+                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}`}
                                 onClick={handleUlt}
                                 disabled={!isReady}
                             >
                                 {asset && <img src={asset} alt={element} className="ult-btn-img" />}
                                 {!isReady && <span className="ult-btn-cd">{ultCooldown}s</span>}
-                                {combatTutStep === 1 && <div className="combat-tut-bubble combat-tut-bubble--above">Usa el poder de tu perro</div>}
                             </button>
                         );
                     })()}
 
                     {slots[1] && !ForgeDogsConfig[slots[1]] && (
-                        <label className={`combat-auto-ult${combatTutStep === 2 ? ' combat-tut-highlight' : ''}`}>
+                        <label className="combat-auto-ult">
                             <input
                                 type="checkbox"
                                 checked={autoUlt}
-                                onChange={e => {
-                                    setAutoUlt(e.target.checked);
-                                    if (combatTutStep === 2) finishCombatTut();
-                                }}
+                                onChange={e => setAutoUlt(e.target.checked)}
                             />
                             Auto
-                            {combatTutStep === 2 && <div className="combat-tut-bubble combat-tut-bubble--above">Actívalo para usar el poder solo</div>}
                         </label>
                     )}
 
@@ -1491,6 +1477,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         ))}
                     </div>
 
+                    <div className="combat-result-enemy-portrait" style={{ '--reveal-pct': `${(resultsData.starsEarned / 3) * 100}%` }}>
+                        <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy?.name} className="cre-color" />
+                        <img src={enemyImgs[activeEnemy.id]} alt="" className="cre-gray" />
+                    </div>
+
                     <div className="combat-result-pct-wrap">
                         <div className="combat-result-pct-bar">
                             <div
@@ -1506,14 +1497,15 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     <div className={`combat-result-reward${resultsData.shards > 0 ? ' has-reward' : ''}`}>
                         {resultsData.shards > 0 ? (
                             <>
-                                <span className="combat-result-tier">{resultsData.label}</span>
                                 {resultsData.rewardDogId && (
                                     <div className={`combat-result-dog dog-rarity-${resultsData.rewardRarity}`}>
                                         <img src={getAsset(resultsData.rewardDogId)} alt={resultsData.rewardDogId} />
-                                        <span>{getConfig(resultsData.rewardDogId)?.name}</span>
+                                        <div className="combat-result-dog-info">
+                                            <span>{getConfig(resultsData.rewardDogId)?.name}</span>
+                                            <span className="combat-result-shards">🧩 +{resultsData.shards}</span>
+                                        </div>
                                     </div>
                                 )}
-                                <span className="combat-result-shards">+{resultsData.shards} fragmentos</span>
                             </>
                         ) : (
                             <span className="combat-result-noreward">Sin recompensa (menos del 15%)</span>
@@ -1542,7 +1534,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             </button>
                         ) : null;
                     })()}
-                    {!getAttemptStatus(activeEnemy).isOnCooldown && (
+                    {!resultsData.isFirstBossWin && !getAttemptStatus(activeEnemy).isOnCooldown && (
                         <button className="combat-retry-btn" onClick={() => { setPhase('select'); setTeam([]); }}>
                             Repetir
                         </button>
