@@ -983,11 +983,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             const req     = enemy.requiresStars;
                             const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
                             const { isOnCooldown, attemptsLeft, remainingMin } = getAttemptStatus(enemy);
-                            const tier = enemy.isBoss ? 4 : idx + 1;
+                            const earnedStars = raidBestStars[enemy.id] ?? 0;
                             return (
                                 <button
                                     key={enemy.id}
-                                    className={`combat-enemy-card combat-enemy-frame-${tier}${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked || isOnCooldown ? ' combat-enemy-locked' : ''}`}
+                                    className={`combat-enemy-card combat-enemy-frame-${earnedStars}${enemy.isBoss ? ' combat-enemy-boss' : ''}${locked || isOnCooldown ? ' combat-enemy-locked' : ''}${earnedStars >= 3 && !locked && !isOnCooldown ? ' combat-enemy-complete' : ''}`}
                                     onClick={() => { if (!locked && !isOnCooldown) { setActiveEnemy(enemy); setPhase('select'); } }}
                                     disabled={locked || isOnCooldown}
                                 >

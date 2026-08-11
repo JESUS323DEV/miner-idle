@@ -246,10 +246,10 @@ import cardBat from "../assets/ui/icons-enemy/hud/card-bat.webp"
 import cardTopo from "../assets/ui/icons-enemy/hud/card-topo.webp"
 import cardScorpion from "../assets/ui/icons-enemy/hud/card-scorpion.webp"
 import cardSpiders from "../assets/ui/icons-enemy/hud/card-spiders.webp"
-import marco1 from "../assets/ui/icons-enemy/hud/marcos/marco-1.webp"
-import marco2 from "../assets/ui/icons-enemy/hud/marcos/marco-2.webp"
-import marco3 from "../assets/ui/icons-enemy/hud/marcos/marco-3.webp"
-import marco4 from "../assets/ui/icons-enemy/hud/marcos/marco-4.webp"
+import marcoEnemy0 from "../assets/ui/icons-enemy/hud/marcos/marco.webp"
+import marcoEnemy1 from "../assets/ui/icons-enemy/hud/marcos/marco-1.webp"
+import marcoEnemy2 from "../assets/ui/icons-enemy/hud/marcos/marco-2.webp"
+import marcoEnemy3 from "../assets/ui/icons-enemy/hud/marcos/marco-3.webp"
 import marcoSlotRare from "../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp"
 import marcoSlotEpic from "../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp"
 import marcoSlotLegend from "../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp"
@@ -350,7 +350,7 @@ const IMAGES = [
     spider1, spider2, spider3, spiderBoss,
     scorpion1, scorpion2, scorpion3, scorpionBoss,
     cardBat, cardTopo, cardScorpion, cardSpiders,
-    marco1, marco2, marco3, marco4,
+    marcoEnemy0, marcoEnemy1, marcoEnemy2, marcoEnemy3,
     marcoSlotRare, marcoSlotEpic, marcoSlotLegend,
     // escenas
     menaGold, menaGold2, menaGold3, menaGold4, menaGold5,
