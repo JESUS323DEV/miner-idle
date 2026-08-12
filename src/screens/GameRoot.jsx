@@ -58,6 +58,7 @@ import GlobalDogSlots from "../components/GlobalDogSlots.jsx";
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.webp";
 import gold1 from "../assets/ui/icons-hud/hud-principal/oro1.webp";
 import coinTavern from "../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
+import huesinCoin from "../assets/ui/icons-hud/hud-principal/huesin-coin.webp";
 import stamina1 from "../assets/ui/icons-hud/hud-principal/stamina-1.webp";
 import goldOpen from "../assets/ui/icons-hud/hud-principal/gold-open.webp";
 import repair from "../assets/ui/icons-hud/hud-principal/repair.webp";
@@ -293,7 +294,7 @@ function GameRoot({ onBack }) {
     handleUnassignForgeDog,
     handleUnlockWithFragments,
     handleUpgradeStar,
-    handleExchangeHuesinForFragments,
+    handleBuyTablonDog,
     handleOpenPack,
     handleFreePull,
     handleBuyMineSnack,
@@ -458,7 +459,7 @@ function GameRoot({ onBack }) {
     handleUnassignForgeDog,
     handleUnlockWithFragments,
     handleUpgradeStar,
-    handleExchangeHuesinForFragments,
+    handleBuyTablonDog,
     handleOpenPack,
     handleFreePull,
     handleBuyMineSnack,
@@ -789,11 +790,11 @@ function GameRoot({ onBack }) {
         style={{ backgroundImage: `url(${bgMain})` }}
       >
         {/* DEBUG */}
-        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, left:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer', opacity:0 }}>
+        <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, right:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer', opacity:0 }}>
           DEV
         </button>
         {debugOpen && (
-          <div style={{ position:'fixed', top:24, left:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
+          <div style={{ position:'fixed', top:44, right:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>RECURSOS</span>
             <button onClick={() => setGameState(prev => ({ ...prev, gold: prev.gold + 100000 }))} style={{ fontSize:10, padding:'2px 4px', background:'#332200', color:'#ffd740', border:'1px solid #ffd740', borderRadius:3, cursor:'pointer' }}>+100k oro</button>
             <button onClick={() => setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins + 500 }))} style={{ fontSize:10, padding:'2px 4px', background:'#002233', color:'#4dd0e1', border:'1px solid #4dd0e1', borderRadius:3, cursor:'pointer' }}>+500 tavern</button>
@@ -896,6 +897,9 @@ function GameRoot({ onBack }) {
                       {f.type === 'gain' ? `+${f.value}` : f.value}
                     </div>
                   ))}
+                  <span className="hud-currency-divider" />
+                  <img src={huesinCoin} alt="Huesín" />
+                  <span>{formatNumber(gameState.huesin ?? 0)}</span>
                 </div>
 
                 <div className="container-lingotes">

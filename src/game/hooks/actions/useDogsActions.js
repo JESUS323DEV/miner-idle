@@ -405,22 +405,34 @@ export const useDogsActions = (gameState, setGameState) => {
         });
     };
 
-    // ========== CANJEAR HUESÍN POR FRAGMENTOS ==========
-    const HUESIN_TO_FRAGMENT_RATE = 3;
+    // ========== TABLÓN: ESCAPARATE ROTATIVO DE HUESÍN ==========
+    const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
+    const TABLON_SHOP_FRAGMENTS = 20;
 
-    const handleExchangeHuesinForFragments = (dogId, isForge = false, times = 1) => {
+    const getTablonRotationKey = () => new Date().toISOString().slice(0, 10);
+
+    const handleBuyTablonDog = (dogId, isForge = false) => {
         setGameState(prevState => {
-            const cost = HUESIN_TO_FRAGMENT_RATE * times;
+            const config = isForge ? ForgeDogsConfig[dogId] : DogsConfig[dogId];
+            if (!config) return prevState;
+            const cost = TABLON_SHOP_PRICE[config.rarity] ?? 0;
             if (prevState.huesin < cost) return prevState;
+
+            const rotationKey = getTablonRotationKey();
+            const shop = prevState.tablonShop?.rotationKey === rotationKey ? prevState.tablonShop : { rotationKey, purchased: [] };
+            if (shop.purchased.includes(dogId)) return prevState;
+
             const stateKey = isForge ? 'forgeDogs' : 'dogs';
             const dog = prevState[stateKey][dogId];
-            if (!dog || !dog.hired) return prevState;
+            if (!dog) return prevState;
+
             return {
                 ...prevState,
                 huesin: prevState.huesin - cost,
+                tablonShop: { rotationKey, purchased: [...shop.purchased, dogId] },
                 [stateKey]: {
                     ...prevState[stateKey],
-                    [dogId]: { ...dog, fragments: (dog.fragments ?? 0) + times },
+                    [dogId]: { ...dog, fragments: (dog.fragments ?? 0) + TABLON_SHOP_FRAGMENTS },
                 },
             };
         });
@@ -600,7 +612,7 @@ export const useDogsActions = (gameState, setGameState) => {
         handleUnassignForgeDog,
         handleUnlockWithFragments,
         handleUpgradeStar,
-        handleExchangeHuesinForFragments,
+        handleBuyTablonDog,
         handleOpenPack,
         handleFreePull,
         handleAssignMineDog,

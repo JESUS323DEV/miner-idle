@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { X, Pickaxe } from 'lucide-react';
+import { X, Pickaxe, ArrowLeft } from 'lucide-react';
 import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -10,6 +10,18 @@ import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn
 import btnTablon      from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-tablon.webp';
 import tabMisiones    from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-misiones.webp';
 import tabShop        from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-shop.webp';
+import spiderBossImg   from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
+import batBossImg      from '../../assets/ui/icons-enemy/bats/bat-boss.webp';
+import topoBossImg     from '../../assets/ui/icons-enemy/topos/topo-boss.webp';
+import scorpionBossImg from '../../assets/ui/icons-enemy/scorpions/scorpion-boss.webp';
+import { getHuntRotationKey, getDailyHuntContracts, getHuntBossName } from '../../game/config/TablonHuntConfig.js';
+
+const HUNT_BOSS_IMG = {
+    'spider-boss': spiderBossImg,
+    'bat-boss': batBossImg,
+    'topo-boss': topoBossImg,
+    'scorpion-boss': scorpionBossImg,
+};
 import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
 import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
 import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
@@ -70,6 +82,7 @@ import PrizeOverlay from '../../components/PrizeOverlay.jsx';
 import '../../styles/modals/RaidScreen.css';
 import '../../styles/modals/ForgeModal.css';
 import '../../styles/modals/TavernModal.css';
+import '../../styles/modals/RewardsModal.css';
 
 import iconTavernTrigo from '../../assets/ui/icons-hud/hud-modals/icons-tavern/trigo.webp';
 import iconTavernLupulo from '../../assets/ui/icons-hud/hud-modals/icons-tavern/lupulo.webp';
@@ -168,7 +181,56 @@ const PROV_ICON = {
 // hasta que exista (ver HUB_BUTTONS.orders). Cambiar a `true` para probarlo mientras tanto.
 const SHOW_ENVIOS_TABLON = false;
 
-const HUESIN_TO_FRAGMENT_RATE = 3;
+// Tablón: escaparate rotativo (2 rare + 1 epic + 1 legendario, cambia cada 24h)
+const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
+const TABLON_SHOP_FRAGMENTS = 20;
+
+const getTablonRotationKey = (dayOffset = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + dayOffset);
+    return d.toISOString().slice(0, 10);
+};
+
+const buildRarityPools = (config) => {
+    const pools = { rare: [], epic: [], legendary: [] };
+    Object.entries(config).forEach(([id, cfg]) => {
+        if (pools[cfg.rarity]) pools[cfg.rarity].push(id);
+    });
+    return pools;
+};
+
+const seededRng = (seed) => {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
+    return () => {
+        h = Math.imul(h ^ (h >>> 15), h | 1);
+        h ^= h + Math.imul(h ^ (h >>> 7), h | 61);
+        return ((h ^ (h >>> 14)) >>> 0) / 4294967296;
+    };
+};
+
+const pickN = (pool, n, rng, exclude = []) => {
+    const preferred = pool.filter(id => !exclude.includes(id));
+    const source = preferred.length >= n ? preferred : pool;
+    const shuffled = [...source];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, n);
+};
+
+const getTablonLineup = (category, rotationKey, pools) => {
+    const rng = seededRng(`${rotationKey}-${category}`);
+    const yesterdayKey = getTablonRotationKey(-1);
+    const yesterdayRng = seededRng(`${yesterdayKey}-${category}`);
+    const yesterdayRare = pickN(pools.rare, 2, yesterdayRng);
+    return {
+        rare: pickN(pools.rare, 2, rng, yesterdayRare),
+        epic: pickN(pools.epic, 1, rng),
+        legendary: pickN(pools.legendary, 1, rng),
+    };
+};
 
 const HUB_BUTTONS = {
     passive: { top: '40%', left: '22%' },
@@ -185,7 +247,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
         handleUnlockRaidActivas,
         handleSendOrder,
         handleClaimOrder,
-        handleExchangeHuesinForFragments,
+        handleBuyTablonDog,
     } = useGameContext();
 
     const [now, setNow] = useState(Date.now());
@@ -196,8 +258,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
     const [tablonTab, setTablonTab] = useState('canje');
-    const [exchangeDogId, setExchangeDogId] = useState(null);
-    const [exchangeTimes, setExchangeTimes] = useState(1);
+    const [canjeCategory, setCanjeCategory] = useState('mineros');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
@@ -338,18 +399,40 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
         }
     };
 
+    const handleAcceptHunt = (bossId, rotationKey) => {
+        setGameState(prev => {
+            const hunt = prev.tablonHunt?.rotationKey === rotationKey ? prev.tablonHunt : { rotationKey, contracts: {} };
+            if (hunt.contracts[bossId]) return prev;
+            return { ...prev, tablonHunt: { rotationKey, contracts: { ...hunt.contracts, [bossId]: 'accepted' } } };
+        });
+    };
+
+    const handleClaimHunt = (bossId, rotationKey, reward) => {
+        setGameState(prev => {
+            const hunt = prev.tablonHunt?.rotationKey === rotationKey ? prev.tablonHunt : null;
+            if (!hunt || hunt.contracts[bossId] !== 'completed') return prev;
+            return {
+                ...prev,
+                huesin: prev.huesin + reward,
+                tablonHunt: { rotationKey, contracts: { ...hunt.contracts, [bossId]: 'claimed' } },
+            };
+        });
+    };
+
     return (
         <div className="raid-backdrop" onClick={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose}>
             <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
     ? `url(${bgRaidsPassive})`
     : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
 }}>
-                <button
-                    className="modal-close"
-                    onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : ((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose)}
-                    disabled={tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive'}
-                    style={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
-                ><X /></button>
+                {raidView !== 'tablon' && (
+                    <button
+                        className="modal-close"
+                        onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : ((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose)}
+                        disabled={tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive'}
+                        style={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? { opacity: 0.3, cursor: 'not-allowed' } : undefined}
+                    ><X /></button>
+                )}
 
                 {/* HUB */}
                 {raidView === 'hub' && (
@@ -739,75 +822,126 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                     </div>
                 )}
 
-                {/* TABLÓN — misiones (placeholder) + canje de Huesín por fragmentos */}
+                {/* TABLÓN — misiones (placeholder) + escaparate rotativo de Huesín */}
                 {raidView === 'tablon' && (() => {
-                    const huesinDogs = [
-                        ...Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired).map(d => ({ ...d, isForge: false })),
-                        ...Object.values(forgeDogs).filter(d => d && typeof d === 'object' && d.hired).map(d => ({ ...d, isForge: true })),
+                    const huntRotationKey = getHuntRotationKey();
+                    const huntContracts = getDailyHuntContracts(huntRotationKey);
+                    const huntState = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt.contracts : {};
+
+                    const rotationKey = getTablonRotationKey();
+                    const isForgeCat = canjeCategory === 'forja';
+                    const pools = buildRarityPools(isForgeCat ? ForgeDogsConfig : DogsConfig);
+                    const lineup = getTablonLineup(canjeCategory, rotationKey, pools);
+                    const lineupDogs = [
+                        ...lineup.rare.map(id => ({ id, rarity: 'rare' })),
+                        ...lineup.epic.map(id => ({ id, rarity: 'epic' })),
+                        ...lineup.legendary.map(id => ({ id, rarity: 'legendary' })),
                     ];
-                    const exchangeCost = HUESIN_TO_FRAGMENT_RATE * exchangeTimes;
-                    const canExchange = !!exchangeDogId && (gameState.huesin ?? 0) >= exchangeCost;
+                    const purchasedToday = gameState.tablonShop?.rotationKey === rotationKey ? (gameState.tablonShop.purchased ?? []) : [];
+                    const dogsState = isForgeCat ? forgeDogs : dogs;
 
                     return (
                         <div className="raid-tablon">
-                            <div className="raid-tablon-balance">{gameState.huesin ?? 0} Huesín</div>
-                            <div className="raid-tablon-tabs">
-                                <button
-                                    className={`raid-tablon-tab-btn ${tablonTab === 'misiones' ? 'active' : ''}`}
-                                    onClick={() => setTablonTab('misiones')}
-                                ><img src={tabMisiones} alt="misiones" className="raid-tablon-tab-icon" />Misiones</button>
-                                <button
-                                    className={`raid-tablon-tab-btn ${tablonTab === 'canje' ? 'active' : ''}`}
-                                    onClick={() => setTablonTab('canje')}
-                                ><img src={tabShop} alt="canje" className="raid-tablon-tab-icon" />Canje</button>
+                            <div className="raid-tablon-header">
+                                <div className="tavern-title-row">
+                                    <button className="tavern-back-btn-inline" onClick={() => setRaidView('hub')}>
+                                        <ArrowLeft size={22} />
+                                    </button>
+                                    <h2 className="tavern-title">Tablón</h2>
+                                </div>
+                                <div className="rewards-tabs">
+                                    <button
+                                        className={`rewards-tab ${tablonTab === 'misiones' ? 'active' : ''}`}
+                                        onClick={() => setTablonTab('misiones')}
+                                    ><img src={tabMisiones} alt="misiones" /></button>
+                                    <button
+                                        className={`rewards-tab ${tablonTab === 'canje' ? 'active' : ''}`}
+                                        onClick={() => setTablonTab('canje')}
+                                    ><img src={tabShop} alt="canje" /></button>
+                                </div>
+
+                                {tablonTab === 'misiones' && (
+                                    <p className="rc-desc">Contratos de caza del día. Acepta, cumple la condición en combate contra ese boss, y vuelve a reclamar.</p>
+                                )}
+
+                                {tablonTab === 'canje' && (
+                                    <>
+                                        <p className="rc-desc">Escaparate del día: cambia Huesín por fragmentos del perro que elijas, incluso si aún no lo tienes. Se renueva cada 24h.</p>
+                                        <div className="raid-tablon-tabs">
+                                            <button
+                                                className={`raid-tablon-tab-btn ${canjeCategory === 'mineros' ? 'active' : ''}`}
+                                                onClick={() => setCanjeCategory('mineros')}
+                                            >Mineros</button>
+                                            <button
+                                                className={`raid-tablon-tab-btn ${canjeCategory === 'forja' ? 'active' : ''}`}
+                                                onClick={() => setCanjeCategory('forja')}
+                                            >Forja</button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
-                            {tablonTab === 'misiones' && (
-                                <p className="raid-tablon-soon">Próximamente</p>
-                            )}
-
-                            {tablonTab === 'canje' && (
-                                <>
-                                    <p className="rc-desc">Cambia Huesín por fragmentos de un perro. {HUESIN_TO_FRAGMENT_RATE} Huesín = 1 fragmento.</p>
-                                    {exchangeDogId && (
-                                        <div className="tavern-stepper">
-                                            <button className="tavern-stepper-btn" onClick={() => setExchangeTimes(t => Math.max(1, t - 1))} disabled={exchangeTimes <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
-                                            <span className="tavern-stepper-qty">{exchangeTimes}</span>
-                                            <button className="tavern-stepper-btn" onClick={() => setExchangeTimes(t => t + 1)}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
-                                            <button
-                                                className={`btn-send-raid ${canExchange ? '' : 'btn-send-disabled'}`}
-                                                disabled={!canExchange}
-                                                onClick={() => {
-                                                    handleExchangeHuesinForFragments(exchangeDogId, huesinDogs.find(d => d.id === exchangeDogId)?.isForge ?? false, exchangeTimes);
-                                                    setExchangeDogId(null);
-                                                    setExchangeTimes(1);
-                                                }}
-                                            >Cambiar ({exchangeCost} Huesín)</button>
-                                        </div>
-                                    )}
-                                    <div className="raid-dogs-grid">
-                                        {huesinDogs.length === 0 && (
-                                            <p className="raid-no-dogs">Sin perros disponibles</p>
-                                        )}
-                                        {huesinDogs.map(dog => {
-                                            const cfg = getDogConfig(dog.id, dog.isForge);
+                            <div className="raid-tablon-scroll">
+                                {tablonTab === 'misiones' && (
+                                    <div className="raid-hunt-list">
+                                        {huntContracts.map(({ bossId, reward, condition }) => {
+                                            const status = huntState[bossId];
                                             return (
-                                                <button
-                                                    key={dog.id}
-                                                    className={`raid-dog-card ${exchangeDogId === dog.id ? 'raid-dog-selected' : ''} dog-rarity-${cfg?.rarity}`}
-                                                    onClick={() => { setExchangeDogId(p => p === dog.id ? null : dog.id); setExchangeTimes(1); }}
-                                                >
-                                                    <img src={dogAssets[dog.id]} alt={dog.id} />
-                                                    <span className="rdc-name">{cfg?.name ?? dog.id}</span>
-                                                    <span className="rdc-stars">
-                                                        {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
-                                                    </span>
-                                                </button>
+                                                <div key={bossId} className={`raid-hunt-row ${status ? `raid-hunt-${status}` : ''}`}>
+                                                    <img src={HUNT_BOSS_IMG[bossId]} alt={bossId} className="raid-hunt-portrait" />
+                                                    <div className="raid-hunt-info">
+                                                        <span className="raid-hunt-name">{getHuntBossName(bossId)}</span>
+                                                        <span className="raid-hunt-condition">{condition.label}</span>
+                                                        <span className="raid-hunt-desc">{condition.desc}</span>
+                                                        <span className="raid-hunt-reward">+{reward} Huesín</span>
+                                                    </div>
+                                                    {!status && (
+                                                        <button className="btn-send-raid raid-hunt-btn" onClick={() => handleAcceptHunt(bossId, huntRotationKey)}>Aceptar</button>
+                                                    )}
+                                                    {status === 'accepted' && (
+                                                        <span className="raid-hunt-status">En curso</span>
+                                                    )}
+                                                    {status === 'completed' && (
+                                                        <button className="btn-send-raid raid-hunt-btn" onClick={() => handleClaimHunt(bossId, huntRotationKey, reward)}>Reclamar</button>
+                                                    )}
+                                                    {status === 'claimed' && (
+                                                        <span className="raid-hunt-status">Reclamado</span>
+                                                    )}
+                                                </div>
                                             );
                                         })}
                                     </div>
-                                </>
-                            )}
+                                )}
+                                {tablonTab === 'canje' && (
+                                    <div className="raid-dogs-grid">
+                                        {lineupDogs.map(({ id, rarity }) => {
+                                            const cfg = getDogConfig(id, isForgeCat);
+                                            const dogState = dogsState[id];
+                                            const price = TABLON_SHOP_PRICE[rarity] ?? 0;
+                                            const bought = purchasedToday.includes(id);
+                                            const canBuy = !bought && (gameState.huesin ?? 0) >= price;
+                                            return (
+                                                <div key={id} className={`raid-dog-card dog-rarity-${rarity}`}>
+                                                    <img src={dogAssets[id]} alt={id} />
+                                                    <span className="rdc-name">{cfg?.name ?? id}</span>
+                                                    <span className="rdc-stars">
+                                                        {dogState?.hired
+                                                            ? `${'★'.repeat(dogState.stars ?? 0)}${'☆'.repeat(5 - (dogState.stars ?? 0))}`
+                                                            : 'Sin desbloquear'}
+                                                    </span>
+                                                    <button
+                                                        className={`btn-send-raid raid-tablon-buy-btn ${canBuy ? '' : 'btn-send-disabled'}`}
+                                                        disabled={!canBuy}
+                                                        onClick={() => handleBuyTablonDog(id, isForgeCat)}
+                                                    >
+                                                        {bought ? 'Comprado' : `${price} Huesín → +${TABLON_SHOP_FRAGMENTS} 🧩`}
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     );
                 })()}

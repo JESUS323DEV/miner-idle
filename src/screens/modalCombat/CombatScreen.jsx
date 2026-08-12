@@ -18,6 +18,7 @@ const ULT_ASSET = {
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { CombatConfig } from '../../game/config/CombatConfig.js';
+import { getHuntRotationKey, getDailyHuntContracts } from '../../game/config/TablonHuntConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
 import { advanceDailyQuestInState, advanceDailyQuest, advancePJActiveUse } from '../../game/utils/questUtils.js';
 import { useFloatingNumbers } from '../../game/hooks/useFloatingNumbers.js';
@@ -243,6 +244,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const maxComboRef                             = useRef(0);
     const waterTapCounterRef                      = useRef(0);
     const electricTapCounterRef                   = useRef(0);
+    const autoUsedRef                             = useRef(false);
 
     const SWITCH_COOLDOWN = 6;
 
@@ -350,6 +352,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         if (autoUlt && phase === 'fight' && ultCooldown === 0 && slots[1] && !autoFiring) {
             setAutoFiring(true);
             autoFireTimerRef.current = setTimeout(() => {
+                autoUsedRef.current = true;
                 handleUlt(); // eslint-disable-line react-hooks/immutability
                 setAutoFiring(false);
             }, 350);
@@ -452,6 +455,25 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 if (dog) rewardDogId = dog.id;
             }
 
+            let huntCompleted = false;
+            if (activeEnemy.isBoss && enemyHp <= 0) {
+                const huntRotationKey = getHuntRotationKey();
+                const hunt = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt : null;
+                if (hunt?.contracts[activeEnemy.id] === 'accepted') {
+                    const contract = getDailyHuntContracts(huntRotationKey).find(c => c.bossId === activeEnemy.id);
+                    if (contract) {
+                        const ctx = {
+                            timerLeft: timer,
+                            timerTotal: activeEnemy.timerSec,
+                            elements: slots.map(id => id ? getConfig(id)?.element : null),
+                            maxCombo: maxComboRef.current,
+                            autoUsed: autoUsedRef.current,
+                        };
+                        huntCompleted = contract.condition.evaluate(ctx);
+                    }
+                }
+            }
+
             setGameState(prev => {
                 const currentBest = prev.raidBestStars?.[activeEnemy.id] ?? 0;
 
@@ -481,6 +503,12 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     raidAttempts: newRaidAttempts,
                     dailyQuests: dq,
                     pjQuests,
+                    ...(huntCompleted ? {
+                        tablonHunt: {
+                            rotationKey: prev.tablonHunt.rotationKey,
+                            contracts: { ...prev.tablonHunt.contracts, [activeEnemy.id]: 'completed' },
+                        },
+                    } : {}),
                 };
                 if (!rewardDogId) return next;
                 return {
@@ -507,6 +535,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 maxCombo: maxComboRef.current,
                 isFirstBossWin,
                 huesin: huesinDropped,
+                huntCompleted,
             });
             playSfx('finalMina');
             setPhase('results');
@@ -891,6 +920,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         maxComboRef.current = 0;
         waterTapCounterRef.current = 0;
         electricTapCounterRef.current = 0;
+        autoUsedRef.current = false;
         setPhase('fight');
     };
 

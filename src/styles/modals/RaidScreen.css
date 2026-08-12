@@ -674,16 +674,112 @@
 
 /* TABLÓN */
 .raid-tablon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.raid-tablon-header {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 12px;
 }
 
-.raid-tablon-balance {
-    align-self: center;
+.raid-tablon-scroll {
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 1rem;
+}
+
+.raid-hunt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.raid-hunt-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+}
+
+.raid-hunt-row.raid-hunt-accepted {
+    border-color: #ff9500;
+    background: rgba(255,149,0,0.1);
+}
+
+.raid-hunt-row.raid-hunt-completed {
+    border-color: #7fff7f;
+    background: rgba(127,255,127,0.1);
+}
+
+.raid-hunt-row.raid-hunt-claimed {
+    opacity: 0.5;
+}
+
+.raid-hunt-portrait {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.raid-hunt-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.raid-hunt-name {
     color: #f5e8b0;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.raid-hunt-condition {
+    color: #ff9500;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.raid-hunt-desc {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.62rem;
+}
+
+.raid-hunt-reward {
+    color: #ffd740;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.raid-hunt-btn {
+    width: 84px;
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 8px 4px;
+}
+
+.raid-hunt-status {
+    width: 84px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
     font-weight: 700;
 }
 
@@ -702,16 +798,6 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.raid-tablon-tab-icon {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
 }
 
 .raid-tablon-tab-btn.active {
@@ -720,11 +806,10 @@
     color: #ff9500;
 }
 
-.raid-tablon-soon {
-    text-align: center;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.85rem;
-    padding: 24px 0;
+.raid-tablon-buy-btn {
+    font-size: 0.65rem;
+    padding: 6px 4px;
+    margin-top: 2px;
 }
 
 .rap-actions {
