@@ -95,6 +95,9 @@ const InitialGameState = {
         diamond: { unlocked: false, level: 1, isActive: false, progress: 0, startTime: null, pendingIngots: 0, restarting: false },
     },
 
+    // ========== HUESÍN ==========
+    huesin: 0,
+
     // ========== TABERNA ==========
     tavernCoins: 1,
     tavernUnlocked: false,

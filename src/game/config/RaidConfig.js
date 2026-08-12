@@ -30,6 +30,7 @@ export const RaidConfig = {
             loot: {
                 gold:      { chance: 80, min: 300,  max: 1200 },
                 fragments: { chance: 50, min: 5,    max: 15   },
+                huesin:    { chance: 3,  min: 1,    max: 1    },
             },
         },
         {
@@ -46,6 +47,7 @@ export const RaidConfig = {
                 gold:        { chance: 85, min: 1000, max: 4000 },
                 fragments:   { chance: 65, min: 10,   max: 30   },
                 tavernCoins: { chance: 12, min: 1,    max: 1    },
+                huesin:      { chance: 6,  min: 1,    max: 1    },
             },
         },
         {
@@ -62,6 +64,7 @@ export const RaidConfig = {
                 gold:        { chance: 90, min: 3000, max: 12000 },
                 fragments:   { chance: 80, min: 20,   max: 60    },
                 tavernCoins: { chance: 35, min: 1,    max: 3     },
+                huesin:      { chance: 10, min: 1,    max: 1     },
             },
         },
     ],

@@ -142,6 +142,7 @@ export const useRaidActions = (gameState, setGameState) => {
                 ...prevState,
                 gold: prevState.gold + (loot.gold ?? 0),
                 tavernCoins: prevState.tavernCoins + (loot.tavernCoins ?? 0),
+                huesin: prevState.huesin + (loot.huesin ?? 0),
                 dogs: updatedDogs,
                 forgeDogs: updatedForgeDogs,
                 raid: {

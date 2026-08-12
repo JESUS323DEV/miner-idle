@@ -161,7 +161,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         handleOpenPack: onOpenPack,
         handleFreePull: onFreePull,
     } = useGameContext();
-    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
+    const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, huesin = 0, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
     const hireBartender = () => {
         const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
         if (gameState.gold < costGold || tavernCoins < costCoins) return;
@@ -349,8 +349,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
     const STAR_GOLD_BASE = { rare: 5000, epic: 10000, legendary: 15000 };
     const STAR_COIN_BASE = { rare: 1, epic: 2, legendary: 3 };
+    const STAR_HUESIN_BASE = { rare: 1, epic: 3, legendary: 4 };
     const getStarGoldCost = (rarity, stars) => (STAR_GOLD_BASE[rarity] ?? 0) + stars * 5000;
     const getStarCoinCost = (rarity, stars) => (STAR_COIN_BASE[rarity] ?? 0) + stars;
+    const getStarHuesinCost = (rarity, stars) => (STAR_HUESIN_BASE[rarity] ?? 0) + stars;
     const FREE_PULL_COOLDOWNS = { basic: 5 * 3600000, epic: 10 * 3600000, legendary: 24 * 3600000 };
     const _dogHasAction = (dogsState, config) => Object.values(dogsState).some(dog => {
         if (!dog || typeof dog !== 'object') return false;
@@ -362,7 +364,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const canUnlock = !dog.hired && frags >= cfg.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
         const canUpgrade = dog.hired && stars < 5 && frags >= (cfg.starFragments?.[stars] ?? Infinity)
             && tavernCoins >= getStarCoinCost(cfg.rarity, stars)
-            && gameState.gold >= getStarGoldCost(cfg.rarity, stars);
+            && gameState.gold >= getStarGoldCost(cfg.rarity, stars)
+            && huesin >= getStarHuesinCost(cfg.rarity, stars);
         return canUnlock || canUpgrade;
     });
     const minerHasAction = _dogHasAction(dogs, DogsConfig);
@@ -405,7 +408,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const canUnlock = !dog.hired && frags >= config.unlockFragments && gameState.gold >= goldCost && tavernCoins >= coinCost;
         const canUpgrade = fragForNext !== null && frags >= fragForNext
             && tavernCoins >= getStarCoinCost(config.rarity, stars)
-            && gameState.gold >= getStarGoldCost(config.rarity, stars);
+            && gameState.gold >= getStarGoldCost(config.rarity, stars)
+            && huesin >= getStarHuesinCost(config.rarity, stars);
         if (canUnlock || canUpgrade) rarityHasAction[config.rarity] = true;
     });
     const _checkHiredUpgradeable = (dogsState, config) => Object.values(dogsState).some(dog => {
@@ -416,7 +420,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
         const fragForNext = stars < 5 ? cfg.starFragments?.[stars] : null;
         return fragForNext !== null && (dog.fragments ?? 0) >= fragForNext
             && tavernCoins >= getStarCoinCost(cfg.rarity, stars)
-            && gameState.gold >= getStarGoldCost(cfg.rarity, stars);
+            && gameState.gold >= getStarGoldCost(cfg.rarity, stars)
+            && huesin >= getStarHuesinCost(cfg.rarity, stars);
     });
     const obtenidosHasUpgrade = dogTab === 'mineros'
         ? _checkHiredUpgradeable(dogs, DogsConfig)
@@ -928,7 +933,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         const fragForNext = dog.hired && stars < 5 ? config.starFragments[stars] : null;
                                         const starCoinCost = getStarCoinCost(config.rarity, stars);
                                         const starGoldCost = getStarGoldCost(config.rarity, stars);
-                                        const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost;
+                                        const starHuesinCost = getStarHuesinCost(config.rarity, stars);
+                                        const canUpgrade = fragForNext !== null && (dog.fragments ?? 0) >= fragForNext && tavernCoins >= starCoinCost && gameState.gold >= starGoldCost && huesin >= starHuesinCost;
                                         const isFlipped = flippedDog === dog.id;
                                         return (
                                             <div key={dog.id} className={`dog-card-frame dog-rarity-${config.rarity}`}>
@@ -954,6 +960,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                     </span>
                                                                     <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={iconGold} alt="gold" className="cost-icon" />{`${starGoldCost / 1000}k`}
+                                                                    </span>
+                                                                    <span className={huesin < starHuesinCost ? 'cost-missing' : 'cost-ok'}>
+                                                                        {starHuesinCost} Huesín
                                                                     </span>
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id)} disabled={!canUpgrade}>⬆ Mejorar</button>
@@ -1215,7 +1224,8 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         const fragForNextF = dog.hired && starsF < 5 ? config.starFragments[starsF] : null;
                                         const starCoinCostF = getStarCoinCost(config.rarity, starsF);
                                         const starGoldCostF = getStarGoldCost(config.rarity, starsF);
-                                        const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF && gameState.gold >= starGoldCostF;
+                                        const starHuesinCostF = getStarHuesinCost(config.rarity, starsF);
+                                        const canUpgradeF = fragForNextF !== null && (dog.fragments ?? 0) >= fragForNextF && tavernCoins >= starCoinCostF && gameState.gold >= starGoldCostF && huesin >= starHuesinCostF;
                                         const isFlipped = flippedDog === dog.id;
 
                                         return (
@@ -1242,6 +1252,9 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                     </span>
                                                                     <span className={tavernCoins < starCoinCostF ? 'cost-missing' : 'cost-ok'}>
                                                                         <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCostF}
+                                                                    </span>
+                                                                    <span className={huesin < starHuesinCostF ? 'cost-missing' : 'cost-ok'}>
+                                                                        {starHuesinCostF} Huesín
                                                                     </span>
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgradeF ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id, true)} disabled={!canUpgradeF}>⬆ Mejorar</button>

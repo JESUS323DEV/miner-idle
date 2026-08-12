@@ -372,6 +372,7 @@ export const useDogsActions = (gameState, setGameState) => {
     // ========== SUBIR ESTRELLA ==========
     const STAR_GOLD_BASE = { rare: 5000, epic: 10000, legendary: 15000 };
     const STAR_COIN_BASE = { rare: 1, epic: 2, legendary: 3 };
+    const STAR_HUESIN_BASE = { rare: 1, epic: 3, legendary: 4 };
 
     const handleUpgradeStar = (dogId, isForge = false) => {
         setGameState(prevState => {
@@ -385,18 +386,42 @@ export const useDogsActions = (gameState, setGameState) => {
             if ((dog.fragments ?? 0) < needed) return prevState;
             const goldCost = (STAR_GOLD_BASE[config.rarity] ?? 0) + stars * 5000;
             const coinCost = (STAR_COIN_BASE[config.rarity] ?? 0) + stars;
+            const huesinCost = (STAR_HUESIN_BASE[config.rarity] ?? 0) + stars;
             if (prevState.gold < goldCost) return prevState;
             if (prevState.tavernCoins < coinCost) return prevState;
+            if (prevState.huesin < huesinCost) return prevState;
 
             return {
                 ...prevState,
                 gold: prevState.gold - goldCost,
                 tavernCoins: prevState.tavernCoins - coinCost,
+                huesin: prevState.huesin - huesinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
                     [dogId]: { ...dog, stars: stars + 1, fragments: dog.fragments - needed }
                 },
                 dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'starUps', 1),
+            };
+        });
+    };
+
+    // ========== CANJEAR HUESÍN POR FRAGMENTOS ==========
+    const HUESIN_TO_FRAGMENT_RATE = 3;
+
+    const handleExchangeHuesinForFragments = (dogId, isForge = false, times = 1) => {
+        setGameState(prevState => {
+            const cost = HUESIN_TO_FRAGMENT_RATE * times;
+            if (prevState.huesin < cost) return prevState;
+            const stateKey = isForge ? 'forgeDogs' : 'dogs';
+            const dog = prevState[stateKey][dogId];
+            if (!dog || !dog.hired) return prevState;
+            return {
+                ...prevState,
+                huesin: prevState.huesin - cost,
+                [stateKey]: {
+                    ...prevState[stateKey],
+                    [dogId]: { ...dog, fragments: (dog.fragments ?? 0) + times },
+                },
             };
         });
     };
@@ -575,6 +600,7 @@ export const useDogsActions = (gameState, setGameState) => {
         handleUnassignForgeDog,
         handleUnlockWithFragments,
         handleUpgradeStar,
+        handleExchangeHuesinForFragments,
         handleOpenPack,
         handleFreePull,
         handleAssignMineDog,

@@ -165,10 +165,13 @@ const PROV_ICON = {
 // hasta que exista (ver HUB_BUTTONS.orders). Cambiar a `true` para probarlo mientras tanto.
 const SHOW_ENVIOS_TABLON = false;
 
+const HUESIN_TO_FRAGMENT_RATE = 3;
+
 const HUB_BUTTONS = {
     passive: { top: '40%', left: '22%' },
     active:  { top: '30%', left: '55%' },
     orders:  { top: '15%', left: '38%' },
+    tablon:  { top: '55%', left: '38%' },
 };
 
 const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
@@ -179,6 +182,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
         handleUnlockRaidActivas,
         handleSendOrder,
         handleClaimOrder,
+        handleExchangeHuesinForFragments,
     } = useGameContext();
 
     const [now, setNow] = useState(Date.now());
@@ -188,6 +192,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const [orderQty, setOrderQty] = useState({ trigo: 1, lupulo: 1 });
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
+    const [tablonTab, setTablonTab] = useState('canje');
+    const [exchangeDogId, setExchangeDogId] = useState(null);
+    const [exchangeTimes, setExchangeTimes] = useState(1);
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
@@ -308,6 +315,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
             isWin: true,
             sfx: 'rewardGold',
         }));
+        if (loot.huesin > 0) steps.push({
+            icon: iconGold, label: `+${loot.huesin} Huesín`, sublabel: sub, isWin: true, sfx: 'rewardGold',
+        });
         if (steps.length === 0) steps.push({
             icon: iconGold, label: 'Sin botín', sublabel: sub, isWin: false, sfx: 'blocked',
         });
@@ -375,6 +385,13 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 <img src={btnRaidPassive} alt="envios" className="raid-hub-btn-img" />
                             </button>
                         )}
+                        <button
+                            className="raid-hub-btn raid-hub-btn-text"
+                            style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
+                            onClick={() => setRaidView('tablon')}
+                        >
+                            <span className="raid-hub-btn-label">Tablón</span>
+                        </button>
                     </div>
                 )}
 
@@ -718,6 +735,79 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                         })}
                     </div>
                 )}
+
+                {/* TABLÓN — misiones (placeholder) + canje de Huesín por fragmentos */}
+                {raidView === 'tablon' && (() => {
+                    const huesinDogs = [
+                        ...Object.values(dogs).filter(d => d && typeof d === 'object' && d.hired).map(d => ({ ...d, isForge: false })),
+                        ...Object.values(forgeDogs).filter(d => d && typeof d === 'object' && d.hired).map(d => ({ ...d, isForge: true })),
+                    ];
+                    const exchangeCost = HUESIN_TO_FRAGMENT_RATE * exchangeTimes;
+                    const canExchange = !!exchangeDogId && (gameState.huesin ?? 0) >= exchangeCost;
+
+                    return (
+                        <div className="raid-tablon">
+                            <div className="raid-tablon-balance">{gameState.huesin ?? 0} Huesín</div>
+                            <div className="raid-tablon-tabs">
+                                <button
+                                    className={`raid-tablon-tab-btn ${tablonTab === 'misiones' ? 'active' : ''}`}
+                                    onClick={() => setTablonTab('misiones')}
+                                >Misiones</button>
+                                <button
+                                    className={`raid-tablon-tab-btn ${tablonTab === 'canje' ? 'active' : ''}`}
+                                    onClick={() => setTablonTab('canje')}
+                                >Canje</button>
+                            </div>
+
+                            {tablonTab === 'misiones' && (
+                                <p className="raid-tablon-soon">Próximamente</p>
+                            )}
+
+                            {tablonTab === 'canje' && (
+                                <>
+                                    <p className="rc-desc">Cambia Huesín por fragmentos de un perro. {HUESIN_TO_FRAGMENT_RATE} Huesín = 1 fragmento.</p>
+                                    {exchangeDogId && (
+                                        <div className="tavern-stepper">
+                                            <button className="tavern-stepper-btn" onClick={() => setExchangeTimes(t => Math.max(1, t - 1))} disabled={exchangeTimes <= 1}><img src={iconSelectLeft} alt="menos" className="tavern-stepper-icon" /></button>
+                                            <span className="tavern-stepper-qty">{exchangeTimes}</span>
+                                            <button className="tavern-stepper-btn" onClick={() => setExchangeTimes(t => t + 1)}><img src={iconSelectRight} alt="mas" className="tavern-stepper-icon" /></button>
+                                            <button
+                                                className={`btn-send-raid ${canExchange ? '' : 'btn-send-disabled'}`}
+                                                disabled={!canExchange}
+                                                onClick={() => {
+                                                    handleExchangeHuesinForFragments(exchangeDogId, huesinDogs.find(d => d.id === exchangeDogId)?.isForge ?? false, exchangeTimes);
+                                                    setExchangeDogId(null);
+                                                    setExchangeTimes(1);
+                                                }}
+                                            >Cambiar ({exchangeCost} Huesín)</button>
+                                        </div>
+                                    )}
+                                    <div className="raid-dogs-grid">
+                                        {huesinDogs.length === 0 && (
+                                            <p className="raid-no-dogs">Sin perros disponibles</p>
+                                        )}
+                                        {huesinDogs.map(dog => {
+                                            const cfg = getDogConfig(dog.id, dog.isForge);
+                                            return (
+                                                <button
+                                                    key={dog.id}
+                                                    className={`raid-dog-card ${exchangeDogId === dog.id ? 'raid-dog-selected' : ''} dog-rarity-${cfg?.rarity}`}
+                                                    onClick={() => { setExchangeDogId(p => p === dog.id ? null : dog.id); setExchangeTimes(1); }}
+                                                >
+                                                    <img src={dogAssets[dog.id]} alt={dog.id} />
+                                                    <span className="rdc-name">{cfg?.name ?? dog.id}</span>
+                                                    <span className="rdc-stars">
+                                                        {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    );
+                })()}
 
             </div>
             <PrizeOverlay prizeData={prizeQueue[0] ?? null} onAccept={() => setPrizeQueue(prev => prev.slice(1))} />

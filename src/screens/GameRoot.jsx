@@ -293,6 +293,7 @@ function GameRoot({ onBack }) {
     handleUnassignForgeDog,
     handleUnlockWithFragments,
     handleUpgradeStar,
+    handleExchangeHuesinForFragments,
     handleOpenPack,
     handleFreePull,
     handleBuyMineSnack,
@@ -457,6 +458,7 @@ function GameRoot({ onBack }) {
     handleUnassignForgeDog,
     handleUnlockWithFragments,
     handleUpgradeStar,
+    handleExchangeHuesinForFragments,
     handleOpenPack,
     handleFreePull,
     handleBuyMineSnack,
@@ -725,6 +727,7 @@ function GameRoot({ onBack }) {
   });
   const STAR_GOLD_BASE_CHECK = { rare: 5000, epic: 10000, legendary: 15000 };
   const STAR_COIN_BASE_CHECK = { rare: 1, epic: 2, legendary: 3 };
+  const STAR_HUESIN_BASE_CHECK = { rare: 1, epic: 3, legendary: 4 };
   const _checkDogsPending = (dogsState, config) =>
     Object.entries(dogsState).some(([id, dog]) => {
       const cfg = config[id];
@@ -739,7 +742,8 @@ function GameRoot({ onBack }) {
         const needed = cfg.starFragments?.[stars] ?? Infinity;
         const starGold = (STAR_GOLD_BASE_CHECK[cfg.rarity] ?? 0) + stars * 5000;
         const starCoin = (STAR_COIN_BASE_CHECK[cfg.rarity] ?? 0) + stars;
-        return frags >= needed && gameState.gold >= starGold && gameState.tavernCoins >= starCoin;
+        const starHuesin = (STAR_HUESIN_BASE_CHECK[cfg.rarity] ?? 0) + stars;
+        return frags >= needed && gameState.gold >= starGold && gameState.tavernCoins >= starCoin && gameState.huesin >= starHuesin;
       }
       return false;
     });

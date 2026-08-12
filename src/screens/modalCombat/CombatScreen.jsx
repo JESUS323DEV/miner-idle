@@ -442,6 +442,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             const isNewBest  = starsEarned > previousBestStars;
             const shards     = isNewBest ? (threshold?.shards ?? 0) : Math.round((threshold?.shards ?? 0) * 0.4);
             const isFirstBossWin = activeEnemy.isBoss && enemyHp <= 0 && previousBestStars === 0;
+            const huesinDropped = enemyHp <= 0 && Math.random() * 100 < (activeEnemy.huesinChance ?? 0) ? (activeEnemy.huesinAmount ?? 1) : 0;
 
             let rewardDogId  = null;
             let rewardRarity = null;
@@ -476,6 +477,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     ...prev,
                     raidBestStars: { ...(prev.raidBestStars ?? {}), [activeEnemy.id]: Math.max(currentBest, starsEarned) },
                     gold: prev.gold + gold,
+                    huesin: prev.huesin + huesinDropped,
                     raidAttempts: newRaidAttempts,
                     dailyQuests: dq,
                     pjQuests,
@@ -504,6 +506,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 rewardRarity,
                 maxCombo: maxComboRef.current,
                 isFirstBossWin,
+                huesin: huesinDropped,
             });
             playSfx('finalMina');
             setPhase('results');
@@ -1512,6 +1515,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         )}
                         {resultsData.gold > 0 && (
                             <span className="combat-result-gold">+{resultsData.gold.toLocaleString()} oro</span>
+                        )}
+                        {resultsData.huesin > 0 && (
+                            <span className="combat-result-huesin">+{resultsData.huesin} Huesín</span>
                         )}
                         {resultsData.maxCombo >= COMBO_FIRST_MILESTONE && (
                             <span className="combat-result-combo">Combo máximo x{resultsData.maxCombo}</span>

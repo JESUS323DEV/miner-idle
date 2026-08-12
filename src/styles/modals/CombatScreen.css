@@ -1480,6 +1480,12 @@
     font-weight: bold;
 }
 
+.combat-result-huesin {
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
 .combat-result-combo {
     color: rgba(255,255,255,0.55);
     font-size: 0.75rem;
