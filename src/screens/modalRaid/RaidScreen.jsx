@@ -7,6 +7,9 @@ import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.web
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
 import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp';
+import btnTablon      from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-tablon.webp';
+import tabMisiones    from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-misiones.webp';
+import tabShop        from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-shop.webp';
 import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
 import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
 import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
@@ -171,7 +174,7 @@ const HUB_BUTTONS = {
     passive: { top: '40%', left: '22%' },
     active:  { top: '30%', left: '55%' },
     orders:  { top: '15%', left: '38%' },
-    tablon:  { top: '55%', left: '38%' },
+    tablon:  { top: '40%', left: '87%' },
 };
 
 const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
@@ -386,11 +389,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                             </button>
                         )}
                         <button
-                            className="raid-hub-btn raid-hub-btn-text"
+                            className="raid-hub-btn"
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
                             onClick={() => setRaidView('tablon')}
                         >
-                            <span className="raid-hub-btn-label">Tablón</span>
+                            <img src={btnTablon} alt="tablón" className="raid-hub-btn-img" />
                         </button>
                     </div>
                 )}
@@ -752,11 +755,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 <button
                                     className={`raid-tablon-tab-btn ${tablonTab === 'misiones' ? 'active' : ''}`}
                                     onClick={() => setTablonTab('misiones')}
-                                >Misiones</button>
+                                ><img src={tabMisiones} alt="misiones" className="raid-tablon-tab-icon" />Misiones</button>
                                 <button
                                     className={`raid-tablon-tab-btn ${tablonTab === 'canje' ? 'active' : ''}`}
                                     onClick={() => setTablonTab('canje')}
-                                >Canje</button>
+                                ><img src={tabShop} alt="canje" className="raid-tablon-tab-icon" />Canje</button>
                             </div>
 
                             {tablonTab === 'misiones' && (

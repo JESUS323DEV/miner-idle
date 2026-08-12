@@ -52,7 +52,8 @@ const STRIP_LEN     = 30;
 const RESULT_IDX    = 25;
 const FINAL_OFFSET  = -(RESULT_IDX - 1) * SYMBOL_H;
 const SPIN_DURATIONS = [2400, 2900, 3400];
-const SPIN_COST     = 10;
+const SPIN_COST        = 10;
+const SPIN_COST_HUESIN = 2;
 
 const rnd = (n) => Math.floor(Math.random() * n);
 
@@ -73,12 +74,14 @@ export default function SlotMachine({ guaranteed }) {
     const [offsets, setOffsets]         = useState([FINAL_OFFSET, FINAL_OFFSET, FINAL_OFFSET]);
     const [transitions, setTransitions] = useState(['none', 'none', 'none']);
 
-    const resultsRef  = useRef(null);
-    const canAfford   = gameState.tavernCoins >= SPIN_COST;
+    const resultsRef      = useRef(null);
+    const canAffordCoins  = gameState.tavernCoins >= SPIN_COST;
+    const canAffordHuesin = (gameState.huesin ?? 0) >= SPIN_COST_HUESIN;
 
-    const spin = () => {
+    const spin = (method = 'coins') => {
         if (isSpinning) return;
-        if (!guaranteed && !canAfford) return;
+        if (!guaranteed && method === 'coins' && !canAffordCoins) return;
+        if (!guaranteed && method === 'huesin' && !canAffordHuesin) return;
 
         let results;
         if (guaranteed) {
@@ -87,7 +90,11 @@ export default function SlotMachine({ guaranteed }) {
             setGameState(prev => ({ ...prev, slotWelcomeDone: true }));
         } else {
             results = Array.from({ length: 3 }, () => weightedRnd());
-            setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins - SPIN_COST }));
+            if (method === 'huesin') {
+                setGameState(prev => ({ ...prev, huesin: prev.huesin - SPIN_COST_HUESIN }));
+            } else {
+                setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins - SPIN_COST }));
+            }
         }
         resultsRef.current = results;
 
@@ -233,24 +240,32 @@ export default function SlotMachine({ guaranteed }) {
             </div>
 
             {guaranteed ? (
-                <p className="slot-info">Solo épicos y legendarios — siempre garantizado</p>
+                <>
+                    <p className="slot-info">Solo épicos y legendarios — siempre garantizado</p>
+                    <button className="slot-spin-btn" onClick={() => spin()} disabled={isSpinning}>
+                        {isSpinning ? 'Girando...' : 'Girar — Gratis'}
+                    </button>
+                </>
             ) : (
-                <div className="slot-cost-row">
-                    <img src={coinTavern} className="slot-coin-icon" alt="" />
-                    <span>{SPIN_COST} monedas por tirada</span>
-                </div>
-            )}
-
-            <button
-                className="slot-spin-btn"
-                onClick={spin}
-                disabled={isSpinning || (!guaranteed && !canAfford)}
-            >
-                {isSpinning ? 'Girando...' : guaranteed ? 'Girar — Gratis' : 'Girar'}
-            </button>
-
-            {!guaranteed && !canAfford && !isSpinning && (
-                <p className="slot-warn">Monedas insuficientes</p>
+                <>
+                    <button
+                        className="slot-spin-btn"
+                        onClick={() => spin('coins')}
+                        disabled={isSpinning || !canAffordCoins}
+                    >
+                        {isSpinning ? 'Girando...' : `Girar (${SPIN_COST} monedas)`}
+                    </button>
+                    <button
+                        className="slot-spin-btn"
+                        onClick={() => spin('huesin')}
+                        disabled={isSpinning || !canAffordHuesin}
+                    >
+                        {isSpinning ? 'Girando...' : `Girar (${SPIN_COST_HUESIN} Huesín)`}
+                    </button>
+                    {!canAffordCoins && !canAffordHuesin && !isSpinning && (
+                        <p className="slot-warn">Monedas/Huesín insuficientes</p>
+                    )}
+                </>
             )}
         </div>
     );

@@ -672,16 +672,6 @@
 
 .rap-strength strong { color: #7fff7f; }
 
-/* HUESÍN: botón de hub en texto (sin asset todavía) */
-.raid-hub-btn-text {
-    width: 64px;
-    height: 48px;
-    justify-content: center;
-    background: rgba(20, 10, 0, 0.9);
-    border: 1px solid rgba(245, 232, 176, 0.4);
-    border-radius: 10px;
-}
-
 /* TABLÓN */
 .raid-tablon {
     display: flex;
@@ -712,6 +702,16 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.raid-tablon-tab-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
 }
 
 .raid-tablon-tab-btn.active {
