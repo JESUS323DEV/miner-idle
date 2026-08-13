@@ -409,7 +409,11 @@ export const useDogsActions = (gameState, setGameState) => {
     const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
     const TABLON_SHOP_FRAGMENTS = 20;
 
-    const getTablonRotationKey = () => new Date().toISOString().slice(0, 10);
+    const getTablonRotationKey = (dayOffset = 0) => {
+        const d = new Date();
+        d.setDate(d.getDate() + dayOffset);
+        return d.toISOString().slice(0, 10);
+    };
 
     const handleBuyTablonDog = (dogId, isForge = false) => {
         setGameState(prevState => {
@@ -418,7 +422,7 @@ export const useDogsActions = (gameState, setGameState) => {
             const cost = TABLON_SHOP_PRICE[config.rarity] ?? 0;
             if (prevState.huesin < cost) return prevState;
 
-            const rotationKey = getTablonRotationKey();
+            const rotationKey = getTablonRotationKey(prevState.debugDayOffset ?? 0);
             const shop = prevState.tablonShop?.rotationKey === rotationKey ? prevState.tablonShop : { rotationKey, purchased: [] };
             if (shop.purchased.includes(dogId)) return prevState;
 

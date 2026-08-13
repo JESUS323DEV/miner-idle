@@ -64,7 +64,11 @@ const seededRng = (seed) => {
     };
 };
 
-export const getHuntRotationKey = () => new Date().toISOString().slice(0, 10);
+export const getHuntRotationKey = (dayOffset = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + dayOffset);
+    return d.toISOString().slice(0, 10);
+};
 
 export const getDailyHuntContracts = (rotationKey) => {
     const bossIds = Object.keys(HUNT_BOSS_REWARDS);

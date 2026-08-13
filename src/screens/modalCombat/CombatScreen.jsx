@@ -457,7 +457,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
             let huntCompleted = false;
             if (activeEnemy.isBoss && enemyHp <= 0) {
-                const huntRotationKey = getHuntRotationKey();
+                const huntRotationKey = getHuntRotationKey(gameState.debugDayOffset ?? 0);
                 const hunt = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt : null;
                 if (hunt?.contracts[activeEnemy.id] === 'accepted') {
                     const contract = getDailyHuntContracts(huntRotationKey).find(c => c.bossId === activeEnemy.id);

@@ -10,18 +10,14 @@ import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn
 import btnTablon      from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-tablon.webp';
 import tabMisiones    from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-misiones.webp';
 import tabShop        from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-shop.webp';
-import spiderBossImg   from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
-import batBossImg      from '../../assets/ui/icons-enemy/bats/bat-boss.webp';
-import topoBossImg     from '../../assets/ui/icons-enemy/topos/topo-boss.webp';
-import scorpionBossImg from '../../assets/ui/icons-enemy/scorpions/scorpion-boss.webp';
 import { getHuntRotationKey, getDailyHuntContracts, getHuntBossName } from '../../game/config/TablonHuntConfig.js';
 import huesinCoin from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 
-const HUNT_BOSS_IMG = {
-    'spider-boss': spiderBossImg,
-    'bat-boss': batBossImg,
-    'topo-boss': topoBossImg,
-    'scorpion-boss': scorpionBossImg,
+const HUNT_BOSS_CARD_CLASS = {
+    'spider-boss': 'raid-hunt-card-spiders',
+    'bat-boss': 'raid-hunt-card-bat',
+    'topo-boss': 'raid-hunt-card-topo',
+    'scorpion-boss': 'raid-hunt-card-scorpion',
 };
 import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
 import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
@@ -232,7 +228,9 @@ const pickN = (pool, n, rng, exclude = []) => {
 
 const getTablonLineup = (category, rotationKey, pools) => {
     const rng = seededRng(`${rotationKey}-${category}`);
-    const yesterdayKey = getTablonRotationKey(-1);
+    const yesterday = new Date(rotationKey);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toISOString().slice(0, 10);
     const yesterdayRng = seededRng(`${yesterdayKey}-${category}`);
     const yesterdayRare = pickN(pools.rare, 2, yesterdayRng);
     return {
@@ -267,7 +265,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const [orderQty, setOrderQty] = useState({ trigo: 1, lupulo: 1 });
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
-    const [tablonTab, setTablonTab] = useState('canje');
+    const [tablonTab, setTablonTab] = useState('misiones');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
@@ -483,7 +481,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                         <button
                             className="raid-hub-btn"
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
-                            onClick={() => setRaidView('tablon')}
+                            onClick={() => {
+                                const huntRotationKey = getHuntRotationKey(gameState.debugDayOffset ?? 0);
+                                const huntContracts = getDailyHuntContracts(huntRotationKey);
+                                const huntState = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt.contracts : {};
+                                const nothingToDo = huntContracts.every(({ bossId }) => huntState[bossId] === 'claimed');
+                                setTablonTab(nothingToDo ? 'canje' : 'misiones');
+                                setRaidView('tablon');
+                            }}
                         >
                             <img src={btnTablon} alt="tablón" className="raid-hub-btn-img" />
                         </button>
@@ -833,11 +838,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
 
                 {/* TABLÓN — misiones (placeholder) + escaparate rotativo de Huesín */}
                 {raidView === 'tablon' && (() => {
-                    const huntRotationKey = getHuntRotationKey();
+                    const huntRotationKey = getHuntRotationKey(gameState.debugDayOffset ?? 0);
                     const huntContracts = getDailyHuntContracts(huntRotationKey);
                     const huntState = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt.contracts : {};
 
-                    const rotationKey = getTablonRotationKey();
+                    const rotationKey = getTablonRotationKey(gameState.debugDayOffset ?? 0);
                     const flattenLineup = (lineup) => [
                         ...lineup.rare.map(id => ({ id, rarity: 'rare' })),
                         ...lineup.epic.map(id => ({ id, rarity: 'epic' })),
@@ -906,42 +911,43 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                         onClick={() => setTablonTab('canje')}
                                     ><img src={tabShop} alt="canje" /></button>
                                 </div>
-
-                                {tablonTab === 'misiones' && (
-                                    <p className="rc-desc">Contratos de caza del día. Acepta, cumple la condición en combate contra ese boss, y vuelve a reclamar.</p>
-                                )}
                             </div>
 
                             <div className="raid-tablon-scroll">
                                 {tablonTab === 'misiones' && (
+                                    <>
+                                    <p className="raid-tablon-offer-title">Contratos de caza</p>
+                                    <p className="tavern-subtitle">Acepta, cumple la condición en combate contra ese boss, y vuelve a reclamar. Se renuevan cada 24h.</p>
                                     <div className="raid-hunt-list">
                                         {huntContracts.map(({ bossId, reward, condition }) => {
                                             const status = huntState[bossId];
                                             return (
-                                                <div key={bossId} className={`raid-hunt-row ${status ? `raid-hunt-${status}` : ''}`}>
-                                                    <img src={HUNT_BOSS_IMG[bossId]} alt={bossId} className="raid-hunt-portrait" />
+                                                <div key={bossId} className={`raid-hunt-row ${HUNT_BOSS_CARD_CLASS[bossId] ?? ''} ${status ? `raid-hunt-${status}` : ''}`}>
                                                     <div className="raid-hunt-info">
                                                         <span className="raid-hunt-name">{getHuntBossName(bossId)}</span>
                                                         <span className="raid-hunt-condition">{condition.label}</span>
                                                         <span className="raid-hunt-desc">{condition.desc}</span>
-                                                        <span className="raid-hunt-reward">+{reward} Huesín</span>
                                                     </div>
-                                                    {!status && (
-                                                        <button className="btn-send-raid raid-hunt-btn" onClick={() => handleAcceptHunt(bossId, huntRotationKey)}>Aceptar</button>
-                                                    )}
-                                                    {status === 'accepted' && (
-                                                        <span className="raid-hunt-status">En curso</span>
-                                                    )}
-                                                    {status === 'completed' && (
-                                                        <button className="btn-send-raid raid-hunt-btn" onClick={() => handleClaimHunt(bossId, huntRotationKey, reward)}>Reclamar</button>
-                                                    )}
-                                                    {status === 'claimed' && (
-                                                        <span className="raid-hunt-status">Reclamado</span>
-                                                    )}
+                                                    <div className="raid-hunt-action">
+                                                        {!status && (
+                                                            <button className="raid-hunt-btn" onClick={() => handleAcceptHunt(bossId, huntRotationKey)}>Aceptar</button>
+                                                        )}
+                                                        {status === 'accepted' && (
+                                                            <span className="raid-hunt-status">En curso</span>
+                                                        )}
+                                                        {status === 'completed' && (
+                                                            <button className="raid-hunt-btn" onClick={() => handleClaimHunt(bossId, huntRotationKey, reward)}>Reclamar</button>
+                                                        )}
+                                                        {status === 'claimed' && (
+                                                            <span className="raid-hunt-status">Reclamado</span>
+                                                        )}
+                                                        <span className="raid-hunt-reward">+{reward} <img src={huesinCoin} alt="Huesín" className="raid-hunt-reward-icon" /></span>
+                                                    </div>
                                                 </div>
                                             );
                                         })}
                                     </div>
+                                    </>
                                 )}
                                 {tablonTab === 'canje' && (
                                     <>

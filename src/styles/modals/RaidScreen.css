@@ -31,6 +31,10 @@
     padding-top: 3rem;
 }
 
+.raid-screen-content.raid-view-tablon {
+    overflow-y: hidden;
+}
+
 
 .raid-screen-content h2 {
     color: white;
@@ -695,7 +699,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-bottom: 1rem;
+    padding-bottom: 4rem;
 }
 
 .raid-hunt-list {
@@ -716,70 +720,119 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px;
+    padding: 10px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.15);
+    min-height: 7.4rem;
+    background-color: #1a1410;
+}
+
+.raid-hunt-row.raid-hunt-card-bat {
+    background: linear-gradient(90deg, rgba(10,8,6,0.15) 28%, rgba(10,8,6,0.92) 80%), url('../../assets/ui/icons-enemy/hud/card-bat.webp') center / cover no-repeat;
+}
+
+.raid-hunt-row.raid-hunt-card-scorpion {
+    background: linear-gradient(90deg, rgba(10,8,6,0.15) 28%, rgba(10,8,6,0.92) 80%), url('../../assets/ui/icons-enemy/hud/card-scorpion.webp') center / cover no-repeat;
+}
+
+.raid-hunt-row.raid-hunt-card-spiders {
+    background: linear-gradient(90deg, rgba(10,8,6,0.15) 28%, rgba(10,8,6,0.92) 80%), url('../../assets/ui/icons-enemy/hud/card-spiders.webp') center / cover no-repeat;
+}
+
+.raid-hunt-row.raid-hunt-card-topo {
+    background: linear-gradient(90deg, rgba(10,8,6,0.15) 28%, rgba(10,8,6,0.92) 80%), url('../../assets/ui/icons-enemy/hud/card-topo.webp') center / cover no-repeat;
 }
 
 .raid-hunt-row.raid-hunt-accepted {
     border-color: #ff9500;
-    background: rgba(255,149,0,0.1);
+    box-shadow: 0 0 10px rgba(255,149,0,0.25);
 }
 
 .raid-hunt-row.raid-hunt-completed {
     border-color: #7fff7f;
-    background: rgba(127,255,127,0.1);
+    box-shadow: 0 0 10px rgba(127,255,127,0.25);
 }
 
 .raid-hunt-row.raid-hunt-claimed {
     opacity: 0.5;
 }
 
-.raid-hunt-portrait {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    border-radius: 8px;
-    flex-shrink: 0;
-}
-
 .raid-hunt-info {
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    flex: 1;
+    gap: 3px;
     min-width: 0;
+    max-width: 62%;
+    margin-left: auto;
+    text-align: right;
 }
 
 .raid-hunt-name {
     color: #f5e8b0;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .raid-hunt-condition {
     color: #ff9500;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .raid-hunt-desc {
-    color: rgba(255,255,255,0.55);
-    font-size: 0.62rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.65rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.raid-hunt-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .raid-hunt-reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
     color: #ffd740;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.raid-hunt-reward-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
 }
 
 .raid-hunt-btn {
+    position: relative;
     width: 84px;
     flex-shrink: 0;
-    font-size: 0.72rem;
     padding: 8px 4px;
+    border: none;
+    background: none;
+    color: #ffd740;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 0;
+}
+
+.raid-hunt-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp') center / 100% 100% no-repeat;
+    filter: grayscale(35%) brightness(0.8);
+    border-radius: inherit;
+    z-index: -1;
 }
 
 .raid-hunt-status {
