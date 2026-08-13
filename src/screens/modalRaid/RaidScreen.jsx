@@ -913,20 +913,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 )}
 
                                 {tablonTab === 'canje' && (
-                                    <>
-                                        <p className="raid-tablon-offer-title">¡Oferta especial!</p>
-                                        <p className="tavern-subtitle">Cambia Huesín por fragmentos, la selección se renueva cada 24h.</p>
-                                        <div className="raid-tablon-tabs">
-                                            <button
-                                                className={`raid-tablon-tab-btn ${canjeCategory === 'perros' ? 'active' : ''}`}
-                                                onClick={() => setCanjeCategory('perros')}
-                                            >Perros</button>
-                                            <button
-                                                className={`raid-tablon-tab-btn ${canjeCategory === 'skins' ? 'active' : ''}`}
-                                                onClick={() => setCanjeCategory('skins')}
-                                            >Skins</button>
-                                        </div>
-                                    </>
+                                    <div className="raid-tablon-tabs">
+                                        <button
+                                            className={`raid-tablon-tab-btn ${canjeCategory === 'perros' ? 'active' : ''}`}
+                                            onClick={() => setCanjeCategory('perros')}
+                                        >Perros</button>
+                                        <button
+                                            className={`raid-tablon-tab-btn ${canjeCategory === 'skins' ? 'active' : ''}`}
+                                            onClick={() => setCanjeCategory('skins')}
+                                        >Skins</button>
+                                    </div>
                                 )}
                             </div>
 
@@ -963,6 +959,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 )}
                                 {tablonTab === 'canje' && canjeCategory === 'perros' && (
                                     <>
+                                        <p className="raid-tablon-offer-title">¡Oferta especial!</p>
+                                        <p className="tavern-subtitle">Cambia Huesín por fragmentos, la selección se renueva cada 24h.</p>
                                         <span className="cdl-section-title"><Pickaxe size={12} /> Mineros</span>
                                         <div className="combat-dogs-grid">
                                             {mineroLineup.map(({ id, rarity }) => renderTablonDogCard(id, rarity, false))}
