@@ -190,6 +190,7 @@ const SHOW_ENVIOS_TABLON = false;
 // Tablón: escaparate rotativo (2 rare + 1 epic + 1 legendario, cambia cada 24h)
 const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
 const TABLON_SHOP_FRAGMENTS = 20;
+const CANJE_TIERS = [5, 10, 15];
 
 const getTablonRotationKey = (dayOffset = 0) => {
     const d = new Date();
@@ -270,6 +271,21 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [frameIndex, setFrameIndex] = useState(0);
     const [waitFrameIndex, setWaitFrameIndex] = useState(0);
+
+    const huntRotationKeyNotify = getHuntRotationKey(gameState.debugDayOffset ?? 0);
+    const huntContractsNotify = getDailyHuntContracts(huntRotationKeyNotify);
+    const huntStateNotify = gameState.tablonHunt?.rotationKey === huntRotationKeyNotify ? gameState.tablonHunt.contracts : {};
+    const misionesPending = huntContractsNotify.some(({ bossId }) => huntStateNotify[bossId] === 'completed');
+
+    const canjeCurrentTier = [...CANJE_TIERS].reverse().find(t => (gameState.huesin ?? 0) >= t) ?? 0;
+    const canjeSeenTier = gameState.tablonCanjeSeenTier ?? 0;
+    const canjePending = canjeCurrentTier > canjeSeenTier;
+
+    useEffect(() => {
+        if (canjeCurrentTier < canjeSeenTier) {
+            setGameState(prev => ({ ...prev, tablonCanjeSeenTier: canjeCurrentTier }));
+        }
+    }, [canjeCurrentTier, canjeSeenTier]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isOpen) {
@@ -479,13 +495,10 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                             </button>
                         )}
                         <button
-                            className="raid-hub-btn"
+                            className={`raid-hub-btn ${(misionesPending || canjePending) ? 'btn-notify-dot' : ''}`}
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
                             onClick={() => {
-                                const huntRotationKey = getHuntRotationKey(gameState.debugDayOffset ?? 0);
-                                const huntContracts = getDailyHuntContracts(huntRotationKey);
-                                const huntState = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt.contracts : {};
-                                const nothingToDo = huntContracts.every(({ bossId }) => huntState[bossId] === 'claimed');
+                                const nothingToDo = huntContractsNotify.every(({ bossId }) => huntStateNotify[bossId] === 'claimed');
                                 setTablonTab(nothingToDo ? 'canje' : 'misiones');
                                 setRaidView('tablon');
                             }}
@@ -838,9 +851,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
 
                 {/* TABLÓN — misiones (placeholder) + escaparate rotativo de Huesín */}
                 {raidView === 'tablon' && (() => {
-                    const huntRotationKey = getHuntRotationKey(gameState.debugDayOffset ?? 0);
-                    const huntContracts = getDailyHuntContracts(huntRotationKey);
-                    const huntState = gameState.tablonHunt?.rotationKey === huntRotationKey ? gameState.tablonHunt.contracts : {};
+                    const huntRotationKey = huntRotationKeyNotify;
+                    const huntContracts = huntContractsNotify;
+                    const huntState = huntStateNotify;
 
                     const rotationKey = getTablonRotationKey(gameState.debugDayOffset ?? 0);
                     const flattenLineup = (lineup) => [
@@ -903,12 +916,15 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                 </div>
                                 <div className="rewards-tabs">
                                     <button
-                                        className={`rewards-tab ${tablonTab === 'misiones' ? 'active' : ''}`}
+                                        className={`rewards-tab ${tablonTab === 'misiones' ? 'active' : ''} ${misionesPending && tablonTab !== 'misiones' ? 'tab-pulse' : ''}`}
                                         onClick={() => setTablonTab('misiones')}
                                     ><img src={tabMisiones} alt="misiones" /></button>
                                     <button
-                                        className={`rewards-tab ${tablonTab === 'canje' ? 'active' : ''}`}
-                                        onClick={() => setTablonTab('canje')}
+                                        className={`rewards-tab ${tablonTab === 'canje' ? 'active' : ''} ${canjePending && tablonTab !== 'canje' ? 'tab-pulse' : ''}`}
+                                        onClick={() => {
+                                            setTablonTab('canje');
+                                            setGameState(prev => ({ ...prev, tablonCanjeSeenTier: canjeCurrentTier }));
+                                        }}
                                     ><img src={tabShop} alt="canje" /></button>
                                 </div>
                             </div>
