@@ -704,6 +704,21 @@
     gap: 8px;
 }
 
+.raid-tablon-offer-title {
+    text-align: center;
+    color: #ffd740;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.raid-tablon-soon {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    padding: 24px 0;
+}
+
 .raid-hunt-row {
     display: flex;
     align-items: center;
@@ -807,9 +822,44 @@
 }
 
 .raid-tablon-buy-btn {
-    font-size: 0.65rem;
-    padding: 6px 4px;
+    position: relative;
+    width: 70%;
     margin-top: 2px;
+    padding: 6px 4px;
+    border: none;
+    background: none;
+    color: #ffd740;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 0;
+}
+
+.raid-tablon-buy-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp') center / 100% 100% no-repeat;
+    filter: grayscale(35%) brightness(0.8);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.raid-tablon-buy-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.raid-tablon-buy-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.raid-tablon-buy-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 
 .rap-actions {
