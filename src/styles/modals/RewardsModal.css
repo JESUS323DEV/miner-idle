@@ -66,6 +66,14 @@
     transform: scale(1.1);
 }
 
+.rewards-modal-content .rewards-tab {
+    overflow: visible;
+}
+
+.rewards-modal-content .rewards-tab.active img {
+    transform: scale(1.07);
+}
+
 
 
 @keyframes tab-pulse {
