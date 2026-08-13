@@ -712,13 +712,6 @@
     margin: 0;
 }
 
-.raid-tablon-soon {
-    text-align: center;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.85rem;
-    padding: 24px 0;
-}
-
 .raid-hunt-row {
     display: flex;
     align-items: center;
@@ -798,29 +791,6 @@
     font-weight: 700;
 }
 
-.raid-tablon-tabs {
-    display: flex;
-    gap: 6px;
-}
-
-.raid-tablon-tab-btn {
-    width: calc(50% - 3px);
-    padding: 8px 0;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.6);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.raid-tablon-tab-btn.active {
-    border-color: #ff9500;
-    background: rgba(255,149,0,0.15);
-    color: #ff9500;
-}
-
 .raid-tablon-buy-btn {
     position: relative;
     width: 70%;
@@ -848,6 +818,10 @@
 .raid-tablon-buy-disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+.raid-tablon-buy-comprado {
+    font-size: 0.6rem;
 }
 
 .raid-tablon-buy-price {
