@@ -20,6 +20,9 @@ import { MineCompanionConfig } from '../../game/config/MineCompanionConfig';
 import { formatNumber2 } from '../../game/utils/formatters.js';
 import { PACK_TYPES } from '../../game/config/GachaConfig';
 import { getQuestsByIds } from '../../game/config/QuestsConfig.js';
+import { DogSkinsConfig } from '../../game/config/DogSkinsConfig.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
+import iconLock from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 
 import tutorialPrincipal from "../../assets/tutorial/mascotas/principal.webp"
 import tutorialMina from "../../assets/tutorial/mascotas/mina.webp"
@@ -151,7 +154,7 @@ const ingotAssets = {
 };
 
 
-const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogAction = false }) => {
+const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogAction = false, pendingSkinEquipDog = null, onConsumePendingSkinEquip }) => {
     const {
         gameState,
         setGameState,
@@ -316,6 +319,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     const [view, setView] = useState('main');
     const [rouletteTab, setRouletteTab] = useState('gold');
     const [flippedDog, setFlippedDog] = useState(null);
+    const [skinModalDog, setSkinModalDog] = useState(null);
+
+    useEffect(() => {
+        if (isOpen && pendingSkinEquipDog) {
+            setSkinModalDog(pendingSkinEquipDog);
+            onConsumePendingSkinEquip?.();
+        }
+    }, [isOpen, pendingSkinEquipDog]); // eslint-disable-line react-hooks/exhaustive-deps
     const [dogTab, setDogTab] = useState('mineros');
     const [rarityFilter, setRarityFilter] = useState(null);
     const [packTab, setPackTab] = useState('mineros');
@@ -945,7 +956,12 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                         const { Icon, color } = ELEMENT_ICON[config.element];
                                                         return <span className="dog-element-icon"><Icon size={15} color={color} /></span>;
                                                     })()}
-                                                    <img src={dogAssets[dog.id]} className="dog-portrait" alt={config.name} />
+                                                    <img
+                                                        src={dogSkinAssets[dog.id]?.[gameState.dogSkins?.[dog.id]?.equipped] ?? dogAssets[dog.id]}
+                                                        className={`dog-portrait ${dog.hired && DogSkinsConfig[dog.id] ? 'dog-portrait-skinnable' : ''}`}
+                                                        alt={config.name}
+                                                        onClick={() => { if (dog.hired && DogSkinsConfig[dog.id]) setSkinModalDog(dog.id); }}
+                                                    />
                                                     <div className="dog-name">{config.name}</div>
                                                     {dog.hired ? (
                                                         stars < 5 ? (
@@ -1527,6 +1543,49 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
             </div>
             {showQuests && <QuestsModal isOpen={showQuests} onClose={() => setShowQuests(false)} />}
+            {skinModalDog && (() => {
+                const config = DogsConfig[skinModalDog];
+                const skins = DogSkinsConfig[skinModalDog] ?? [];
+                const owned = gameState.dogSkins?.[skinModalDog]?.owned ?? [];
+                const equipped = gameState.dogSkins?.[skinModalDog]?.equipped ?? null;
+                return (
+                    <div className="skin-inventory-overlay" onClick={() => setSkinModalDog(null)}>
+                        <div className="skin-inventory-card" onClick={e => e.stopPropagation()}>
+                            <button className="skin-inventory-close" onClick={() => setSkinModalDog(null)}><X size={20} /></button>
+                            <h2 className="skin-inventory-title">Skins de {config?.name}</h2>
+                            <div className="skin-inventory-grid">
+                                {skins.map(skin => {
+                                    const isOwned = owned.includes(skin.id);
+                                    const isEquipped = equipped === skin.id;
+                                    return (
+                                        <button
+                                            key={skin.id}
+                                            className={`skin-inventory-item ${isEquipped ? 'skin-equipped' : ''} ${!isOwned ? 'skin-locked' : ''}`}
+                                            disabled={!isOwned}
+                                            onClick={() => {
+                                                setGameState(prev => ({
+                                                    ...prev,
+                                                    dogSkins: {
+                                                        ...prev.dogSkins,
+                                                        [skinModalDog]: {
+                                                            owned: prev.dogSkins?.[skinModalDog]?.owned ?? [],
+                                                            equipped: isEquipped ? null : skin.id,
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            <img src={dogSkinAssets[skinModalDog]?.[skin.id]} alt={skin.id} className="skin-inventory-img" />
+                                            {!isOwned && <img src={iconLock} alt="bloqueado" className="skin-inventory-lock" />}
+                                            {isEquipped && <span className="skin-equipped-badge">Equipada</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 };

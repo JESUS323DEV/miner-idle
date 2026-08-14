@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { RentalConfig } from '../../game/config/RentalConfig.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import { enterPJSlot, advanceDailyQuestInState } from '../../game/utils/questUtils.js';
 import '../../styles/modals/TavernModal.css';
 import '../../styles/modals/RentalModal.css';
@@ -43,6 +44,7 @@ const formatMs = (ms) => {
 
 const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
     const { gameState, setGameState } = useGameContext();
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const [cardFlipped, setCardFlipped] = useState(false);
     const [flippedActiveIdx, setFlippedActiveIdx] = useState(null);
 
@@ -156,7 +158,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                 <div className={`dog-card-wrapper rm-avail-wrapper ${cardFlipped ? 'flipped' : ''}`}>
                                     <div className={`dog-card dog-card-front dog-rarity-${avail.rarity} rental-card-available`}>
                                         <button className="dog-info-btn" onClick={() => setCardFlipped(true)}>i</button>
-                                        <img src={dogAssets[avail.dogId]} className="dog-portrait" alt={config?.name} />
+                                        <img src={getDogPortrait(avail.dogId)} className="dog-portrait" alt={config?.name} />
                                         <div className="dog-name">{config?.name}</div>
                                         <div className="dog-stars-row">
                                             {[1, 2, 3, 4, 5].map(s => (
@@ -265,7 +267,7 @@ const RentalModal = ({ isOpen, onClose, tutorialStep }) => {
                                 <div className={`dog-card-wrapper rm-active-wrapper ${isFlipped ? 'flipped' : ''}`}>
                                     <div className={`dog-card dog-card-front dog-rarity-${act.rarity} dog-hired`}>
                                         <button className="dog-info-btn" onClick={() => setFlippedActiveIdx(idx)}>i</button>
-                                        <img src={dogAssets[act.dogId]} className="dog-portrait" alt={config?.name} />
+                                        <img src={getDogPortrait(act.dogId)} className="dog-portrait" alt={config?.name} />
                                         <div className="dog-name">{config?.name}</div>
                                         <div className={`rental-dest-status ${act.destination === 'raid' ? 'rental-dest-status-raid' : 'rental-dest-status-slot'}`}>
                                             {destLabel}

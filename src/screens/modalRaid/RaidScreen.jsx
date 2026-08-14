@@ -10,6 +10,9 @@ import btnRaidActive  from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn
 import btnTablon      from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-tablon.webp';
 import tabMisiones    from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-misiones.webp';
 import tabShop        from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-shop.webp';
+import tabSkins       from '../../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-skins.webp';
+import { DogSkinsConfig } from '../../game/config/DogSkinsConfig.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import { getHuntRotationKey, getDailyHuntContracts, getHuntBossName } from '../../game/config/TablonHuntConfig.js';
 import huesinCoin from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 
@@ -248,7 +251,7 @@ const HUB_BUTTONS = {
     tablon:  { top: '40%', left: '87%' },
 };
 
-const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
+const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
@@ -269,8 +272,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
     const [tablonTab, setTablonTab] = useState('misiones');
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
+    const [skinReveal, setSkinReveal] = useState(null);
     const [frameIndex, setFrameIndex] = useState(0);
     const [waitFrameIndex, setWaitFrameIndex] = useState(0);
+
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
 
     const huntRotationKeyNotify = getHuntRotationKey(gameState.debugDayOffset ?? 0);
     const huntContractsNotify = getDailyHuntContracts(huntRotationKeyNotify);
@@ -442,6 +448,26 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
         });
     };
 
+    const handleBuySkin = (dogId, skinId) => {
+        const skin = DogSkinsConfig[dogId]?.find(s => s.id === skinId);
+        if (!skin) return;
+        setGameState(prev => {
+            const owned = prev.dogSkins?.[dogId]?.owned ?? [];
+            if (owned.includes(skinId)) return prev;
+            if ((prev.huesin ?? 0) < skin.huesinPrice || (prev.tavernCoins ?? 0) < skin.tavernPrice) return prev;
+            return {
+                ...prev,
+                huesin: prev.huesin - skin.huesinPrice,
+                tavernCoins: prev.tavernCoins - skin.tavernPrice,
+                dogSkins: {
+                    ...prev.dogSkins,
+                    [dogId]: { owned: [...owned, skinId], equipped: prev.dogSkins?.[dogId]?.equipped ?? null },
+                },
+            };
+        });
+        setSkinReveal({ dogId, skinId });
+    };
+
     return (
         <div className="raid-backdrop" onClick={(tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose}>
             <div className={`raid-screen-content raid-view-${raidView}`} onClick={e => e.stopPropagation()} style={{ backgroundImage: raidView === 'passive'
@@ -575,7 +601,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                 <div className="rip-dogs">
                                                     {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id }) => (
                                                         <div key={id} className={`rip-dog dog-rarity-${DogsConfig[id]?.rarity}`}>
-                                                            <img src={dogAssets[id]} alt={id} />
+                                                            <img src={getDogPortrait(id)} alt={id} />
                                                             <span>{DogsConfig[id]?.name ?? id}</span>
                                                         </div>
                                                     ))}
@@ -646,7 +672,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                                 onClick={() => removeSlot(slot.id)}
                                                                 title="Click para quitar"
                                                             >
-                                                                <img src={dogAssets[slot.id]} alt={slot.id} />
+                                                                <img src={getDogPortrait(slot.id)} alt={slot.id} />
                                                                 <span>{cfg?.name ?? slot.id}</span>
                                                             </div>
                                                         );
@@ -699,7 +725,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                             className={`raid-dog-card ${selected ? 'raid-dog-selected' : ''} dog-rarity-${cfg?.rarity}`}
                                                             onClick={() => toggleDog(dog.id, dog.isForge, dog.isRented)}
                                                         >
-                                                            <img src={dogAssets[dog.id]} alt={dog.id} />
+                                                            <img src={getDogPortrait(dog.id)} alt={dog.id} />
                                                             <span className="rdc-name">{cfg?.name ?? dog.id}</span>
                                                             <span className="rdc-stars">
                                                                 {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
@@ -762,7 +788,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                 </div>
                                                 <div className="rip-dogs">
                                                     <div className={`rip-dog dog-rarity-${dogCfg?.rarity}`}>
-                                                        <img src={dogAssets[order.dogId]} alt={order.dogId} />
+                                                        <img src={getDogPortrait(order.dogId)} alt={order.dogId} />
                                                         <span>{dogCfg?.name ?? order.dogId}</span>
                                                     </div>
                                                 </div>
@@ -832,7 +858,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                                                 setOrderQty(prev => ({ ...prev, [matId]: 1 }));
                                                             }}
                                                         >
-                                                            <img src={dogAssets[dog.id]} alt={dog.id} />
+                                                            <img src={getDogPortrait(dog.id)} alt={dog.id} />
                                                             <span className="rdc-name">{cfg?.name ?? dog.id}</span>
                                                             <span className="rdc-stars">
                                                                 {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
@@ -926,6 +952,10 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                             setGameState(prev => ({ ...prev, tablonCanjeSeenTier: canjeCurrentTier }));
                                         }}
                                     ><img src={tabShop} alt="canje" /></button>
+                                    <button
+                                        className={`rewards-tab ${tablonTab === 'skins' ? 'active' : ''}`}
+                                        onClick={() => setTablonTab('skins')}
+                                    ><img src={tabSkins} alt="skins" /></button>
                                 </div>
                             </div>
 
@@ -979,12 +1009,78 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, tutorialStep, onTutorialAdv
                                         </div>
                                     </>
                                 )}
+                                {tablonTab === 'skins' && (
+                                    <div className="skin-shop-list">
+                                        {Object.entries(DogSkinsConfig).map(([dogId, skins]) => {
+                                            const config = DogsConfig[dogId];
+                                            if (!config) return null;
+                                            const owned = gameState.dogSkins?.[dogId]?.owned ?? [];
+                                            return (
+                                                <div key={dogId} className="skin-shop-dog-block">
+                                                    <span className="cdl-section-title">{config.name}</span>
+                                                    <div className="skin-shop-grid">
+                                                        {skins.map(skin => {
+                                                            const isOwned = owned.includes(skin.id);
+                                                            const canBuy = !isOwned
+                                                                && (gameState.huesin ?? 0) >= skin.huesinPrice
+                                                                && (gameState.tavernCoins ?? 0) >= skin.tavernPrice;
+                                                            return (
+                                                                <div key={skin.id} className={`skin-shop-item dog-rarity-${skin.tier}`}>
+                                                                    <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img" />
+                                                                    <button
+                                                                        className={`skin-shop-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
+                                                                        disabled={isOwned || !canBuy}
+                                                                        onClick={() => handleBuySkin(dogId, skin.id)}
+                                                                    >
+                                                                        {isOwned ? 'Comprada' : (
+                                                                            <span className="skin-shop-price">
+                                                                                {skin.huesinPrice} <img src={huesinCoin} alt="Huesín" className="raid-tablon-buy-icon" />
+                                                                                <span className="skin-shop-price-plus">+</span>
+                                                                                {skin.tavernPrice} <img src={coinTavern} alt="coins" className="raid-tablon-buy-icon" />
+                                                                            </span>
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     );
                 })()}
 
             </div>
+            {skinReveal && (() => {
+                const config = DogsConfig[skinReveal.dogId];
+                const skin = DogSkinsConfig[skinReveal.dogId]?.find(s => s.id === skinReveal.skinId);
+                return (
+                    <div className="prize-overlay" onClick={() => setSkinReveal(null)}>
+                        <div className="prize-card" onClick={e => e.stopPropagation()}>
+                            <img src={dogSkinAssets[skinReveal.dogId]?.[skinReveal.skinId]} className="prize-icon-anim" alt="" />
+                            <p className="prize-main-label prize-label-win">¡Skin conseguida!</p>
+                            <p className="prize-sub-label">{skin?.id} de {config?.name}</p>
+                            <div className="rap-actions">
+                                <button className="prize-accept-btn" onClick={() => setSkinReveal(null)}>Seguir comprando</button>
+                                <button
+                                    className="prize-accept-btn"
+                                    onClick={() => {
+                                        const dogId = skinReveal.dogId;
+                                        setSkinReveal(null);
+                                        onGoEquipSkin?.(dogId);
+                                    }}
+                                >
+                                    Ir a equipar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
             <PrizeOverlay prizeData={prizeQueue[0] ?? null} onAccept={() => setPrizeQueue(prev => prev.slice(1))} />
         </div>
     );

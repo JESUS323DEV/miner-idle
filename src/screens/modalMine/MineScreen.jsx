@@ -4,6 +4,7 @@ import MinesConfig from "../../game/config/MinesConfig.js";
 import { DogsConfig, RARITY_COLORS } from "../../game/config/DogsConfig.js";
 import { MineCompanionConfig, ELEMENT_COLORS, MINE_AUTOMINE_INTERVAL, RARITY_AUTOMINE_INTERVAL } from "../../game/config/MineCompanionConfig.js";
 import { useGameContext } from "../../game/context/GameContext.jsx";
+import { dogSkinAssets } from "../../game/utils/dogSkinAssets.js";
 import { playSfx } from "../../game/utils/sfx.js";
 
 import powerFuria    from "../../assets/ui/power-pets/furia.webp";
@@ -249,6 +250,7 @@ const MineScreen = ({ isOpen, onClose }) => {
         {/* PANEL COMPANION */}
         <CompanionPanel
           companionId={companionId}
+          equippedSkin={gameState.dogSkins?.[companionId]?.equipped}
           companionCfg={companionCfg}
           companionCompCfg={companionCompCfg}
           elemColor={elemColor}
@@ -293,7 +295,7 @@ const MineScreen = ({ isOpen, onClose }) => {
 const BIOME_LABEL = { bronze: 'Bronce', iron: 'Hierro', diamond: 'Diamante' };
 const BIOME_COLOR = { bronze: '#cd7f32', iron: '#a8bfc9', diamond: '#80deea' };
 
-const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor, rarityColor, stars, powers, now, baseMineType, onActivateUlt }) => {
+const CompanionPanel = ({ companionId, equippedSkin, companionCfg, companionCompCfg, elemColor, rarityColor, stars, powers, now, baseMineType, onActivateUlt }) => {
   const ultCfg = companionCompCfg?.ult;
   const ultType = ultCfg?.type;
 
@@ -341,7 +343,7 @@ const CompanionPanel = ({ companionId, companionCfg, companionCompCfg, elemColor
               <div className="companion-dog-avatar-wrap">
                 <div className="companion-dog-avatar" style={{ borderColor: rarityColor }}>
                   {dogAssets[companionId] && (
-                    <img src={dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
+                    <img src={dogSkinAssets[companionId]?.[equippedSkin] ?? dogAssets[companionId]} alt={companionCfg?.name} className="companion-dog-img" />
                   )}
                 </div>
                 {stars > 0 && <span className="companion-dog-stars">{'★'.repeat(stars)}</span>}

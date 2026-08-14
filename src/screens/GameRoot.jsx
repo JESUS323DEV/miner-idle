@@ -6,6 +6,7 @@ import satEnergy from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-energy.w
 import satRepair from "../assets/ui/icons-hud/hud-modals/icons-sat/icon-reapir.webp";
 import { DogsConfig } from "../game/config/DogsConfig.js";
 import { ForgeDogsConfig } from "../game/config/ForgeDogsConfig.js";
+import { DogSkinsConfig } from "../game/config/DogSkinsConfig.js";
 
 // ===== HOOKS =====
 import useGoldPerSecond from "../game/hooks/useGoldPerSecond.js";
@@ -177,6 +178,7 @@ function GameRoot({ onBack }) {
   const { floats: goldFloats, add: addGoldFloat } = useFloatingNumbers();
   const { floats: tavernFloats, add: addTavernFloat } = useFloatingNumbers();
   const [tavernModalOpen, setTavernModalOpen] = useState(false);
+  const [pendingSkinEquipDog, setPendingSkinEquipDog] = useState(null);
   const [forgeModalOpen, setForgeModalOpen] = useState(false);
 
   const { fadeOut: fadeOutMusic, resumeFade: resumeFadeMusic } = useBackgroundMusic(musicVolume);
@@ -813,6 +815,8 @@ function GameRoot({ onBack }) {
                 <button onClick={() => handleDebugSetStars(id,  1)} style={{ padding:'0 5px', background:'#333', color:'#fff', border:'1px solid #555', borderRadius:3, cursor:'pointer' }}>+</button>
               </div>
             ))}
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>SKINS</span>
+            <button onClick={() => setGameState(prev => { const updated = { ...prev.dogSkins }; Object.entries(DogSkinsConfig).forEach(([dogId, skins]) => { updated[dogId] = { owned: skins.map(s => s.id), equipped: prev.dogSkins?.[dogId]?.equipped ?? null }; }); return { ...prev, dogSkins: updated }; })} style={{ fontSize:10, padding:'2px 4px', background:'#003322', color:'#66ffcc', border:'1px solid #66ffcc', borderRadius:3, cursor:'pointer' }}>dar todas las skins</button>
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>COMBATE</span>
             <button onClick={() => setGameState(prev => ({ ...prev, raidAttempts: {} }))} style={{ fontSize:10, padding:'2px 4px', background:'#220033', color:'#cc88ff', border:'1px solid #cc88ff', borderRadius:3, cursor:'pointer' }}>reset cooldowns</button>
             <button onClick={() => setGameState(prev => ({ ...prev, debugForceEndFight: Date.now() }))} style={{ fontSize:10, padding:'2px 4px', background:'#220033', color:'#cc88ff', border:'1px solid #cc88ff', borderRadius:3, cursor:'pointer' }}>finalizar combate</button>
@@ -1295,6 +1299,8 @@ function GameRoot({ onBack }) {
         <TavernModal
           isOpen={tavernModalOpen}
           onClose={() => setTavernModalOpen(false)}
+          pendingSkinEquipDog={pendingSkinEquipDog}
+          onConsumePendingSkinEquip={() => setPendingSkinEquipDog(null)}
           hasFreePacks={hasFreePacks}
           hasPendingDogAction={hasPendingDogAction}
         />
@@ -1417,6 +1423,7 @@ function GameRoot({ onBack }) {
           isOpen={raidOpen}
           onClose={() => setRaidOpen(false)}
           onOpenCombat={() => { setRaidOpen(false); setCombatOpen(true); }}
+          onGoEquipSkin={(dogId) => { setRaidOpen(false); setPendingSkinEquipDog(dogId); setTavernModalOpen(true); }}
           tutorialStep={tutorialStep}
           onTutorialAdvanceToPassive={() => setTutorialStep('hint_raids_passive')}
           onTutorialRaidSent={() => {

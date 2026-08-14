@@ -8,6 +8,7 @@ import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { PJ_MISSION_TEMPLATES, PJ_MISSION_TEMPLATES_FORGE } from '../../game/config/PJQuestsConfig.js';
 import { getPJSlotTimeMs } from '../../game/utils/questUtils.js';
 import { dogAssets } from '../../game/utils/dogAssets.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import { DAILY_CARD_BGS } from '../../game/config/RewardsCardConfig.js';
 import coinTavern from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import iconLock from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
@@ -99,6 +100,7 @@ const pickDailyQuests = (dayNumber) => {
 
 const QuestsModal = ({ isOpen, onClose }) => {
     const { gameState, setGameState } = useGameContext();
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const [activeTab, setActiveTab] = useState('daily');
     const [pjSubTab, setPjSubTab] = useState('minero');
     const [expandedPJDog, setExpandedPJDog] = useState(null);
@@ -330,7 +332,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                 <div key={dogId} className={`pj-dog-card dog-rarity-${cfg.rarity}`}>
                                     <div className={`pj-dog-row reward-card ${RARITY_CARD_BG[cfg.rarity]}`} onClick={() => setExpandedPJDog(isExpanded ? null : dogId)}>
                                         <div className="pj-dog-info">
-                                            <img src={dogAssets[dogId]} className="pj-dog-portrait" alt={cfg.name} />
+                                            <img src={getDogPortrait(dogId)} className="pj-dog-portrait" alt={cfg.name} />
                                             <span className="pj-dog-name">{cfg.name}</span>
                                             <span className={`pj-dog-rarity dog-rarity-${cfg.rarity}`}>{cfg.rarity}</span>
                                         </div>
@@ -435,7 +437,7 @@ const QuestsModal = ({ isOpen, onClose }) => {
                                 <div key={dogId} className={`pj-dog-card dog-rarity-${cfg.rarity}`}>
                                     <div className={`pj-dog-row reward-card ${RARITY_CARD_BG[cfg.rarity]}`} onClick={() => setExpandedPJDog(isExpanded ? null : dogId)}>
                                         <div className="pj-dog-info">
-                                            <img src={dogAssets[dogId]} className="pj-dog-portrait" alt={cfg.name} />
+                                            <img src={getDogPortrait(dogId)} className="pj-dog-portrait" alt={cfg.name} />
                                             <span className="pj-dog-name">{cfg.name}</span>
                                             <span className={`pj-dog-rarity dog-rarity-${cfg.rarity}`}>{cfg.rarity}</span>
                                         </div>

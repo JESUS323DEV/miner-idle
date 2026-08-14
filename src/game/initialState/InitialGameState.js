@@ -98,6 +98,9 @@ const InitialGameState = {
     // ========== HUESÍN ==========
     huesin: 0,
 
+    // ========== SKINS DE PERROS ==========
+    dogSkins: {},
+
     // ========== TABERNA ==========
     tavernCoins: 1,
     tavernUnlocked: false,

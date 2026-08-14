@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig.js';
 import { dogAssets } from '../../game/utils/dogAssets.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 
 const getDogStatus = (dog, isForge) => {
     if (!dog.assignedTo) return 'available';
@@ -23,6 +24,7 @@ const getDogStatus = (dog, isForge) => {
 
 export default function TavernDogSlot({ gameState, setGameState }) {
     const [open, setOpen] = useState(false);
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
 
     const tavernDogId = gameState.tavernDogSlot ?? null;
     const tavernDog = tavernDogId
@@ -94,7 +96,7 @@ export default function TavernDogSlot({ gameState, setGameState }) {
                 onClick={() => setOpen(p => !p)}
             >
                 {tavernDog
-                    ? <img src={dogAssets[tavernDogId]} className="global-dog-slot-img" alt={tavernDogId} />
+                    ? <img src={getDogPortrait(tavernDogId)} className="global-dog-slot-img" alt={tavernDogId} />
                     : <span className="global-dog-slot-plus">+</span>
                 }
             </div>
@@ -118,7 +120,7 @@ export default function TavernDogSlot({ gameState, setGameState }) {
                                 className={`tavern-dog-panel-item dog-rarity-${cfg?.rarity}${unavailable ? ' unavailable' : ''}${isAssigned ? ' assigned' : ''}`}
                                 onClick={() => { if (!unavailable) assignDog(id, isForge); }}
                             >
-                                <img src={dogAssets[id]} className="tavern-dog-panel-img" alt={id} />
+                                <img src={getDogPortrait(id)} className="tavern-dog-panel-img" alt={id} />
                                 <span className="tavern-dog-panel-name">{cfg?.name ?? id}</span>
                             </div>
                         );

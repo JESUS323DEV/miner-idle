@@ -708,10 +708,93 @@
     padding-bottom: 4rem;
 }
 
+.skin-shop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.skin-shop-dog-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.skin-shop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.skin-shop-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.04);
+}
+
+.skin-shop-item.dog-rarity-legendary { border-color: rgba(245,200,66,0.5); background: rgba(245,200,66,0.08); }
+.skin-shop-item.dog-rarity-epic      { border-color: rgba(180,92,255,0.5); background: rgba(180,92,255,0.08); }
+.skin-shop-item.dog-rarity-rare      { border-color: rgba(76,168,255,0.5); background: rgba(76,168,255,0.08); }
+
+.skin-shop-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+}
+
+.skin-shop-buy-btn {
+    position: relative;
+    width: 100%;
+    padding: 4px 2px;
+    border: none;
+    background: none;
+    color: #ffd740;
+    font-size: 0.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 0;
+}
+
+.skin-shop-buy-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp') center / 100% 100% no-repeat;
+    filter: grayscale(35%) brightness(0.8);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.skin-shop-price {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.skin-shop-price-plus {
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+}
+
 .raid-hunt-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.raid-tablon-soon {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    padding: 24px 0;
 }
 
 .raid-tablon-offer-title {

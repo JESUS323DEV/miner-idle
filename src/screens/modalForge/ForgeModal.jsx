@@ -310,6 +310,7 @@ const ForgeModal = ({ isOpen, onClose }) => {
                     targetMaterial={dogModalTarget}
                     setTarget={setDogModalTarget}
                     forgeDogs={forgeDogs}
+                    dogSkins={gameState.dogSkins}
                     onAssign={handleForgeAssign}
                     onUnassign={onUnassignForgeDog}
                     passiveRaids={passiveRaids}

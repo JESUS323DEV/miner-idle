@@ -232,6 +232,17 @@ export const loadSavedState = () => {
         ...loadedClean,
         dogs: migratedDogs,
         forgeDogs: mergedForgeDogs,
+        // Fix: `restarting` puede quedarse atascado en `true` si el juego se recarga
+        // durante los 600ms de auto-reinicio del fundido encadenado (ver useForgeActions.js).
+        // Al cargar, cualquier horno que no esté activo no debería seguir "reiniciándose".
+        furnaces: (() => {
+            const src = loaded.furnaces ?? InitialGameState.furnaces;
+            const fixed = {};
+            Object.entries(src).forEach(([mat, f]) => {
+                fixed[mat] = f.isActive ? f : { ...f, restarting: false };
+            });
+            return fixed;
+        })(),
         yacimientos: migratedYac,
         totalExchanges: loaded.totalExchanges ?? 0,
         totalSummons: loaded.totalSummons ?? 0,

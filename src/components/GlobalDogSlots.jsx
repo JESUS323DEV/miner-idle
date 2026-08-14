@@ -5,6 +5,7 @@ import { DogsConfig } from '../game/config/DogsConfig.js';
 import { ForgeDogsConfig } from '../game/config/ForgeDogsConfig.js';
 import { getDogStats } from '../game/utils/getDogStats.js';
 import { dogAssets } from '../game/utils/dogAssets.js';
+import { dogSkinAssets } from '../game/utils/dogSkinAssets.js';
 import { formatRentalTimer } from '../game/utils/formatters.js';
 import { useGameContext } from '../game/context/GameContext.jsx';
 import { useFloatingNumbers } from '../game/hooks/useFloatingNumbers.js';
@@ -52,6 +53,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
     const [pendingMove, setPendingMove] = useState(null);
 
     const { mineClickCount } = useGameContext();
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const { floats, add } = useFloatingNumbers();
     const slotRefs = useRef([null, null, null]);
     const gameStateRef = useRef(gameState);
@@ -204,7 +206,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                                     {assignedDog ? (
                                         <>
                                             {dogAssets[assignedDogId]
-                                                ? <img src={dogAssets[assignedDogId]} className="global-dog-slot-img" alt={assignedDogId} />
+                                                ? <img src={getDogPortrait(assignedDogId)} className="global-dog-slot-img" alt={assignedDogId} />
                                                 : <span className="global-dog-slot-emoji">🐕</span>
                                             }
                                             {isRentedSlot && (
@@ -270,7 +272,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                                     >
                                         <button className="fdm-info-btn" onClick={e => { e.stopPropagation(); setInfoCardId(showInfo ? null : id); }}>i</button>
                                         <div className="gds-card-img-wrap">
-                                            <img src={dogAssets[id]} className="gds-card-img" alt={id} />
+                                            <img src={getDogPortrait(id)} className="gds-card-img" alt={id} />
                                             {(status === 'inYacimiento' || status === 'inSlot') && <span className="gds-status-badge"><Pickaxe size={9} /></span>}
                                             {status === 'inRaid' && <span className="gds-status-badge"><Swords size={9} /></span>}
                                             {status === 'inFurnace' && <span className="gds-status-badge"><Flame size={9} /></span>}
@@ -302,7 +304,7 @@ export default function GlobalDogSlots({ gameState, setGameState, tutorialStep, 
                                         <div className="gds-modal-slot-wrap">
                                             <div className={`gds-modal-slot${rarity ? ` dog-rarity-${rarity}` : ''}`}>
                                                 {dog
-                                                    ? <img src={dogAssets[dogId]} className="global-dog-slot-img" alt={dogId} />
+                                                    ? <img src={getDogPortrait(dogId)} className="global-dog-slot-img" alt={dogId} />
                                                     : <span className="global-dog-slot-plus">+</span>
                                                 }
                                             </div>

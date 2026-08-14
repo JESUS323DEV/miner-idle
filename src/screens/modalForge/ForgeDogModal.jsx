@@ -3,13 +3,15 @@ import { createPortal } from 'react-dom';
 import { X, Flame, Star } from 'lucide-react';
 import { ForgeDogsConfig } from '../../game/config/ForgeDogsConfig';
 import { dogAssets } from '../../game/utils/dogAssets';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 
 const MATERIALS = ['bronze', 'iron', 'diamond'];
 const MATERIAL_NAMES = { bronze: 'Bronze', iron: 'Hierro', diamond: 'Diamante' };
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
 
-export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarget, forgeDogs, onAssign, onUnassign, passiveRaids = [] }) {
+export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarget, forgeDogs, dogSkins, onAssign, onUnassign, passiveRaids = [] }) {
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const [materialFilter, setMaterialFilter] = useState(null);
     const [flippedCard, setFlippedCard] = useState(null);
     const [pendingMove, setPendingMove] = useState(null);
@@ -62,7 +64,7 @@ export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarg
                                 <div key={mat} className="fdm-slot-item" onClick={() => setTarget(mat)}>
                                     <div className={`gds-modal-slot${cfg ? ` dog-rarity-${cfg.rarity}` : ''}${isTarget ? ' fdm-target-slot' : ''}`}>
                                         {assigned
-                                            ? <img src={dogAssets[assigned.id]} className="fdm-slot-img" alt={assigned.id} />
+                                            ? <img src={getDogPortrait(assigned.id)} className="fdm-slot-img" alt={assigned.id} />
                                             : <span className="fdm-slot-plus">+</span>
                                         }
                                         {assigned && (
@@ -105,7 +107,7 @@ export default function ForgeDogModal({ isOpen, onClose, targetMaterial, setTarg
                                         >
                                             <button className="fdm-info-btn" onClick={e => { e.stopPropagation(); setFlippedCard(dog.id); }}>i</button>
                                             <div className="fdm-card-img-wrap">
-                                                <img src={dogAssets[dog.id]} className="fdm-card-img" alt={dog.id} />
+                                                <img src={getDogPortrait(dog.id)} className="fdm-card-img" alt={dog.id} />
                                                 {dog.assignedTo && <span className="fdm-status-badge"><Flame size={9} /></span>}
                                             </div>
                                             <span className="fdm-card-name">{cfg?.name ?? dog.id}</span>

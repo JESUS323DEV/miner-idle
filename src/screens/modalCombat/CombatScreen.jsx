@@ -2,6 +2,7 @@
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
 import raidActiveSelectBg from '../../assets/audio/bg-raid-active-select.mp3';
 
@@ -86,7 +87,11 @@ const forgeDogAssets = {
 };
 
 const getConfig = (id) => DogsConfig[id] ?? ForgeDogsConfig[id];
-const getAsset  = (id) => dogAssets[id]  ?? forgeDogAssets[id];
+const getAsset  = (id, dogSkins) => {
+    const equipped = dogSkins?.[id]?.equipped;
+    if (equipped && dogSkinAssets[id]?.[equipped]) return dogSkinAssets[id][equipped];
+    return dogAssets[id] ?? forgeDogAssets[id];
+};
 
 const getCombatStatus = (dog, isForge) => {
     if (!dog.assignedTo) return 'available';
@@ -1089,7 +1094,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                                         className={`combat-sel-slot filled dog-rarity-${cfg?.rarity}`}
                                                         onClick={() => setTeam(prev => prev.map((x, j) => j === i ? null : x))}
                                                     >
-                                                        <img src={getAsset(id)} alt={id} />
+                                                        <img src={getAsset(id, gameState.dogSkins)} alt={id} />
                                                         <span>{cfg?.name}</span>
                                                     </div>
                                                     {slotElemInfo && (
@@ -1174,7 +1179,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                             onClick={e => { e.stopPropagation(); setInfoCardId(showInfo ? null : dog.id); }}
                                         >i</button>
                                         <div className="cdc-img-wrap">
-                                            <img src={getAsset(dog.id)} alt={dog.id} />
+                                            <img src={getAsset(dog.id, gameState.dogSkins)} alt={dog.id} />
                                             {status === 'inMine'    && <span className="gds-status-badge"><Pickaxe size={9} /></span>}
                                             {status === 'inRaid'    && <span className="gds-status-badge"><Swords size={9} /></span>}
                                             {status === 'inFurnace' && <span className="gds-status-badge"><Flame size={9} /></span>}
@@ -1361,7 +1366,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             return (
                                 <div key={`left-${id}`} ref={leftSlotRef} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
                                     <div className={`csl-img-wrap${charging ? ` combat-slot-passive-charging combat-slot-passive-charging-${charging}` : ''}`}>
-                                        <img src={getAsset(id)} alt={id} />
+                                        <img src={getAsset(id, gameState.dogSkins)} alt={id} />
                                     </div>
                                     <span className="csl-name">{cfg?.name}</span>
                                 </div>
@@ -1377,7 +1382,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                     key={`center-${id}`}
                                     className={`combat-slot-active dog-rarity-${cfg?.rarity}${swappingTo === id ? ' dog-swap-in' : ''}`}
                                 >
-                                    <img src={getAsset(id)} alt={id} />
+                                    <img src={getAsset(id, gameState.dogSkins)} alt={id} />
                                     <span className="csa-name">{cfg?.name}</span>
                                     <span className="csa-label">activo</span>
                                 </div>
@@ -1392,7 +1397,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                             return (
                                 <div key={`right-${id}`} ref={rightSlotRef} className={`combat-slot-lateral dog-rarity-${cfg?.rarity}`}>
                                     <div className={`csl-img-wrap${charging ? ` combat-slot-passive-charging combat-slot-passive-charging-${charging}` : ''}`}>
-                                        <img src={getAsset(id)} alt={id} />
+                                        <img src={getAsset(id, gameState.dogSkins)} alt={id} />
                                     </div>
                                     <span className="csl-name">{cfg?.name}</span>
                                 </div>

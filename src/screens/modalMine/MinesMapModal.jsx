@@ -6,6 +6,7 @@ import { useGameContext } from '../../game/context/GameContext.jsx';
 import { DogsConfig, RARITY_COLORS } from '../../game/config/DogsConfig.js';
 import { SESSION_DURATION, COOLDOWN_DURATION } from '../../game/initialState/InitialYacimientosState.js';
 import { MineCompanionConfig, ELEMENT_COLORS } from '../../game/config/MineCompanionConfig.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import { formatNumber2 } from '../../game/utils/formatters.js';
 
 // Posición de cada boca de túnel como fracción del tamaño de la imagen fuente
@@ -86,6 +87,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
     const { gold: currentGold, tavernCoins, mines, yacimientos, dogs = {} } = gameState;
     const { unlockedTypes, bestScores } = mines;
     const minesConfig = MinesConfig;
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
 
     const containerRef = useRef(null);
     const [cardPositions, setCardPositions] = useState({});
@@ -267,6 +269,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                     {preEntryMine && (
                         <PreEntryScreen
                             mineType={preEntryMine}
+                            dogSkins={gameState.dogSkins}
                             availableCompanions={getAvailableCompanions()}
                             selectedCompanion={selectedCompanion}
                             onSelectCompanion={setSelectedCompanion}
@@ -347,7 +350,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                                 >
                                     {mineCompDog ? (
                                         <>
-                                            <img src={dogAssets[mineCompDog.id]} className="dog-slot-img" alt={mineCompDog.id} />
+                                            <img src={getDogPortrait(mineCompDog.id)} className="dog-slot-img" alt={mineCompDog.id} />
                                             {mineCompLocked && (
                                                 <div className="dog-slot-timer-overlay">
                                                     <span className="mdc-slot-timer">{fmtTimer(mineCompDog.mineCompTimer.remaining)}</span>
@@ -374,6 +377,7 @@ const MinesMapModal = ({ isOpen, onClose, selectedBiome = null, bgImage = null, 
                     onClose={() => setMineCompModalOpen(false)}
                     mineId={selectedBiome}
                     dogs={dogs}
+                    dogSkins={gameState.dogSkins}
                     onAssign={handleAssignMineDog}
                     onUnassign={handleUnassignMineDog}
                 />
@@ -450,7 +454,8 @@ const YacimientoSlotActivo = ({ slot, selectedBiome, menaAsset, dogAssigned, com
     );
 };
 
-const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSelectCompanion, onConfirm, onCancel }) => {
+const PreEntryScreen = ({ mineType, dogSkins, availableCompanions, selectedCompanion, onSelectCompanion, onConfirm, onCancel }) => {
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const selectedDog = selectedCompanion && selectedCompanion !== '__none__'
         ? availableCompanions.find(d => d.id === selectedCompanion)
         : null;
@@ -474,7 +479,7 @@ const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSe
                         {selectedDog ? (
                             <>
                                 {dogAssets[selectedDog.id] && (
-                                    <img src={dogAssets[selectedDog.id]} alt={selectedCfg?.name} className="pre-entry-slot-img" />
+                                    <img src={getDogPortrait(selectedDog.id)} alt={selectedCfg?.name} className="pre-entry-slot-img" />
                                 )}
                                 <span className="pre-entry-slot-name">{selectedCfg?.name ?? selectedDog.id}</span>
                                 {selectedCompCfg && (
@@ -509,7 +514,7 @@ const PreEntryScreen = ({ mineType, availableCompanions, selectedCompanion, onSe
                         const compCfg = MineCompanionConfig[dog.id];
                         const elemColor = compCfg ? ELEMENT_COLORS[compCfg.element] : '#aaa';
                         const rarityColor = RARITY_COLORS[cfg?.rarity] ?? '#aaa';
-                        const icon = dogAssets[dog.id];
+                        const icon = getDogPortrait(dog.id);
                         return (
                             <button
                                 key={dog.id}

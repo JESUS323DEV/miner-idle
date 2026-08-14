@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Swords, Pickaxe, Star } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { dogAssets } from '../../game/utils/dogAssets.js';
+import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 
 const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2 };
 
@@ -22,7 +23,8 @@ const fmtTimer = (s) => {
     return `${m}:${sec.toString().padStart(2, '0')}`;
 };
 
-export default function MineDogModal({ isOpen, onClose, mineId, dogs, onAssign, onUnassign }) {
+export default function MineDogModal({ isOpen, onClose, mineId, dogs, dogSkins, onAssign, onUnassign }) {
+    const getDogPortrait = (id) => dogSkinAssets[id]?.[dogSkins?.[id]?.equipped] ?? dogAssets[id];
     const [raritySort, setRaritySort] = useState(null);
 
     if (!isOpen) return null;
@@ -80,7 +82,7 @@ export default function MineDogModal({ isOpen, onClose, mineId, dogs, onAssign, 
                                 onClick={() => { if (!unavailable) onAssign(id, mineId); }}
                             >
                                 <div className="gds-card-img-wrap">
-                                    <img src={dogAssets[id]} className="gds-card-img" alt={id} />
+                                    <img src={getDogPortrait(id)} className="gds-card-img" alt={id} />
                                     {(status === 'inMineComp' || status === 'inYacimiento' || status === 'inSlot') && <span className="gds-status-badge"><Pickaxe size={9} /></span>}
                                     {status === 'inRaid' && <span className="gds-status-badge"><Swords size={9} /></span>}
                                 </div>
@@ -101,7 +103,7 @@ export default function MineDogModal({ isOpen, onClose, mineId, dogs, onAssign, 
                             <div className={`gds-modal-slot${assignedCfg ? ` dog-rarity-${assignedCfg.rarity}` : ''}`}>
                                 {assignedDog ? (
                                     <>
-                                        <img src={dogAssets[assignedDog.id]} className="global-dog-slot-img" alt={assignedDog.id} />
+                                        <img src={getDogPortrait(assignedDog.id)} className="global-dog-slot-img" alt={assignedDog.id} />
                                         {isLocked && (
                                             <div className="dog-slot-timer-overlay">
                                                 <span className="mdc-slot-timer">{fmtTimer(assignedDog.mineCompTimer.remaining)}</span>
