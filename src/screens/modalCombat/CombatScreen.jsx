@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
+import iconGold from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
+import huesinCoin from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import raidActiveBg       from '../../assets/audio/bg-raid-active.mp3';
 import raidActiveSelectBg from '../../assets/audio/bg-raid-active-select.mp3';
 
@@ -1498,91 +1500,63 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             {/* ===== RESULTS ===== */}
             {phase === 'results' && resultsData && (
                 <div className="combat-results">
-                    <h2 className="combat-results-title">
-                        {resultsData.defeated ? 'Derrotado' : 'Tiempo agotado'}
-                    </h2>
-                    <p className="combat-result-boss">{activeEnemy?.name}</p>
-
-                    <div className="combat-result-stars">
-                        {[1,2,3].map(s => (
-                            <Star
-                                key={s}
-                                size={36}
-                                fill={resultsData.starsEarned >= s ? '#ffd740' : 'none'}
-                                color={resultsData.starsEarned >= s ? '#ffd740' : '#333'}
-                                strokeWidth={1.5}
-                            />
-                        ))}
-                    </div>
-
-                    <div className="combat-result-enemy-portrait" style={{ '--reveal-pct': `${(resultsData.starsEarned / 3) * 100}%` }}>
-                        <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy?.name} className="cre-color" />
-                        <img src={enemyImgs[activeEnemy.id]} alt="" className="cre-gray" />
-                    </div>
-
-                    <div className="combat-result-pct-wrap">
-                        <div className="combat-result-pct-bar">
-                            <div
-                                className="combat-result-pct-fill"
-                                style={{ width: `${Math.round(resultsData.pct * 100)}%` }}
-                            />
+                    <div className={`combat-result-enemy-frame combat-enemy-frame-${resultsData.starsEarned}`}>
+                        <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy?.name} />
+                        <div className="combat-result-enemy-name-wrap">
+                            <p className="combat-result-enemy-name">{activeEnemy?.name}</p>
+                            <div className="combat-result-pct-bar">
+                                <div
+                                    className="combat-result-pct-fill"
+                                    style={{ width: `${Math.round(resultsData.pct * 100)}%` }}
+                                />
+                            </div>
                         </div>
-                        <span className="combat-result-pct-label">
-                            {Math.round(resultsData.pct * 100)}% de vida bajada
-                        </span>
                     </div>
 
+                    <div className="combat-results-bottom-row">
                     <div className={`combat-result-reward${resultsData.shards > 0 ? ' has-reward' : ''}`}>
                         {resultsData.shards > 0 ? (
-                            <>
+                            <div className='cont-info-rewards'>
                                 {resultsData.rewardDogId && (
                                     <div className={`combat-result-dog dog-rarity-${resultsData.rewardRarity}`}>
+                                        <span className="combat-result-shards-badge">x{resultsData.shards} 🧩</span>
+                                        {resultsData.gold > 0 && (
+                                            <span className="combat-result-gold-badge">+{resultsData.gold.toLocaleString()} <img src={iconGold} alt="oro" className="combat-result-currency-icon" /></span>
+                                        )}
+                                        {resultsData.huesin > 0 && (
+                                            <span className="combat-result-huesin-badge">+{resultsData.huesin} <img src={huesinCoin} alt="Huesín" className="combat-result-currency-icon" /></span>
+                                        )}
                                         <img src={getAsset(resultsData.rewardDogId)} alt={resultsData.rewardDogId} />
-                                        <div className="combat-result-dog-info">
-                                            <span>{getConfig(resultsData.rewardDogId)?.name}</span>
-                                            <span className="combat-result-shards">🧩 +{resultsData.shards}</span>
-                                        </div>
+                                        <span>{getConfig(resultsData.rewardDogId)?.name}</span>
                                     </div>
                                 )}
-                            </>
+                            </div>
+
                         ) : (
+                            
                             <span className="combat-result-noreward">Sin recompensa (menos del 15%)</span>
+
                         )}
-                        {resultsData.gold > 0 && (
-                            <span className="combat-result-gold">+{resultsData.gold.toLocaleString()} oro</span>
-                        )}
-                        {resultsData.huesin > 0 && (
-                            <span className="combat-result-huesin">+{resultsData.huesin} Huesín</span>
-                        )}
-                        {resultsData.maxCombo >= COMBO_FIRST_MILESTONE && (
-                            <span className="combat-result-combo">Combo máximo x{resultsData.maxCombo}</span>
-                        )}
+                        {resultsData.maxCombo >= COMBO_FIRST_MILESTONE && (() => {
+                            const comboPct = resultsData.maxCombo / 100;
+                            const comboFireColor = comboPct >= 1 ? '#ff2200' : comboPct >= 0.5 ? '#ff6b00' : '#ffb347';
+                            return (
+                                <span className="combat-result-combo">
+                                    Combo Max.
+                                    <span className="combat-result-combo-badge">
+                                        x{resultsData.maxCombo} <Flame size={12} color={comboFireColor} fill={comboFireColor} />
+                                    </span>
+                                </span>
+                            );
+                        })()}
                     </div>
 
-                    {(() => {
-                        const nextIdx = activeBiome.enemies.findIndex(e => e.id === activeEnemy.id) + 1;
-                        const nextEnemy = activeBiome.enemies[nextIdx] ?? null;
-                        const nextUnlocked = nextEnemy && (
-                            !nextEnemy.requiresStars ||
-                            (raidBestStars[nextEnemy.requiresStars.enemyId] ?? 0) >= nextEnemy.requiresStars.stars
-                        ) && !getAttemptStatus(nextEnemy).isOnCooldown;
-                        return nextUnlocked ? (
-                            <button
-                                className="combat-next-enemy-btn"
-                                onClick={() => { setActiveEnemy(nextEnemy); setPhase('select'); }}
-                            >
-                                Siguiente enemigo
-                            </button>
-                        ) : null;
-                    })()}
-                    {!resultsData.isFirstBossWin && !getAttemptStatus(activeEnemy).isOnCooldown && (
-                        <button className="combat-retry-btn" onClick={() => { setPhase('select'); setTeam([]); }}>
-                            Repetir
+                    <div className="combat-results-actions-col">
+                        <button className="combat-exit-btn" onClick={goToBiome}>
+                            <ArrowLeft size={16} /> Volver
                         </button>
-                    )}
-                    <button className="combat-exit-btn" onClick={goToBiome}>
-                        Volver al inicio
-                    </button>
+                    </div>
+                    </div>
                 </div>
             )}
         </div>
