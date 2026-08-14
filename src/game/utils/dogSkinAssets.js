@@ -29,12 +29,6 @@ import nupitoMinero from '../../assets/ui/icons-pets/dog-skins/nupito/nupito-min
 import nupitoRey    from '../../assets/ui/icons-pets/dog-skins/nupito/nupito-rey.webp';
 import nupitoSherif from '../../assets/ui/icons-pets/dog-skins/nupito/nupito-sherif.webp';
 
-import smokeCascos  from '../../assets/ui/icons-pets/dog-skins/smoke/smoke-cascos.webp';
-import smokeMago    from '../../assets/ui/icons-pets/dog-skins/smoke/smoke-mago.webp';
-import smokeMinero  from '../../assets/ui/icons-pets/dog-skins/smoke/smoke-minero.webp';
-import smokeRey     from '../../assets/ui/icons-pets/dog-skins/smoke/smoke-rey.webp';
-import smokeSenor   from '../../assets/ui/icons-pets/dog-skins/smoke/smoke-señor.webp';
-
 import tokyoCapucha from '../../assets/ui/icons-pets/dog-skins/tokyo/tokyo-capucha.webp';
 import tokyoCascos  from '../../assets/ui/icons-pets/dog-skins/tokyo/tokyo-cascos.webp';
 import tokyoGafas   from '../../assets/ui/icons-pets/dog-skins/tokyo/tokyo-gafas.webp';
@@ -61,7 +55,6 @@ export const dogSkinAssets = {
     lady:   { capucha: ladyCapucha, cascos: ladyCascos, gafas: ladyGafas, minera: ladyMinera, pirata: ladyPirata, reina: ladyReina },
     muna:   { cascos: munaCascos, minera: munaMinera, piloto: munaPiloto, pirata: munaPirata, reina: munaReina },
     nupito: { mago: nupitoMago, minero: nupitoMinero, rey: nupitoRey, sherif: nupitoSherif },
-    smoke:  { cascos: smokeCascos, mago: smokeMago, minero: smokeMinero, rey: smokeRey, señor: smokeSenor },
     tokio:  { capucha: tokyoCapucha, cascos: tokyoCascos, gafas: tokyoGafas, minera: tokyoMinera, reina: tokyoReina },
     tuka:   { capucha: tukaCapucha, cascos: tukaCascos, chef: tukaChef, gafas: tukaGafas, maga: tukaMaga, minera: tukaMinera, reina: tukaReina },
     zeus:   { chef: zeusChef, mago: zeusMago, minero: zeusMinero, rey: zeusRey, sherif: zeusSherif },

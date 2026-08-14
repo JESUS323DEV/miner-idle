@@ -1222,6 +1222,10 @@
     object-fit: contain;
 }
 
+.skin-inventory-item.dog-rarity-rare .skin-inventory-img      { filter: drop-shadow(0 0 4px rgba(76,168,255,0.45)); }
+.skin-inventory-item.dog-rarity-epic .skin-inventory-img      { filter: drop-shadow(0 0 4px rgba(180,92,255,0.45)); }
+.skin-inventory-item.dog-rarity-legendary .skin-inventory-img { filter: drop-shadow(0 0 4px rgba(245,200,66,0.45)); }
+
 .skin-inventory-item.skin-locked .skin-inventory-img {
     opacity: 0.35;
 }

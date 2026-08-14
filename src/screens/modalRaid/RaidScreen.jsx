@@ -15,6 +15,10 @@ import { DogSkinsConfig } from '../../game/config/DogSkinsConfig.js';
 import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import { getHuntRotationKey, getDailyHuntContracts, getHuntBossName } from '../../game/config/TablonHuntConfig.js';
 import huesinCoin from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
+import iconRarityLegend from '../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/legend.webp';
+import iconRarityEpic from '../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/epic.webp';
+import iconRarityRara from '../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/rara.webp';
+import iconRarityObtenidos from '../../assets/ui/icons-hud/hud-modals/modal-ayudantes/icon-hud/obtenidos.webp';
 
 const HUNT_BOSS_CARD_CLASS = {
     'spider-boss': 'raid-hunt-card-spiders',
@@ -273,6 +277,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [skinReveal, setSkinReveal] = useState(null);
+    const [skinRarityFilter, setSkinRarityFilter] = useState(null);
     const [frameIndex, setFrameIndex] = useState(0);
     const [waitFrameIndex, setWaitFrameIndex] = useState(0);
 
@@ -1010,11 +1015,49 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                     </>
                                 )}
                                 {tablonTab === 'skins' && (
+                                    <>
+                                    <div className="rarity-filter-bar">
+                                        {['legendary', 'epic', 'rare', 'obtenidos'].map(r => {
+                                            const rarityIcon = r === 'legendary' ? iconRarityLegend : r === 'epic' ? iconRarityEpic : r === 'rare' ? iconRarityRara : iconRarityObtenidos;
+                                            return (
+                                                <button
+                                                    key={r}
+                                                    className={`rarity-filter-btn${r !== 'obtenidos' ? ` rarity-filter-${r}` : ''}${skinRarityFilter === r ? ' rarity-filter-active' : ''}`}
+                                                    onClick={() => setSkinRarityFilter(skinRarityFilter === r ? null : r)}
+                                                >
+                                                    <img src={rarityIcon} alt={r} />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                     <div className="skin-shop-list">
-                                        {Object.entries(DogSkinsConfig).map(([dogId, skins]) => {
+                                        {Object.entries(DogSkinsConfig).sort(([a], [b]) => {
+                                            const rank = (id) => {
+                                                if (id === 'lady') return 0;
+                                                const rarity = DogsConfig[id]?.rarity;
+                                                if (rarity === 'legendary') return 1;
+                                                if (rarity === 'epic') return 2;
+                                                return 3;
+                                            };
+                                            return rank(a) - rank(b);
+                                        }).map(([dogId, allSkins]) => {
                                             const config = DogsConfig[dogId];
                                             if (!config) return null;
+                                            if (allSkins.length === 0 && skinRarityFilter !== 'obtenidos') {
+                                                return (
+                                                    <div key={dogId} className="skin-shop-dog-block">
+                                                        <span className="cdl-section-title">{config.name}</span>
+                                                        <p className="raid-tablon-soon">Próximamente</p>
+                                                    </div>
+                                                );
+                                            }
                                             const owned = gameState.dogSkins?.[dogId]?.owned ?? [];
+                                            const skins = allSkins.filter(skin => {
+                                                if (!skinRarityFilter) return true;
+                                                if (skinRarityFilter === 'obtenidos') return owned.includes(skin.id);
+                                                return skin.tier === skinRarityFilter;
+                                            });
+                                            if (skins.length === 0) return null;
                                             return (
                                                 <div key={dogId} className="skin-shop-dog-block">
                                                     <span className="cdl-section-title">{config.name}</span>
@@ -1048,6 +1091,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                             );
                                         })}
                                     </div>
+                                    </>
                                 )}
                             </div>
                         </div>

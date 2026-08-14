@@ -1560,7 +1560,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     return (
                                         <button
                                             key={skin.id}
-                                            className={`skin-inventory-item ${isEquipped ? 'skin-equipped' : ''} ${!isOwned ? 'skin-locked' : ''}`}
+                                            className={`skin-inventory-item dog-rarity-${skin.tier} ${isEquipped ? 'skin-equipped' : ''} ${!isOwned ? 'skin-locked' : ''}`}
                                             disabled={!isOwned}
                                             onClick={() => {
                                                 setGameState(prev => ({
