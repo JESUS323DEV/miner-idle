@@ -125,7 +125,7 @@ export const DogsConfig = {
         element: 'electrico',
         order: 4,
         id: 'tokio',
-        name: 'Tokio',
+        name: 'Tokyo',
         unlockCost: { gold: 400000, tavernCoins: 80 },
         starBonus: 0.20,
         unlockFragments: 150,

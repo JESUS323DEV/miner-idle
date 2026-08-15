@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock } from 'lucide-react';
 import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
@@ -274,6 +274,23 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
     const [tablonTab, setTablonTab] = useState('misiones');
+    const [tablonTabsHidden, setTablonTabsHidden] = useState(false);
+    const tablonScrollLastY = useRef(0);
+
+    const handleTablonScroll = (e) => {
+        if (tablonTab !== 'skins') return;
+        const scrollTop = e.target.scrollTop;
+        const delta = scrollTop - tablonScrollLastY.current;
+        if (Math.abs(delta) > 5) {
+            setTablonTabsHidden(delta > 0 && scrollTop > 20);
+            tablonScrollLastY.current = scrollTop;
+        }
+    };
+
+    useEffect(() => {
+        setTablonTabsHidden(false);
+        tablonScrollLastY.current = 0;
+    }, [tablonTab]);
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [skinReveal, setSkinReveal] = useState(null);
@@ -309,6 +326,23 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
             setGameState(prev => ({ ...prev, tablonCanjeSeenTier: canjeCurrentTier }));
         }
     }, [canjeCurrentTier, canjeSeenTier]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const skinsBuyableCount = Object.entries(DogSkinsConfig).reduce((count, [dogId, skins]) => {
+        const owned = gameState.dogSkins?.[dogId]?.owned ?? [];
+        return count + skins.filter(skin =>
+            !skin.hiddenInShop && !owned.includes(skin.id)
+            && (gameState.huesin ?? 0) >= skin.huesinPrice
+            && (gameState.tavernCoins ?? 0) >= skin.tavernPrice
+        ).length;
+    }, 0);
+    const skinsSeenBuyCount = gameState.skinsSeenBuyCount ?? 0;
+    const skinsPending = skinsBuyableCount > skinsSeenBuyCount;
+
+    useEffect(() => {
+        if (skinsBuyableCount < skinsSeenBuyCount) {
+            setGameState(prev => ({ ...prev, skinsSeenBuyCount: skinsBuyableCount }));
+        }
+    }, [skinsBuyableCount, skinsSeenBuyCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isOpen) {
@@ -538,7 +572,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             </button>
                         )}
                         <button
-                            className={`raid-hub-btn ${(misionesPending || canjePending) ? 'btn-notify-dot' : ''}`}
+                            className={`raid-hub-btn ${(misionesPending || canjePending || skinsPending) ? 'btn-notify-dot' : ''}`}
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
                             onClick={() => {
                                 const nothingToDo = huntContractsNotify.every(({ bossId }) => huntStateNotify[bossId] === 'claimed');
@@ -957,7 +991,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                     </button>
                                     <h2 className="tavern-title">Tablón</h2>
                                 </div>
-                                <div className="rewards-tabs">
+                                <div className={`rewards-tabs ${tablonTabsHidden ? 'rewards-tabs-collapsed' : ''}`}>
                                     <button
                                         className={`rewards-tab ${tablonTab === 'misiones' ? 'active' : ''} ${misionesPending && tablonTab !== 'misiones' ? 'tab-pulse' : ''}`}
                                         onClick={() => setTablonTab('misiones')}
@@ -970,13 +1004,32 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                         }}
                                     ><img src={tabShop} alt="canje" /></button>
                                     <button
-                                        className={`rewards-tab ${tablonTab === 'skins' ? 'active' : ''}`}
-                                        onClick={() => setTablonTab('skins')}
+                                        className={`rewards-tab ${tablonTab === 'skins' ? 'active' : ''} ${skinsPending && tablonTab !== 'skins' ? 'tab-pulse' : ''}`}
+                                        onClick={() => {
+                                            setTablonTab('skins');
+                                            setGameState(prev => ({ ...prev, skinsSeenBuyCount: skinsBuyableCount }));
+                                        }}
                                     ><img src={tabSkins} alt="skins" /></button>
                                 </div>
+                                {tablonTab === 'skins' && (
+                                    <div className="rarity-filter-bar">
+                                        {['legendary', 'epic', 'rare', 'obtenidos'].map(r => {
+                                            const rarityIcon = r === 'legendary' ? iconRarityLegend : r === 'epic' ? iconRarityEpic : r === 'rare' ? iconRarityRara : iconRarityObtenidos;
+                                            return (
+                                                <button
+                                                    key={r}
+                                                    className={`rarity-filter-btn${r !== 'obtenidos' ? ` rarity-filter-${r}` : ''}${skinRarityFilter === r ? ' rarity-filter-active' : ''}`}
+                                                    onClick={() => setSkinRarityFilter(skinRarityFilter === r ? null : r)}
+                                                >
+                                                    <img src={rarityIcon} alt={r} />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="raid-tablon-scroll">
+                            <div className="raid-tablon-scroll" onScroll={handleTablonScroll}>
                                 {tablonTab === 'misiones' && (
                                     <>
                                     <p className="raid-tablon-offer-title">Contratos de caza</p>
@@ -1028,20 +1081,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 )}
                                 {tablonTab === 'skins' && (
                                     <>
-                                    <div className="rarity-filter-bar">
-                                        {['legendary', 'epic', 'rare', 'obtenidos'].map(r => {
-                                            const rarityIcon = r === 'legendary' ? iconRarityLegend : r === 'epic' ? iconRarityEpic : r === 'rare' ? iconRarityRara : iconRarityObtenidos;
-                                            return (
-                                                <button
-                                                    key={r}
-                                                    className={`rarity-filter-btn${r !== 'obtenidos' ? ` rarity-filter-${r}` : ''}${skinRarityFilter === r ? ' rarity-filter-active' : ''}`}
-                                                    onClick={() => setSkinRarityFilter(skinRarityFilter === r ? null : r)}
-                                                >
-                                                    <img src={rarityIcon} alt={r} />
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
                                     <div className="skin-shop-list">
                                         {Object.entries(DogSkinsConfig).sort(([a], [b]) => {
                                             const rank = (id) => {
@@ -1082,35 +1121,35 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                             return (
                                                                 <div key={skin.id} className={`skin-shop-item dog-rarity-${skin.tier}`}>
                                                                     {skin.loopWith ? (
-                                                                        <>
-                                                                            <span className="skin-shop-ultimate-name">{skin.name}</span>
-                                                                            <div className="skin-shop-ultimate-loop" onClick={() => setUltimatePreview({ dogId, skin })}>
-                                                                                <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img skin-shop-ultimate-fase1" />
-                                                                                <img src={dogSkinAssets[dogId]?.[skin.loopWith]} alt={skin.loopWith} className="skin-shop-img skin-shop-ultimate-fase2" />
-                                                                            </div>
-                                                                        </>
+                                                                        <div className="skin-shop-ultimate-loop" onClick={() => setUltimatePreview({ dogId, skin })}>
+                                                                            <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img skin-shop-ultimate-fase1" />
+                                                                            <img src={dogSkinAssets[dogId]?.[skin.loopWith]} alt={skin.loopWith} className="skin-shop-img skin-shop-ultimate-fase2" />
+                                                                        </div>
                                                                     ) : (
-                                                                        <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img" />
+                                                                        <img
+                                                                            src={dogSkinAssets[dogId]?.[skin.id]}
+                                                                            alt={skin.id}
+                                                                            className="skin-shop-img"
+                                                                            onClick={() => setUltimatePreview({ dogId, skin })}
+                                                                        />
                                                                     )}
-                                                                    {!skin.loopWith && (
-                                                                        <button
-                                                                            className={`skin-shop-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
-                                                                            disabled={isOwned || !canBuy}
-                                                                            onClick={() => handleBuySkin(dogId, skin.id)}
-                                                                        >
-                                                                            {isOwned ? 'Comprada' : skin.starGated ? (
-                                                                                <span className="skin-shop-price">
-                                                                                    <Lock size={11} /> {skin.starGated} <Star size={11} />
-                                                                                </span>
-                                                                            ) : (
-                                                                                <span className="skin-shop-price">
-                                                                                    {skin.huesinPrice} <img src={huesinCoin} alt="Huesín" className="raid-tablon-buy-icon" />
-                                                                                    <span className="skin-shop-price-plus">+</span>
-                                                                                    {skin.tavernPrice} <img src={coinTavern} alt="coins" className="raid-tablon-buy-icon" />
-                                                                                </span>
-                                                                            )}
-                                                                        </button>
-                                                                    )}
+                                                                    <button
+                                                                        className={`skin-shop-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
+                                                                        disabled={isOwned || !canBuy}
+                                                                        onClick={() => handleBuySkin(dogId, skin.id)}
+                                                                    >
+                                                                        {isOwned ? 'Comprada' : skin.starGated ? (
+                                                                            <span className="skin-shop-price">
+                                                                                <Lock size={11} /> {skin.starGated} <Star size={11} />
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="skin-shop-price">
+                                                                                {skin.huesinPrice} <img src={huesinCoin} alt="Huesín" className="raid-tablon-buy-icon" />
+                                                                                <span className="skin-shop-price-plus">+</span>
+                                                                                {skin.tavernPrice} <img src={coinTavern} alt="coins" className="raid-tablon-buy-icon" />
+                                                                            </span>
+                                                                        )}
+                                                                    </button>
                                                                 </div>
                                                             );
                                                         })}
@@ -1159,26 +1198,45 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                 const canBuy = !isOwned
                     && (gameState.huesin ?? 0) >= ultimatePreview.skin.huesinPrice
                     && (gameState.tavernCoins ?? 0) >= ultimatePreview.skin.tavernPrice;
+                const isUltimate = !!ultimatePreview.skin.loopWith;
+                const skinName = ultimatePreview.skin.name ?? (ultimatePreview.skin.id.charAt(0).toUpperCase() + ultimatePreview.skin.id.slice(1));
                 return (
                 <div className="skin-preview-overlay" onClick={e => { e.stopPropagation(); setUltimatePreview(null); }}>
-                    <div className={`skin-preview-frame dog-rarity-${ultimatePreview.skin.tier}`} onClick={e => e.stopPropagation()}>
+                    <div className={`skin-preview-frame dog-rarity-${ultimatePreview.skin.tier} skin-preview-${ultimatePreview.dogId}`} onClick={e => e.stopPropagation()}>
                         <div className="skin-preview-darken" />
-                        <div className="skin-preview-glow" />
-                        <div className="skin-preview-motes">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <div className="skin-preview-particles">
-                            <span></span><span></span><span></span><span></span><span></span><span></span>
-                        </div>
+                        {isUltimate && (
+                            <>
+                                <div className="skin-preview-glow" />
+                                <div className="skin-preview-flash" />
+                                <div className="skin-preview-motes">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div className="skin-preview-particles">
+                                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                            </>
+                        )}
                         <button className="skin-preview-close" onClick={() => setUltimatePreview(null)}><X size={18} /></button>
-                        <h2 className="skin-preview-title">{ultimatePreview.skin.name}</h2>
+                        <h2 className="skin-preview-title">{skinName}</h2>
+                        {isUltimate && (
+                            <div className="skin-preview-phase-badge">
+                                <span className="skin-shop-ultimate-fase1">FASE 1</span>
+                                <span className="skin-shop-ultimate-fase2">FASE 2</span>
+                            </div>
+                        )}
                         <div
                             className="skin-preview-img-slot"
                             onClick={handlePreviewImgTap}
                             style={{ transform: `perspective(700px) rotateX(${previewTilt.x}deg) rotateY(${previewTilt.y}deg)` }}
                         >
-                            <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-shop-ultimate-fase1" />
-                            <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.loopWith]} alt="" className="skin-preview-img skin-shop-ultimate-fase2" />
+                            {isUltimate ? (
+                                <>
+                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-shop-ultimate-fase1" />
+                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.loopWith]} alt="" className="skin-preview-img skin-shop-ultimate-fase2" />
+                                </>
+                            ) : (
+                                <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img" />
+                            )}
                             {previewShockwave && (
                                 <span
                                     key={previewShockwave.id}
@@ -1188,7 +1246,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 />
                             )}
                         </div>
-                        <p className="skin-preview-hint">{DogsConfig[ultimatePreview.dogId]?.name} a 3 <Star size={11} /> evoluciona la skin</p>
+                        {isUltimate && (
+                            <p className="skin-preview-hint">{DogsConfig[ultimatePreview.dogId]?.name} a 3 <Star size={11} /> evoluciona la skin</p>
+                        )}
                         <button
                             className={`skin-preview-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
                             disabled={isOwned || !canBuy}

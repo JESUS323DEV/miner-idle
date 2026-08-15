@@ -699,6 +699,20 @@
     gap: 10px;
 }
 
+.raid-tablon-header .rewards-tabs {
+    max-height: 80px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease, margin 0.25s ease;
+}
+
+.raid-tablon-header .rewards-tabs.rewards-tabs-collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
 .raid-tablon-scroll {
     overflow-y: auto;
     min-height: 0;
@@ -786,21 +800,13 @@
     width: 80px;
     height: 80px;
     object-fit: contain;
+    cursor: pointer;
 }
 
 .skin-shop-item.dog-rarity-rare .skin-shop-img      { filter: drop-shadow(0 0 4px rgba(76,168,255,0.45)); }
 .skin-shop-item.dog-rarity-epic .skin-shop-img      { filter: drop-shadow(0 0 4px rgba(180,92,255,0.45)); }
 .skin-shop-item.dog-rarity-legendary .skin-shop-img { filter: drop-shadow(0 0 4px rgba(245,200,66,0.45)); }
 .skin-shop-item.dog-rarity-ultimate .skin-shop-img  { filter: drop-shadow(0 0 5px rgba(120,200,255,0.6)); }
-
-.skin-shop-ultimate-name {
-    color: #9adcff;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    text-align: center;
-}
 
 .skin-shop-ultimate-loop {
     position: relative;
@@ -870,8 +876,8 @@
 
 .skin-preview-frame {
     position: relative;
-    width: min(85vw, 400px, calc(85vh * 0.75));
-    aspect-ratio: 3 / 4;
+    width: min(85vw, 400px, calc(85vh * 0.698));
+    aspect-ratio: 3 / 4.3;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -885,9 +891,16 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('../../assets/ui/icons-pets/dog-skins/ui-skins/marco-skin-ultimate.webp') center / 100% 100% no-repeat;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: -1;
 }
+
+.skin-preview-frame.dog-rarity-ultimate::before  { background-image: url('../../assets/ui/icons-pets/dog-skins/ui-skins/marco-skin-ultimate.webp'); }
+.skin-preview-frame.dog-rarity-legendary::before { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.skin-preview-frame.dog-rarity-epic::before      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.skin-preview-frame.dog-rarity-rare::before      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
 
 .skin-preview-close {
     position: absolute;
@@ -942,6 +955,31 @@
     animation: skinPreviewParticleRise 5s ease-in infinite;
 }
 
+.skin-preview-muna .skin-preview-particles span {
+    background: #ff6b6b;
+    box-shadow: 0 0 6px 2px rgba(255,80,80,0.8);
+}
+
+.skin-preview-nupito .skin-preview-particles span {
+    background: #ffa245;
+    box-shadow: 0 0 6px 2px rgba(255,140,0,0.8);
+}
+
+.skin-preview-tokio .skin-preview-particles span {
+    background: #fff347;
+    box-shadow: 0 0 6px 2px rgba(255,230,0,0.8);
+}
+
+.skin-preview-druh .skin-preview-particles span {
+    background: #6bff8f;
+    box-shadow: 0 0 6px 2px rgba(60,230,90,0.8);
+}
+
+.skin-preview-zeus .skin-preview-particles span {
+    background: #6bff8f;
+    box-shadow: 0 0 6px 2px rgba(60,230,90,0.8);
+}
+
 .skin-preview-particles span:nth-child(1) { left: 15%; animation-delay: 0s; }
 .skin-preview-particles span:nth-child(2) { left: 30%; animation-delay: 0.8s; }
 .skin-preview-particles span:nth-child(3) { left: 48%; animation-delay: 1.6s; }
@@ -959,11 +997,12 @@
 
 .skin-preview-title {
     margin: 0;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     text-align: center;
+    white-space: nowrap;
     background: linear-gradient(100deg, #4aa8e8 0%, #ffffff 25%, #9adcff 50%, #ffffff 75%, #4aa8e8 100%);
     background-size: 220% 100%;
     -webkit-background-clip: text;
@@ -1003,6 +1042,26 @@
     animation: skinPreviewMoteDrift 9s ease-in-out infinite;
 }
 
+.skin-preview-muna .skin-preview-motes span {
+    background: rgba(255,80,80,0.35);
+}
+
+.skin-preview-nupito .skin-preview-motes span {
+    background: rgba(255,140,0,0.35);
+}
+
+.skin-preview-tokio .skin-preview-motes span {
+    background: rgba(255,230,0,0.35);
+}
+
+.skin-preview-druh .skin-preview-motes span {
+    background: rgba(60,230,90,0.35);
+}
+
+.skin-preview-zeus .skin-preview-motes span {
+    background: rgba(60,230,90,0.35);
+}
+
 .skin-preview-motes span:nth-child(1) { left: 20%; animation-delay: 0s; }
 .skin-preview-motes span:nth-child(2) { left: 55%; animation-delay: 3s; }
 .skin-preview-motes span:nth-child(3) { left: 75%; animation-delay: 6s; }
@@ -1013,6 +1072,25 @@
     50%  { transform: translate(10px, -160px); opacity: 0.4; }
     80%  { opacity: 0.2; }
     100% { transform: translate(-10px, -320px); opacity: 0; }
+}
+
+.skin-preview-phase-badge {
+    position: relative;
+    width: 100%;
+    height: 16px;
+    z-index: 1;
+}
+
+.skin-preview-phase-badge span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.6);
 }
 
 .skin-preview-img-slot {
@@ -1094,6 +1172,37 @@
     object-fit: contain;
     filter: drop-shadow(0 0 5px rgba(120,200,255,0.6));
 }
+
+.skin-preview-flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    z-index: 6;
+    pointer-events: none;
+    animation: skinPreviewFlash 6s ease-out infinite;
+}
+
+@keyframes skinPreviewFlash {
+    0%   { opacity: 0; }
+    39%  { opacity: 0; }
+    41%  { opacity: 0.8; }
+    46%  { opacity: 0; }
+    89%  { opacity: 0; }
+    91%  { opacity: 0.8; }
+    96%  { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+.skin-preview-muna .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(255,80,80,0.6)); }
+.skin-preview-frame.dog-rarity-rare .skin-preview-img      { filter: drop-shadow(0 0 5px rgba(76,168,255,0.45)); }
+.skin-preview-frame.dog-rarity-epic .skin-preview-img      { filter: drop-shadow(0 0 5px rgba(180,92,255,0.45)); }
+.skin-preview-frame.dog-rarity-legendary .skin-preview-img { filter: drop-shadow(0 0 5px rgba(245,200,66,0.45)); }
+
+.skin-preview-nupito .skin-preview-img { filter: drop-shadow(0 0 5px rgba(255,140,0,0.6)); }
+.skin-preview-tokio .skin-preview-img  { filter: drop-shadow(0 0 5px rgba(255,230,0,0.6)); }
+.skin-preview-druh .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(60,230,90,0.6)); }
+.skin-preview-zeus .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(60,230,90,0.6)); }
 
 .skin-shop-buy-btn {
     position: relative;

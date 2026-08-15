@@ -41,11 +41,20 @@ const HIDDEN_SKINS = {
 // de precio-por-concepto de arriba. Fase 1 se compra normal (Huesín+Tavern Coins, muy cara).
 // Fase 2 NO se compra: se desbloquea sola al llegar a 3 estrellas si ya tienes Fase 1
 // (lógica real en handleUpgradeStar, useDogsActions.js). Precios de Fase 1 provisionales.
+const ultimateSkinPair = (name) => [
+    { id: 'fase1', tier: 'ultimate', huesinPrice: 500, tavernPrice: 150, loopWith: 'fase2', name },
+    { id: 'fase2', tier: 'ultimate', huesinPrice: 0, tavernPrice: 0, starGated: 3, hiddenInShop: true },
+];
+
 const ULTIMATE_SKINS = {
-    lady: [
-        { id: 'fase1', tier: 'ultimate', huesinPrice: 500, tavernPrice: 150, loopWith: 'fase2', name: 'Lady AF' },
-        { id: 'fase2', tier: 'ultimate', huesinPrice: 0, tavernPrice: 0, starGated: 3, hiddenInShop: true },
-    ],
+    druh:   ultimateSkinPair('Druh Mask'),
+    gordo:  ultimateSkinPair('Gordo Fox'),
+    lady:   ultimateSkinPair('Lady AF'),
+    muna:   ultimateSkinPair('Rambuna'),
+    nupito: ultimateSkinPair('Nupito Chuk'),
+    tokio:  ultimateSkinPair('Tokyo Hunter'),
+    tuka:   ultimateSkinPair('Tuka-T420'),
+    zeus:   ultimateSkinPair('Zoker'),
 };
 
 const buildDogSkinsConfig = () => {

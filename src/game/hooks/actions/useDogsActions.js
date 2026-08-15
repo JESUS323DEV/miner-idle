@@ -376,7 +376,17 @@ export const useDogsActions = (gameState, setGameState) => {
 
     // Skins Ultimate con Fase 2 ligada a estrellas (ver DogSkinsConfig.js). Al llegar a `stars`,
     // si ya se posee `requiresOwned`, se añade `skinId` al inventario de skins sin coste (no se compra).
-    const STAR_UNLOCK_SKINS = { lady: { skinId: 'fase2', requiresOwned: 'fase1', stars: 3 } };
+    const ULTIMATE_UNLOCK = { skinId: 'fase2', requiresOwned: 'fase1', stars: 3 };
+    const STAR_UNLOCK_SKINS = {
+        druh: ULTIMATE_UNLOCK,
+        gordo: ULTIMATE_UNLOCK,
+        lady: ULTIMATE_UNLOCK,
+        muna: ULTIMATE_UNLOCK,
+        nupito: ULTIMATE_UNLOCK,
+        tokio: ULTIMATE_UNLOCK,
+        tuka: ULTIMATE_UNLOCK,
+        zeus: ULTIMATE_UNLOCK,
+    };
 
     const handleUpgradeStar = (dogId, isForge = false) => {
         setGameState(prevState => {
