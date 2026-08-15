@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import { sfxReady } from '../game/utils/sfx.js';
+import { dogSkinAssets } from '../game/utils/dogSkinAssets.js';
 
 // ===== FONDOS =====
 import bgTavern from "../assets/backgrounds/bg-tavern/bg-scene-tavern/bg-tavern-0.webp"
@@ -37,6 +38,7 @@ import rayo from "../assets/ui/icons-hud/hud-principal/rayo.webp"
 import iconRaids from "../assets/ui/icons-hud/hud-principal/raids.webp"
 import iconRewards from "../assets/ui/icons-hud/hud-principal/rewards.webp"
 import iconRent from "../assets/ui/icons-hud/hud-principal/rent.webp"
+import huesinCoin from "../assets/ui/icons-hud/hud-principal/huesin-coin.webp"
 
 // ===== HUD MODALS =====
 import iconGold from "../assets/ui/icons-hud/hud-modals/icon-gold-second.webp"
@@ -253,6 +255,7 @@ import marcoEnemy3 from "../assets/ui/icons-enemy/hud/marcos/marco-3.webp"
 import marcoSlotRare from "../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp"
 import marcoSlotEpic from "../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp"
 import marcoSlotLegend from "../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp"
+import marcoSkinUltimate from "../assets/ui/icons-pets/dog-skins/ui-skins/marco-skin-ultimate.webp"
 
 // ===== ESCENAS MINERÍA =====
 import menaGold from "../assets/scenes/mining/menaGold.webp"
@@ -312,7 +315,7 @@ const IMAGES = [
     bgMain, bgGold, bgStamina, bgPickaxe, bgNupito,
     // hud principal
     cofre, gold1, coinTavern, stamina1, goldOpen, repair, refillStaminaIcon, rayo,
-    iconRaids, iconRewards, iconRent,
+    iconRaids, iconRewards, iconRent, huesinCoin,
     // hud modals
     iconGold, buttonUpgrade, upgradeStamina, PickAxeUp, btnTier, cookie, iconUnlock, iconOffline,
     // icons tavern
@@ -379,7 +382,9 @@ const IMAGES = [
     scorpion1, scorpion2, scorpion3, scorpionBoss,
     cardBat, cardTopo, cardScorpion, cardSpiders,
     marcoEnemy0, marcoEnemy1, marcoEnemy2, marcoEnemy3,
-    marcoSlotRare, marcoSlotEpic, marcoSlotLegend,
+    marcoSlotRare, marcoSlotEpic, marcoSlotLegend, marcoSkinUltimate,
+    // skins de perros
+    ...Object.values(dogSkinAssets).flatMap(skins => Object.values(skins)),
     // escenas
     menaGold, menaGold2, menaGold3, menaGold4, menaGold5,
     picando1, picando2, mineroDescanso,

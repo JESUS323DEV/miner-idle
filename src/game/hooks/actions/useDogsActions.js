@@ -374,6 +374,10 @@ export const useDogsActions = (gameState, setGameState) => {
     const STAR_COIN_BASE = { rare: 1, epic: 2, legendary: 3 };
     const STAR_HUESIN_BASE = { rare: 1, epic: 3, legendary: 4 };
 
+    // Skins Ultimate con Fase 2 ligada a estrellas (ver DogSkinsConfig.js). Al llegar a `stars`,
+    // si ya se posee `requiresOwned`, se añade `skinId` al inventario de skins sin coste (no se compra).
+    const STAR_UNLOCK_SKINS = { lady: { skinId: 'fase2', requiresOwned: 'fase1', stars: 3 } };
+
     const handleUpgradeStar = (dogId, isForge = false) => {
         setGameState(prevState => {
             const stateKey = isForge ? 'forgeDogs' : 'dogs';
@@ -391,6 +395,12 @@ export const useDogsActions = (gameState, setGameState) => {
             if (prevState.tavernCoins < coinCost) return prevState;
             if (prevState.huesin < huesinCost) return prevState;
 
+            const newStars = stars + 1;
+            const unlock = !isForge ? STAR_UNLOCK_SKINS[dogId] : null;
+            const ownedSkins = prevState.dogSkins?.[dogId]?.owned ?? [];
+            const unlocksSkin = unlock && newStars >= unlock.stars
+                && ownedSkins.includes(unlock.requiresOwned) && !ownedSkins.includes(unlock.skinId);
+
             return {
                 ...prevState,
                 gold: prevState.gold - goldCost,
@@ -398,9 +408,15 @@ export const useDogsActions = (gameState, setGameState) => {
                 huesin: prevState.huesin - huesinCost,
                 [stateKey]: {
                     ...prevState[stateKey],
-                    [dogId]: { ...dog, stars: stars + 1, fragments: dog.fragments - needed }
+                    [dogId]: { ...dog, stars: newStars, fragments: dog.fragments - needed }
                 },
                 dailyQuests: advanceDailyQuestInState(prevState.dailyQuests, 'starUps', 1),
+                ...(unlocksSkin ? {
+                    dogSkins: {
+                        ...prevState.dogSkins,
+                        [dogId]: { ...prevState.dogSkins?.[dogId], owned: [...ownedSkins, unlock.skinId] },
+                    },
+                } : {}),
             };
         });
     };

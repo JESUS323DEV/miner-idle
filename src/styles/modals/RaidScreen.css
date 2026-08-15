@@ -753,6 +753,7 @@
 .skin-shop-item.dog-rarity-legendary::before { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
 .skin-shop-item.dog-rarity-epic::before      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
 .skin-shop-item.dog-rarity-rare::before      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
+.skin-shop-item.dog-rarity-ultimate::before  { background-image: url('../../assets/ui/icons-pets/dog-skins/ui-skins/marco-skin-ultimate.webp'); }
 
 /* Canje: mismo marco que la selección de combate, pero apagado como el resto de la tienda del Tablón */
 .raid-tablon-scroll .combat-dog-card {
@@ -790,6 +791,309 @@
 .skin-shop-item.dog-rarity-rare .skin-shop-img      { filter: drop-shadow(0 0 4px rgba(76,168,255,0.45)); }
 .skin-shop-item.dog-rarity-epic .skin-shop-img      { filter: drop-shadow(0 0 4px rgba(180,92,255,0.45)); }
 .skin-shop-item.dog-rarity-legendary .skin-shop-img { filter: drop-shadow(0 0 4px rgba(245,200,66,0.45)); }
+.skin-shop-item.dog-rarity-ultimate .skin-shop-img  { filter: drop-shadow(0 0 5px rgba(120,200,255,0.6)); }
+
+.skin-shop-ultimate-name {
+    color: #9adcff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.skin-shop-ultimate-loop {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+}
+
+.skin-shop-ultimate-fase1,
+.skin-shop-ultimate-fase2 {
+    position: absolute;
+    inset: 0;
+}
+
+.skin-shop-ultimate-fase1 { animation: skinUltimateFase1 6s ease-in-out infinite; }
+.skin-shop-ultimate-fase2 { animation: skinUltimateFase2 6s ease-in-out infinite; }
+
+@keyframes skinUltimateFase1 {
+    0%, 40%   { opacity: 1; }
+    50%, 90%  { opacity: 0; }
+    100%      { opacity: 1; }
+}
+
+@keyframes skinUltimateFase2 {
+    0%, 40%   { opacity: 0; }
+    50%, 90%  { opacity: 1; }
+    100%      { opacity: 0; }
+}
+
+.skin-shop-ultimate-star {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(20,10,0,0.9);
+    border: 1px solid rgba(120,200,255,0.5);
+    border-radius: 10px;
+    padding: 1px 5px;
+    color: #78c8ff;
+    font-size: 0.55rem;
+    font-weight: bold;
+    opacity: 0;
+    animation: skinUltimateStarPulse 6s ease-in-out infinite;
+}
+
+@keyframes skinUltimateStarPulse {
+    0%, 38%, 52%, 88% { opacity: 0; }
+    44%, 46%          { opacity: 1; }
+    94%, 96%          { opacity: 1; }
+    100%               { opacity: 0; }
+}
+
+.skin-preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    align-items: safe center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 24px 0;
+    z-index: 200;
+}
+
+.skin-preview-frame {
+    position: relative;
+    width: min(85vw, 400px, calc(85vh * 0.75));
+    aspect-ratio: 3 / 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+    gap: 6px;
+    overflow: hidden;
+    border-radius: 24px;
+}
+
+.skin-preview-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-pets/dog-skins/ui-skins/marco-skin-ultimate.webp') center / 100% 100% no-repeat;
+    z-index: -1;
+}
+
+.skin-preview-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    z-index: 6;
+}
+
+.skin-preview-darken {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: -2;
+}
+
+.skin-preview-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 55%, rgba(120,200,255,0.45) 0%, rgba(120,200,255,0.15) 35%, transparent 65%);
+    animation: skinPreviewGlowPulse 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes skinPreviewGlowPulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.95); }
+    50%      { opacity: 1; transform: scale(1.05); }
+}
+
+.skin-preview-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.skin-preview-particles span {
+    position: absolute;
+    bottom: -10%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #bfe6ff;
+    box-shadow: 0 0 6px 2px rgba(120,200,255,0.8);
+    opacity: 0;
+    animation: skinPreviewParticleRise 5s ease-in infinite;
+}
+
+.skin-preview-particles span:nth-child(1) { left: 15%; animation-delay: 0s; }
+.skin-preview-particles span:nth-child(2) { left: 30%; animation-delay: 0.8s; }
+.skin-preview-particles span:nth-child(3) { left: 48%; animation-delay: 1.6s; }
+.skin-preview-particles span:nth-child(4) { left: 62%; animation-delay: 2.4s; }
+.skin-preview-particles span:nth-child(5) { left: 78%; animation-delay: 3.2s; }
+.skin-preview-particles span:nth-child(6) { left: 88%; animation-delay: 4s; }
+
+@keyframes skinPreviewParticleRise {
+    0%   { transform: translateY(0); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 0.6; }
+    100% { transform: translateY(-320px); opacity: 0; }
+}
+
+
+.skin-preview-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    background: linear-gradient(100deg, #4aa8e8 0%, #ffffff 25%, #9adcff 50%, #ffffff 75%, #4aa8e8 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 16px rgba(120,200,255,0.5);
+    animation: skinPreviewTitlePulse 2.4s ease-in-out infinite, skinPreviewTitleShimmer 3.5s linear infinite;
+}
+
+@keyframes skinPreviewTitlePulse {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(120,200,255,0.45)); }
+    50%      { filter: drop-shadow(0 0 14px rgba(120,200,255,0.95)); }
+}
+
+@keyframes skinPreviewTitleShimmer {
+    0%   { background-position: 220% 0; }
+    100% { background-position: -220% 0; }
+}
+
+.skin-preview-motes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.skin-preview-motes span {
+    position: absolute;
+    bottom: -15%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(120,200,255,0.35);
+    filter: blur(4px);
+    opacity: 0;
+    animation: skinPreviewMoteDrift 9s ease-in-out infinite;
+}
+
+.skin-preview-motes span:nth-child(1) { left: 20%; animation-delay: 0s; }
+.skin-preview-motes span:nth-child(2) { left: 55%; animation-delay: 3s; }
+.skin-preview-motes span:nth-child(3) { left: 75%; animation-delay: 6s; }
+
+@keyframes skinPreviewMoteDrift {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    20%  { opacity: 0.6; }
+    50%  { transform: translate(10px, -160px); opacity: 0.4; }
+    80%  { opacity: 0.2; }
+    100% { transform: translate(-10px, -320px); opacity: 0; }
+}
+
+.skin-preview-img-slot {
+    position: relative;
+    z-index: 2;
+    width: 76%;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.4s ease-out;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.skin-preview-hint {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: center;
+    z-index: 1;
+}
+
+.skin-preview-hint svg {
+    color: #ffd740;
+}
+
+.skin-preview-buy-btn {
+    position: relative;
+    width: 76%;
+    margin-top: 16px;
+    padding: 8px 4px;
+    border: none;
+    background: none;
+    color: #ffd740;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.skin-preview-buy-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp') center / 100% 100% no-repeat;
+    filter: grayscale(35%) brightness(0.8);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.skin-preview-shockwave {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(120,200,255,0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    animation: skinPreviewShockwaveExpand 0.6s ease-out forwards;
+}
+
+@keyframes skinPreviewShockwaveExpand {
+    0%   { width: 10px; height: 10px; opacity: 1; }
+    100% { width: 150px; height: 150px; opacity: 0; }
+}
+
+.skin-preview-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 5px rgba(120,200,255,0.6));
+}
 
 .skin-shop-buy-btn {
     position: relative;

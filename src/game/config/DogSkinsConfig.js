@@ -37,6 +37,17 @@ const HIDDEN_SKINS = {
     tuka: ['chef', 'maga'],
 };
 
+// Skins "Ultimate": únicas por perro, con progresión propia ligada a estrellas, no siguen el sistema
+// de precio-por-concepto de arriba. Fase 1 se compra normal (Huesín+Tavern Coins, muy cara).
+// Fase 2 NO se compra: se desbloquea sola al llegar a 3 estrellas si ya tienes Fase 1
+// (lógica real en handleUpgradeStar, useDogsActions.js). Precios de Fase 1 provisionales.
+const ULTIMATE_SKINS = {
+    lady: [
+        { id: 'fase1', tier: 'ultimate', huesinPrice: 500, tavernPrice: 150, loopWith: 'fase2', name: 'Lady AF' },
+        { id: 'fase2', tier: 'ultimate', huesinPrice: 0, tavernPrice: 0, starGated: 3, hiddenInShop: true },
+    ],
+};
+
 const buildDogSkinsConfig = () => {
     const config = {};
     Object.entries(RAW_SKINS).forEach(([dogId, skins]) => {
@@ -51,6 +62,9 @@ const buildDogSkinsConfig = () => {
                 huesinPrice: tier === 'legendary' ? legendaryPrice : (CONCEPT_PRICE[skinId]?.huesin ?? 0),
                 tavernPrice: tier === 'legendary' ? TAVERN_PRICE_BY_TIER.legendary : (CONCEPT_PRICE[skinId]?.tavern ?? TAVERN_PRICE_BY_TIER[tier] ?? 0),
             }));
+    });
+    Object.entries(ULTIMATE_SKINS).forEach(([dogId, skins]) => {
+        config[dogId] = [...(config[dogId] ?? []), ...skins];
     });
     return config;
 };
