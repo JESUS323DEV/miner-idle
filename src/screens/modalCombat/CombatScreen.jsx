@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info } from 'lucide-react';
+import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info, RotateCcw } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import iconGold from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
@@ -252,6 +252,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const waterTapCounterRef                      = useRef(0);
     const electricTapCounterRef                   = useRef(0);
     const autoUsedRef                             = useRef(false);
+    const resultsHandledRef                       = useRef(false);
+    const resultsUnlockedRef                      = useRef(false);
 
     const SWITCH_COOLDOWN = 6;
 
@@ -443,6 +445,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     useEffect(() => {
         if (phase !== 'fight' || !activeEnemy) return;
         if (enemyHp <= 0 || timer <= 0) {
+            if (resultsHandledRef.current) return;
+            resultsHandledRef.current = true;
             const dealt = activeEnemy.hp - Math.max(0, enemyHp);
             const pct   = Math.min(1, dealt / activeEnemy.hp);
             const threshold = [...activeEnemy.rewardThresholds].reverse().find(t => pct >= t.pct) ?? null;
@@ -530,22 +534,25 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 };
             });
 
-            setResultsData({
-                pct,
-                shards,
-                gold,
-                starsEarned,
-                label:    threshold?.label ?? 'Sin recompensa',
-                defeated: enemyHp <= 0,
-                rewardDogId,
-                rewardRarity,
-                maxCombo: maxComboRef.current,
-                isFirstBossWin,
-                huesin: huesinDropped,
-                huntCompleted,
-            });
-            playSfx('finalMina');
-            setPhase('results');
+            setTimeout(() => {
+                setResultsData({
+                    pct,
+                    shards,
+                    gold,
+                    starsEarned,
+                    label:    threshold?.label ?? 'Sin recompensa',
+                    defeated: enemyHp <= 0,
+                    rewardDogId,
+                    rewardRarity,
+                    maxCombo: maxComboRef.current,
+                    isFirstBossWin,
+                    huesin: huesinDropped,
+                    huntCompleted,
+                });
+                playSfx('finalMina');
+                setPhase('results');
+                setTimeout(() => { resultsUnlockedRef.current = true; }, 400);
+            }, 500);
         }
     }, [phase, enemyHp, timer]);
 
@@ -928,6 +935,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         waterTapCounterRef.current = 0;
         electricTapCounterRef.current = 0;
         autoUsedRef.current = false;
+        resultsHandledRef.current = false;
+        resultsUnlockedRef.current = false;
         setPhase('fight');
     };
 
@@ -1552,7 +1561,28 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     </div>
 
                     <div className="combat-results-actions-col">
-                        <button className="combat-exit-btn" onClick={goToBiome}>
+                        {(() => {
+                            const nextIdx = activeBiome.enemies.findIndex(e => e.id === activeEnemy.id) + 1;
+                            const nextEnemy = activeBiome.enemies[nextIdx] ?? null;
+                            const nextUnlocked = nextEnemy && (
+                                !nextEnemy.requiresStars ||
+                                (raidBestStars[nextEnemy.requiresStars.enemyId] ?? 0) >= nextEnemy.requiresStars.stars
+                            ) && !getAttemptStatus(nextEnemy).isOnCooldown;
+                            return nextUnlocked ? (
+                                <button
+                                    className="combat-next-enemy-btn"
+                                    onClick={() => { if (!resultsUnlockedRef.current) return; setActiveEnemy(nextEnemy); setPhase('select'); }}
+                                >
+                                    Siguiente enemigo
+                                </button>
+                            ) : null;
+                        })()}
+                        {!resultsData.isFirstBossWin && !getAttemptStatus(activeEnemy).isOnCooldown && (
+                            <button className="combat-retry-btn" onClick={() => { if (!resultsUnlockedRef.current) return; setPhase('select'); }}>
+                                Repetir <RotateCcw size={16} />
+                            </button>
+                        )}
+                        <button className="combat-exit-btn" onClick={() => { if (!resultsUnlockedRef.current) return; goToBiome(); }}>
                             <ArrowLeft size={16} /> Volver
                         </button>
                     </div>

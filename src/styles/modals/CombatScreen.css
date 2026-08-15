@@ -1597,6 +1597,7 @@
 }
 
 .combat-next-enemy-btn,
+.combat-retry-btn,
 .combat-exit-btn {
     position: relative;
     display: flex;
@@ -1614,6 +1615,7 @@
 }
 
 .combat-next-enemy-btn::before,
+.combat-retry-btn::before,
 .combat-exit-btn::before {
     content: '';
     position: absolute;
@@ -1625,7 +1627,17 @@
 
 .combat-next-enemy-btn {
     color: #ffd740;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.combat-retry-btn {
+    color: #ffd740;
+    font-size: 0.9rem;
+}
+
+.combat-retry-btn::before {
+    filter: grayscale(35%) brightness(0.8);
 }
 
 .combat-exit-btn {
@@ -1638,6 +1650,7 @@
 }
 
 .combat-next-enemy-btn:hover::before,
+.combat-retry-btn:hover::before,
 .combat-exit-btn:hover::before {
     filter: brightness(1.1);
 }
