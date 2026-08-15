@@ -1106,6 +1106,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                             const skins = allSkins.filter(skin => !skin.hiddenInShop).filter(skin => {
                                                 if (!skinRarityFilter) return true;
                                                 if (skinRarityFilter === 'obtenidos') return owned.includes(skin.id);
+                                                if (skinRarityFilter === 'legendary') return skin.tier === 'legendary' || skin.tier === 'ultimate';
                                                 return skin.tier === skinRarityFilter;
                                             });
                                             if (skins.length === 0) return null;
@@ -1211,11 +1212,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 <div className="skin-preview-motes">
                                     <span></span><span></span><span></span>
                                 </div>
-                                <div className="skin-preview-particles">
-                                    <span></span><span></span><span></span><span></span><span></span><span></span>
-                                </div>
                             </>
                         )}
+                        <div className="skin-preview-particles">
+                            <span></span><span></span><span></span><span></span><span></span><span></span>
+                        </div>
                         <button className="skin-preview-close" onClick={() => setUltimatePreview(null)}><X size={18} /></button>
                         <h2 className="skin-preview-title">{skinName}</h2>
                         {isUltimate && (

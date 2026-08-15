@@ -955,6 +955,10 @@
     animation: skinPreviewParticleRise 5s ease-in infinite;
 }
 
+.skin-preview-frame.dog-rarity-legendary .skin-preview-particles span { background: #f5c842; box-shadow: 0 0 6px 2px rgba(245,200,66,0.8); }
+.skin-preview-frame.dog-rarity-epic .skin-preview-particles span      { background: #b45cff; box-shadow: 0 0 6px 2px rgba(180,92,255,0.8); }
+.skin-preview-frame.dog-rarity-rare .skin-preview-particles span      { background: #4ca8ff; box-shadow: 0 0 6px 2px rgba(76,168,255,0.8); }
+
 .skin-preview-muna .skin-preview-particles span {
     background: #ff6b6b;
     box-shadow: 0 0 6px 2px rgba(255,80,80,0.8);
@@ -980,12 +984,12 @@
     box-shadow: 0 0 6px 2px rgba(60,230,90,0.8);
 }
 
-.skin-preview-particles span:nth-child(1) { left: 15%; animation-delay: 0s; }
-.skin-preview-particles span:nth-child(2) { left: 30%; animation-delay: 0.8s; }
-.skin-preview-particles span:nth-child(3) { left: 48%; animation-delay: 1.6s; }
-.skin-preview-particles span:nth-child(4) { left: 62%; animation-delay: 2.4s; }
-.skin-preview-particles span:nth-child(5) { left: 78%; animation-delay: 3.2s; }
-.skin-preview-particles span:nth-child(6) { left: 88%; animation-delay: 4s; }
+.skin-preview-particles span:nth-child(1) { left: 15%; animation-delay: -0.5s; }
+.skin-preview-particles span:nth-child(2) { left: 30%; animation-delay: -1.3s; }
+.skin-preview-particles span:nth-child(3) { left: 48%; animation-delay: -2.1s; }
+.skin-preview-particles span:nth-child(4) { left: 62%; animation-delay: -2.9s; }
+.skin-preview-particles span:nth-child(5) { left: 78%; animation-delay: -3.7s; }
+.skin-preview-particles span:nth-child(6) { left: 88%; animation-delay: -4.5s; }
 
 @keyframes skinPreviewParticleRise {
     0%   { transform: translateY(0); opacity: 0; }
@@ -1062,9 +1066,9 @@
     background: rgba(60,230,90,0.35);
 }
 
-.skin-preview-motes span:nth-child(1) { left: 20%; animation-delay: 0s; }
-.skin-preview-motes span:nth-child(2) { left: 55%; animation-delay: 3s; }
-.skin-preview-motes span:nth-child(3) { left: 75%; animation-delay: 6s; }
+.skin-preview-motes span:nth-child(1) { left: 20%; animation-delay: -1.5s; }
+.skin-preview-motes span:nth-child(2) { left: 55%; animation-delay: -4.5s; }
+.skin-preview-motes span:nth-child(3) { left: 75%; animation-delay: -7.5s; }
 
 @keyframes skinPreviewMoteDrift {
     0%   { transform: translate(0, 0); opacity: 0; }
@@ -1124,7 +1128,8 @@
 .skin-preview-buy-btn {
     position: relative;
     width: 76%;
-    margin-top: 16px;
+    margin-top: auto;
+    margin-bottom: 24px;
     padding: 8px 4px;
     border: none;
     background: none;
