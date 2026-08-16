@@ -1114,14 +1114,6 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.skin-preview-role-icons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    z-index: 1;
-}
-
 .skin-preview-hint {
     margin: 0;
     display: inline-flex;
@@ -1140,20 +1132,50 @@
 
 .skin-preview-buy-btn {
     position: relative;
-    width: 76%;
+    width: 70%;
     margin-top: auto;
-    margin-bottom: 40px;
+    margin-bottom:38px;
     padding: 14px 4px;
     border: none;
     background: none;
     color: #ffd740;
-    font-size: 0.7rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     z-index: 1;
 }
 
 .skin-preview-buy-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp') center / 100% 100% no-repeat;
+    filter: grayscale(35%) brightness(0.8);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.skin-preview-postbuy-actions {
+    display: flex;
+    gap: 8px;
+    width: 76%;
+    margin-top: auto;
+    margin-bottom: 40px;
+}
+
+.skin-preview-postbuy-btn {
+    position: relative;
+    flex: 1;
+    padding: 12px 4px;
+    border: none;
+    background: none;
+    color: #ffd740;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.skin-preview-postbuy-btn::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -1173,6 +1195,36 @@
 
 .skin-preview-buy-btn.raid-tablon-buy-disabled .skin-shop-price {
     opacity: 0.5;
+}
+
+.skin-preview-buy-btn .raid-tablon-buy-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.skin-preview-run-sprite {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) scale(0.4);
+    height: 45%;
+    object-fit: contain;
+    animation: skinPreviewRunApproach 2s ease-in forwards;
+}
+
+@keyframes skinPreviewRunApproach {
+    0%   { transform: translateX(-50%) scale(0.4); opacity: 0.6; }
+    100% { transform: translateX(-50%) scale(1.4); opacity: 1; }
+}
+
+.skin-preview-reveal-spin {
+    animation: skinPreviewRevealSpin 0.9s ease-out;
+}
+
+@keyframes skinPreviewRevealSpin {
+    0%   { transform: rotateY(0deg) scale(0.3); opacity: 0; }
+    60%  { opacity: 1; }
+    100% { transform: rotateY(360deg) scale(1); opacity: 1; }
 }
 
 .skin-preview-shockwave {

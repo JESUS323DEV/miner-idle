@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock, Swords } from 'lucide-react';
+import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock } from 'lucide-react';
 import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -36,6 +36,14 @@ import gordoRun1 from '../../assets/ui/lady-sprite/gordo-run/gordo-1.webp';
 import gordoRun2 from '../../assets/ui/lady-sprite/gordo-run/gordo-2.webp';
 import gordoRun3 from '../../assets/ui/lady-sprite/gordo-run/gordo-3.webp';
 import gordoRun4 from '../../assets/ui/lady-sprite/gordo-run/gordo-4.webp';
+import ladyRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp';
+import ladyRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-2.webp';
+import ladyRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-3.webp';
+import ladyRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-4.webp';
+import gordoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-1.webp';
+import gordoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-2.webp';
+import gordoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-3.webp';
+import gordoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-4.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/muna-run/muna-1.webp';
 import munaRun2 from '../../assets/ui/lady-sprite/muna-run/muna-2.webp';
 import munaRun3 from '../../assets/ui/lady-sprite/muna-run/muna-3.webp';
@@ -199,6 +207,11 @@ const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
 const TABLON_SHOP_FRAGMENTS = 20;
 const CANJE_TIERS = [5, 10, 15];
 const RARITY_LABEL = { legendary: 'Legendaria', epic: 'Épica', rare: 'Rara' };
+const PURCHASE_ANIM_FRAMES = {
+    muna: [munaRun1, munaRun2, munaRun3, munaRun4],
+    gordo: [gordoRunSkin1, gordoRunSkin2, gordoRunSkin3, gordoRunSkin4],
+    lady: [ladyRunSkin1, ladyRunSkin2, ladyRunSkin3, ladyRunSkin4],
+};
 const CONCEPT_DISPLAY_NAME = { capucha: 'Urbana', cascos: 'Beats', gafas: 'SWAG' };
 
 const getTablonRotationKey = (dayOffset = 0) => {
@@ -297,10 +310,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     }, [tablonTab]);
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
-    const [skinReveal, setSkinReveal] = useState(null);
+    const [skinJustBought, setSkinJustBought] = useState(false);
+    const [purchaseAnim, setPurchaseAnim] = useState(null); // null | 'running' | 'reveal'
     const [ultimatePreview, setUltimatePreview] = useState(null);
     const [previewTilt, setPreviewTilt] = useState({ x: 0, y: 0 });
     const [previewShockwave, setPreviewShockwave] = useState(null);
+
+    useEffect(() => {
+        setSkinJustBought(false);
+        setPurchaseAnim(null);
+    }, [ultimatePreview]);
 
     const handlePreviewImgTap = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -520,7 +539,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                 },
             };
         });
-        setSkinReveal({ dogId, skinId });
     };
 
     return (
@@ -1170,32 +1188,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                 })()}
 
             </div>
-            {skinReveal && (() => {
-                const config = DogsConfig[skinReveal.dogId];
-                const skin = DogSkinsConfig[skinReveal.dogId]?.find(s => s.id === skinReveal.skinId);
-                return (
-                    <div className="prize-overlay" onClick={() => setSkinReveal(null)}>
-                        <div className="prize-card" onClick={e => e.stopPropagation()}>
-                            <img src={dogSkinAssets[skinReveal.dogId]?.[skinReveal.skinId]} className="prize-icon-anim" alt="" />
-                            <p className="prize-main-label prize-label-win">¡Skin conseguida!</p>
-                            <p className="prize-sub-label">{skin?.id} de {config?.name}</p>
-                            <div className="rap-actions">
-                                <button className="prize-accept-btn" onClick={() => setSkinReveal(null)}>Seguir comprando</button>
-                                <button
-                                    className="prize-accept-btn"
-                                    onClick={() => {
-                                        const dogId = skinReveal.dogId;
-                                        setSkinReveal(null);
-                                        onGoEquipSkin?.(dogId);
-                                    }}
-                                >
-                                    Ir a equipar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            })()}
             {ultimatePreview && (() => {
                 const owned = gameState.dogSkins?.[ultimatePreview.dogId]?.owned ?? [];
                 const isOwned = owned.includes(ultimatePreview.skin.id);
@@ -1239,7 +1231,18 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             onClick={handlePreviewImgTap}
                             style={{ transform: `perspective(700px) rotateX(${previewTilt.x}deg) rotateY(${previewTilt.y}deg)` }}
                         >
-                            {isUltimate ? (
+                            {purchaseAnim === 'running' ? (
+                                <img
+                                    src={(() => {
+                                        const frames = PURCHASE_ANIM_FRAMES[ultimatePreview.dogId] ?? [];
+                                        return frames[frameIndex % frames.length];
+                                    })()}
+                                    alt=""
+                                    className="skin-preview-run-sprite"
+                                />
+                            ) : purchaseAnim === 'reveal' ? (
+                                <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-preview-reveal-spin" />
+                            ) : isUltimate ? (
                                 <>
                                     <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-shop-ultimate-fase1" />
                                     <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.loopWith]} alt="" className="skin-preview-img skin-shop-ultimate-fase2" />
@@ -1256,32 +1259,51 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 />
                             )}
                         </div>
-                        {isUltimate ? (
+                        {isUltimate && (
                             <p className="skin-preview-hint">{DogsConfig[ultimatePreview.dogId]?.name} a 3 <Star size={11} /> evoluciona la skin</p>
-                        ) : (() => {
-                            const dogElement = DogsConfig[ultimatePreview.dogId]?.element;
-                            const elemInfo = dogElement ? TABLON_ELEMENT_ICON[dogElement] : null;
-                            return (
-                                <div className="skin-preview-role-icons">
-                                    {elemInfo && <elemInfo.Icon size={16} color={elemInfo.color} />}
-                                    <Pickaxe size={16} color="#c9a24b" />
-                                    <Swords size={16} color="#e05a5a" />
-                                </div>
-                            );
-                        })()}
-                        <button
-                            className={`skin-preview-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
-                            disabled={isOwned || !canBuy}
-                            onClick={() => handleBuySkin(ultimatePreview.dogId, ultimatePreview.skin.id)}
-                        >
-                            {isOwned ? 'Comprada' : (
-                                <span className="skin-shop-price">
-                                    {ultimatePreview.skin.huesinPrice} <img src={huesinCoin} alt="Huesín" className="raid-tablon-buy-icon" />
-                                    <span className="skin-shop-price-plus">+</span>
-                                    {ultimatePreview.skin.tavernPrice} <img src={coinTavern} alt="coins" className="raid-tablon-buy-icon" />
-                                </span>
-                            )}
-                        </button>
+                        )}
+                        {isOwned && skinJustBought ? (
+                            <div className="skin-preview-postbuy-actions">
+                                <button className="skin-preview-postbuy-btn" onClick={() => setSkinJustBought(false)}>
+                                    Seguir comprando
+                                </button>
+                                <button
+                                    className="skin-preview-postbuy-btn"
+                                    onClick={() => {
+                                        const dogId = ultimatePreview.dogId;
+                                        setUltimatePreview(null);
+                                        onGoEquipSkin?.(dogId);
+                                    }}
+                                >
+                                    Ir a equipar
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                className={`skin-preview-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
+                                disabled={isOwned || !canBuy}
+                                onClick={() => {
+                                    const dogId = ultimatePreview.dogId;
+                                    const isTestAnim = !isUltimate && PURCHASE_ANIM_FRAMES[dogId];
+                                    handleBuySkin(dogId, ultimatePreview.skin.id);
+                                    if (isTestAnim) {
+                                        setPurchaseAnim('running');
+                                        setTimeout(() => setPurchaseAnim('reveal'), 2000);
+                                        setTimeout(() => { setPurchaseAnim(null); setSkinJustBought(true); }, 2900);
+                                    } else {
+                                        setSkinJustBought(true);
+                                    }
+                                }}
+                            >
+                                {isOwned ? 'Comprada' : (
+                                    <span className="skin-shop-price">
+                                        {ultimatePreview.skin.huesinPrice} <img src={huesinCoin} alt="Huesín" className="raid-tablon-buy-icon" />
+                                        <span className="skin-shop-price-plus">+</span>
+                                        {ultimatePreview.skin.tavernPrice} <img src={coinTavern} alt="coins" className="raid-tablon-buy-icon" />
+                                    </span>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
                 );

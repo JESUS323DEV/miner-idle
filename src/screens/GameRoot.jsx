@@ -817,6 +817,7 @@ function GameRoot({ onBack }) {
             ))}
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>SKINS</span>
             <button onClick={() => setGameState(prev => { const updated = { ...prev.dogSkins }; Object.entries(DogSkinsConfig).forEach(([dogId, skins]) => { updated[dogId] = { owned: skins.map(s => s.id), equipped: prev.dogSkins?.[dogId]?.equipped ?? null }; }); return { ...prev, dogSkins: updated }; })} style={{ fontSize:10, padding:'2px 4px', background:'#003322', color:'#66ffcc', border:'1px solid #66ffcc', borderRadius:3, cursor:'pointer' }}>dar todas las skins</button>
+            <button onClick={() => setGameState(prev => ({ ...prev, dogSkins: {} }))} style={{ fontSize:10, padding:'2px 4px', background:'#330000', color:'#ff6666', border:'1px solid #ff6666', borderRadius:3, cursor:'pointer' }}>quitar todas las skins</button>
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1, marginTop:4 }}>COMBATE</span>
             <button onClick={() => setGameState(prev => ({ ...prev, raidAttempts: {} }))} style={{ fontSize:10, padding:'2px 4px', background:'#220033', color:'#cc88ff', border:'1px solid #cc88ff', borderRadius:3, cursor:'pointer' }}>reset cooldowns</button>
             <button onClick={() => setGameState(prev => ({ ...prev, debugForceEndFight: Date.now() }))} style={{ fontSize:10, padding:'2px 4px', background:'#220033', color:'#cc88ff', border:'1px solid #cc88ff', borderRadius:3, cursor:'pointer' }}>finalizar combate</button>
