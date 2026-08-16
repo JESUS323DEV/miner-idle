@@ -26,40 +26,64 @@ const HUNT_BOSS_CARD_CLASS = {
     'topo-boss': 'raid-hunt-card-topo',
     'scorpion-boss': 'raid-hunt-card-scorpion',
 };
-import ladyRun1 from '../../assets/ui/lady-sprite/lady-run/lady-1.webp';
-import ladyRun2 from '../../assets/ui/lady-sprite/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/lady-run/lady-4.webp';
+import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
+import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
+import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
+import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
 import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
 import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
-import gordoRun1 from '../../assets/ui/lady-sprite/gordo-run/gordo-1.webp';
-import gordoRun2 from '../../assets/ui/lady-sprite/gordo-run/gordo-2.webp';
-import gordoRun3 from '../../assets/ui/lady-sprite/gordo-run/gordo-3.webp';
-import gordoRun4 from '../../assets/ui/lady-sprite/gordo-run/gordo-4.webp';
+import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
+import gordoRun2 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
+import gordoRun3 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp';
+import gordoRun4 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp';
 import ladyRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp';
 import ladyRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-2.webp';
 import ladyRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-3.webp';
 import ladyRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-4.webp';
+import munaRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-1.webp';
+import munaRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-2.webp';
+import munaRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-3.webp';
+import munaRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-4.webp';
+import nupitoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-1.webp';
+import nupitoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-2.webp';
+import nupitoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-3.webp';
+import nupitoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-4.webp';
+import tukaRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-1.webp';
+import tukaRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-2.webp';
+import tukaRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-3.webp';
+import tukaRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-4.webp';
+import druhRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-1.webp';
+import druhRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-2.webp';
+import druhRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-3.webp';
+import druhRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-4.webp';
+import tokyoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-1.webp';
+import tokyoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-2.webp';
+import tokyoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-3.webp';
+import tokyoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-4.webp';
+import zeusRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-1.webp';
+import zeusRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp';
+import zeusRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp';
+import zeusRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-4.webp';
 import gordoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-1.webp';
 import gordoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-2.webp';
 import gordoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-3.webp';
 import gordoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-4.webp';
-import munaRun1 from '../../assets/ui/lady-sprite/muna-run/muna-1.webp';
-import munaRun2 from '../../assets/ui/lady-sprite/muna-run/muna-2.webp';
-import munaRun3 from '../../assets/ui/lady-sprite/muna-run/muna-3.webp';
-import munaRun4 from '../../assets/ui/lady-sprite/muna-run/muna-4.webp';
-import nupitoRun1 from '../../assets/ui/lady-sprite/nupito-run/nupito-1.webp';
-import nupitoRun2 from '../../assets/ui/lady-sprite/nupito-run/nupito-2.webp';
-import nupitoRun3 from '../../assets/ui/lady-sprite/nupito-run/nupito-3.webp';
-import nupitoRun4 from '../../assets/ui/lady-sprite/nupito-run/nupito-4.webp';
-import tukaRun1 from '../../assets/ui/lady-sprite/tuka-run/tuka-1.webp';
-import tukaRun2 from '../../assets/ui/lady-sprite/tuka-run/tuka-2.webp';
-import tukaRun3 from '../../assets/ui/lady-sprite/tuka-run/tuka-3.webp';
-import tukaRun4 from '../../assets/ui/lady-sprite/tuka-run/tuka-4.webp';
-import druhRun1 from '../../assets/ui/lady-sprite/druh-run/druh-1.webp';
-import druhRun2 from '../../assets/ui/lady-sprite/druh-run/druh-2.webp';
-import druhRun3 from '../../assets/ui/lady-sprite/druh-run/druh-3.webp';
-import druhRun4 from '../../assets/ui/lady-sprite/druh-run/druh-4.webp';
+import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
+import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
+import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
+import munaRun4 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp';
+import nupitoRun1 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp';
+import nupitoRun2 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
+import nupitoRun3 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp';
+import nupitoRun4 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp';
+import tukaRun1 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp';
+import tukaRun2 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp';
+import tukaRun3 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp';
+import tukaRun4 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp';
+import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp';
+import druhRun2 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
+import druhRun3 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp';
+import druhRun4 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp';
 
 const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
 const RUN_SPRITES = {
@@ -208,9 +232,14 @@ const TABLON_SHOP_FRAGMENTS = 20;
 const CANJE_TIERS = [5, 10, 15];
 const RARITY_LABEL = { legendary: 'Legendaria', epic: 'Épica', rare: 'Rara' };
 const PURCHASE_ANIM_FRAMES = {
-    muna: [munaRun1, munaRun2, munaRun3, munaRun4],
+    muna: [munaRunSkin1, munaRunSkin2, munaRunSkin3, munaRunSkin4],
     gordo: [gordoRunSkin1, gordoRunSkin2, gordoRunSkin3, gordoRunSkin4],
     lady: [ladyRunSkin1, ladyRunSkin2, ladyRunSkin3, ladyRunSkin4],
+    nupito: [nupitoRunSkin1, nupitoRunSkin2, nupitoRunSkin3, nupitoRunSkin4],
+    tuka: [tukaRunSkin1, tukaRunSkin2, tukaRunSkin3, tukaRunSkin4],
+    druh: [druhRunSkin1, druhRunSkin2, druhRunSkin3, druhRunSkin4],
+    tokio: [tokyoRunSkin1, tokyoRunSkin2, tokyoRunSkin3, tokyoRunSkin4],
+    zeus: [zeusRunSkin1, zeusRunSkin2, zeusRunSkin3, zeusRunSkin4],
 };
 const CONCEPT_DISPLAY_NAME = { capucha: 'Urbana', cascos: 'Beats', gafas: 'SWAG' };
 

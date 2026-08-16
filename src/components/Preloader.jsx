@@ -280,32 +280,66 @@ import tutorialMina from "../assets/tutorial/mascotas/mina.webp"
 import tutorialForja from "../assets/tutorial/mascotas/forja.webp"
 
 // ===== RAIDS PASIVAS: SPRITES CORRIENDO =====
-import ladyRunP1 from "../assets/ui/lady-sprite/lady-run/lady-1.webp"
-import ladyRunP2 from "../assets/ui/lady-sprite/lady-run/lady-2.webp"
-import ladyRunP3 from "../assets/ui/lady-sprite/lady-run/lady-3.webp"
-import ladyRunP4 from "../assets/ui/lady-sprite/lady-run/lady-4.webp"
+import ladyRunP1 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp"
+import ladyRunP2 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp"
+import ladyRunP3 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp"
+import ladyRunP4 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp"
 import ladyWaitP1 from "../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp"
 import ladyWaitP2 from "../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp"
-import gordoRunP1 from "../assets/ui/lady-sprite/gordo-run/gordo-1.webp"
-import gordoRunP2 from "../assets/ui/lady-sprite/gordo-run/gordo-2.webp"
-import gordoRunP3 from "../assets/ui/lady-sprite/gordo-run/gordo-3.webp"
-import gordoRunP4 from "../assets/ui/lady-sprite/gordo-run/gordo-4.webp"
-import munaRunP1 from "../assets/ui/lady-sprite/muna-run/muna-1.webp"
-import munaRunP2 from "../assets/ui/lady-sprite/muna-run/muna-2.webp"
-import munaRunP3 from "../assets/ui/lady-sprite/muna-run/muna-3.webp"
-import munaRunP4 from "../assets/ui/lady-sprite/muna-run/muna-4.webp"
-import nupitoRunP1 from "../assets/ui/lady-sprite/nupito-run/nupito-1.webp"
-import nupitoRunP2 from "../assets/ui/lady-sprite/nupito-run/nupito-2.webp"
-import nupitoRunP3 from "../assets/ui/lady-sprite/nupito-run/nupito-3.webp"
-import nupitoRunP4 from "../assets/ui/lady-sprite/nupito-run/nupito-4.webp"
-import tukaRunP1 from "../assets/ui/lady-sprite/tuka-run/tuka-1.webp"
-import tukaRunP2 from "../assets/ui/lady-sprite/tuka-run/tuka-2.webp"
-import tukaRunP3 from "../assets/ui/lady-sprite/tuka-run/tuka-3.webp"
-import tukaRunP4 from "../assets/ui/lady-sprite/tuka-run/tuka-4.webp"
-import druhRunP1 from "../assets/ui/lady-sprite/druh-run/druh-1.webp"
-import druhRunP2 from "../assets/ui/lady-sprite/druh-run/druh-2.webp"
-import druhRunP3 from "../assets/ui/lady-sprite/druh-run/druh-3.webp"
-import druhRunP4 from "../assets/ui/lady-sprite/druh-run/druh-4.webp"
+import gordoRunP1 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp"
+import gordoRunP2 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp"
+import gordoRunP3 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp"
+import gordoRunP4 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp"
+import munaRunP1 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp"
+import munaRunP2 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp"
+import munaRunP3 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp"
+import munaRunP4 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp"
+import nupitoRunP1 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp"
+import nupitoRunP2 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp"
+import nupitoRunP3 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp"
+import nupitoRunP4 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp"
+import tukaRunP1 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp"
+import tukaRunP2 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp"
+import tukaRunP3 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp"
+import tukaRunP4 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp"
+import druhRunP1 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp"
+import druhRunP2 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp"
+import druhRunP3 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp"
+import druhRunP4 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp"
+
+// ===== SPRITES DE CARRERA (ANIMACIÓN DE COMPRA DE SKINS) =====
+import ladySkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp"
+import ladySkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-2.webp"
+import ladySkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-3.webp"
+import ladySkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-4.webp"
+import gordoSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-1.webp"
+import gordoSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-2.webp"
+import gordoSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-3.webp"
+import gordoSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-4.webp"
+import munaSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-1.webp"
+import munaSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-2.webp"
+import munaSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-3.webp"
+import munaSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-4.webp"
+import nupitoSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-1.webp"
+import nupitoSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-2.webp"
+import nupitoSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-3.webp"
+import nupitoSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-4.webp"
+import tukaSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-1.webp"
+import tukaSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-2.webp"
+import tukaSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-3.webp"
+import tukaSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-4.webp"
+import druhSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-1.webp"
+import druhSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-2.webp"
+import druhSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-3.webp"
+import druhSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-4.webp"
+import tokyoSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-1.webp"
+import tokyoSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-2.webp"
+import tokyoSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-3.webp"
+import tokyoSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-4.webp"
+import zeusSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-1.webp"
+import zeusSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp"
+import zeusSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp"
+import zeusSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-4.webp"
 
 const IMAGES = [
     // fondos
@@ -399,6 +433,15 @@ const IMAGES = [
     nupitoRunP1, nupitoRunP2, nupitoRunP3, nupitoRunP4,
     tukaRunP1, tukaRunP2, tukaRunP3, tukaRunP4,
     druhRunP1, druhRunP2, druhRunP3, druhRunP4,
+    // sprites de carrera (animación de compra de skins)
+    ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4,
+    gordoSkinRunP1, gordoSkinRunP2, gordoSkinRunP3, gordoSkinRunP4,
+    munaSkinRunP1, munaSkinRunP2, munaSkinRunP3, munaSkinRunP4,
+    nupitoSkinRunP1, nupitoSkinRunP2, nupitoSkinRunP3, nupitoSkinRunP4,
+    tukaSkinRunP1, tukaSkinRunP2, tukaSkinRunP3, tukaSkinRunP4,
+    druhSkinRunP1, druhSkinRunP2, druhSkinRunP3, druhSkinRunP4,
+    tokyoSkinRunP1, tokyoSkinRunP2, tokyoSkinRunP3, tokyoSkinRunP4,
+    zeusSkinRunP1, zeusSkinRunP2, zeusSkinRunP3, zeusSkinRunP4,
 ];
 
 export const usePreloader = () => {
