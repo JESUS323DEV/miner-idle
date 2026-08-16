@@ -1094,8 +1094,13 @@
     font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 1px;
+    text-transform: uppercase;
     color: rgba(255,255,255,0.6);
 }
+
+.skin-preview-frame.dog-rarity-legendary .skin-preview-rarity-label { color: #f5c842; }
+.skin-preview-frame.dog-rarity-epic .skin-preview-rarity-label      { color: #b45cff; }
+.skin-preview-frame.dog-rarity-rare .skin-preview-rarity-label      { color: #4ca8ff; }
 
 .skin-preview-img-slot {
     position: relative;
@@ -1107,6 +1112,14 @@
     transition: transform 0.4s ease-out;
     outline: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+.skin-preview-role-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    z-index: 1;
 }
 
 .skin-preview-hint {
@@ -1129,8 +1142,8 @@
     position: relative;
     width: 76%;
     margin-top: auto;
-    margin-bottom: 24px;
-    padding: 8px 4px;
+    margin-bottom: 40px;
+    padding: 14px 4px;
     border: none;
     background: none;
     color: #ffd740;
@@ -1148,6 +1161,18 @@
     filter: grayscale(35%) brightness(0.8);
     border-radius: inherit;
     z-index: -1;
+}
+
+.skin-preview-buy-btn.raid-tablon-buy-disabled {
+    opacity: 1;
+}
+
+.skin-preview-buy-btn.raid-tablon-buy-disabled::before {
+    filter: grayscale(60%) brightness(0.5);
+}
+
+.skin-preview-buy-btn.raid-tablon-buy-disabled .skin-shop-price {
+    opacity: 0.5;
 }
 
 .skin-preview-shockwave {
@@ -1175,7 +1200,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 0 5px rgba(120,200,255,0.6));
+    filter: drop-shadow(0 0 7px rgba(120,200,255,0.8));
 }
 
 .skin-preview-flash {
@@ -1199,15 +1224,15 @@
     100% { opacity: 0; }
 }
 
-.skin-preview-muna .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(255,80,80,0.6)); }
-.skin-preview-frame.dog-rarity-rare .skin-preview-img      { filter: drop-shadow(0 0 5px rgba(76,168,255,0.45)); }
-.skin-preview-frame.dog-rarity-epic .skin-preview-img      { filter: drop-shadow(0 0 5px rgba(180,92,255,0.45)); }
-.skin-preview-frame.dog-rarity-legendary .skin-preview-img { filter: drop-shadow(0 0 5px rgba(245,200,66,0.45)); }
+.skin-preview-muna .skin-preview-img   { filter: drop-shadow(0 0 7px rgba(255,80,80,0.8)); }
+.skin-preview-frame.dog-rarity-rare .skin-preview-img      { filter: drop-shadow(0 0 7px rgba(76,168,255,0.6)); }
+.skin-preview-frame.dog-rarity-epic .skin-preview-img      { filter: drop-shadow(0 0 7px rgba(180,92,255,0.6)); }
+.skin-preview-frame.dog-rarity-legendary .skin-preview-img { filter: drop-shadow(0 0 7px rgba(245,200,66,0.6)); }
 
-.skin-preview-nupito .skin-preview-img { filter: drop-shadow(0 0 5px rgba(255,140,0,0.6)); }
-.skin-preview-tokio .skin-preview-img  { filter: drop-shadow(0 0 5px rgba(255,230,0,0.6)); }
-.skin-preview-druh .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(60,230,90,0.6)); }
-.skin-preview-zeus .skin-preview-img   { filter: drop-shadow(0 0 5px rgba(60,230,90,0.6)); }
+.skin-preview-nupito .skin-preview-img { filter: drop-shadow(0 0 7px rgba(255,140,0,0.8)); }
+.skin-preview-tokio .skin-preview-img  { filter: drop-shadow(0 0 7px rgba(255,230,0,0.8)); }
+.skin-preview-druh .skin-preview-img   { filter: drop-shadow(0 0 7px rgba(60,230,90,0.8)); }
+.skin-preview-zeus .skin-preview-img   { filter: drop-shadow(0 0 7px rgba(60,230,90,0.8)); }
 
 .skin-shop-buy-btn {
     position: relative;

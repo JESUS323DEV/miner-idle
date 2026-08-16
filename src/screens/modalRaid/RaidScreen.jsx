@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock } from 'lucide-react';
+import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock, Swords } from 'lucide-react';
 import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
@@ -198,6 +198,8 @@ const SHOW_ENVIOS_TABLON = false;
 const TABLON_SHOP_PRICE = { rare: 5, epic: 10, legendary: 15 };
 const TABLON_SHOP_FRAGMENTS = 20;
 const CANJE_TIERS = [5, 10, 15];
+const RARITY_LABEL = { legendary: 'Legendaria', epic: 'Épica', rare: 'Rara' };
+const CONCEPT_DISPLAY_NAME = { capucha: 'Urbana', cascos: 'Beats', gafas: 'SWAG' };
 
 const getTablonRotationKey = (dayOffset = 0) => {
     const d = new Date();
@@ -279,7 +281,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
 
     const handleTablonScroll = (e) => {
         if (tablonTab !== 'skins') return;
-        const scrollTop = e.target.scrollTop;
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const nearBottom = scrollTop + clientHeight >= scrollHeight - 10;
+        if (nearBottom) return;
         const delta = scrollTop - tablonScrollLastY.current;
         if (Math.abs(delta) > 5) {
             setTablonTabsHidden(delta > 0 && scrollTop > 20);
@@ -970,7 +974,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 <button
                                     className={`raid-tablon-buy-btn ${canBuy ? '' : 'raid-tablon-buy-disabled'}`}
                                     disabled={!canBuy}
-                                    onClick={() => handleBuyTablonDog(id, isForge)}
+                                    onClick={() => { playSfx('upgrade'); handleBuyTablonDog(id, isForge); }}
                                 >
                                     {bought ? <span className="raid-tablon-buy-comprado">Comprado</span> : (
                                         <span className="raid-tablon-buy-price">
@@ -1136,8 +1140,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                                     )}
                                                                     <button
                                                                         className={`skin-shop-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
-                                                                        disabled={isOwned || !canBuy}
-                                                                        onClick={() => handleBuySkin(dogId, skin.id)}
+                                                                        onClick={() => setUltimatePreview({ dogId, skin })}
                                                                     >
                                                                         {isOwned ? 'Comprada' : skin.starGated ? (
                                                                             <span className="skin-shop-price">
@@ -1200,7 +1203,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                     && (gameState.huesin ?? 0) >= ultimatePreview.skin.huesinPrice
                     && (gameState.tavernCoins ?? 0) >= ultimatePreview.skin.tavernPrice;
                 const isUltimate = !!ultimatePreview.skin.loopWith;
-                const skinName = ultimatePreview.skin.name ?? (ultimatePreview.skin.id.charAt(0).toUpperCase() + ultimatePreview.skin.id.slice(1));
+                const conceptId = ultimatePreview.skin.id;
+                const conceptName = CONCEPT_DISPLAY_NAME[conceptId] ?? (conceptId.charAt(0).toUpperCase() + conceptId.slice(1));
+                const skinName = ultimatePreview.skin.name ?? `${DogsConfig[ultimatePreview.dogId]?.name} ${conceptName}`;
                 return (
                 <div className="skin-preview-overlay" onClick={e => { e.stopPropagation(); setUltimatePreview(null); }}>
                     <div className={`skin-preview-frame dog-rarity-${ultimatePreview.skin.tier} skin-preview-${ultimatePreview.dogId}`} onClick={e => e.stopPropagation()}>
@@ -1219,10 +1224,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                         </div>
                         <button className="skin-preview-close" onClick={() => setUltimatePreview(null)}><X size={18} /></button>
                         <h2 className="skin-preview-title">{skinName}</h2>
-                        {isUltimate && (
+                        {isUltimate ? (
                             <div className="skin-preview-phase-badge">
                                 <span className="skin-shop-ultimate-fase1">FASE 1</span>
                                 <span className="skin-shop-ultimate-fase2">FASE 2</span>
+                            </div>
+                        ) : (
+                            <div className="skin-preview-phase-badge">
+                                <span className="skin-preview-rarity-label">{RARITY_LABEL[ultimatePreview.skin.tier]}</span>
                             </div>
                         )}
                         <div
@@ -1247,9 +1256,19 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 />
                             )}
                         </div>
-                        {isUltimate && (
+                        {isUltimate ? (
                             <p className="skin-preview-hint">{DogsConfig[ultimatePreview.dogId]?.name} a 3 <Star size={11} /> evoluciona la skin</p>
-                        )}
+                        ) : (() => {
+                            const dogElement = DogsConfig[ultimatePreview.dogId]?.element;
+                            const elemInfo = dogElement ? TABLON_ELEMENT_ICON[dogElement] : null;
+                            return (
+                                <div className="skin-preview-role-icons">
+                                    {elemInfo && <elemInfo.Icon size={16} color={elemInfo.color} />}
+                                    <Pickaxe size={16} color="#c9a24b" />
+                                    <Swords size={16} color="#e05a5a" />
+                                </div>
+                            );
+                        })()}
                         <button
                             className={`skin-preview-buy-btn ${canBuy || isOwned ? '' : 'raid-tablon-buy-disabled'}`}
                             disabled={isOwned || !canBuy}
