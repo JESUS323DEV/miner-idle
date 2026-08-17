@@ -84,6 +84,18 @@ import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.web
 import druhRun2 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
 import druhRun3 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp';
 import druhRun4 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp';
+import tokyoRun1 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-1.webp';
+import tokyoRun2 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-2.webp';
+import tokyoRun3 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.webp';
+import tokyoRun4 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-4.webp';
+import smokeRun1 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-1.webp';
+import smokeRun2 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-2.webp';
+import smokeRun3 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-3.webp';
+import smokeRun4 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-4.webp';
+import zeusRun1 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-1.webp';
+import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp';
+import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
+import zeusRun4 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp';
 
 const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
 const RUN_SPRITES = {
@@ -93,6 +105,9 @@ const RUN_SPRITES = {
     nupito: [nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4],
     tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
     druh:   [druhRun1, druhRun2, druhRun3, druhRun4],
+    tokio:  [tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4],
+    smoke:  [smokeRun1, smokeRun2, smokeRun3, smokeRun4],
+    zeus:   [zeusRun1, zeusRun2, zeusRun3, zeusRun4],
 };
 const RUN_SPRITE_KEYS = Object.keys(RUN_SPRITES);
 
@@ -497,7 +512,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
 
     const buildPrizeData = (loot, raidCfg) => {
         const steps = [];
-        const sub = `${raidCfg.emoji} ${raidCfg.name}`;
+        const sub = raidCfg.name;
         if (loot.gold > 0) steps.push({
             icon: iconGold, label: `+${fmt(loot.gold)} oro`, sublabel: sub, isWin: true, sfx: 'rewardGold',
         });
@@ -576,7 +591,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     ? `url(${bgRaidsPassive})`
     : `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bgRaids})`
 }}>
-                {raidView !== 'tablon' && (
+                {raidView !== 'tablon' && raidView !== 'passive' && (
                     <button
                         className="modal-close"
                         onClick={raidView !== 'hub' ? () => { setRaidView('hub'); setSelectedRaid(null); setTeamDogIds([]); } : ((tutorialStep === 'hint_raids' || tutorialStep === 'hint_raids_passive') ? undefined : onClose)}
@@ -638,7 +653,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
 
                 {showRaidIntro && (
                     <div className="forge-intro-overlay">
-                        <h3 className="forge-intro-title">⚔️ Raids</h3>
+                        <h3 className="forge-intro-title">Raids</h3>
                         <p className="forge-intro-text">
                             Envía a tus mascotas en expediciones mientras sigues jugando. Cada raid dura un tiempo y al terminar te trae oro, monedas o fragmentos.
                         </p>
@@ -662,6 +677,13 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
 
                 {/* CONTENIDO PASIVA */}
                 {raidView === 'passive' && <>
+
+                <div className="tavern-title-row">
+                    <button className="tavern-back-btn-inline" onClick={() => setRaidView('hub')}>
+                        <ArrowLeft size={22} />
+                    </button>
+                    <h2 className="tavern-title">Expediciones</h2>
+                </div>
 
                 {/* LISTA DE RAIDS */}
                 <div className="raid-list">
@@ -701,12 +723,15 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                     <span className="rc-name">{raid.name}</span>
                                                 </div>
                                                 <div className="rip-dogs">
-                                                    {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id }) => (
-                                                        <div key={id} className={`rip-dog dog-rarity-${DogsConfig[id]?.rarity}`}>
-                                                            <img src={getDogPortrait(id)} alt={id} />
-                                                            <span>{DogsConfig[id]?.name ?? id}</span>
-                                                        </div>
-                                                    ))}
+                                                    {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id, isForge }) => {
+                                                        const cfg = getDogConfig(id, isForge);
+                                                        return (
+                                                            <div key={id} className={`rip-dog dog-rarity-${cfg?.rarity}`}>
+                                                                <img src={getDogPortrait(id)} alt={id} />
+                                                                <span>{cfg?.name ?? id}</span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                                 {canClaim ? (
                                                     <div className="rip-actions">
@@ -730,7 +755,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                             alt="lady"
                                                             style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
                                                         />
-                                                        <span className="raid-lady-timer">⏱ {formatTime(timeLeft)}</span>
+                                                        <span className="raid-lady-timer">{formatTime(timeLeft)}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -741,8 +766,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                     <span className="rc-name">{raid.name}</span>
                                                     <span className="rc-desc">{raid.description}</span>
                                                     <span className="rc-meta">
-                                                        ⏱ {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
-                                                        👥 {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
+                                                        {formatTime(raid.duration * 1000)} &nbsp;·&nbsp;
+                                                        {raid.minTeam === raid.maxTeam ? `${raid.minTeam}` : `${raid.minTeam}–${raid.maxTeam}`} perros
                                                         {raid.minRarity && <> &nbsp;·&nbsp; <span className={`rc-min-rarity rarity-${raid.minRarity}`}>min. {raid.minRarity}</span></>}
                                                     </span>
                                                 </div>
@@ -832,7 +857,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                             <span className="rdc-stars">
                                                                 {'★'.repeat(dog.stars ?? 0)}{'☆'.repeat(5 - (dog.stars ?? 0))}
                                                             </span>
-                                                            {dog.isForge && <span className="rdc-forge-badge">🔥</span>}
+                                                            {dog.isForge && <span className="rdc-forge-badge">Forja</span>}
                                                             {dog.isRented && <span className="rdc-rented-badge">{formatRentalMs(dog.remainingMs)}</span>}
                                                             {dog.inGlobalSlot && <span className="rdc-mining-badge"><Pickaxe size={10} /></span>}
                                                         </button>
@@ -922,7 +947,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                             <div className="rc-info">
                                                 <span className="rc-name">{prov.label} · {current}/{maxStock}</span>
                                                 <span className="rc-desc">Manda un perro a por materiales.</span>
-                                                <span className="rc-meta">👥 1 perro {!canOrder && '· sin hueco/oro'}</span>
+                                                <span className="rc-meta">1 perro {!canOrder && '· sin hueco/oro'}</span>
                                             </div>
                                         )}
                                     </div>
@@ -1269,15 +1294,24 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                     alt=""
                                     className="skin-preview-run-sprite"
                                 />
+                            ) : purchaseAnim === 'hold' ? (
+                                <img
+                                    src={(() => {
+                                        const frames = PURCHASE_ANIM_FRAMES[ultimatePreview.dogId] ?? [];
+                                        return frames[frames.length - 1];
+                                    })()}
+                                    alt=""
+                                    className="skin-preview-run-sprite skin-preview-run-hold"
+                                />
                             ) : purchaseAnim === 'reveal' ? (
                                 <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-preview-reveal-spin" />
                             ) : isUltimate ? (
                                 <>
-                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-shop-ultimate-fase1" />
-                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.loopWith]} alt="" className="skin-preview-img skin-shop-ultimate-fase2" />
+                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className={`skin-preview-img skin-shop-ultimate-fase1${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
+                                    <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.loopWith]} alt="" className={`skin-preview-img skin-shop-ultimate-fase2${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
                                 </>
                             ) : (
-                                <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img" />
+                                <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className={`skin-preview-img${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
                             )}
                             {previewShockwave && (
                                 <span
@@ -1316,9 +1350,11 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                     const isTestAnim = !isUltimate && PURCHASE_ANIM_FRAMES[dogId];
                                     handleBuySkin(dogId, ultimatePreview.skin.id);
                                     if (isTestAnim) {
-                                        setPurchaseAnim('running');
-                                        setTimeout(() => setPurchaseAnim('reveal'), 2000);
-                                        setTimeout(() => { setPurchaseAnim(null); setSkinJustBought(true); }, 2900);
+                                        setPurchaseAnim('fading');
+                                        setTimeout(() => setPurchaseAnim('running'), 250);
+                                        setTimeout(() => setPurchaseAnim('hold'), 1450);
+                                        setTimeout(() => setPurchaseAnim('reveal'), 2250);
+                                        setTimeout(() => { setPurchaseAnim(null); setSkinJustBought(true); }, 3150);
                                     } else {
                                         setSkinJustBought(true);
                                     }

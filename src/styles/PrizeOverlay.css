@@ -32,9 +32,8 @@
     align-items: center;
     gap: 0.6rem;
     padding: 2rem 2.5rem;
-    border-radius: 18px;
-    background: rgba(20, 20, 30, 0.96);
-    border: 1px solid rgba(255, 215, 0, 0.25);
+    border: none;
+    background: url('../assets/ui/icons-hud/hud-modals/modal-comerciante/icons-comerciante/iron.webp') center / 100% 100% no-repeat;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
     min-width: 200px;
 }

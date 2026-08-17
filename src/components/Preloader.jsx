@@ -306,6 +306,18 @@ import druhRunP1 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp"
 import druhRunP2 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp"
 import druhRunP3 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp"
 import druhRunP4 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp"
+import tokyoRunP1 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-1.webp"
+import tokyoRunP2 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-2.webp"
+import tokyoRunP3 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.webp"
+import tokyoRunP4 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-4.webp"
+import smokeRunP1 from "../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-1.webp"
+import smokeRunP2 from "../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-2.webp"
+import smokeRunP3 from "../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-3.webp"
+import smokeRunP4 from "../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-4.webp"
+import zeusRunP1 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-1.webp"
+import zeusRunP2 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp"
+import zeusRunP3 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp"
+import zeusRunP4 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp"
 
 // ===== SPRITES DE CARRERA (ANIMACIÓN DE COMPRA DE SKINS) =====
 import ladySkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp"
@@ -340,6 +352,39 @@ import zeusSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-s
 import zeusSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp"
 import zeusSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp"
 import zeusSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-4.webp"
+
+// ===== RAIDS: FONDOS Y TABLÓN =====
+import bgRaids from "../assets/backgrounds/bg-modal-raids/bg-raids.webp"
+import bgRaidsPassive from "../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png"
+import btnRaidPassive from "../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp"
+import btnRaidActive from "../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-active.webp"
+import btnTablon from "../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-tablon.webp"
+import tabMisiones from "../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-misiones.webp"
+import tabShop from "../assets/ui/icons-hud/hud-modals/modal-raids/tablon/tab-shop.webp"
+import tabSkins from "../assets/ui/icons-hud/hud-modals/modal-raids/tablon/btn-skins.webp"
+import cardBgForest from "../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp"
+import cardBgCaves from "../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp"
+import cardBgVolcano from "../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp"
+
+// ===== MISIONES: TABS =====
+import questsTabDaily from "../assets/ui/icons-hud/hud-modals/misiones-diarias/misiones-diarias.webp"
+import questsTabPJ from "../assets/ui/icons-hud/hud-modals/misiones-diarias/misiones-pj.webp"
+
+// ===== MODAL PICO: TIERS Y CARDS =====
+import pickAxeModalStoneTier0 from "../assets/ui/icons-pickaxe/icons/stone/tier-0-stone.webp"
+import pickAxeModalStoneTier2 from "../assets/ui/icons-pickaxe/icons/stone/tier-2-stone.webp"
+import pickAxeModalBronzeTier0 from "../assets/ui/icons-pickaxe/icons/bronze/tier-0-bronze.webp"
+import pickAxeModalBronzeTier2 from "../assets/ui/icons-pickaxe/icons/bronze/tier-2-bronze.webp"
+import pickAxeModalIronTier0 from "../assets/ui/icons-pickaxe/icons/iron/tier-0-iron.webp"
+import pickAxeModalIronTier2 from "../assets/ui/icons-pickaxe/icons/iron/tier-2-iron.webp"
+import pickAxeModalDiamondTier from "../assets/ui/icons-pickaxe/icons/diamond/diamond-tier.webp"
+import pickaxeCardRecarga from "../assets/ui/icons-hud/hud-modals/modal-pickaxe/card-1.webp"
+import pickaxeCardPoder from "../assets/ui/icons-hud/hud-modals/modal-pickaxe/card-2.webp"
+
+// ===== MODAL UPGRADE: RENDIMIENTO OFFLINE Y BURST =====
+import iconOfflineRate2 from "../assets/ui/icons-hud/hud-modals/off-line2.webp"
+import iconStaminaRecharge from "../assets/ui/icons-hud/hud-principal/stamina-2.webp"
+import iconBurstPower from "../assets/ui/icons-hud/hud-principal/stamina-3.webp"
 
 const IMAGES = [
     // fondos
@@ -433,6 +478,9 @@ const IMAGES = [
     nupitoRunP1, nupitoRunP2, nupitoRunP3, nupitoRunP4,
     tukaRunP1, tukaRunP2, tukaRunP3, tukaRunP4,
     druhRunP1, druhRunP2, druhRunP3, druhRunP4,
+    tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
+    smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
+    zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
     // sprites de carrera (animación de compra de skins)
     ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4,
     gordoSkinRunP1, gordoSkinRunP2, gordoSkinRunP3, gordoSkinRunP4,
@@ -442,6 +490,20 @@ const IMAGES = [
     druhSkinRunP1, druhSkinRunP2, druhSkinRunP3, druhSkinRunP4,
     tokyoSkinRunP1, tokyoSkinRunP2, tokyoSkinRunP3, tokyoSkinRunP4,
     zeusSkinRunP1, zeusSkinRunP2, zeusSkinRunP3, zeusSkinRunP4,
+    // raids: fondos y tablón
+    bgRaids, bgRaidsPassive, btnRaidPassive, btnRaidActive, btnTablon,
+    tabMisiones, tabShop, tabSkins,
+    cardBgForest, cardBgCaves, cardBgVolcano,
+    // misiones: tabs
+    questsTabDaily, questsTabPJ,
+    // modal pico: tiers y cards
+    pickAxeModalStoneTier0, pickAxeModalStoneTier2,
+    pickAxeModalBronzeTier0, pickAxeModalBronzeTier2,
+    pickAxeModalIronTier0, pickAxeModalIronTier2,
+    pickAxeModalDiamondTier,
+    pickaxeCardRecarga, pickaxeCardPoder,
+    // modal upgrade: rendimiento offline y burst
+    iconOfflineRate2, iconStaminaRecharge, iconBurstPower,
 ];
 
 export const usePreloader = () => {
