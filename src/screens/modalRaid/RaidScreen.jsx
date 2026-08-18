@@ -30,8 +30,8 @@ import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.web
 import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
 import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
 import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
-import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-1.webp';
-import ladyWait2 from '../../assets/ui/lady-sprite/lady-wait/wait-1/lady-wait-2.webp';
+import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-2/lady300.webp';
+import ladyWaitSit from '../../assets/ui/lady-sprite/lady-wait/wait-2/lady-sitlady-sit.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
 import gordoRun2 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import gordoRun3 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp';
@@ -97,7 +97,9 @@ import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.web
 import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
 import zeusRun4 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp';
 
-const LADY_WAIT_FRAMES = [ladyWait1, ladyWait2];
+const LADY_WAIT_VARIANTS = [ladyWait1, ladyWaitSit];
+// Elige una variante fija por raid/pedido (según cuándo empezó), no cambia mientras esté activo
+const getLadyWaitSrc = (seed) => LADY_WAIT_VARIANTS[Math.abs(seed ?? 0) % LADY_WAIT_VARIANTS.length];
 const RUN_SPRITES = {
     lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
     gordo:  [gordoRun1, gordoRun2, gordoRun3, gordoRun4],
@@ -122,6 +124,20 @@ const getRunFrames = (dogEntries, seed) => {
     const idx = Math.abs(seed ?? 0) % RUN_SPRITE_KEYS.length;
     return RUN_SPRITES[RUN_SPRITE_KEYS[idx]];
 };
+
+// Frames de UN perro concreto (mismo fallback que getRunFrames, pero para un id fijo)
+const getRunFramesForDog = (id, seed) => {
+    if (RUN_SPRITES[id]) return RUN_SPRITES[id];
+    const idx = Math.abs(seed ?? 0) % RUN_SPRITE_KEYS.length;
+    return RUN_SPRITES[RUN_SPRITE_KEYS[idx]];
+};
+
+// Desplazamiento en % y z-index para que el equipo se vea en manada, no todos superpuestos
+const PACK_OFFSETS = [
+    { dx: 0, dy: -6, z: 3 },
+    { dx: -20, dy: 6, z: 2 },
+    { dx: 16, dy: 12, z: 1 },
+];
 import cardBgForest   from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/bosque-antiguo.webp';
 import cardBgCaves    from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/cavernas-oscuras.webp';
 import cardBgVolcano  from '../../assets/backgrounds/bg-modal-raids/cards-pasive-raids/volcan-diamantes.webp';
@@ -375,7 +391,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     };
     const [skinRarityFilter, setSkinRarityFilter] = useState(null);
     const [frameIndex, setFrameIndex] = useState(0);
-    const [waitFrameIndex, setWaitFrameIndex] = useState(0);
 
     const getDogPortrait = (id) => dogSkinAssets[id]?.[gameState.dogSkins?.[id]?.equipped] ?? dogAssets[id];
 
@@ -429,10 +444,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
         return () => clearInterval(t);
     }, []);
 
-    useEffect(() => {
-        const t = setInterval(() => setWaitFrameIndex(prev => (prev + 1) % 2), 2000);
-        return () => clearInterval(t);
-    }, []);
+
 
     // Auto-select forest + Druh during tutorial raid step
     useEffect(() => {
@@ -722,42 +734,63 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                 <div className="rip-header">
                                                     <span className="rc-name">{raid.name}</span>
                                                 </div>
-                                                <div className="rip-dogs">
-                                                    {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id, isForge }) => {
-                                                        const cfg = getDogConfig(id, isForge);
-                                                        return (
-                                                            <div key={id} className={`rip-dog dog-rarity-${cfg?.rarity}`}>
-                                                                <img src={getDogPortrait(id)} alt={id} />
-                                                                <span>{cfg?.name ?? id}</span>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                                {canClaim ? (
-                                                    <div className="rip-actions">
-                                                        <img
-                                                            src={LADY_WAIT_FRAMES[waitFrameIndex]}
-                                                            className="raid-lady-sprite raid-lady-wait"
-                                                            alt="lady"
-                                                        />
-                                                        <button
-                                                            className="btn-claim-raid btn-claim-ready"
-                                                            onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
-                                                        >
-                                                            Reclamar
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="raid-lady-track">
-                                                        <img
-                                                            src={getRunFrames(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id })), activeRaid.startedAt)[frameIndex]}
-                                                            className="raid-lady-sprite"
-                                                            alt="lady"
-                                                            style={{ left: `${Math.min(92, Math.max(8, progress * 100))}%` }}
-                                                        />
+                                                {(() => {
+                                                    const dogsList = (
+                                                        <div className="rip-dogs">
+                                                            {(activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id, isForge: false })) ?? []).map(({ id, isForge }) => {
+                                                                const cfg = getDogConfig(id, isForge);
+                                                                return (
+                                                                    <div key={id} className={`rip-dog dog-rarity-${cfg?.rarity}`}>
+                                                                        <img src={getDogPortrait(id)} alt={id} />
+                                                                        <span>{cfg?.name ?? id}</span>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    );
+                                                    return canClaim ? (
+                                                        <div className="rip-claim-grid">
+                                                            <img
+                                                                src={getLadyWaitSrc(activeRaid.startedAt)}
+                                                                className="raid-lady-sprite raid-lady-wait"
+                                                                alt="lady"
+                                                            />
+                                                            {dogsList}
+                                                            <button
+                                                                className="btn-claim-raid btn-claim-ready"
+                                                                onClick={e => { e.stopPropagation(); handleClaimPassiveRaid(raid.id, buildPrizeData); }}
+                                                            >
+                                                                Reclamar
+                                                            </button>
+                                                        </div>
+                                                    ) : (<>
+                                                        {dogsList}
+                                                        <div className="raid-lady-track">
+                                                        {(() => {
+                                                            const teamEntries = activeRaid.dogEntries ?? activeRaid.dogIds?.map(id => ({ id })) ?? [];
+                                                            const leftPos = Math.min(92, Math.max(8, progress * 100));
+                                                            return teamEntries.slice(0, 3).map((entry, i) => {
+                                                                const id = entry?.id ?? entry;
+                                                                const offset = PACK_OFFSETS[i] ?? PACK_OFFSETS[0];
+                                                                return (
+                                                                    <img
+                                                                        key={id}
+                                                                        src={getRunFramesForDog(id, activeRaid.startedAt + i)[frameIndex]}
+                                                                        className="raid-lady-sprite"
+                                                                        alt={id}
+                                                                        style={{
+                                                                            left: `calc(${leftPos}% + ${offset.dx}px)`,
+                                                                            bottom: `${offset.dy}px`,
+                                                                            zIndex: offset.z,
+                                                                        }}
+                                                                    />
+                                                                );
+                                                            });
+                                                        })()}
                                                         <span className="raid-lady-timer">{formatTime(timeLeft)}</span>
-                                                    </div>
-                                                )}
+                                                        </div>
+                                                    </>);
+                                                })()}
                                             </div>
                                         ) : (
                                             /* Estado NORMAL */
@@ -921,7 +954,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                 </div>
                                                 {ready ? (
                                                     <div className="rip-actions">
-                                                        <img src={LADY_WAIT_FRAMES[waitFrameIndex]} className="raid-lady-sprite raid-lady-wait" alt="lady" />
+                                                        <img src={getLadyWaitSrc(order.startedAt)} className="raid-lady-sprite raid-lady-wait" alt="lady" />
                                                         {!order.autoResend && (
                                                             <button
                                                                 className="btn-claim-raid btn-claim-ready"
