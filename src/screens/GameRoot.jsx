@@ -1186,7 +1186,7 @@ function GameRoot({ onBack }) {
               <button
                 onClick={() => setTavernModalOpen(true)}
                 data-tutorial="tut-tavern"
-                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasFreePacks || hasPendingDogAction || tavernStockNeedsAttention) ? 'notify-pulse' : ''}`}
+                className={`tavern-btn ${tutorialStep === 'hint_tavern' ? 'tutorial-highlight' : ''} ${(hasPendingDogAction || tavernStockNeedsAttention) ? 'notify-pulse' : ''}`}
               >
                 <img src={iconTavern} alt="Icono-Taberna" />
               </button>

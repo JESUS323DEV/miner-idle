@@ -51,6 +51,7 @@ import iconTavernClientes from "../../assets/ui/icons-hud/hud-modals/icons-taver
 import buttonUpgrade from "../../assets/ui/icons-hud/hud-modals/buttonUpgrade.webp"
 import iconGold from "../../assets/ui/icons-hud/hud-principal/oro1.webp"
 import coinTavern from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp"
+import huesinCoin from "../../assets/ui/icons-hud/hud-principal/huesin-coin.webp"
 import ingotBronze from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-bronze.webp"
 import ingotIron from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-iron.webp"
 import ingotDiamond from "../../assets/ui/icons-hud/hud-modals/modal-forge/icons-forge/lingotes/lingote-diamond.webp"
@@ -67,6 +68,8 @@ import iconTabGratis from "../../assets/ui/icons-hud/hud-modals/modal-invocacion
 import iconAbrirSobre from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/abrir.webp"
 import iconGratis2 from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/gratis2.webp"
 import iconBtnVacio from "../../assets/ui/icons-hud/hud-modals/modal-invocacion/vacio.webp"
+import iconTabGold from "../../assets/ui/icons-hud/hud-modals/rewards/btn-gold.webp"
+import iconTabShardsRoulette from "../../assets/ui/icons-hud/hud-modals/rewards/btn-shards.webp"
 
 import bgCoin from "../../assets/backgrounds/bg-tavern/bg-coin.webp"
 
@@ -153,6 +156,7 @@ const ingotAssets = {
     diamondIngot: ingotDiamond,
 };
 
+const SHOW_INVOCACION = false;
 
 const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogAction = false, pendingSkinEquipDog = null, onConsumePendingSkinEquip }) => {
     const {
@@ -488,7 +492,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     const ZONES = [
                         { id: 'cambista', icon: cambistaCoin, notify: false },
                         { id: 'ayudantes', icon: iconLogo, notify: hasPendingDogAction },
-                        { id: 'sobres', icon: iconInvocacion, notify: hasFreePacks },
+                        ...(SHOW_INVOCACION ? [{ id: 'sobres', icon: iconInvocacion, notify: hasFreePacks }] : []),
                         { id: 'ruleta', icon: iconRuleta, notify: rouletteHasFree },
                         { id: 'tragaperras', icon: iconTragaperras, notify: !gameState.slotWelcomeDone },
                     ];
@@ -634,20 +638,20 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                     <div key={matId} className={`tavern-exchange-item tavern-exchange-bg-${matId}${!bartenderHired ? ' conv-locked' : ''}`}>
                                         {!bartenderHired && <span className="tavern-exchange-locked-badge">Requiere cantinero</span>}
                                         <div className="tavern-exchange-col-vertical">
-                                            <div className="tavern-exchange-col tavern-exchange-col-ingot">
-                                                <img src={provIconsMap[matId]} className={`conv-icon ${!canBuy ? 'conv-locked' : ''}`} />
-                                                <span className="tavern-exchange-qty tavern-exchange-qty-amount">{prov.buyAmount * qty}</span>
+                                            <div className="tavern-exchange-col tavern-exchange-col-coin">
+                                                <img src={iconGold} className={`conv-icon ${!canBuy ? 'conv-locked' : ''}`} />
+                                                <span className="tavern-exchange-qty tavern-exchange-qty-coins">{formatNumber2(total)}</span>
                                             </div>
                                             <span className="tavern-exchange-arrow-vertical">→</span>
-                                            <div className="tavern-exchange-col tavern-exchange-col-coin">
+                                            <div className="tavern-exchange-col tavern-exchange-col-ingot">
                                                 <button
                                                     className={`tavern-exchange-icon-btn ${!canBuy ? 'conv-locked' : ''}`}
                                                     onClick={() => { buyProvision(matId, prov.costPerUnit, prov.buyAmount, qty); setProvisionQty(prev => ({ ...prev, [matId]: 1 })); }}
                                                     disabled={!canBuy || !bartenderHired}
                                                 >
-                                                    <img src={iconGold} className="conv-icon" />
+                                                    <img src={provIconsMap[matId]} className="conv-icon" />
                                                 </button>
-                                                <span className="tavern-exchange-qty tavern-exchange-qty-coins">{formatNumber2(total)}</span>
+                                                <span className="tavern-exchange-qty tavern-exchange-qty-amount">{prov.buyAmount * qty}</span>
                                             </div>
                                         </div>
                                         <div className="tavern-stepper">
@@ -972,13 +976,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                 </div>
                                                                 <div className="dog-unlock-cost">
                                                                     <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
-                                                                        <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
+                                                                        {starCoinCost}<img src={coinTavern} alt="coins" className="cost-icon" />
                                                                     </span>
                                                                     <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                        <img src={iconGold} alt="gold" className="cost-icon" />{`${starGoldCost / 1000}k`}
+                                                                        {`${starGoldCost / 1000}k`}<img src={iconGold} alt="gold" className="cost-icon" />
                                                                     </span>
                                                                     <span className={huesin < starHuesinCost ? 'cost-missing' : 'cost-ok'}>
-                                                                        {starHuesinCost} Huesín
+                                                                        {starHuesinCost}<img src={huesinCoin} alt="Huesín" className="cost-icon" />
                                                                     </span>
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgrade ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id)} disabled={!canUpgrade}>⬆ Mejorar</button>
@@ -992,10 +996,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                             </div>
                                                             <div className="dog-unlock-cost">
                                                                 <span className={gameState.gold < goldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCost >= 1000000 ? (goldCost / 1000000).toFixed(1) + 'M' : goldCost >= 1000 ? (goldCost / 1000).toFixed(0) + 'k' : goldCost}
+                                                                    {goldCost >= 1000000 ? (goldCost / 1000000).toFixed(1) + 'M' : goldCost >= 1000 ? (goldCost / 1000).toFixed(0) + 'k' : goldCost}<img src={iconGold} alt="oro" className="cost-icon" />
                                                                 </span>
                                                                 <span className={tavernCoins < coinCost ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={coinTavern} alt="coins" className="cost-icon" />{coinCost}
+                                                                    {coinCost}<img src={coinTavern} alt="coins" className="cost-icon" />
                                                                 </span>
                                                             </div>
                                                             <button className={`dog-hire-btn ${!canUnlock ? 'locked' : ''}`} onClick={() => onUnlockWithFragments(dog.id)} disabled={!canUnlock}>Desbloquear</button>
@@ -1099,11 +1103,11 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                     <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNext}</div>
                                                     <div className="dog-unlock-cost">
                                                         <span className={tavernCoins < starCoinCost ? 'cost-missing' : 'cost-ok'}>
-                                                            <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCost}
+                                                            {starCoinCost}<img src={coinTavern} alt="coins" className="cost-icon" />
                                                         </span>
                                                         {starGoldCost > 0 && (
                                                             <span className={gameState.gold < starGoldCost ? 'cost-missing' : 'cost-ok'}>
-                                                                <img src={iconGold} alt="gold" className="cost-icon" />{starGoldCost >= 1000 ? `${(starGoldCost / 1000).toFixed(0)}k` : starGoldCost}
+                                                                {starGoldCost >= 1000 ? `${(starGoldCost / 1000).toFixed(0)}k` : starGoldCost}<img src={iconGold} alt="gold" className="cost-icon" />
                                                             </span>
                                                         )}
                                                     </div>
@@ -1264,13 +1268,13 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                                 <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {fragForNextF}</div>
                                                                 <div className="dog-unlock-cost">
                                                                     <span className={gameState.gold < starGoldCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                        <img src={iconGold} alt="oro" className="cost-icon" />{`${starGoldCostF / 1000}k`}
+                                                                        {`${starGoldCostF / 1000}k`}<img src={iconGold} alt="oro" className="cost-icon" />
                                                                     </span>
                                                                     <span className={tavernCoins < starCoinCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                        <img src={coinTavern} alt="coins" className="cost-icon" />{starCoinCostF}
+                                                                        {starCoinCostF}<img src={coinTavern} alt="coins" className="cost-icon" />
                                                                     </span>
                                                                     <span className={huesin < starHuesinCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                        {starHuesinCostF} Huesín
+                                                                        {starHuesinCostF}<img src={huesinCoin} alt="Huesín" className="cost-icon" />
                                                                     </span>
                                                                 </div>
                                                                 <button className={`dog-hire-btn ${!canUpgradeF ? 'locked' : ''}`} onClick={() => onUpgradeStar(dog.id, true)} disabled={!canUpgradeF}>⬆ Mejorar</button>
@@ -1281,10 +1285,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                                             <div className="dog-frag-row">🧩 {dog.fragments ?? 0} / {config.unlockFragments}</div>
                                                             <div className="dog-unlock-cost">
                                                                 <span className={gameState.gold < goldCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={iconGold} alt="oro" className="cost-icon" />{goldCostF >= 1000000 ? (goldCostF / 1000000).toFixed(1) + 'M' : goldCostF >= 1000 ? (goldCostF / 1000).toFixed(0) + 'k' : goldCostF}
+                                                                    {goldCostF >= 1000000 ? (goldCostF / 1000000).toFixed(1) + 'M' : goldCostF >= 1000 ? (goldCostF / 1000).toFixed(0) + 'k' : goldCostF}<img src={iconGold} alt="oro" className="cost-icon" />
                                                                 </span>
                                                                 <span className={tavernCoins < coinCostF ? 'cost-missing' : 'cost-ok'}>
-                                                                    <img src={coinTavern} alt="coins" className="cost-icon" />{coinCostF}
+                                                                    {coinCostF}<img src={coinTavern} alt="coins" className="cost-icon" />
                                                                 </span>
                                                             </div>
                                                             <button className={`dog-hire-btn ${!canUnlockF ? 'locked' : ''}`} onClick={() => onUnlockWithFragments(dog.id, true)} disabled={!canUnlockF}>Desbloquear</button>
@@ -1366,7 +1370,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                 {view === 'sobres' && (
                     <div className="tavern-cambista tavern-ayudantes-view">
                         <div className="tavern-title-row">
-                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); setInvocPrizeData(null); }}>
+                            <button className="tavern-back-btn-inline" onClick={(e) => { e.stopPropagation(); setView('main'); setInvocPrizeData(null); setGameState(prev => ({ ...prev, lastPackResult: null })); }}>
                                 <ArrowLeft size={22} />
                             </button>
                             <h2 className="tavern-title">Invocación</h2>
@@ -1399,7 +1403,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         <PrizeOverlay
                             prizeData={invocPrizeData}
-                            onAccept={() => setInvocPrizeData(null)}
+                            onAccept={() => { setInvocPrizeData(null); setGameState(prev => ({ ...prev, lastPackResult: null })); }}
                         />
 
                         {(packTab === 'mineros' || packTab === 'forja') && (
@@ -1508,16 +1512,16 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         <div className="dog-tabs">
                             <button
-                                className={`dog-tab-btn ${rouletteTab === 'gold' ? 'active' : ''}`}
+                                className={`dog-tab-icon-btn ${rouletteTab === 'gold' ? 'active' : ''}`}
                                 onClick={() => setRouletteTab('gold')}
                             >
-                                Oro
+                                <img src={iconTabGold} alt="oro" />
                             </button>
                             <button
-                                className={`dog-tab-btn ${rouletteTab === 'shards' ? 'active' : ''} ${(!gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight()) && rouletteTab !== 'shards' ? 'tavern-zone-notify' : ''}`}
+                                className={`dog-tab-icon-btn ${rouletteTab === 'shards' ? 'active' : ''} ${(!gameState.lastFreeSpinShards || gameState.lastFreeSpinShards < todayMidnight()) && rouletteTab !== 'shards' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => setRouletteTab('shards')}
                             >
-                                Shards
+                                <img src={iconTabShardsRoulette} alt="shards" />
                             </button>
                         </div>
 

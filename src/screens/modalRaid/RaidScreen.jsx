@@ -1230,7 +1230,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                                 && (gameState.tavernCoins ?? 0) >= skin.tavernPrice;
                                                             return (
                                                                 <div key={skin.id} className={`skin-shop-item dog-rarity-${skin.tier}`}>
-                                                                    {skin.loopWith ? (
+                                                                    {skin.loopWith && dogSkinAssets[dogId]?.ultimateShop ? (
+                                                                        <img
+                                                                            src={dogSkinAssets[dogId].ultimateShop}
+                                                                            alt={skin.id}
+                                                                            className="skin-shop-img"
+                                                                            onClick={() => setUltimatePreview({ dogId, skin })}
+                                                                        />
+                                                                    ) : skin.loopWith ? (
                                                                         <div className="skin-shop-ultimate-loop" onClick={() => setUltimatePreview({ dogId, skin })}>
                                                                             <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img skin-shop-ultimate-fase1" />
                                                                             <img src={dogSkinAssets[dogId]?.[skin.loopWith]} alt={skin.loopWith} className="skin-shop-img skin-shop-ultimate-fase2" />
@@ -1338,6 +1345,8 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 />
                             ) : purchaseAnim === 'reveal' ? (
                                 <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-preview-reveal-spin" />
+                            ) : isUltimate && dogSkinAssets[ultimatePreview.dogId]?.ultimateShop ? (
+                                <img src={dogSkinAssets[ultimatePreview.dogId].ultimateShop} alt="" className={`skin-preview-img${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
                             ) : isUltimate ? (
                                 <>
                                     <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className={`skin-preview-img skin-shop-ultimate-fase1${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />

@@ -31,6 +31,7 @@ import munaPirata   from '../../assets/ui/icons-pets/dog-skins/muna/muna-pirata.
 import munaReina    from '../../assets/ui/icons-pets/dog-skins/muna/muna-reina.webp';
 import munaFase1    from '../../assets/ui/icons-pets/dog-skins/muna/ultimate-skin/muna-fase-1.webp';
 import munaFase2    from '../../assets/ui/icons-pets/dog-skins/muna/ultimate-skin/muna-fase-2.webp';
+import munaUltimateShop from '../../assets/ui/icons-pets/dog-skins/muna/ultimate-skin/muna-ultimate.webp';
 
 import nupitoMago   from '../../assets/ui/icons-pets/dog-skins/nupito/nupito-mago.webp';
 import nupitoMinero from '../../assets/ui/icons-pets/dog-skins/nupito/nupito-minero.webp';
@@ -69,7 +70,7 @@ export const dogSkinAssets = {
     druh:   { cascos: druhCascos, mago: druhMago, minero: druhMinero, rey: druhRey, señor: druhSenor, fase1: druhFase1, fase2: druhFase2 },
     gordo:  { mago: gordoMago, cascos: gordoCascos, chef: gordoChef, gafas: gordoGafas, rey: gordoRey, señor: gordoSenor, fase1: gordoFase1, fase2: gordoFase2 },
     lady:   { capucha: ladyCapucha, cascos: ladyCascos, gafas: ladyGafas, minera: ladyMinera, pirata: ladyPirata, reina: ladyReina, fase1: ladyFase1, fase2: ladyFase2 },
-    muna:   { cascos: munaCascos, minera: munaMinera, piloto: munaPiloto, pirata: munaPirata, reina: munaReina, fase1: munaFase1, fase2: munaFase2 },
+    muna:   { cascos: munaCascos, minera: munaMinera, piloto: munaPiloto, pirata: munaPirata, reina: munaReina, fase1: munaFase1, fase2: munaFase2, ultimateShop: munaUltimateShop },
     nupito: { mago: nupitoMago, minero: nupitoMinero, rey: nupitoRey, sherif: nupitoSherif, fase1: nupitoFase1, fase2: nupitoFase2 },
     tokio:  { capucha: tokyoCapucha, cascos: tokyoCascos, gafas: tokyoGafas, minera: tokyoMinera, reina: tokyoReina, fase1: tokyoFase1, fase2: tokyoFase2 },
     tuka:   { capucha: tukaCapucha, cascos: tukaCascos, chef: tukaChef, gafas: tukaGafas, maga: tukaMaga, minera: tukaMinera, reina: tukaReina, fase1: tukaFase1, fase2: tukaFase2 },
