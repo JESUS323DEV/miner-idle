@@ -40,6 +40,18 @@ import ladyRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run
 import ladyRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-2.webp';
 import ladyRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-3.webp';
 import ladyRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-4.webp';
+import ladyGafasRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-gafas-run.webp';
+import ladyCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-cascos-run.webp';
+import ladyCapuchaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-capucha-run.webp';
+import ladyMineraRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-minero-run.webp';
+import ladyPirataRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-pirata-run.webp';
+import ladyUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-ultimate-run.webp';
+import munaCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-cascos.webp';
+import munaMineraRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-minero.webp';
+import munaPilotoRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-piloto.webp';
+import munaPirataRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-pirata.webp';
+import munaReinaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-rey.webp';
+import munaUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-run-ultimate.webp';
 import munaRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-1.webp';
 import munaRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-2.webp';
 import munaRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-3.webp';
@@ -48,18 +60,36 @@ import nupitoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito
 import nupitoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-2.webp';
 import nupitoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-3.webp';
 import nupitoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-4.webp';
+import nupitoMagoRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-run-mago.webp';
+import nupitoMineroRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-run-minero.webp';
+import nupitoReyRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-run-rey.webp';
+import nupitoSherifRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-run-sherif.webp';
+import nupitoUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/nupito-run-skin/nupito-run-ultimatef.webp';
 import tukaRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-1.webp';
 import tukaRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-2.webp';
 import tukaRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-3.webp';
 import tukaRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-4.webp';
+import tukaCapuchaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-capucha.webp';
+import tukaCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-cascos.webp';
+import tukaChefRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-chef.webp';
+import tukaGafasRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-gafas.webp';
+import tukaReinaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-rey.webp';
+import tukaUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tuka-run-skin/tuka-run-ultimate.webp';
 import druhRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-1.webp';
 import druhRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-2.webp';
 import druhRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-3.webp';
 import druhRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-4.webp';
+import druhUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-ultimate.webp';
 import tokyoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-1.webp';
 import tokyoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-2.webp';
 import tokyoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-3.webp';
 import tokyoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-4.webp';
+import tokioCapuchaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-capucha.webp';
+import tokioCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-cascos.webp';
+import tokioGafasRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-gafas.webp';
+import tokioMineraRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-minero.webp';
+import tokioReinaRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-rey.webp';
+import tokioUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-run-ultimate.webp';
 import zeusRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-1.webp';
 import zeusRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp';
 import zeusRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp';
@@ -273,6 +303,38 @@ const PURCHASE_ANIM_FRAMES = {
     zeus: [zeusRunSkin1, zeusRunSkin2, zeusRunSkin3, zeusRunSkin4],
 };
 const CONCEPT_DISPLAY_NAME = { capucha: 'Urbana', cascos: 'Beats', gafas: 'SWAG' };
+const SKIN_RUN_OVERRIDE = {
+    'lady:gafas': ladyGafasRunSkin,
+    'lady:cascos': ladyCascosRunSkin,
+    'lady:capucha': ladyCapuchaRunSkin,
+    'lady:minera': ladyMineraRunSkin,
+    'lady:pirata': ladyPirataRunSkin,
+    'lady:fase1': ladyUltimateRunSkin,
+    'muna:cascos': munaCascosRunSkin,
+    'muna:minera': munaMineraRunSkin,
+    'muna:piloto': munaPilotoRunSkin,
+    'muna:pirata': munaPirataRunSkin,
+    'muna:reina': munaReinaRunSkin,
+    'muna:fase1': munaUltimateRunSkin,
+    'nupito:mago': nupitoMagoRunSkin,
+    'nupito:minero': nupitoMineroRunSkin,
+    'nupito:rey': nupitoReyRunSkin,
+    'nupito:sherif': nupitoSherifRunSkin,
+    'nupito:fase1': nupitoUltimateRunSkin,
+    'tokio:capucha': tokioCapuchaRunSkin,
+    'tokio:cascos': tokioCascosRunSkin,
+    'tokio:gafas': tokioGafasRunSkin,
+    'tokio:minera': tokioMineraRunSkin,
+    'tokio:reina': tokioReinaRunSkin,
+    'tokio:fase1': tokioUltimateRunSkin,
+    'tuka:capucha': tukaCapuchaRunSkin,
+    'tuka:cascos': tukaCascosRunSkin,
+    'tuka:chef': tukaChefRunSkin,
+    'tuka:gafas': tukaGafasRunSkin,
+    'tuka:reina': tukaReinaRunSkin,
+    'tuka:fase1': tukaUltimateRunSkin,
+    'druh:fase1': druhUltimateRunSkin,
+};
 
 const getTablonRotationKey = (dayOffset = 0) => {
     const d = new Date();
@@ -1230,14 +1292,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                                                 && (gameState.tavernCoins ?? 0) >= skin.tavernPrice;
                                                             return (
                                                                 <div key={skin.id} className={`skin-shop-item dog-rarity-${skin.tier}`}>
-                                                                    {skin.loopWith && dogSkinAssets[dogId]?.ultimateShop ? (
-                                                                        <img
-                                                                            src={dogSkinAssets[dogId].ultimateShop}
-                                                                            alt={skin.id}
-                                                                            className="skin-shop-img"
-                                                                            onClick={() => setUltimatePreview({ dogId, skin })}
-                                                                        />
-                                                                    ) : skin.loopWith ? (
+                                                                    {skin.loopWith ? (
                                                                         <div className="skin-shop-ultimate-loop" onClick={() => setUltimatePreview({ dogId, skin })}>
                                                                             <img src={dogSkinAssets[dogId]?.[skin.id]} alt={skin.id} className="skin-shop-img skin-shop-ultimate-fase1" />
                                                                             <img src={dogSkinAssets[dogId]?.[skin.loopWith]} alt={skin.loopWith} className="skin-shop-img skin-shop-ultimate-fase2" />
@@ -1289,6 +1344,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                     && (gameState.huesin ?? 0) >= ultimatePreview.skin.huesinPrice
                     && (gameState.tavernCoins ?? 0) >= ultimatePreview.skin.tavernPrice;
                 const isUltimate = !!ultimatePreview.skin.loopWith;
+                const skinRunOverride = SKIN_RUN_OVERRIDE[`${ultimatePreview.dogId}:${ultimatePreview.skin.id}`] ?? null;
                 const conceptId = ultimatePreview.skin.id;
                 const conceptName = CONCEPT_DISPLAY_NAME[conceptId] ?? (conceptId.charAt(0).toUpperCase() + conceptId.slice(1));
                 const skinName = ultimatePreview.skin.name ?? `${DogsConfig[ultimatePreview.dogId]?.name} ${conceptName}`;
@@ -1326,27 +1382,20 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             style={{ transform: `perspective(700px) rotateX(${previewTilt.x}deg) rotateY(${previewTilt.y}deg)` }}
                         >
                             {purchaseAnim === 'running' ? (
-                                <img
-                                    src={(() => {
-                                        const frames = PURCHASE_ANIM_FRAMES[ultimatePreview.dogId] ?? [];
-                                        return frames[frameIndex % frames.length];
-                                    })()}
-                                    alt=""
-                                    className="skin-preview-run-sprite"
-                                />
-                            ) : purchaseAnim === 'hold' ? (
-                                <img
-                                    src={(() => {
-                                        const frames = PURCHASE_ANIM_FRAMES[ultimatePreview.dogId] ?? [];
-                                        return frames[frames.length - 1];
-                                    })()}
-                                    alt=""
-                                    className="skin-preview-run-sprite skin-preview-run-hold"
-                                />
+                                skinRunOverride ? (
+                                    <img src={skinRunOverride} alt="" className="skin-preview-run-sprite" />
+                                ) : (
+                                    <img
+                                        src={(() => {
+                                            const frames = PURCHASE_ANIM_FRAMES[ultimatePreview.dogId] ?? [];
+                                            return frames[frameIndex % frames.length];
+                                        })()}
+                                        alt=""
+                                        className="skin-preview-run-sprite"
+                                    />
+                                )
                             ) : purchaseAnim === 'reveal' ? (
                                 <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className="skin-preview-img skin-preview-reveal-spin" />
-                            ) : isUltimate && dogSkinAssets[ultimatePreview.dogId]?.ultimateShop ? (
-                                <img src={dogSkinAssets[ultimatePreview.dogId].ultimateShop} alt="" className={`skin-preview-img${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
                             ) : isUltimate ? (
                                 <>
                                     <img src={dogSkinAssets[ultimatePreview.dogId]?.[ultimatePreview.skin.id]} alt="" className={`skin-preview-img skin-shop-ultimate-fase1${purchaseAnim === 'fading' ? ' skin-preview-fade-out' : ''}`} />
@@ -1389,14 +1438,13 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                 disabled={isOwned || !canBuy}
                                 onClick={() => {
                                     const dogId = ultimatePreview.dogId;
-                                    const isTestAnim = !isUltimate && PURCHASE_ANIM_FRAMES[dogId];
+                                    const isTestAnim = skinRunOverride || (!isUltimate && PURCHASE_ANIM_FRAMES[dogId]);
                                     handleBuySkin(dogId, ultimatePreview.skin.id);
                                     if (isTestAnim) {
                                         setPurchaseAnim('fading');
                                         setTimeout(() => setPurchaseAnim('running'), 250);
-                                        setTimeout(() => setPurchaseAnim('hold'), 1450);
-                                        setTimeout(() => setPurchaseAnim('reveal'), 2250);
-                                        setTimeout(() => { setPurchaseAnim(null); setSkinJustBought(true); }, 3150);
+                                        setTimeout(() => setPurchaseAnim('reveal'), 3050);
+                                        setTimeout(() => { setPurchaseAnim(null); setSkinJustBought(true); }, 3950);
                                     } else {
                                         setSkinJustBought(true);
                                     }

@@ -19,12 +19,12 @@ const TAVERN_PRICE_BY_TIER = { rare: 5, legendary: 60 };
 const RAW_SKINS = {
     druh:   { cascos: 'epic', mago: 'epic', minero: 'rare', rey: 'rare', señor: 'legendary' },
     gordo:  { mago: 'epic', cascos: 'epic', chef: 'legendary', gafas: 'legendary', rey: 'rare', señor: 'legendary' },
-    lady:   { capucha: 'legendary', cascos: 'epic', gafas: 'legendary', minera: 'rare', pirata: 'legendary', reina: 'rare' },
+    lady:   { capucha: 'legendary', cascos: 'epic', gafas: 'legendary', minera: 'rare', pirata: 'legendary' },
     muna:   { cascos: 'epic', minera: 'rare', piloto: 'legendary', pirata: 'legendary', reina: 'rare' },
     nupito: { mago: 'epic', minero: 'rare', rey: 'rare', sherif: 'legendary' },
     smoke:  {}, // assets descartados (la IA falló mucho con este perro), pendiente de rehacer
     tokio:  { capucha: 'legendary', cascos: 'epic', gafas: 'legendary', minera: 'rare', reina: 'rare' },
-    tuka:   { capucha: 'legendary', cascos: 'epic', chef: 'legendary', gafas: 'legendary', maga: 'epic', minera: 'rare', reina: 'rare' },
+    tuka:   { capucha: 'legendary', cascos: 'epic', chef: 'legendary', gafas: 'legendary', maga: 'epic', reina: 'rare' },
     zeus:   { chef: 'legendary', mago: 'epic', minero: 'rare', rey: 'rare', sherif: 'legendary' },
 };
 
@@ -33,8 +33,7 @@ const RAW_SKINS = {
 const HIDDEN_SKINS = {
     druh: ['minero'],
     gordo: ['chef'],
-    lady: ['pirata'],
-    tuka: ['chef', 'maga'],
+    tuka: ['maga'],
 };
 
 // Skins "Ultimate": únicas por perro, con progresión propia ligada a estrellas, no siguen el sistema
