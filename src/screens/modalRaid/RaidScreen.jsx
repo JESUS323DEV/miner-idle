@@ -80,6 +80,10 @@ import druhRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run
 import druhRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-3.webp';
 import druhRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-4.webp';
 import druhUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-ultimate.webp';
+import druhCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-cascos.webp';
+import druhMagoRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-mago.webp';
+import druhReyRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-rey.webp';
+import druhSenorRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-señor.webp';
 import tokyoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-1.webp';
 import tokyoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-2.webp';
 import tokyoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-3.webp';
@@ -94,10 +98,21 @@ import zeusRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run
 import zeusRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp';
 import zeusRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp';
 import zeusRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-4.webp';
+import zeusChefRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-chef.webp';
+import zeusMagoRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-mago.webp';
+import zeusMineroRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-minero.webp';
+import zeusReyRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-rey.webp';
+import zeusSherifRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-sherif.webp';
 import gordoRunSkin1 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-1.webp';
 import gordoRunSkin2 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-2.webp';
 import gordoRunSkin3 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-3.webp';
 import gordoRunSkin4 from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-4.webp';
+import gordoCascosRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-cascos.webp';
+import gordoGafasRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-gafas.webp';
+import gordoMagoRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-mago.webp';
+import gordoReyRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-rey.webp';
+import gordoSenorRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-señor.webp';
+import gordoUltimateRunSkin from '../../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-ultimate.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
 import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
 import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
@@ -334,6 +349,21 @@ const SKIN_RUN_OVERRIDE = {
     'tuka:reina': tukaReinaRunSkin,
     'tuka:fase1': tukaUltimateRunSkin,
     'druh:fase1': druhUltimateRunSkin,
+    'druh:cascos': druhCascosRunSkin,
+    'druh:mago': druhMagoRunSkin,
+    'druh:rey': druhReyRunSkin,
+    'druh:señor': druhSenorRunSkin,
+    'gordo:cascos': gordoCascosRunSkin,
+    'gordo:gafas': gordoGafasRunSkin,
+    'gordo:mago': gordoMagoRunSkin,
+    'gordo:rey': gordoReyRunSkin,
+    'gordo:señor': gordoSenorRunSkin,
+    'gordo:fase1': gordoUltimateRunSkin,
+    'zeus:chef': zeusChefRunSkin,
+    'zeus:mago': zeusMagoRunSkin,
+    'zeus:minero': zeusMineroRunSkin,
+    'zeus:rey': zeusReyRunSkin,
+    'zeus:sherif': zeusSherifRunSkin,
 };
 
 const getTablonRotationKey = (dayOffset = 0) => {

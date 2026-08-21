@@ -340,6 +340,12 @@ import gordoSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run
 import gordoSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-2.webp"
 import gordoSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-3.webp"
 import gordoSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-4.webp"
+import gordoCascosRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-cascos.webp"
+import gordoGafasRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-gafas.webp"
+import gordoMagoRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-mago.webp"
+import gordoReyRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-rey.webp"
+import gordoSenorRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-señor.webp"
+import gordoUltimateRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/gordo-run-skin/gordo-run-ultimate.webp"
 import munaSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-1.webp"
 import munaSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-2.webp"
 import munaSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/muna-run-skin/muna-3.webp"
@@ -368,6 +374,10 @@ import druhSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-s
 import druhSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-3.webp"
 import druhSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-4.webp"
 import druhUltimateRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-ultimate.webp"
+import druhCascosRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-cascos.webp"
+import druhMagoRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-mago.webp"
+import druhReyRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-rey.webp"
+import druhSenorRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/druh-run-skin/druh-run-señor.webp"
 import tokyoSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-1.webp"
 import tokyoSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-2.webp"
 import tokyoSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/tokyo-run-skin/tokyo-3.webp"
@@ -382,6 +392,11 @@ import zeusSkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-s
 import zeusSkinRunP2 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-2.webp"
 import zeusSkinRunP3 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-3.webp"
 import zeusSkinRunP4 from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-4.webp"
+import zeusChefRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-chef.webp"
+import zeusMagoRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-mago.webp"
+import zeusMineroRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-minero.webp"
+import zeusReyRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-rey.webp"
+import zeusSherifRunSkinP from "../assets/ui/lady-sprite/sprites-run-skins/zeus-run-skin/zeus-run-sherif.webp"
 
 // ===== RAIDS: FONDOS Y TABLÓN =====
 import bgRaids from "../assets/backgrounds/bg-modal-raids/bg-raids.webp"
@@ -515,15 +530,18 @@ const IMAGES = [
     ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4, ladyGafasRunP, ladyCascosRunP, ladyCapuchaRunP, ladyMineraRunP, ladyPirataRunP, ladyUltimateRunP,
     munaCascosRunSkinP, munaMineraRunSkinP, munaPilotoRunSkinP, munaPirataRunSkinP, munaReinaRunSkinP, munaUltimateRunSkinP,
     gordoSkinRunP1, gordoSkinRunP2, gordoSkinRunP3, gordoSkinRunP4,
+    gordoCascosRunSkinP, gordoGafasRunSkinP, gordoMagoRunSkinP, gordoReyRunSkinP, gordoSenorRunSkinP, gordoUltimateRunSkinP,
     munaSkinRunP1, munaSkinRunP2, munaSkinRunP3, munaSkinRunP4,
     nupitoSkinRunP1, nupitoSkinRunP2, nupitoSkinRunP3, nupitoSkinRunP4,
     nupitoMagoRunSkinP, nupitoMineroRunSkinP, nupitoReyRunSkinP, nupitoSherifRunSkinP, nupitoUltimateRunSkinP,
     tukaSkinRunP1, tukaSkinRunP2, tukaSkinRunP3, tukaSkinRunP4,
     tukaCapuchaRunSkinP, tukaCascosRunSkinP, tukaChefRunSkinP, tukaGafasRunSkinP, tukaReinaRunSkinP, tukaUltimateRunSkinP,
     druhSkinRunP1, druhSkinRunP2, druhSkinRunP3, druhSkinRunP4, druhUltimateRunSkinP,
+    druhCascosRunSkinP, druhMagoRunSkinP, druhReyRunSkinP, druhSenorRunSkinP,
     tokyoSkinRunP1, tokyoSkinRunP2, tokyoSkinRunP3, tokyoSkinRunP4, tokioCapuchaRunSkinP,
     tokioCascosRunSkinP, tokioGafasRunSkinP, tokioMineraRunSkinP, tokioReinaRunSkinP, tokioUltimateRunSkinP,
     zeusSkinRunP1, zeusSkinRunP2, zeusSkinRunP3, zeusSkinRunP4,
+    zeusChefRunSkinP, zeusMagoRunSkinP, zeusMineroRunSkinP, zeusReyRunSkinP, zeusSherifRunSkinP,
     // raids: fondos y tablón
     bgRaids, bgRaidsPassive, btnRaidPassive, btnRaidActive, btnTablon,
     tabMisiones, tabShop, tabSkins,
