@@ -792,6 +792,8 @@ function GameRoot({ onBack }) {
         style={{ backgroundImage: `url(${bgMain})` }}
       >
         {/* DEBUG */}
+        {import.meta.env.DEV && (
+        <>
         <button onClick={() => setDebugOpen(o => !o)} style={{ position:'fixed', top:4, right:4, zIndex:9999, fontSize:10, padding:'2px 6px', background:'#222', color:'#ff0', border:'1px solid #ff0', borderRadius:4, cursor:'pointer', opacity:0 }}>
           DEV
         </button>
@@ -837,6 +839,8 @@ function GameRoot({ onBack }) {
               </div>
             ))}
           </div>
+        )}
+        </>
         )}
 
         {/* OVERLAY OSCURO DURANTE TUTORIAL */}
