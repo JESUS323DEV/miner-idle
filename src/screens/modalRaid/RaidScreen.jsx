@@ -742,8 +742,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             </button>
                         )}
                         <button
-                            className={`raid-hub-btn ${(misionesPending || canjePending || skinsPending) ? 'btn-notify-dot' : ''}`}
+                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : (misionesPending || canjePending || skinsPending) ? 'btn-notify-dot' : ''}`}
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
+                            disabled={!gameState.raidActivasUnlocked}
                             onClick={() => {
                                 const nothingToDo = huntContractsNotify.every(({ bossId }) => huntStateNotify[bossId] === 'claimed');
                                 setTablonTab(nothingToDo ? 'canje' : 'misiones');
