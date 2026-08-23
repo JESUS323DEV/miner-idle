@@ -333,6 +333,24 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     }, [isOpen, pendingSkinEquipDog]); // eslint-disable-line react-hooks/exhaustive-deps
     const [dogTab, setDogTab] = useState('mineros');
     const [rarityFilter, setRarityFilter] = useState(null);
+    const [ayudantesTabsHidden, setAyudantesTabsHidden] = useState(false);
+    const ayudantesScrollLastY = useRef(0);
+
+    const handleAyudantesScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const nearBottom = scrollTop + clientHeight >= scrollHeight - 10;
+        if (nearBottom) return;
+        const delta = scrollTop - ayudantesScrollLastY.current;
+        if (Math.abs(delta) > 5) {
+            setAyudantesTabsHidden(delta > 0 && scrollTop > 20);
+            ayudantesScrollLastY.current = scrollTop;
+        }
+    };
+
+    useEffect(() => {
+        setAyudantesTabsHidden(false);
+        ayudantesScrollLastY.current = 0;
+    }, [dogTab, rarityFilter]);
     const [packTab, setPackTab] = useState('mineros');
     const [invocPrizeData, setInvocPrizeData] = useState(null);
     const pendingSfxRef = useRef('rewardShards');
@@ -887,7 +905,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         )}
 
                         {/* PESTAÑAS */}
-                        <div className="dog-tabs">
+                        <div className={`dog-tabs ${ayudantesTabsHidden ? 'ayudantes-tabs-collapsed' : ''}`}>
                             <button
                                 className={`dog-tab-icon-btn ${dogTab === 'mineros' ? 'active' : ''} ${minerHasAction && dogTab !== 'mineros' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => { setDogTab('mineros'); setRarityFilter(null); }}
@@ -903,7 +921,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                         </div>
 
                         {/* FILTRO RAREZA */}
-                        <div className="rarity-filter-bar">
+                        <div className={`rarity-filter-bar ${ayudantesTabsHidden ? 'ayudantes-tabs-collapsed' : ''}`}>
                             {['legendary', 'epic', 'rare', 'obtenidos'].map(r => {
                                 const hasPulse = r === 'obtenidos'
                                     ? obtenidosHasUpgrade && rarityFilter !== 'obtenidos'
@@ -923,7 +941,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         {/* MINEROS */}
                         {dogTab === 'mineros' && (
-                            <div className="dogs-grid">
+                            <div className="dogs-grid" onScroll={handleAyudantesScroll}>
                                 {Object.values(dogs)
                                     .filter(d => d && typeof d === 'object' && !Array.isArray(d))
                                     .filter(d => !rarityFilter || (rarityFilter === 'obtenidos' ? d.hired : DogsConfig[d.id]?.rarity === rarityFilter))
@@ -1215,7 +1233,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                                         <p className="dogs-empty-msg">Aún no tienes ayudantes contratados.</p>
                                     )}
                                     {allHired.length > 0 && (
-                                        <div className="dogs-grid">{allHired.map(({ d, isForge }) => renderCard(d, isForge))}</div>
+                                        <div className="dogs-grid" onScroll={handleAyudantesScroll}>{allHired.map(({ d, isForge }) => renderCard(d, isForge))}</div>
                                     )}
                                 </div>
                             );
@@ -1223,7 +1241,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         {/* FORJA */}
                         {dogTab === 'forja' && (
-                            <div className="dogs-grid">
+                            <div className="dogs-grid" onScroll={handleAyudantesScroll}>
                                 {Object.values(forgeDogs)
                                     .filter(d => d && typeof d === 'object')
                                     .filter(d => !rarityFilter || (rarityFilter === 'obtenidos' ? d.hired : ForgeDogsConfig[d.id]?.rarity === rarityFilter))

@@ -227,19 +227,31 @@ import forgeDayoIcon from "../assets/ui/icons-pets/forge/forge-dayo.webp"
 
 // ===== ENEMIGOS COMBATE =====
 import bat1 from "../assets/ui/icons-enemy/bats/bat-1.webp"
+import bat1Select from "../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp"
 import bat2 from "../assets/ui/icons-enemy/bats/bat-2.webp"
+import bat2Select from "../assets/ui/icons-enemy/enemy-animation/bats/bat002.webp"
 import bat3 from "../assets/ui/icons-enemy/bats/bat-3.webp"
+import bat3Select from "../assets/ui/icons-enemy/enemy-animation/bats/bat003.webp"
 import batBoss from "../assets/ui/icons-enemy/bats/bat-boss.webp"
+import batBossSelect from "../assets/ui/icons-enemy/enemy-animation/bats/bat-boss.webp"
 import bgCombatBats from "../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-bats.webp"
 import topo1 from "../assets/ui/icons-enemy/topos/topo-1.webp"
 import topo2 from "../assets/ui/icons-enemy/topos/topo-2.webp"
 import topo3 from "../assets/ui/icons-enemy/topos/topo-3.webp"
+import topo1Select from "../assets/ui/icons-enemy/enemy-animation/topos/topo001.webp"
+import topo2Select from "../assets/ui/icons-enemy/enemy-animation/topos/topo002.webp"
+import topo3Select from "../assets/ui/icons-enemy/enemy-animation/topos/topo003.webp"
 import topoBoss from "../assets/ui/icons-enemy/topos/topo-boss.webp"
+import topoBossSelect from "../assets/ui/icons-enemy/enemy-animation/topos/topo-boss.webp"
 import bgCombatTopos from "../assets/backgrounds/bg-modal-raids/bg-raids-active/bg-combat-topos.webp"
 import spider1 from "../assets/ui/icons-enemy/spiders/sipder-1.webp"
+import spider1Select from "../assets/ui/icons-enemy/enemy-animation/spider/spider001.webp"
 import spider2 from "../assets/ui/icons-enemy/spiders/spider-2.webp"
+import spider2Select from "../assets/ui/icons-enemy/enemy-animation/spider/spider002.webp"
 import spider3 from "../assets/ui/icons-enemy/spiders/spider-3.webp"
+import spider3Select from "../assets/ui/icons-enemy/enemy-animation/spider/spider003.webp"
 import spiderBoss from "../assets/ui/icons-enemy/spiders/spider-boss.webp"
+import spiderBossSelect from "../assets/ui/icons-enemy/enemy-animation/spider/spider-boss.webp"
 import scorpion1 from "../assets/ui/icons-enemy/scorpions/scorpion-1.webp"
 import scorpion2 from "../assets/ui/icons-enemy/scorpions/scorpion-2.webp"
 import scorpion3 from "../assets/ui/icons-enemy/scorpions/scorpion-3.webp"
@@ -500,9 +512,9 @@ const IMAGES = [
     forgeIcon1, forgeIcon2, forgeIcon3, forgeIcon4, forgeIcon5,
     forgeIcon6, forgeIcon7, forgeIcon8, forgeIcon9, forgeDayoIcon,
     // enemigos
-    bat1, bat2, bat3, batBoss, bgCombatBats,
-    topo1, topo2, topo3, topoBoss, bgCombatTopos,
-    spider1, spider2, spider3, spiderBoss,
+    bat1, bat2, bat3, batBoss, bgCombatBats, bat1Select, bat2Select, bat3Select, batBossSelect,
+    topo1, topo2, topo3, topoBoss, bgCombatTopos, topo1Select, topo2Select, topo3Select, topoBossSelect,
+    spider1, spider2, spider3, spiderBoss, spider1Select, spider2Select, spider3Select, spiderBossSelect,
     scorpion1, scorpion2, scorpion3, scorpionBoss,
     cardBat, cardTopo, cardScorpion, cardSpiders,
     marcoEnemy0, marcoEnemy1, marcoEnemy2, marcoEnemy3,

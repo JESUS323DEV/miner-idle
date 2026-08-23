@@ -310,6 +310,16 @@
     image-rendering: pixelated;
 }
 
+.combat-enemy-float,
+.combat-result-enemy-frame img.combat-enemy-float {
+    animation: combat-enemy-float-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes combat-enemy-float-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+}
+
 
 .cec-name {
     color: white;
@@ -345,11 +355,6 @@
     color: #b45cff;
     font-size: 0.65rem;
     font-weight: bold;
-}
-
-.cec-attempts {
-    color: rgba(255, 180, 80, 0.75);
-    font-size: 0.6rem;
 }
 
 .combat-enemy-locked {

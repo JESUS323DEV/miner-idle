@@ -46,6 +46,18 @@ import scorpion3Img    from '../../assets/ui/icons-enemy/scorpions/scorpion-3.we
 import scorpionBossImg from '../../assets/ui/icons-enemy/scorpions/scorpion-boss.webp';
 
 import spider1Img    from '../../assets/ui/icons-enemy/spiders/sipder-1.webp';
+import spider1SelectImg from '../../assets/ui/icons-enemy/enemy-animation/spider/spider001.webp';
+import spider2SelectImg from '../../assets/ui/icons-enemy/enemy-animation/spider/spider002.webp';
+import spider3SelectImg from '../../assets/ui/icons-enemy/enemy-animation/spider/spider003.webp';
+import spiderBossSelectImg from '../../assets/ui/icons-enemy/enemy-animation/spider/spider-boss.webp';
+import topo1SelectImg from '../../assets/ui/icons-enemy/enemy-animation/topos/topo001.webp';
+import topo2SelectImg from '../../assets/ui/icons-enemy/enemy-animation/topos/topo002.webp';
+import topo3SelectImg from '../../assets/ui/icons-enemy/enemy-animation/topos/topo003.webp';
+import topoBossSelectImg from '../../assets/ui/icons-enemy/enemy-animation/topos/topo-boss.webp';
+import bat1SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
+import bat2SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat002.webp';
+import bat3SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat003.webp';
+import batBossSelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat-boss.webp';
 import spider2Img    from '../../assets/ui/icons-enemy/spiders/spider-2.webp';
 import spider3Img    from '../../assets/ui/icons-enemy/spiders/spider-3.webp';
 import spiderBossImg from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
@@ -168,6 +180,23 @@ const COMBO_FIRST_MILESTONE    = 5;
 const COMBO_MILESTONE_INTERVAL = 5;
 const COMBO_GOLD_CAP           = 2000;
 const COMBO_GOLD_OVERFLOW_STEP = 20;
+
+const ENEMY_FLOAT_IDS = ['bat-1', 'bat-2', 'bat-3'];
+
+const ENEMY_SELECT_IMG_OVERRIDE = {
+    'spider-1': spider1SelectImg,
+    'spider-2': spider2SelectImg,
+    'spider-3': spider3SelectImg,
+    'spider-boss': spiderBossSelectImg,
+    'bat-1': bat1SelectImg,
+    'bat-2': bat2SelectImg,
+    'bat-3': bat3SelectImg,
+    'bat-boss': batBossSelectImg,
+    'topo-1': topo1SelectImg,
+    'topo-2': topo2SelectImg,
+    'topo-3': topo3SelectImg,
+    'topo-boss': topoBossSelectImg,
+};
 
 const enemyImgs = {
     'bat-1':    bat1Img,
@@ -814,7 +843,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         setTimeout(() => {
             setEnemyHp(prev => Math.max(0, prev - dmg));
             setUltImpactActive(false);
-        }, 400);
+        }, 1000);
     };
 
     const handleUlt = () => {
@@ -1023,7 +1052,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         {activeBiome.enemies.map((enemy, idx) => {
                             const req     = enemy.requiresStars;
                             const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
-                            const { isOnCooldown, attemptsLeft, remainingMin } = getAttemptStatus(enemy);
+                            const { isOnCooldown, remainingMin } = getAttemptStatus(enemy);
                             const earnedStars = raidBestStars[enemy.id] ?? 0;
                             return (
                                 <button
@@ -1049,12 +1078,9 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                         </>
                                     ) : (
                                         <>
-                                            <img src={enemyImgs[enemy.id]} alt={enemy.name} />
+                                            <img src={ENEMY_SELECT_IMG_OVERRIDE[enemy.id] ?? enemyImgs[enemy.id]} alt={enemy.name} className={ENEMY_FLOAT_IDS.includes(enemy.id) ? 'combat-enemy-float' : ''} />
                                             <span className="cec-name">{enemy.name}</span>
                                             <span className="cec-meta">❤ {enemy.hp} · {enemy.timerSec}s</span>
-                                            {attemptsLeft < 3 && (
-                                                <span className="cec-attempts">{attemptsLeft} {attemptsLeft === 1 ? 'intento' : 'intentos'}</span>
-                                            )}
                                         </>
                                     )}
                                 </button>
@@ -1510,7 +1536,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
             {phase === 'results' && resultsData && (
                 <div className="combat-results">
                     <div className={`combat-result-enemy-frame combat-enemy-frame-${resultsData.starsEarned}`}>
-                        <img src={enemyImgs[activeEnemy.id]} alt={activeEnemy?.name} />
+                        <img src={ENEMY_SELECT_IMG_OVERRIDE[activeEnemy.id] ?? enemyImgs[activeEnemy.id]} alt={activeEnemy?.name} className={ENEMY_FLOAT_IDS.includes(activeEnemy.id) ? 'combat-enemy-float' : ''} />
                         <div className="combat-result-enemy-name-wrap">
                             <p className="combat-result-enemy-name">{activeEnemy?.name}</p>
                             <div className="combat-result-pct-bar">
