@@ -140,7 +140,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 10px;
     background: none;
     border: none;
     color: #ffd740;
@@ -175,6 +175,16 @@
 
 .slot-spin-btn:disabled::before {
     filter: grayscale(60%) brightness(0.5);
+}
+
+.slot-btn-label {
+    display: block;
+}
+
+.slot-btn-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .slot-btn-icon {

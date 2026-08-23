@@ -175,7 +175,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 10px;
     padding: 0.6rem 2.5rem;
     border: none;
     background: none;
@@ -187,6 +187,16 @@
     transition: filter 0.2s, transform 0.1s;
     text-transform: uppercase;
     z-index: 1;
+}
+
+.slot-btn-label {
+    display: block;
+}
+
+.slot-btn-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .roulette-btn-icon {

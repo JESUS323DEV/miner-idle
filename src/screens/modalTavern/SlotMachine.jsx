@@ -255,7 +255,10 @@ export default function SlotMachine({ guaranteed }) {
                         disabled={isSpinning || !canAffordCoins}
                     >
                         {isSpinning ? 'Girando...' : (
-                            <>Girar {SPIN_COST}<img src={coinTavern} className="slot-btn-icon" alt="" /></>
+                            <>
+                                <span className="slot-btn-label">Girar</span>
+                                <span className="slot-btn-price">{SPIN_COST}<img src={coinTavern} className="slot-btn-icon" alt="" /></span>
+                            </>
                         )}
                     </button>
                     <button
@@ -264,7 +267,10 @@ export default function SlotMachine({ guaranteed }) {
                         disabled={isSpinning || !canAffordHuesin}
                     >
                         {isSpinning ? 'Girando...' : (
-                            <>Girar {SPIN_COST_HUESIN}<img src={huesinCoin} className="slot-btn-icon" alt="" /></>
+                            <>
+                                <span className="slot-btn-label">Girar</span>
+                                <span className="slot-btn-price">{SPIN_COST_HUESIN}<img src={huesinCoin} className="slot-btn-icon" alt="" /></span>
+                            </>
                         )}
                     </button>
                     {!canAffordCoins && !canAffordHuesin && !isSpinning && (

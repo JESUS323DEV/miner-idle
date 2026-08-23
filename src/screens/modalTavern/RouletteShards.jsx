@@ -263,7 +263,10 @@ export default function RouletteShards() {
                 disabled={isSpinning || !canAfford}
             >
                 {isSpinning ? 'Girando...' : (
-                    <>Girar {SPIN_COST}<img src={coinTavern} className="roulette-btn-icon" alt="" /></>
+                    <>
+                        <span className="slot-btn-label">Girar</span>
+                        <span className="slot-btn-price">{SPIN_COST}<img src={coinTavern} className="roulette-btn-icon" alt="" /></span>
+                    </>
                 )}
             </button>
 
