@@ -169,39 +169,29 @@
     font-weight: 600;
 }
 
-.roulette-ico {
-    width: 14px;
-    height: 14px;
-}
-
-/* ---- Coste fijo ---- */
-.roulette-cost-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.82rem;
-    color: #FFD700;
-    font-weight: 600;
-}
-
-.roulette-cost-label {
-    opacity: 0.85;
-}
-
 /* ---- Spin button ---- */
 .roulette-spin-btn {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     padding: 0.6rem 2.5rem;
     border: none;
     background: none;
     color: #ffd740;
-    font-size: 1rem;
-    font-weight: 900;
+    font-size: 0.85rem;
+    font-weight: 700;
     cursor: pointer;
     letter-spacing: 2px;
     transition: filter 0.2s, transform 0.1s;
     text-transform: uppercase;
     z-index: 1;
+}
+
+.roulette-btn-icon {
+    width: 16px;
+    height: 16px;
 }
 
 .roulette-spin-btn::before {
@@ -295,9 +285,4 @@
     border: 2px solid;
     object-fit: cover;
     filter: drop-shadow(0 1px 5px rgba(0,0,0,0.9));
-}
-
-
-.rs-cost-purple {
-    color: #b45cff;
 }

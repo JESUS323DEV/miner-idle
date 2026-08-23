@@ -170,13 +170,14 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
     } = useGameContext();
     const { bronzeIngot, ironIngot, diamondIngot, tavernCoins, huesin = 0, dogs = {}, forgeDogs = {}, bartenderHired = false, tavernStock = {} } = gameState;
     const hireBartender = () => {
-        const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
-        if (gameState.gold < costGold || tavernCoins < costCoins) return;
+        const { gold: costGold, coins: costCoins, huesin: costHuesin } = TavernConfig.bartenderCost;
+        if (gameState.gold < costGold || tavernCoins < costCoins || (gameState.huesin ?? 0) < costHuesin) return;
         setGameState(prev => ({
             ...prev,
             bartenderHired: true,
             gold: prev.gold - costGold,
             tavernCoins: prev.tavernCoins - costCoins,
+            huesin: (prev.huesin ?? 0) - costHuesin,
         }));
     };
 
@@ -517,16 +518,19 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                     return (
                         <div className="tavern-scene">
                             {!bartenderHired && (() => {
-                                const { gold: costGold, coins: costCoins } = TavernConfig.bartenderCost;
-                                const canHire = gameState.gold >= costGold && tavernCoins >= costCoins;
+                                const { gold: costGold, coins: costCoins, huesin: costHuesin } = TavernConfig.bartenderCost;
+                                const canHire = gameState.gold >= costGold && tavernCoins >= costCoins && (gameState.huesin ?? 0) >= costHuesin;
                                 return (
-                                    <button className={`tavern-bartender-btn${!canHire ? ' locked' : ''}`} onClick={hireBartender} disabled={!canHire}>
-                                        <span>Contratar cantinero</span>
-                                        <span className="bartender-cost">
-                                            {costGold / 1000}k <img src={iconGold} className="conv-small-icon" />
-                                            {' '}{costCoins} <img src={coinTavern} className="conv-small-icon" />
-                                        </span>
-                                    </button>
+                                    <div className="tavern-bartender-wrap">
+                                        <button className={`tavern-bartender-btn${!canHire ? ' locked' : ''}`} onClick={hireBartender} disabled={!canHire}>
+                                            <span className="bartender-cost">
+                                                <span className="bartender-cost-item">{costGold / 1000}k <img src={iconGold} className="conv-small-icon" alt="oro" /></span>
+                                                <span className="bartender-cost-item">{costCoins} <img src={coinTavern} className="conv-small-icon" alt="coins" /></span>
+                                                <span className="bartender-cost-item">{costHuesin} <img src={huesinCoin} className="conv-small-icon" alt="Huesín" /></span>
+                                            </span>
+                                        </button>
+                                        <span className="tavern-bartender-label">Contratar cantinero</span>
+                                    </div>
                                 );
                             })()}
 
@@ -1530,7 +1534,7 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
 
                         <div className="dog-tabs">
                             <button
-                                className={`dog-tab-icon-btn ${rouletteTab === 'gold' ? 'active' : ''}`}
+                                className={`dog-tab-icon-btn ${rouletteTab === 'gold' ? 'active' : ''} ${(!gameState.lastFreeSpinGold || gameState.lastFreeSpinGold < todayMidnight()) && rouletteTab !== 'gold' ? 'tavern-zone-notify' : ''}`}
                                 onClick={() => setRouletteTab('gold')}
                             >
                                 <img src={iconTabGold} alt="oro" />
@@ -1543,8 +1547,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </button>
                         </div>
 
-                        {rouletteTab === 'gold' && <RouletteGold />}
-                        {rouletteTab === 'shards' && <RouletteShards />}
+                        <div className="tavern-content-scroll">
+                            {rouletteTab === 'gold' && <RouletteGold />}
+                            {rouletteTab === 'shards' && <RouletteShards />}
+                        </div>
                     </div>
                 )}
 
@@ -1557,8 +1563,10 @@ const TavernModal = ({ isOpen, onClose, hasFreePacks = false, hasPendingDogActio
                             </button>
                             <h2 className="tavern-title">Tragaperras</h2>
                         </div>
-                        <div className="slot-center-wrapper">
-                            <SlotMachine guaranteed={!gameState.slotWelcomeDone} />
+                        <div className="tavern-content-scroll">
+                            <div className="slot-center-wrapper">
+                                <SlotMachine guaranteed={!gameState.slotWelcomeDone} />
+                            </div>
                         </div>
                     </div>
                 )}

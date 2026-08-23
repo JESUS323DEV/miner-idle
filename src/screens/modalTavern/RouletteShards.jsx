@@ -247,11 +247,6 @@ export default function RouletteShards() {
                 <div className="roulette-hub" />
             </div>
 
-            <div className="roulette-cost-row rs-cost-purple">
-                <img src={coinTavern} className="roulette-ico" alt="" />
-                <span className="roulette-cost-label">{SPIN_COST} monedas por tirada</span>
-            </div>
-
             {freeAvailable && (
                 <button
                     className="roulette-spin-btn roulette-free-btn"
@@ -267,7 +262,9 @@ export default function RouletteShards() {
                 onClick={() => spin(false)}
                 disabled={isSpinning || !canAfford}
             >
-                {isSpinning ? 'Girando...' : 'Girar'}
+                {isSpinning ? 'Girando...' : (
+                    <>Girar {SPIN_COST}<img src={coinTavern} className="roulette-btn-icon" alt="" /></>
+                )}
             </button>
 
             {!canAfford && !isSpinning && (

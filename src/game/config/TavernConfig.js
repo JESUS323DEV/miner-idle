@@ -1,5 +1,5 @@
 export const TavernConfig = {
-    bartenderCost: { gold: 50000, coins: 2 },
+    bartenderCost: { gold: 80000, coins: 20, huesin: 10 },
     conversions: [
         { material: 'bronzeIngot', amount: 10, coins: 1 },
         { material: 'ironIngot',   amount: 6,  coins: 1 },

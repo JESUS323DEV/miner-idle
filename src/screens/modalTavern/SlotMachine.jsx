@@ -6,6 +6,7 @@ import { playSfx } from '../../game/utils/sfx.js';
 import { enterPJSlot } from '../../game/utils/questUtils.js';
 
 import coinTavern    from "../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp";
+import huesinCoin    from "../../assets/ui/icons-hud/hud-principal/huesin-coin.webp";
 import ladyIcon      from "../../assets/ui/icons-pets/mineros/lady-icon.webp";
 import tokyoIcon     from "../../assets/ui/icons-pets/mineros/tokyo-icon.webp";
 import tukaIcon      from "../../assets/ui/icons-pets/mineros/tuka-icon.webp";
@@ -253,14 +254,18 @@ export default function SlotMachine({ guaranteed }) {
                         onClick={() => spin('coins')}
                         disabled={isSpinning || !canAffordCoins}
                     >
-                        {isSpinning ? 'Girando...' : `Girar (${SPIN_COST} monedas)`}
+                        {isSpinning ? 'Girando...' : (
+                            <>Girar {SPIN_COST}<img src={coinTavern} className="slot-btn-icon" alt="" /></>
+                        )}
                     </button>
                     <button
                         className="slot-spin-btn"
                         onClick={() => spin('huesin')}
                         disabled={isSpinning || !canAffordHuesin}
                     >
-                        {isSpinning ? 'Girando...' : `Girar (${SPIN_COST_HUESIN} Huesín)`}
+                        {isSpinning ? 'Girando...' : (
+                            <>Girar {SPIN_COST_HUESIN}<img src={huesinCoin} className="slot-btn-icon" alt="" /></>
+                        )}
                     </button>
                     {!canAffordCoins && !canAffordHuesin && !isSpinning && (
                         <p className="slot-warn">Monedas/Huesín insuficientes</p>

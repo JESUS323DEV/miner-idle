@@ -183,14 +183,14 @@ export default function RouletteGold() {
             </div>
 
             <div className="roulette-bet-area">
-                <span className="roulette-bet-label">Apuesta</span>
+                <span className="roulette-bet-label">Apuesta{freeAvailable ? ' (usa la gratis primero)' : ''}</span>
                 <div className="roulette-bet-btns">
                     {BET_OPTIONS.map(opt => (
                         <button
                             key={opt}
                             className={`roulette-bet-btn ${bet === opt ? 'rbet-active' : ''}`}
                             onClick={() => setBet(opt)}
-                            disabled={isSpinning}
+                            disabled={isSpinning || freeAvailable}
                         >
                             {fmt(opt)}
                         </button>
