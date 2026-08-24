@@ -261,7 +261,7 @@ export const CombatConfig = {
                 },
                 {
                     id: 'scorpion-2',
-                    name: 'Escorpión Venenoso',
+                    name: 'Escorpión de Fuego',
                     hp: 1500,
                     defense: 12,
                     timerSec: 20,

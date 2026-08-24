@@ -58,6 +58,9 @@ import bat1SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat0
 import bat2SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat002.webp';
 import bat3SelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat003.webp';
 import batBossSelectImg from '../../assets/ui/icons-enemy/enemy-animation/bats/bat-boss.webp';
+import scorpion1SelectImg from '../../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion001.webp';
+import scorpion2SelectImg from '../../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion002.webp';
+import scorpion3SelectImg from '../../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion003.webp';
 import spider2Img    from '../../assets/ui/icons-enemy/spiders/spider-2.webp';
 import spider3Img    from '../../assets/ui/icons-enemy/spiders/spider-3.webp';
 import spiderBossImg from '../../assets/ui/icons-enemy/spiders/spider-boss.webp';
@@ -196,6 +199,9 @@ const ENEMY_SELECT_IMG_OVERRIDE = {
     'topo-2': topo2SelectImg,
     'topo-3': topo3SelectImg,
     'topo-boss': topoBossSelectImg,
+    'scorpion-1': scorpion1SelectImg,
+    'scorpion-2': scorpion2SelectImg,
+    'scorpion-3': scorpion3SelectImg,
 };
 
 const enemyImgs = {

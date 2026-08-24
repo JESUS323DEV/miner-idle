@@ -256,6 +256,9 @@ import scorpion1 from "../assets/ui/icons-enemy/scorpions/scorpion-1.webp"
 import scorpion2 from "../assets/ui/icons-enemy/scorpions/scorpion-2.webp"
 import scorpion3 from "../assets/ui/icons-enemy/scorpions/scorpion-3.webp"
 import scorpionBoss from "../assets/ui/icons-enemy/scorpions/scorpion-boss.webp"
+import scorpion1Select from "../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion001.webp"
+import scorpion2Select from "../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion002.webp"
+import scorpion3Select from "../assets/ui/icons-enemy/enemy-animation/scorpions/scorpion003.webp"
 import cardBat from "../assets/ui/icons-enemy/hud/card-bat.webp"
 import cardTopo from "../assets/ui/icons-enemy/hud/card-topo.webp"
 import cardScorpion from "../assets/ui/icons-enemy/hud/card-scorpion.webp"
@@ -515,7 +518,7 @@ const IMAGES = [
     bat1, bat2, bat3, batBoss, bgCombatBats, bat1Select, bat2Select, bat3Select, batBossSelect,
     topo1, topo2, topo3, topoBoss, bgCombatTopos, topo1Select, topo2Select, topo3Select, topoBossSelect,
     spider1, spider2, spider3, spiderBoss, spider1Select, spider2Select, spider3Select, spiderBossSelect,
-    scorpion1, scorpion2, scorpion3, scorpionBoss,
+    scorpion1, scorpion2, scorpion3, scorpionBoss, scorpion1Select, scorpion2Select, scorpion3Select,
     cardBat, cardTopo, cardScorpion, cardSpiders,
     marcoEnemy0, marcoEnemy1, marcoEnemy2, marcoEnemy3,
     marcoSlotRare, marcoSlotEpic, marcoSlotLegend, marcoSkinUltimate,
