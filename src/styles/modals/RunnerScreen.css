@@ -1,0 +1,311 @@
+/* ========== RUNNER (prototipo) ========== */
+
+.runner-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+.runner-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #14100c;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.runner-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.runner-hud-score {
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.runner-hud-lives {
+    color: #ff5c5c;
+    font-size: 1rem;
+    letter-spacing: 3px;
+}
+
+.runner-scores-btn {
+    border: none;
+    background: none;
+    color: #ffd740;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.runner-tracks {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.runner-track {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: linear-gradient(180deg, #241a10, #120d08);
+    border-radius: 10px;
+    border: 1px solid #3a2c18;
+}
+
+.runner-track-cpu {
+    height: 110px;
+}
+
+.runner-track-player {
+    height: 180px;
+}
+
+.runner-track-cpu-label {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+}
+
+.runner-track-cpu-lives {
+    color: #ff5c5c;
+    letter-spacing: 2px;
+    font-size: 0.7rem;
+}
+
+.runner-ground {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: #5a4326;
+}
+
+.runner-dog {
+    position: absolute;
+    left: 40px;
+    bottom: 0;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+}
+
+.runner-dog-hit {
+    animation: runner-blink 0.1s steps(1) infinite;
+}
+
+@keyframes runner-blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.15; }
+}
+
+.runner-obstacle {
+    position: absolute;
+    bottom: 0;
+    left: 100%;
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+}
+
+.runner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.runner-overlay-title {
+    color: #ffd740;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.runner-overlay-score {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+}
+
+.runner-start-btn {
+    padding: 8px 22px;
+    border-radius: 8px;
+    border: 2px solid #ffd740;
+    background: rgba(255, 215, 64, 0.12);
+    color: #ffd740;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.runner-overlay-btn-row {
+    display: flex;
+    gap: 10px;
+}
+
+.runner-start-btn-secondary {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.runner-jump-btn {
+    padding: 16px 0;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #ffb347, #ff8c00);
+    color: #1a1208;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.runner-jump-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.runner-dog-select {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+.runner-dog-select-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.runner-dog-select-active {
+    border-color: #ffd740;
+    background: rgba(255, 215, 64, 0.15);
+}
+
+.runner-dog-select-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.runner-difficulty-select {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.runner-difficulty-btn {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.runner-difficulty-active {
+    border-color: #ffd740;
+    background: rgba(255, 215, 64, 0.15);
+    color: #ffd740;
+}
+
+.runner-scores-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+}
+
+.runner-scores-panel {
+    width: 280px;
+    max-width: 85vw;
+    max-height: 70vh;
+    background: #1a140d;
+    border: 2px solid #5a4326;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.runner-scores-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+}
+
+.runner-scores-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.runner-scores-rank {
+    width: 18px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.runner-scores-dog-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.runner-scores-value {
+    margin-left: auto;
+    color: #ffd740;
+    font-weight: 800;
+}

@@ -3,6 +3,7 @@ import { X, Pickaxe, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Lock
 import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
@@ -440,6 +441,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
     const [orderQty, setOrderQty] = useState({ trigo: 1, lupulo: 1 });
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
+    const [runnerOpen, setRunnerOpen] = useState(false);
     const [tablonTab, setTablonTab] = useState('misiones');
     const [tablonTabsHidden, setTablonTabsHidden] = useState(false);
     const tablonScrollLastY = useRef(0);
@@ -753,8 +755,16 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                         >
                             <img src={btnTablon} alt="tablón" className="raid-hub-btn-img" />
                         </button>
+                        <button
+                            className="raid-hub-btn raid-hub-btn-runner"
+                            onClick={() => setRunnerOpen(true)}
+                        >
+                            <span className="raid-hub-btn-label">Carrera</span>
+                        </button>
                     </div>
                 )}
+
+                {runnerOpen && <RunnerScreen onClose={() => setRunnerOpen(false)} />}
 
                 {showRaidIntro && (
                     <div className="forge-intro-overlay">

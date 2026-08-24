@@ -93,6 +93,29 @@
     opacity: 0.55;
 }
 
+.raid-hub-btn-runner {
+    top: 85%;
+    left: 50%;
+}
+
+.raid-hub-btn-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid rgba(245, 200, 66, 0.6);
+    background: rgba(20, 10, 0, 0.75);
+    color: #f5e8b0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    padding: 4px;
+}
+
 .raid-hub-price {
     display: flex;
     align-items: center;

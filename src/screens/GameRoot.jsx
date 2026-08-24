@@ -54,6 +54,7 @@ import BiomeSelectorModal from "../screens/modalMine/BiomeSelectorModal.jsx";
 
 import RewardsModal from "../screens/RewardsModal.jsx";
 import RaidScreen from "../screens/modalRaid/RaidScreen.jsx";
+import RunnerScreen from "../screens/modalRunner/RunnerScreen.jsx";
 import GlobalDogSlots from "../components/GlobalDogSlots.jsx";
 // ===== ASSETS: HUD PRINCIPAL =====
 import cofre from "../assets/ui/icons-hud/hud-principal/cofre-oro1.webp";
@@ -766,6 +767,7 @@ function GameRoot({ onBack }) {
 
   // ===== DEBUG =====
   const [debugOpen, setDebugOpen] = useState(false);
+  const [runnerOpen, setRunnerOpen] = useState(false);
   const MINER_DOGS = ['lady','tokio','tuka','muna','chihuahua','bully','smoke','nupito','boxer','druh','gordo','zeus'];
   const FORGE_DOGS  = ['pip','koda','milo','rocky','bruno','max','rex','toby','buddy','dayo'];
   const handleDebugSetStars = (dogId, delta) => {
@@ -799,6 +801,8 @@ function GameRoot({ onBack }) {
         </button>
         {debugOpen && (
           <div style={{ position:'fixed', top:44, right:4, zIndex:9999, background:'#111', border:'1px solid #ff0', borderRadius:6, padding:'6px 8px', display:'flex', flexDirection:'column', gap:4, minWidth:160, maxHeight:'80vh', overflowY:'auto' }}>
+            <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>PROTOTIPOS</span>
+            <button onClick={() => setRunnerOpen(true)} style={{ fontSize:10, padding:'2px 4px', background:'#003322', color:'#66ffcc', border:'1px solid #66ffcc', borderRadius:3, cursor:'pointer' }}>abrir runner</button>
             <span style={{ fontSize:9, color:'#ff0', fontWeight:800, letterSpacing:1 }}>RECURSOS</span>
             <button onClick={() => setGameState(prev => ({ ...prev, gold: prev.gold + 100000 }))} style={{ fontSize:10, padding:'2px 4px', background:'#332200', color:'#ffd740', border:'1px solid #ffd740', borderRadius:3, cursor:'pointer' }}>+100k oro</button>
             <button onClick={() => setGameState(prev => ({ ...prev, tavernCoins: prev.tavernCoins + 500 }))} style={{ fontSize:10, padding:'2px 4px', background:'#002233', color:'#4dd0e1', border:'1px solid #4dd0e1', borderRadius:3, cursor:'pointer' }}>+500 tavern</button>
@@ -840,6 +844,7 @@ function GameRoot({ onBack }) {
             ))}
           </div>
         )}
+        {runnerOpen && <RunnerScreen onClose={() => setRunnerOpen(false)} />}
         </>
         )}
 
