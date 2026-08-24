@@ -79,7 +79,9 @@ const RUN_FRAME_MS = 130;
 const OBSTACLE_IMGS = [menaBronze1, menaIron1, menaDiamond1];
 
 const GRAVITY = 2200;
-const JUMP_VELOCITY = 780;
+const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
+const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
+const DOUBLE_JUMP_COOLDOWN_MS = 2000;
 const SPEED_TIERS = [260, 320, 380, 440];
 const SPEED_TIER_MS = 5000;
 const SPEED_RAMP_STEP = 20;   // px/s que se suma cada SPEED_RAMP_MS tras agotar los tramos
@@ -141,6 +143,7 @@ export default function RunnerScreen({ onClose }) {
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [highScores, setHighScores] = useState(loadHighScores);
+    const [doubleJumpReady, setDoubleJumpReady] = useState(true);
 
     const trackRef = useRef(null);
     const dogElRef = useRef(null);
@@ -175,11 +178,16 @@ export default function RunnerScreen({ onClose }) {
 
     const jump = useCallback(() => {
         if (phase !== 'playing') return;
-        if (isJumpingRef.current) return;
-        isJumpingRef.current = true;
-        velocityRef.current = JUMP_VELOCITY;
-        setAirborne(true);
-    }, [phase]);
+        if (!isJumpingRef.current) {
+            isJumpingRef.current = true;
+            velocityRef.current = JUMP_VELOCITY_SINGLE;
+            setAirborne(true);
+        } else if (doubleJumpReady) {
+            velocityRef.current = JUMP_VELOCITY;
+            setDoubleJumpReady(false);
+            setTimeout(() => setDoubleJumpReady(true), DOUBLE_JUMP_COOLDOWN_MS);
+        }
+    }, [phase, doubleJumpReady]);
 
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
@@ -203,6 +211,7 @@ export default function RunnerScreen({ onClose }) {
         setCpuLives(MAX_LIVES);
         setScore(0);
         setWon(false);
+        setDoubleJumpReady(true);
     }, []);
 
     const resetGame = useCallback(() => {
@@ -313,6 +322,8 @@ export default function RunnerScreen({ onClose }) {
                     id: obstacleIdSeq++,
                     x: trackWidth,
                     img: OBSTACLE_IMGS[Math.floor(Math.random() * OBSTACLE_IMGS.length)],
+                    size: OBSTACLE_SIZE,
+                    clearY: OBSTACLE_CLEAR_Y,
                     hit: false,
                     cpuHit: false,
                     cpuDodge: Math.random() < CPU_DIFFICULTY_PRESETS[difficulty].dodgeChance,
@@ -325,7 +336,7 @@ export default function RunnerScreen({ onClose }) {
 
             const beforeLen = list.length;
             list.forEach(o => { o.x -= currentSpeed * dt; });
-            list = list.filter(o => o.x > -OBSTACLE_SIZE);
+            list = list.filter(o => o.x > -o.size);
             const despawned = list.length !== beforeLen;
 
             // La CPU "pulsa" su salto cuando el obstaculo que decidio esquivar se acerca
@@ -349,8 +360,8 @@ export default function RunnerScreen({ onClose }) {
             if (!invuln) {
                 for (const o of list) {
                     if (o.hit) continue;
-                    const overlapX = DOG_X < o.x + OBSTACLE_SIZE && DOG_X + DOG_SIZE > o.x;
-                    if (overlapX && dogYRef.current < OBSTACLE_CLEAR_Y) {
+                    const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                    if (overlapX && dogYRef.current < o.clearY) {
                         o.hit = true;
                         lifeLost = true;
                         break;
@@ -364,8 +375,8 @@ export default function RunnerScreen({ onClose }) {
             if (!cpuInvuln) {
                 for (const o of list) {
                     if (o.cpuHit) continue;
-                    const overlapX = DOG_X < o.x + OBSTACLE_SIZE && DOG_X + DOG_SIZE > o.x;
-                    if (overlapX && cpuDogYRef.current < OBSTACLE_CLEAR_Y) {
+                    const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                    if (overlapX && cpuDogYRef.current < o.clearY) {
                         o.cpuHit = true;
                         cpuLifeLost = true;
                         break;
