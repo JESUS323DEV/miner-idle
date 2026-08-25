@@ -333,6 +333,7 @@ import zeusRunP1 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-1.webp"
 import zeusRunP2 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp"
 import zeusRunP3 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp"
 import zeusRunP4 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp"
+import runnerFondo1 from "../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp"
 
 // ===== SPRITES DE CARRERA (ANIMACIÓN DE COMPRA DE SKINS) =====
 import ladySkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp"
@@ -541,6 +542,7 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
+    runnerFondo1,
     // sprites de carrera (animación de compra de skins)
     ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4, ladyGafasRunP, ladyCascosRunP, ladyCapuchaRunP, ladyMineraRunP, ladyPirataRunP, ladyUltimateRunP,
     munaCascosRunSkinP, munaMineraRunSkinP, munaPilotoRunSkinP, munaPirataRunSkinP, munaReinaRunSkinP, munaUltimateRunSkinP,

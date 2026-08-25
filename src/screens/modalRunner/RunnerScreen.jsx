@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy } from 'lucide-react';
+import { X, Trophy, ArrowUp } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -78,10 +78,11 @@ const DOG_ICONS = {
 const RUN_FRAME_MS = 130;
 const OBSTACLE_IMGS = [menaBronze1, menaIron1, menaDiamond1];
 
+const GROUND_VISUAL_OFFSET = 22; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
+const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
-const DOUBLE_JUMP_COOLDOWN_MS = 2000;
 const SPEED_TIERS = [280, 320, 380, 440];
 const SPEED_TIER_MS = 5000;
 const SPEED_RAMP_STEP = 20;   // px/s que se suma cada SPEED_RAMP_MS tras agotar los tramos
@@ -136,6 +137,7 @@ export default function RunnerScreen({ onClose }) {
     const [lives, setLives] = useState(MAX_LIVES);
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
     const [score, setScore] = useState(0);
+    const [speedTierDisplay, setSpeedTierDisplay] = useState(1);
     const [airborne, setAirborne] = useState(false);
     const [cpuAirborne, setCpuAirborne] = useState(false);
     const [obstacles, setObstacles] = useState([]); // solo {id, img}, la posicion real vive en refs
@@ -144,7 +146,6 @@ export default function RunnerScreen({ onClose }) {
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [highScores, setHighScores] = useState(loadHighScores);
-    const [doubleJumpReady, setDoubleJumpReady] = useState(true);
 
     const trackRef = useRef(null);
     const dogElRef = useRef(null);
@@ -156,12 +157,14 @@ export default function RunnerScreen({ onClose }) {
     const isJumpingRef = useRef(false);
     const cpuIsJumpingRef = useRef(false);
     const cpuPendingJumpRef = useRef(false);
+    const doubleJumpUsedRef = useRef(false);
     const obstaclesDataRef = useRef([]); // [{id, x, img, hit, cpuHit, cpuDodge, cpuJumped, el, cpuEl}]
     const spawnTimerRef = useRef(0);
     const invulnUntilRef = useRef(0);
     const cpuInvulnUntilRef = useRef(0);
     const scoreAccumRef = useRef(0);
     const scoreShownRef = useRef(0);
+    const speedTierShownRef = useRef(1);
     const matchTimeRef = useRef(0);
 
     const runFrames = DOG_RUN_FRAMES[selectedDogId];
@@ -181,14 +184,14 @@ export default function RunnerScreen({ onClose }) {
         if (phase !== 'playing' || paused) return;
         if (!isJumpingRef.current) {
             isJumpingRef.current = true;
+            doubleJumpUsedRef.current = false;
             velocityRef.current = JUMP_VELOCITY_SINGLE;
             setAirborne(true);
-        } else if (doubleJumpReady) {
+        } else if (!doubleJumpUsedRef.current) {
+            doubleJumpUsedRef.current = true;
             velocityRef.current = JUMP_VELOCITY;
-            setDoubleJumpReady(false);
-            setTimeout(() => setDoubleJumpReady(true), DOUBLE_JUMP_COOLDOWN_MS);
         }
-    }, [phase, paused, doubleJumpReady]);
+    }, [phase, paused]);
 
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
@@ -198,12 +201,14 @@ export default function RunnerScreen({ onClose }) {
         isJumpingRef.current = false;
         cpuIsJumpingRef.current = false;
         cpuPendingJumpRef.current = false;
+        doubleJumpUsedRef.current = false;
         obstaclesDataRef.current = [];
         spawnTimerRef.current = SPAWN_MIN_MS;
         invulnUntilRef.current = 0;
         cpuInvulnUntilRef.current = 0;
         scoreAccumRef.current = 0;
         scoreShownRef.current = 0;
+        speedTierShownRef.current = 1;
         matchTimeRef.current = 0;
         setObstacles([]);
         setAirborne(false);
@@ -211,8 +216,8 @@ export default function RunnerScreen({ onClose }) {
         setLives(MAX_LIVES);
         setCpuLives(MAX_LIVES);
         setScore(0);
+        setSpeedTierDisplay(1);
         setWon(false);
-        setDoubleJumpReady(true);
         setPaused(false);
     }, []);
 
@@ -268,12 +273,19 @@ export default function RunnerScreen({ onClose }) {
             const matchTimeMs = matchTimeRef.current * 1000;
             const rampStartMs = (SPEED_TIERS.length - 1) * SPEED_TIER_MS;
             let currentSpeed;
+            let tierNumber;
             if (matchTimeMs < rampStartMs) {
                 const speedTier = Math.floor(matchTimeMs / SPEED_TIER_MS);
                 currentSpeed = SPEED_TIERS[speedTier];
+                tierNumber = speedTier + 1;
             } else {
                 const rampSteps = Math.floor((matchTimeMs - rampStartMs) / SPEED_RAMP_MS);
                 currentSpeed = Math.min(SPEED_MAX, SPEED_TIERS[SPEED_TIERS.length - 1] + rampSteps * SPEED_RAMP_STEP);
+                tierNumber = SPEED_TIERS.length + 1 + rampSteps;
+            }
+            if (tierNumber !== speedTierShownRef.current) {
+                speedTierShownRef.current = tierNumber;
+                setSpeedTierDisplay(tierNumber);
             }
 
             // Fisica jugador
@@ -285,9 +297,11 @@ export default function RunnerScreen({ onClose }) {
                 velocityRef.current = 0;
                 if (isJumpingRef.current) justLanded = true;
                 isJumpingRef.current = false;
+            } else if (newY > MAX_JUMP_HEIGHT) {
+                newY = MAX_JUMP_HEIGHT;
             }
             dogYRef.current = newY;
-            if (dogElRef.current) dogElRef.current.style.bottom = `${newY}px`;
+            if (dogElRef.current) dogElRef.current.style.bottom = `${newY + GROUND_VISUAL_OFFSET}px`;
             if (justLanded) setAirborne(false);
 
             // Fisica CPU (mismas reglas, ella misma dispara su salto mas abajo)
@@ -301,7 +315,7 @@ export default function RunnerScreen({ onClose }) {
                 cpuIsJumpingRef.current = false;
             }
             cpuDogYRef.current = cpuNewY;
-            if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${cpuNewY}px`;
+            if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${cpuNewY + GROUND_VISUAL_OFFSET}px`;
             if (cpuJustLanded) {
                 if (cpuPendingJumpRef.current) {
                     cpuPendingJumpRef.current = false;
@@ -435,15 +449,11 @@ export default function RunnerScreen({ onClose }) {
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
 
     return (
-        <div className="runner-backdrop" onClick={onClose}>
+        <div className="runner-backdrop" onClick={phase !== 'playing' ? onClose : undefined}>
             <div className="runner-screen" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}><X /></button>
-
-                <div className="runner-hud">
-                    <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
-                    <span className="runner-hud-score">{score}</span>
-                    <span className="runner-hud-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
-                </div>
+                {phase !== 'playing' && (
+                    <button className="modal-close" onClick={onClose}><X /></button>
+                )}
 
                 <div className="runner-tracks">
                     {phase !== 'ready' && (
@@ -475,6 +485,8 @@ export default function RunnerScreen({ onClose }) {
 
                     <div className="runner-track runner-track-player" ref={trackRef}>
                         <div className="runner-ground" />
+
+                        <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
 
                         <img
                             ref={dogElRef}
@@ -516,15 +528,26 @@ export default function RunnerScreen({ onClose }) {
                     )}
                 </div>
 
-                <button className="runner-jump-btn" onPointerDown={jump} disabled={phase !== 'playing'}>
-                    SALTAR
-                </button>
+                <div className="runner-action-row">
+                    <button className="runner-jump-btn" onPointerDown={jump} disabled={phase !== 'playing'}>
+                        <ArrowUp size={28} color="#2ecc71" />
+                    </button>
+                    <button className="runner-power-btn" disabled>
+                        PODER
+                    </button>
+                </div>
 
                 {phase === 'playing' && (
                     <button className="runner-pause-btn" onClick={() => setPaused(p => !p)}>
                         {paused ? 'REANUDAR' : 'PAUSAR'}
                     </button>
                 )}
+
+                <div className="runner-hud">
+                    <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
+                    <span className="runner-hud-score">{score}</span>
+                    {phase === 'playing' && <span className="runner-hud-tier">T{speedTierDisplay}</span>}
+                </div>
 
                 {phase === 'ready' && (
                     <div className="runner-dog-select">
