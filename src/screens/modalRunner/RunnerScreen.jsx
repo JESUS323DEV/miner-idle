@@ -82,7 +82,7 @@ const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
 const DOUBLE_JUMP_COOLDOWN_MS = 2000;
-const SPEED_TIERS = [260, 320, 380, 440];
+const SPEED_TIERS = [280, 320, 380, 440];
 const SPEED_TIER_MS = 5000;
 const SPEED_RAMP_STEP = 20;   // px/s que se suma cada SPEED_RAMP_MS tras agotar los tramos
 const SPEED_RAMP_MS = 10000;
@@ -128,6 +128,7 @@ const saveHighScore = (score, dogId) => {
 
 export default function RunnerScreen({ onClose }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
+    const [paused, setPaused] = useState(false);
     const [won, setWon] = useState(false);
     const [selectedDogId, setSelectedDogId] = useState('lady');
     const [cpuDogId, setCpuDogId] = useState('gordo');
@@ -177,7 +178,7 @@ export default function RunnerScreen({ onClose }) {
     }, []);
 
     const jump = useCallback(() => {
-        if (phase !== 'playing') return;
+        if (phase !== 'playing' || paused) return;
         if (!isJumpingRef.current) {
             isJumpingRef.current = true;
             velocityRef.current = JUMP_VELOCITY_SINGLE;
@@ -187,7 +188,7 @@ export default function RunnerScreen({ onClose }) {
             setDoubleJumpReady(false);
             setTimeout(() => setDoubleJumpReady(true), DOUBLE_JUMP_COOLDOWN_MS);
         }
-    }, [phase, doubleJumpReady]);
+    }, [phase, paused, doubleJumpReady]);
 
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
@@ -212,6 +213,7 @@ export default function RunnerScreen({ onClose }) {
         setScore(0);
         setWon(false);
         setDoubleJumpReady(true);
+        setPaused(false);
     }, []);
 
     const resetGame = useCallback(() => {
@@ -235,12 +237,12 @@ export default function RunnerScreen({ onClose }) {
 
     // Ciclo de correr en el suelo (compartido, las 2 pistas tienen 4 frames)
     useEffect(() => {
-        if (phase === 'gameover') return;
+        if (phase === 'gameover' || paused) return;
         const interval = setInterval(() => {
             setFrameIdx(i => (i + 1) % 4);
         }, RUN_FRAME_MS);
         return () => clearInterval(interval);
-    }, [phase]);
+    }, [phase, paused]);
 
     // Salto con espacio (pruebas de escritorio)
     useEffect(() => {
@@ -254,7 +256,7 @@ export default function RunnerScreen({ onClose }) {
     // Bucle principal: fisica (jugador + CPU), spawns, colisiones. Las posiciones
     // se escriben directo en el DOM via refs, nunca por props style dinamicas en el JSX.
     useEffect(() => {
-        if (phase !== 'playing') return;
+        if (phase !== 'playing' || paused) return;
         let rafId;
         let lastTime = performance.now();
 
@@ -427,7 +429,7 @@ export default function RunnerScreen({ onClose }) {
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, difficulty]);
+    }, [phase, paused, difficulty]);
 
     const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
@@ -517,6 +519,12 @@ export default function RunnerScreen({ onClose }) {
                 <button className="runner-jump-btn" onPointerDown={jump} disabled={phase !== 'playing'}>
                     SALTAR
                 </button>
+
+                {phase === 'playing' && (
+                    <button className="runner-pause-btn" onClick={() => setPaused(p => !p)}>
+                        {paused ? 'REANUDAR' : 'PAUSAR'}
+                    </button>
+                )}
 
                 {phase === 'ready' && (
                     <div className="runner-dog-select">
