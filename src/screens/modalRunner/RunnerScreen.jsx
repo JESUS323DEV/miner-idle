@@ -102,16 +102,57 @@ const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, 
 const HIT_INVULN_MS = 900;
 const MAX_LIVES = 3;
 
+// La dificultad ya no es "% de acierto": la CPU siempre intenta esquivar bien,
+// lo que varia es su imperfeccion (cuanto tarda en reaccionar, cuanto tiembla el timing, cuanto ve venir).
 const CPU_DIFFICULTY_PRESETS = {
-    medio:   { label: 'Medio',   dodgeChance: 0.93, reactionS: 0.22 },
-    dificil: { label: 'Difícil', dodgeChance: 0.97, reactionS: 0.18 },
+    medio:   { label: 'Medio',   reactionDelayMs: 180, timingJitterMs: 70, visionPx: 260 },
+    dificil: { label: 'Difícil', reactionDelayMs: 90,  timingJitterMs: 25, visionPx: 340 },
 };
 const DIFFICULTY_ORDER = ['medio', 'dificil'];
 
-// Ajustes propios de la CPU para compensar limitaciones mecanicas suyas (no de dificultad).
-// Solo se buffea aqui cuando de verdad hace falta, no es un "modo facil" general.
-const CPU_BEHAVIOR = {
-    pendingJumpAerialGuardMs: 750, // inmune a aereos mientras dura un salto disparado por el mecanismo de salto pendiente
+const CPU_SIM_STEP_MS = 16;      // paso de la mini-simulacion que usa la CPU para predecir su propia trayectoria
+const CPU_SIM_HORIZON_MS = 1500; // hasta donde mira hacia delante como mucho
+const CPU_ACTION_LEAD_MS = 80;   // margen antes de que empiece el peligro para pulsar el salto, no en cuanto lo detecta
+
+const isDangerousY = (y, aerial, clearY) => (aerial
+    ? (y > AERIAL_MIN_Y && y < AERIAL_MAX_Y)
+    : (y < clearY));
+
+// Ventana de tiempo (ms desde ahora) en la que este obstaculo solaparia horizontalmente al perro,
+// misma formula que la colision real pero despejada para tiempo en vez de posicion.
+const getDangerWindowMs = (obstacle, speed) => {
+    if (speed <= 0) return null;
+    const t1 = ((obstacle.x - DOG_X - DOG_SIZE) / speed) * 1000;
+    const t2 = ((obstacle.x + obstacle.size - DOG_X) / speed) * 1000;
+    if (t2 < 0) return null;
+    return { start: Math.max(0, t1), end: t2 };
+};
+
+// Version programatica de "si hago esto ahora, ¿voy a estar a salvo cuando llegue esto?":
+// simula la trayectoria de la CPU (con un salto opcional en actionAtMs) y comprueba si evita
+// las ventanas de peligro de los obstaculos dados.
+const simulateCpuSafe = (startY, startVelocity, actionAtMs, actionVelocity, relevantObstacles) => {
+    if (relevantObstacles.length === 0) return true;
+    const horizonMs = Math.min(CPU_SIM_HORIZON_MS, Math.max(...relevantObstacles.map(r => r.window.end)) + 50);
+    let y = startY;
+    let v = startVelocity;
+    let actionApplied = actionAtMs === null;
+    const stepS = CPU_SIM_STEP_MS / 1000;
+    for (let t = 0; t <= horizonMs; t += CPU_SIM_STEP_MS) {
+        if (!actionApplied && t >= actionAtMs) {
+            v = actionVelocity;
+            actionApplied = true;
+        }
+        v -= GRAVITY * stepS;
+        y += v * stepS;
+        if (y <= 0) { y = 0; v = 0; }
+        else if (y > MAX_JUMP_HEIGHT) { y = MAX_JUMP_HEIGHT; }
+        for (const { o, window } of relevantObstacles) {
+            if (t < window.start || t > window.end) continue;
+            if (isDangerousY(y, o.aerial, o.clearY)) return false;
+        }
+    }
+    return true;
 };
 
 let obstacleIdSeq = 0;
@@ -166,11 +207,13 @@ export default function RunnerScreen({ onClose }) {
     const cpuVelocityRef = useRef(0);
     const isJumpingRef = useRef(false);
     const cpuIsJumpingRef = useRef(false);
-    const cpuPendingJumpRef = useRef(false);
-    const cpuAerialGuardUntilRef = useRef(0);
+    const cpuDoubleJumpUsedRef = useRef(false);
+    const cpuJumpAtRef = useRef(null);
+    const cpuDoubleJumpAtRef = useRef(null);
+    const cpuObstacleSeenAtRef = useRef(new Map());
     const doubleJumpUsedRef = useRef(false);
     const aerialToggleRef = useRef(false);
-    const obstaclesDataRef = useRef([]); // [{id, x, img, hit, cpuHit, cpuDodge, cpuJumped, el, cpuEl}]
+    const obstaclesDataRef = useRef([]); // [{id, x, img, aerial, size, clearY, hit, cpuHit, el, cpuEl}]
     const spawnTimerRef = useRef(0);
     const invulnUntilRef = useRef(0);
     const cpuInvulnUntilRef = useRef(0);
@@ -212,8 +255,10 @@ export default function RunnerScreen({ onClose }) {
         cpuVelocityRef.current = 0;
         isJumpingRef.current = false;
         cpuIsJumpingRef.current = false;
-        cpuPendingJumpRef.current = false;
-        cpuAerialGuardUntilRef.current = 0;
+        cpuDoubleJumpUsedRef.current = false;
+        cpuJumpAtRef.current = null;
+        cpuDoubleJumpAtRef.current = null;
+        cpuObstacleSeenAtRef.current = new Map();
         doubleJumpUsedRef.current = false;
         aerialToggleRef.current = false;
         obstaclesDataRef.current = [];
@@ -279,6 +324,61 @@ export default function RunnerScreen({ onClose }) {
         let rafId;
         let lastTime = performance.now();
 
+        // Decide si la CPU debe saltar/doble-saltar YA, mirando solo lo que tiene delante en este frame.
+        const decideCpuAction = (now, currentSpeed, list) => {
+            const preset = CPU_DIFFICULTY_PRESETS[difficulty];
+            const seenAt = cpuObstacleSeenAtRef.current;
+            const relevant = [];
+            for (const o of list) {
+                if (o.x + o.size < DOG_X) continue; // ya paso
+                if (o.x > DOG_X + DOG_SIZE + preset.visionPx) continue; // aun no "visible"
+                if (!seenAt.has(o.id)) seenAt.set(o.id, now);
+                if (now - seenAt.get(o.id) < preset.reactionDelayMs) continue; // todavia procesando
+                const dangerWindow = getDangerWindowMs(o, currentSpeed);
+                if (!dangerWindow) continue;
+                relevant.push({ o, window: dangerWindow });
+            }
+            if (seenAt.size > 40) {
+                const activeIds = new Set(list.map(o => o.id));
+                for (const id of seenAt.keys()) if (!activeIds.has(id)) seenAt.delete(id);
+            }
+            if (relevant.length === 0) return;
+
+            // Solo se evalua contra la amenaza mas inmediata: la siguiente decision (aterrizar,
+            // o gastar el doble salto) ya se reevalua sola en un frame futuro con el estado real de ese momento.
+            relevant.sort((a, b) => a.window.start - b.window.start);
+            const immediate = [relevant[0]];
+
+            // No actua en cuanto detecta que hara falta (eso la hace saltar de mas y comerse lo siguiente),
+            // sino lo mas tarde posible sin dejar de ser seguro: justo antes de que empiece el peligro real.
+            const scheduleAt = () => {
+                const idealDelay = Math.max(0, immediate[0].window.start - CPU_ACTION_LEAD_MS);
+                const jitter = (Math.random() * 2 - 1) * preset.timingJitterMs;
+                return now + Math.max(0, idealDelay + jitter);
+            };
+
+            if (!cpuIsJumpingRef.current) {
+                if (cpuJumpAtRef.current !== null) return;
+                if (simulateCpuSafe(cpuDogYRef.current, cpuVelocityRef.current, null, 0, immediate)) return;
+                if (simulateCpuSafe(cpuDogYRef.current, cpuVelocityRef.current, 0, JUMP_VELOCITY_SINGLE, immediate)) {
+                    cpuJumpAtRef.current = scheduleAt();
+                }
+            } else if (!cpuDoubleJumpUsedRef.current) {
+                // Aqui ya no hay una siguiente decision a la que delegar (es el ultimo recurso),
+                // asi que mira TODO lo que tiene delante ahora mismo, no solo lo mas inmediato:
+                // si solo mirase el 1er obstaculo, no veria el 2o hasta que el 1o termine de pasar.
+                if (cpuDoubleJumpAtRef.current !== null) return;
+                if (simulateCpuSafe(cpuDogYRef.current, cpuVelocityRef.current, null, 0, relevant)) return;
+                if (simulateCpuSafe(cpuDogYRef.current, cpuVelocityRef.current, 0, JUMP_VELOCITY, relevant)) {
+                    // El doble salto RESETEA la velocidad desde la altura actual: pulsarlo mas tarde
+                    // (mas arriba en el arco) genera MAS tiempo de vuelo, al reves que el salto simple.
+                    // Por eso se dispara ya, pegado al primero, no se espera al ultimo momento seguro.
+                    const jitter = (Math.random() * 2 - 1) * preset.timingJitterMs;
+                    cpuDoubleJumpAtRef.current = now + Math.max(0, jitter);
+                }
+            }
+        };
+
         const tick = (now) => {
             const dt = Math.min(0.05, (now - lastTime) / 1000);
             lastTime = now;
@@ -331,15 +431,7 @@ export default function RunnerScreen({ onClose }) {
             cpuDogYRef.current = cpuNewY;
             if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${cpuNewY + GROUND_VISUAL_OFFSET}px`;
             if (cpuJustLanded) {
-                if (cpuPendingJumpRef.current) {
-                    cpuPendingJumpRef.current = false;
-                    cpuIsJumpingRef.current = true;
-                    cpuVelocityRef.current = JUMP_VELOCITY;
-                    cpuAerialGuardUntilRef.current = now + CPU_BEHAVIOR.pendingJumpAerialGuardMs;
-                    setCpuAirborne(true);
-                } else {
-                    setCpuAirborne(false);
-                }
+                setCpuAirborne(false);
             }
 
             const trackWidth = trackRef.current?.offsetWidth ?? 320;
@@ -364,8 +456,6 @@ export default function RunnerScreen({ onClose }) {
                     clearY: OBSTACLE_CLEAR_Y,
                     hit: false,
                     cpuHit: false,
-                    cpuDodge: aerial ? false : Math.random() < CPU_DIFFICULTY_PRESETS[difficulty].dodgeChance,
-                    cpuJumped: false,
                     el: null,
                     cpuEl: null,
                 });
@@ -382,18 +472,23 @@ export default function RunnerScreen({ onClose }) {
             list = list.filter(o => o.x > -o.size);
             const despawned = list.length !== beforeLen;
 
-            // La CPU "pulsa" su salto cuando el obstaculo que decidio esquivar se acerca
-            for (const o of list) {
-                if (o.cpuDodge && !o.cpuJumped && o.x <= DOG_X + DOG_SIZE + CPU_DIFFICULTY_PRESETS[difficulty].reactionS * currentSpeed) {
-                    o.cpuJumped = true;
-                    if (!cpuIsJumpingRef.current) {
-                        cpuIsJumpingRef.current = true;
-                        cpuVelocityRef.current = JUMP_VELOCITY;
-                        setCpuAirborne(true);
-                    } else {
-                        // Ya esta en el aire por otro obstaculo: guarda el salto para el aterrizaje
-                        cpuPendingJumpRef.current = true;
-                    }
+            // La CPU evalua su situacion real cada frame: si no hace nada, ¿le choca algo? si es asi,
+            // ¿saltar (o doble saltar) la libra? Reemplaza la tirada de dado por obstaculo de antes.
+            decideCpuAction(now, currentSpeed, list);
+            if (cpuJumpAtRef.current !== null && now >= cpuJumpAtRef.current) {
+                cpuJumpAtRef.current = null;
+                if (!cpuIsJumpingRef.current) {
+                    cpuIsJumpingRef.current = true;
+                    cpuDoubleJumpUsedRef.current = false;
+                    cpuVelocityRef.current = JUMP_VELOCITY_SINGLE;
+                    setCpuAirborne(true);
+                }
+            }
+            if (cpuDoubleJumpAtRef.current !== null && now >= cpuDoubleJumpAtRef.current) {
+                cpuDoubleJumpAtRef.current = null;
+                if (cpuIsJumpingRef.current && !cpuDoubleJumpUsedRef.current) {
+                    cpuDoubleJumpUsedRef.current = true;
+                    cpuVelocityRef.current = JUMP_VELOCITY;
                 }
             }
 
@@ -424,10 +519,7 @@ export default function RunnerScreen({ onClose }) {
                     if (o.cpuHit) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                     if (!overlapX) continue;
-                    const cpuAerialGuarded = now < cpuAerialGuardUntilRef.current;
-                    const cpuDangerous = o.aerial
-                        ? (!cpuAerialGuarded && cpuDogYRef.current > AERIAL_MIN_Y && cpuDogYRef.current < AERIAL_MAX_Y)
-                        : (cpuDogYRef.current < o.clearY);
+                    const cpuDangerous = isDangerousY(cpuDogYRef.current, o.aerial, o.clearY);
                     if (cpuDangerous) {
                         o.cpuHit = true;
                         cpuLifeLost = true;
