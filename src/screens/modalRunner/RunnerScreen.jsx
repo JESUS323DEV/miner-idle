@@ -94,15 +94,25 @@ const DOG_X = 40;
 const DOG_SIZE = 64;
 const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
+const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
+const AERIAL_MAX_Y = 130;
+const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empiezan a aparecer, intercalados
+const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
+const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, para que el aereo llegue justo al aterrizar
 const HIT_INVULN_MS = 900;
 const MAX_LIVES = 3;
 
 const CPU_DIFFICULTY_PRESETS = {
-    facil:   { label: 'Fácil',   dodgeChance: 0.78, reactionS: 0.30 },
     medio:   { label: 'Medio',   dodgeChance: 0.93, reactionS: 0.22 },
     dificil: { label: 'Difícil', dodgeChance: 0.97, reactionS: 0.18 },
 };
-const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
+const DIFFICULTY_ORDER = ['medio', 'dificil'];
+
+// Ajustes propios de la CPU para compensar limitaciones mecanicas suyas (no de dificultad).
+// Solo se buffea aqui cuando de verdad hace falta, no es un "modo facil" general.
+const CPU_BEHAVIOR = {
+    pendingJumpAerialGuardMs: 750, // inmune a aereos mientras dura un salto disparado por el mecanismo de salto pendiente
+};
 
 let obstacleIdSeq = 0;
 
@@ -157,7 +167,9 @@ export default function RunnerScreen({ onClose }) {
     const isJumpingRef = useRef(false);
     const cpuIsJumpingRef = useRef(false);
     const cpuPendingJumpRef = useRef(false);
+    const cpuAerialGuardUntilRef = useRef(0);
     const doubleJumpUsedRef = useRef(false);
+    const aerialToggleRef = useRef(false);
     const obstaclesDataRef = useRef([]); // [{id, x, img, hit, cpuHit, cpuDodge, cpuJumped, el, cpuEl}]
     const spawnTimerRef = useRef(0);
     const invulnUntilRef = useRef(0);
@@ -201,7 +213,9 @@ export default function RunnerScreen({ onClose }) {
         isJumpingRef.current = false;
         cpuIsJumpingRef.current = false;
         cpuPendingJumpRef.current = false;
+        cpuAerialGuardUntilRef.current = 0;
         doubleJumpUsedRef.current = false;
+        aerialToggleRef.current = false;
         obstaclesDataRef.current = [];
         spawnTimerRef.current = SPAWN_MIN_MS;
         invulnUntilRef.current = 0;
@@ -321,6 +335,7 @@ export default function RunnerScreen({ onClose }) {
                     cpuPendingJumpRef.current = false;
                     cpuIsJumpingRef.current = true;
                     cpuVelocityRef.current = JUMP_VELOCITY;
+                    cpuAerialGuardUntilRef.current = now + CPU_BEHAVIOR.pendingJumpAerialGuardMs;
                     setCpuAirborne(true);
                 } else {
                     setCpuAirborne(false);
@@ -334,19 +349,31 @@ export default function RunnerScreen({ onClose }) {
             let spawned = false;
             if (spawnTimerRef.current <= 0) {
                 spawnTimerRef.current = SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS);
-                list = [...list, {
+                let aerial = false;
+                const tierNow = speedTierShownRef.current;
+                if (tierNow >= AERIAL_UNLOCK_TIER) {
+                    aerial = aerialToggleRef.current;
+                    aerialToggleRef.current = !aerialToggleRef.current;
+                }
+                const makeObstacle = (x) => ({
                     id: obstacleIdSeq++,
-                    x: trackWidth,
+                    x,
                     img: OBSTACLE_IMGS[Math.floor(Math.random() * OBSTACLE_IMGS.length)],
+                    aerial,
                     size: OBSTACLE_SIZE,
                     clearY: OBSTACLE_CLEAR_Y,
                     hit: false,
                     cpuHit: false,
-                    cpuDodge: Math.random() < CPU_DIFFICULTY_PRESETS[difficulty].dodgeChance,
+                    cpuDodge: aerial ? false : Math.random() < CPU_DIFFICULTY_PRESETS[difficulty].dodgeChance,
                     cpuJumped: false,
                     el: null,
                     cpuEl: null,
-                }];
+                });
+                list = [...list, makeObstacle(trackWidth)];
+                if (!aerial && tierNow >= AERIAL_UNLOCK_TIER) {
+                    list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX));
+                    spawnTimerRef.current = LANDING_SYNC_DELAY_MS;
+                }
                 spawned = true;
             }
 
@@ -377,7 +404,11 @@ export default function RunnerScreen({ onClose }) {
                 for (const o of list) {
                     if (o.hit) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
-                    if (overlapX && dogYRef.current < o.clearY) {
+                    if (!overlapX) continue;
+                    const dangerous = o.aerial
+                        ? (dogYRef.current > AERIAL_MIN_Y && dogYRef.current < AERIAL_MAX_Y)
+                        : (dogYRef.current < o.clearY);
+                    if (dangerous) {
                         o.hit = true;
                         lifeLost = true;
                         break;
@@ -392,7 +423,12 @@ export default function RunnerScreen({ onClose }) {
                 for (const o of list) {
                     if (o.cpuHit) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
-                    if (overlapX && cpuDogYRef.current < o.clearY) {
+                    if (!overlapX) continue;
+                    const cpuAerialGuarded = now < cpuAerialGuardUntilRef.current;
+                    const cpuDangerous = o.aerial
+                        ? (!cpuAerialGuarded && cpuDogYRef.current > AERIAL_MIN_Y && cpuDogYRef.current < AERIAL_MAX_Y)
+                        : (cpuDogYRef.current < o.clearY);
+                    if (cpuDangerous) {
                         o.cpuHit = true;
                         cpuLifeLost = true;
                         break;
@@ -406,7 +442,7 @@ export default function RunnerScreen({ onClose }) {
             });
             obstaclesDataRef.current = list;
             if (spawned || despawned) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img })));
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial })));
             }
 
             scoreAccumRef.current += dt * 10;
@@ -457,8 +493,9 @@ export default function RunnerScreen({ onClose }) {
 
                 <div className="runner-tracks">
                     {phase !== 'ready' && (
-                        <div className="runner-track runner-track-cpu">
+                        <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}`}>
                             <div className="runner-ground" />
+                            {phase === 'playing' && <div className="runner-sky-overlay" />}
                             <div className="runner-track-cpu-label">
                                 <span>CPU</span>
                                 <span className="runner-track-cpu-lives">{'❤'.repeat(cpuLives)}{'♡'.repeat(MAX_LIVES - cpuLives)}</span>
@@ -477,16 +514,21 @@ export default function RunnerScreen({ onClose }) {
                                     ref={el => setCpuObstacleEl(o.id, el)}
                                     src={o.img}
                                     alt=""
-                                    className="runner-obstacle"
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
                                 />
                             ))}
                         </div>
                     )}
 
-                    <div className="runner-track runner-track-player" ref={trackRef}>
+                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}`} ref={trackRef}>
                         <div className="runner-ground" />
+                        {phase === 'playing' && <div className="runner-sky-overlay" />}
 
                         <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
+
+                        {phase === 'ready' && (
+                            <button className="runner-track-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
+                        )}
 
                         <img
                             ref={dogElRef}
@@ -501,7 +543,7 @@ export default function RunnerScreen({ onClose }) {
                                 ref={el => setObstacleEl(o.id, el)}
                                 src={o.img}
                                 alt=""
-                                className="runner-obstacle"
+                                className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
                             />
                         ))}
                     </div>
@@ -518,24 +560,29 @@ export default function RunnerScreen({ onClose }) {
                                 <>
                                     <p className="runner-overlay-title">{won ? '¡Has ganado!' : 'Game Over'}</p>
                                     <p className="runner-overlay-score">Puntos: {score}</p>
-                                    <div className="runner-overlay-btn-row">
-                                        <button className="runner-start-btn" onClick={resetGame}>Reintentar</button>
-                                        <button className="runner-start-btn runner-start-btn-secondary" onClick={backToSelect}>Elegir perro</button>
-                                    </div>
                                 </>
                             )}
                         </div>
                     )}
                 </div>
 
-                <div className="runner-action-row">
-                    <button className="runner-jump-btn" onPointerDown={jump} disabled={phase !== 'playing'}>
-                        <ArrowUp size={28} color="#2ecc71" />
-                    </button>
-                    <button className="runner-power-btn" disabled>
-                        PODER
-                    </button>
-                </div>
+                {phase === 'gameover' && (
+                    <div className="runner-action-row">
+                        <button className="runner-start-btn" onClick={resetGame}>Reintentar</button>
+                        <button className="runner-start-btn runner-start-btn-secondary" onClick={backToSelect}>Elegir perro</button>
+                    </div>
+                )}
+
+                {phase === 'playing' && (
+                    <div className="runner-action-row">
+                        <button className="runner-jump-btn" onPointerDown={jump}>
+                            <ArrowUp size={28} color="#2ecc71" />
+                        </button>
+                        <button className="runner-power-btn" disabled>
+                            PODER
+                        </button>
+                    </div>
+                )}
 
                 {phase === 'playing' && (
                     <button className="runner-pause-btn" onClick={() => setPaused(p => !p)}>
@@ -543,22 +590,26 @@ export default function RunnerScreen({ onClose }) {
                     </button>
                 )}
 
-                <div className="runner-hud">
-                    <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
-                    <span className="runner-hud-score">{score}</span>
-                    {phase === 'playing' && <span className="runner-hud-tier">T{speedTierDisplay}</span>}
-                </div>
+                {phase !== 'ready' && (
+                    <div className="runner-hud">
+                        <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
+                        <span className="runner-hud-score">{score}</span>
+                        {phase === 'playing' && <span className="runner-hud-tier">T{speedTierDisplay}</span>}
+                    </div>
+                )}
 
                 {phase === 'ready' && (
                     <div className="runner-dog-select">
                         {DOG_SELECT_ORDER.map(id => (
-                            <button
-                                key={id}
-                                className={`runner-dog-select-btn${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
-                                onClick={() => setSelectedDogId(id)}
-                            >
-                                <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                            </button>
+                            <div key={id} className="runner-dog-select-col">
+                                <button
+                                    className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
+                                    onClick={() => setSelectedDogId(id)}
+                                >
+                                    <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
+                                </button>
+                                <span className="runner-dog-select-name">{DogsConfig[id]?.name ?? id}</span>
+                            </div>
                         ))}
                     </div>
                 )}

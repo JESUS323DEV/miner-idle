@@ -62,6 +62,20 @@
     align-items: center;
 }
 
+.runner-track-scores-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 5;
+    border: none;
+    background: none;
+    color: #ffd740;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
 .runner-tracks {
     position: relative;
     display: flex;
@@ -73,9 +87,13 @@
     position: relative;
     width: 99%;
     overflow: hidden;
-    background: url('../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp') center / cover no-repeat;
+    background: url('../../assets/ui/icons-hud/hud-modals/game-run/fondo-run.webp') center / cover no-repeat;
     border-radius: 10px;
     border: 1px solid #3a2c18;
+}
+
+.runner-track-static {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp');
 }
 
 .runner-track-cpu {
@@ -116,10 +134,20 @@
     background: #5a4326;
 }
 
+.runner-sky-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 85%;
+    background: rgba(0, 0, 0, 0.65);
+    pointer-events: none;
+}
+
 .runner-dog {
     position: absolute;
     left: 40px;
-    bottom: 0;
+    bottom: 22px;
     width: 64px;
     height: 64px;
     object-fit: contain;
@@ -146,6 +174,10 @@
     object-position: bottom;
     box-sizing: border-box;
     border: 2px solid red;
+}
+
+.runner-obstacle-aerial {
+    bottom: 92px;
 }
 
 .runner-overlay {
@@ -179,11 +211,6 @@
     font-weight: 800;
     letter-spacing: 1px;
     cursor: pointer;
-}
-
-.runner-overlay-btn-row {
-    display: flex;
-    gap: 10px;
 }
 
 .runner-start-btn-secondary {
@@ -244,40 +271,70 @@
 .runner-dog-select {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
     padding-top: 4px;
 }
 
+.runner-dog-select-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
 .runner-dog-select-btn {
-    width: 48px;
-    height: 48px;
+    position: relative;
+    width: 72px;
+    height: 72px;
     padding: 0;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    background: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 0;
 }
 
-.runner-dog-select-active {
-    border-color: #ffd740;
-    background: rgba(255, 215, 64, 0.15);
+.runner-dog-select-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: grayscale(35%) brightness(0.8);
+    z-index: -1;
+}
+
+.runner-dog-select-btn.dog-rarity-legendary::before { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-legend.webp'); }
+.runner-dog-select-btn.dog-rarity-epic::before      { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-epic.webp'); }
+.runner-dog-select-btn.dog-rarity-rare::before       { background-image: url('../../assets/ui/icons-enemy/marco-slot-combat/combat-rare.webp'); }
+
+.runner-dog-select-active::before {
+    filter: none;
 }
 
 .runner-dog-select-icon {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
     border-radius: 50%;
+}
+
+.runner-dog-select-name {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
 }
 
 .runner-difficulty-select {
     display: flex;
     justify-content: center;
     gap: 8px;
+    margin-top: auto;
 }
 
 .runner-difficulty-btn {
