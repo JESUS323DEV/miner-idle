@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowUp } from 'lucide-react';
+import { X, Trophy, ArrowUp, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -49,11 +49,35 @@ import tukaIcon    from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
 import zeusIcon    from '../../assets/ui/icons-pets/mineros/zeus-icon.webp';
 import druhIcon    from '../../assets/ui/icons-pets/mineros/druh-icon.webp';
 
-import menaBronze1 from '../../assets/ui/icons-menas/menas-bronze/mena-bronze1.webp';
-import menaIron1 from '../../assets/ui/icons-menas/menas-iron/mena-iron1.webp';
-import menaDiamond1 from '../../assets/ui/icons-menas/menas-diamond/mena-diamond1.webp';
+import obstaculo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo3.webp';
+import obstaculoAereo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo-aereo.webp';
+
+import fuegoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-fuego2.webp';
+import electricoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-electrico2.webp';
+import aguaObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-hielo2.webp';
+import tierraObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-tierra2.webp';
+import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp';
+
+import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
 
 import '../../styles/modals/RunnerScreen.css';
+
+// Misma paleta que ELEMENT_ICON de CombatScreen.jsx, replicada aqui a proposito (componente aislado, ver feedback_sistemas_aislados)
+const ELEMENT_ICON = {
+    fuego:     { Icon: Flame,    color: '#ff6b35' },
+    electrico: { Icon: Zap,      color: '#FFD700' },
+    agua:      { Icon: Droplets, color: '#4fc3f7' },
+    tierra:    { Icon: Mountain, color: '#8b6914' },
+    oscuro:    { Icon: Moon,     color: '#b45cff' },
+};
+
+const ELEMENT_POWER_OBSTACLE_IMGS = {
+    fuego: fuegoObstacle,
+    electrico: electricoObstacle,
+    agua: aguaObstacle,
+    tierra: tierraObstacle,
+    oscuro: oscuroObstacle,
+};
 
 // Lady siempre primera en el selector, el resto en el orden que ya usa Ayudantes
 const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', 'tuka', 'zeus', 'druh'];
@@ -76,7 +100,8 @@ const DOG_ICONS = {
 };
 
 const RUN_FRAME_MS = 130;
-const OBSTACLE_IMGS = [menaBronze1, menaIron1, menaDiamond1];
+const GROUND_OBSTACLE_IMGS = [obstaculo3];
+const AERIAL_OBSTACLE_IMGS = [obstaculoAereo];
 
 const GROUND_VISUAL_OFFSET = 22; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
 const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
@@ -96,19 +121,38 @@ const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
 const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
 const AERIAL_MAX_Y = 130;
-const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empiezan a aparecer, intercalados
+const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
 const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, para que el aereo llegue justo al aterrizar
 const HIT_INVULN_MS = 900;
 const MAX_LIVES = 3;
+const GAME_END_DELAY_MS = 600; // pausa antes de mostrar la pantalla de resultado, para que clicks de mas no toquen el boton nuevo que aparece ahi
+
+const BOSS_MAX_HP = 40;
+const BOSS_POWER_DAMAGE = 10;
+const BOSS_X_RATIO = 0.75; // posicion del boss como fraccion del ancho de pista, fijo cerca del borde derecho
+
+// Cadencia de ataque del boss, independiente de la que usaba la CPU durante la carrera
+const BOSS_ATTACK_MAX_CHARGES = 3;
+const BOSS_ATTACK_RECHARGE_MS = 3000;
+const BOSS_ATTACK_CHANCE_PER_SEC = 0.4;
+
+const POWER_PROJECTILE_SPEED = 500; // px/s, propia y fija, no depende del ritmo de la carrera
+
+const MAX_POWER_CHARGES = 2;
+const POWER_RECHARGE_MS = 10000;
+const CPU_POWER_TIER_THRESHOLD = 3; // a partir de aqui la CPU usa el poder con mucha mas frecuencia
+const CPU_POWER_CHANCE_PER_SEC_EARLY = 0.02;
+const CPU_POWER_CHANCE_PER_SEC_LATE = 0.15;
 
 // La dificultad ya no es "% de acierto": la CPU siempre intenta esquivar bien,
 // lo que varia es su imperfeccion (cuanto tarda en reaccionar, cuanto tiembla el timing, cuanto ve venir).
 const CPU_DIFFICULTY_PRESETS = {
-    medio:   { label: 'Medio',   reactionDelayMs: 180, timingJitterMs: 70, visionPx: 260 },
-    dificil: { label: 'Difícil', reactionDelayMs: 90,  timingJitterMs: 25, visionPx: 340 },
+    facil:   { label: 'Fácil',   reactionDelayMs: 280, timingJitterMs: 110, visionPx: 200 },
+    medio:   { label: 'Medio',   reactionDelayMs: 90,  timingJitterMs: 25,  visionPx: 340 },
+    dificil: { label: 'Difícil', reactionDelayMs: 50,  timingJitterMs: 10,  visionPx: 410 },
 };
-const DIFFICULTY_ORDER = ['medio', 'dificil'];
+const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
 
 const CPU_SIM_STEP_MS = 16;      // paso de la mini-simulacion que usa la CPU para predecir su propia trayectoria
 const CPU_SIM_HORIZON_MS = 1500; // hasta donde mira hacia delante como mucho
@@ -180,6 +224,8 @@ const saveHighScore = (score, dogId) => {
 
 export default function RunnerScreen({ onClose }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
+    const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
+    const [bossHp, setBossHp] = useState(BOSS_MAX_HP);
     const [paused, setPaused] = useState(false);
     const [won, setWon] = useState(false);
     const [selectedDogId, setSelectedDogId] = useState('lady');
@@ -197,10 +243,14 @@ export default function RunnerScreen({ onClose }) {
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [highScores, setHighScores] = useState(loadHighScores);
+    const [powerCharges, setPowerCharges] = useState(MAX_POWER_CHARGES);
+    const [cpuPowerPending, setCpuPowerPending] = useState(false); // brilla la pista CPU: tiene un poder tuyo por llegar
+    const [playerPowerPending, setPlayerPowerPending] = useState(false); // brilla tu pista: la CPU te la ha jugado
 
     const trackRef = useRef(null);
     const dogElRef = useRef(null);
     const cpuDogElRef = useRef(null);
+    const bossElRef = useRef(null);
     const dogYRef = useRef(0);
     const cpuDogYRef = useRef(0);
     const velocityRef = useRef(0);
@@ -212,7 +262,7 @@ export default function RunnerScreen({ onClose }) {
     const cpuDoubleJumpAtRef = useRef(null);
     const cpuObstacleSeenAtRef = useRef(new Map());
     const doubleJumpUsedRef = useRef(false);
-    const aerialToggleRef = useRef(false);
+    const spawnPatternIndexRef = useRef(0); // contador de spawns, se interpreta mod 2 (tramo 1-2) o mod 3 (tramo 3+)
     const obstaclesDataRef = useRef([]); // [{id, x, img, aerial, size, clearY, hit, cpuHit, el, cpuEl}]
     const spawnTimerRef = useRef(0);
     const invulnUntilRef = useRef(0);
@@ -221,6 +271,15 @@ export default function RunnerScreen({ onClose }) {
     const scoreShownRef = useRef(0);
     const speedTierShownRef = useRef(1);
     const matchTimeRef = useRef(0);
+    const powerChargesRef = useRef(MAX_POWER_CHARGES);
+    const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
+    const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
+    const cpuPowerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
+    const pendingPowerForCpuRef = useRef(0);    // poder del jugador, pendiente de aplicar en la pista CPU
+    const pendingPowerForPlayerRef = useRef(0); // poder de la CPU, pendiente de aplicar en la pista del jugador
+    const endingRef = useRef(false); // true en cuanto se decide el resultado, congela el tick hasta que se muestre la pantalla
+    const bossAttackChargesRef = useRef(BOSS_ATTACK_MAX_CHARGES);
+    const bossAttackRechargeTimerRef = useRef(BOSS_ATTACK_RECHARGE_MS);
 
     const runFrames = DOG_RUN_FRAMES[selectedDogId];
     const cpuRunFrames = DOG_RUN_FRAMES[cpuDogId];
@@ -248,6 +307,34 @@ export default function RunnerScreen({ onClose }) {
         }
     }, [phase, paused]);
 
+    const usePower = useCallback(() => {
+        if (phase !== 'playing' || paused) return;
+        if (powerChargesRef.current <= 0) return;
+        powerChargesRef.current -= 1;
+        setPowerCharges(powerChargesRef.current);
+        if (stage === 'boss') {
+            const projectile = {
+                id: obstacleIdSeq++,
+                x: DOG_X + DOG_SIZE,
+                img: ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element],
+                aerial: false,
+                lane: 'cpu',
+                isProjectile: true,
+                size: OBSTACLE_SIZE,
+                clearY: OBSTACLE_CLEAR_Y,
+                hit: false,
+                cpuHit: false,
+                el: null,
+                cpuEl: null,
+            };
+            obstaclesDataRef.current = [...obstaclesDataRef.current, projectile];
+            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile })));
+        } else {
+            pendingPowerForCpuRef.current += 1;
+            setCpuPowerPending(true);
+        }
+    }, [phase, paused, stage, selectedDogId]);
+
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
         cpuDogYRef.current = 0;
@@ -260,7 +347,7 @@ export default function RunnerScreen({ onClose }) {
         cpuDoubleJumpAtRef.current = null;
         cpuObstacleSeenAtRef.current = new Map();
         doubleJumpUsedRef.current = false;
-        aerialToggleRef.current = false;
+        spawnPatternIndexRef.current = 0;
         obstaclesDataRef.current = [];
         spawnTimerRef.current = SPAWN_MIN_MS;
         invulnUntilRef.current = 0;
@@ -269,11 +356,25 @@ export default function RunnerScreen({ onClose }) {
         scoreShownRef.current = 0;
         speedTierShownRef.current = 1;
         matchTimeRef.current = 0;
+        powerChargesRef.current = MAX_POWER_CHARGES;
+        cpuPowerChargesRef.current = MAX_POWER_CHARGES;
+        powerRechargeTimerRef.current = POWER_RECHARGE_MS;
+        cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
+        pendingPowerForCpuRef.current = 0;
+        pendingPowerForPlayerRef.current = 0;
+        endingRef.current = false;
+        bossAttackChargesRef.current = BOSS_ATTACK_MAX_CHARGES;
+        bossAttackRechargeTimerRef.current = BOSS_ATTACK_RECHARGE_MS;
+        setPowerCharges(MAX_POWER_CHARGES);
+        setCpuPowerPending(false);
+        setPlayerPowerPending(false);
         setObstacles([]);
         setAirborne(false);
         setCpuAirborne(false);
         setLives(MAX_LIVES);
         setCpuLives(MAX_LIVES);
+        setStage('cpu');
+        setBossHp(BOSS_MAX_HP);
         setScore(0);
         setSpeedTierDisplay(1);
         setWon(false);
@@ -330,6 +431,7 @@ export default function RunnerScreen({ onClose }) {
             const seenAt = cpuObstacleSeenAtRef.current;
             const relevant = [];
             for (const o of list) {
+                if (o.lane === 'player') continue; // obstaculo de poder que no le afecta a ella
                 if (o.x + o.size < DOG_X) continue; // ya paso
                 if (o.x > DOG_X + DOG_SIZE + preset.visionPx) continue; // aun no "visible"
                 if (!seenAt.has(o.id)) seenAt.set(o.id, now);
@@ -380,6 +482,7 @@ export default function RunnerScreen({ onClose }) {
         };
 
         const tick = (now) => {
+            if (endingRef.current) { rafId = requestAnimationFrame(tick); return; }
             const dt = Math.min(0.05, (now - lastTime) / 1000);
             lastTime = now;
 
@@ -402,6 +505,50 @@ export default function RunnerScreen({ onClose }) {
                 setSpeedTierDisplay(tierNumber);
             }
 
+            // Recarga de cargas de poder (jugador y CPU, independiente cada una)
+            powerRechargeTimerRef.current -= dt * 1000;
+            if (powerRechargeTimerRef.current <= 0) {
+                powerRechargeTimerRef.current = POWER_RECHARGE_MS;
+                if (powerChargesRef.current < MAX_POWER_CHARGES) {
+                    powerChargesRef.current += 1;
+                    setPowerCharges(powerChargesRef.current);
+                }
+            }
+            if (stage === 'cpu') {
+                // La CPU decide sola cuando sabotearte durante la carrera: al azar, mas probable desde tramo 3
+                cpuPowerRechargeTimerRef.current -= dt * 1000;
+                if (cpuPowerRechargeTimerRef.current <= 0) {
+                    cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
+                    if (cpuPowerChargesRef.current < MAX_POWER_CHARGES) {
+                        cpuPowerChargesRef.current += 1;
+                    }
+                }
+                const cpuPowerChance = tierNumber >= CPU_POWER_TIER_THRESHOLD
+                    ? CPU_POWER_CHANCE_PER_SEC_LATE
+                    : CPU_POWER_CHANCE_PER_SEC_EARLY;
+                if (cpuPowerChargesRef.current > 0 && Math.random() < cpuPowerChance * dt) {
+                    cpuPowerChargesRef.current -= 1;
+                    pendingPowerForPlayerRef.current += 1;
+                    setPlayerPowerPending(true);
+                }
+            } else {
+                // El boss ataca con su propia cadencia, independiente de la carrera: mas cargas,
+                // recarga mas rapida y mas probabilidad, para que sea el reto principal de esta fase
+                // (puede soltar 2 ataques seguidos si lleva varias cargas acumuladas).
+                bossAttackRechargeTimerRef.current -= dt * 1000;
+                if (bossAttackRechargeTimerRef.current <= 0) {
+                    bossAttackRechargeTimerRef.current = BOSS_ATTACK_RECHARGE_MS;
+                    if (bossAttackChargesRef.current < BOSS_ATTACK_MAX_CHARGES) {
+                        bossAttackChargesRef.current += 1;
+                    }
+                }
+                if (bossAttackChargesRef.current > 0 && Math.random() < BOSS_ATTACK_CHANCE_PER_SEC * dt) {
+                    bossAttackChargesRef.current -= 1;
+                    pendingPowerForPlayerRef.current += 1;
+                    setPlayerPowerPending(true);
+                }
+            }
+
             // Fisica jugador
             velocityRef.current -= GRAVITY * dt;
             let newY = dogYRef.current + velocityRef.current * dt;
@@ -418,77 +565,146 @@ export default function RunnerScreen({ onClose }) {
             if (dogElRef.current) dogElRef.current.style.bottom = `${newY + GROUND_VISUAL_OFFSET}px`;
             if (justLanded) setAirborne(false);
 
-            // Fisica CPU (mismas reglas, ella misma dispara su salto mas abajo)
-            cpuVelocityRef.current -= GRAVITY * dt;
-            let cpuNewY = cpuDogYRef.current + cpuVelocityRef.current * dt;
-            let cpuJustLanded = false;
-            if (cpuNewY <= 0) {
-                cpuNewY = 0;
-                cpuVelocityRef.current = 0;
-                if (cpuIsJumpingRef.current) cpuJustLanded = true;
-                cpuIsJumpingRef.current = false;
-            }
-            cpuDogYRef.current = cpuNewY;
-            if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${cpuNewY + GROUND_VISUAL_OFFSET}px`;
-            if (cpuJustLanded) {
-                setCpuAirborne(false);
+            // Fisica CPU (mismas reglas, ella misma dispara su salto mas abajo). Solo mientras siga en pie.
+            if (stage === 'cpu') {
+                cpuVelocityRef.current -= GRAVITY * dt;
+                let cpuNewY = cpuDogYRef.current + cpuVelocityRef.current * dt;
+                let cpuJustLanded = false;
+                if (cpuNewY <= 0) {
+                    cpuNewY = 0;
+                    cpuVelocityRef.current = 0;
+                    if (cpuIsJumpingRef.current) cpuJustLanded = true;
+                    cpuIsJumpingRef.current = false;
+                }
+                cpuDogYRef.current = cpuNewY;
+                if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${cpuNewY + GROUND_VISUAL_OFFSET}px`;
+                if (cpuJustLanded) {
+                    setCpuAirborne(false);
+                }
             }
 
             const trackWidth = trackRef.current?.offsetWidth ?? 320;
             let list = obstaclesDataRef.current;
-
-            spawnTimerRef.current -= dt * 1000;
             let spawned = false;
-            if (spawnTimerRef.current <= 0) {
-                spawnTimerRef.current = SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS);
-                let aerial = false;
-                const tierNow = speedTierShownRef.current;
-                if (tierNow >= AERIAL_UNLOCK_TIER) {
-                    aerial = aerialToggleRef.current;
-                    aerialToggleRef.current = !aerialToggleRef.current;
-                }
-                const makeObstacle = (x) => ({
+
+            // En fase boss ya no hay generador automatico: el unico origen de obstaculos terrestres
+            // es el propio ataque del boss, disparado al momento (sin esperar a ningun spawn base).
+            if (stage === 'boss' && pendingPowerForPlayerRef.current > 0) {
+                pendingPowerForPlayerRef.current -= 1;
+                list = [...list, {
                     id: obstacleIdSeq++,
-                    x,
-                    img: OBSTACLE_IMGS[Math.floor(Math.random() * OBSTACLE_IMGS.length)],
-                    aerial,
+                    x: trackWidth,
+                    img: ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[cpuDogId]?.element],
+                    aerial: false,
+                    lane: 'player',
                     size: OBSTACLE_SIZE,
                     clearY: OBSTACLE_CLEAR_Y,
                     hit: false,
                     cpuHit: false,
                     el: null,
                     cpuEl: null,
-                });
+                }];
+                setPlayerPowerPending(false);
+                spawned = true;
+            }
+
+            spawnTimerRef.current -= dt * 1000;
+            if (stage === 'cpu' && spawnTimerRef.current <= 0) {
+                spawnTimerRef.current = SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS);
+                const tierNow = speedTierShownRef.current;
+                let aerial = false;
+                let isPair = false;
+                if (tierNow >= AERIAL_UNLOCK_TIER) {
+                    // Tramo 3+: pareja terrestre -> aereo -> terrestre suelto (repite)
+                    const pattern = spawnPatternIndexRef.current % 3;
+                    aerial = pattern === 1;
+                    isPair = pattern === 0;
+                } else {
+                    // Tramo 1-2: terrestre -> aereo (repite), sin parejas todavia
+                    const pattern = spawnPatternIndexRef.current % 2;
+                    aerial = pattern === 1;
+                }
+                spawnPatternIndexRef.current += 1;
+                const makeObstacle = (x, lane = 'both', element = null) => {
+                    // En fase boss, los terrestres normales tambien se tematizan solos con el elemento
+                    // del CPU derrotado (salvo que ya venga uno explicito, como los de poder). Aereos, no.
+                    const resolvedElement = element ?? (!aerial && stage === 'boss' ? DogsConfig[cpuDogId]?.element : null);
+                    return {
+                        id: obstacleIdSeq++,
+                        x,
+                        img: resolvedElement && ELEMENT_POWER_OBSTACLE_IMGS[resolvedElement]
+                            ? ELEMENT_POWER_OBSTACLE_IMGS[resolvedElement]
+                            : (aerial
+                                ? AERIAL_OBSTACLE_IMGS[Math.floor(Math.random() * AERIAL_OBSTACLE_IMGS.length)]
+                                : GROUND_OBSTACLE_IMGS[Math.floor(Math.random() * GROUND_OBSTACLE_IMGS.length)]),
+                        aerial,
+                        lane, // 'both' | 'player' | 'cpu' -- de poder, solo afecta/se ve en el carril indicado
+                        size: OBSTACLE_SIZE,
+                        clearY: OBSTACLE_CLEAR_Y,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    };
+                };
+                let groupCount = 1;
                 list = [...list, makeObstacle(trackWidth)];
-                if (!aerial && tierNow >= AERIAL_UNLOCK_TIER) {
+                if (isPair) {
                     list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX));
+                    groupCount += 1;
+                }
+                // Poderes: inyectan un extra terrestre. Hacia el carril CPU solo mientras siga en pie
+                // (ya no hay a quien sabotear en fase boss); hacia tu carril sigue activo en las 2 fases
+                // (en boss es el ataque del boss, heredado del elemento del perro derrotado).
+                if (!aerial) {
+                    if (stage === 'cpu' && pendingPowerForCpuRef.current > 0) {
+                        pendingPowerForCpuRef.current -= 1;
+                        list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX * groupCount, 'cpu', DogsConfig[selectedDogId]?.element));
+                        groupCount += 1;
+                        if (pendingPowerForCpuRef.current === 0) setCpuPowerPending(false);
+                    }
+                    if (pendingPowerForPlayerRef.current > 0) {
+                        pendingPowerForPlayerRef.current -= 1;
+                        list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX * groupCount, 'player', DogsConfig[cpuDogId]?.element));
+                        groupCount += 1;
+                        if (pendingPowerForPlayerRef.current === 0) setPlayerPowerPending(false);
+                    }
+                }
+                if (groupCount >= 2) {
                     spawnTimerRef.current = LANDING_SYNC_DELAY_MS;
                 }
                 spawned = true;
             }
 
             const beforeLen = list.length;
-            list.forEach(o => { o.x -= currentSpeed * dt; });
-            list = list.filter(o => o.x > -o.size);
+            list.forEach(o => {
+                // El proyectil de tu poder viaja al reves que todo lo demas: nace junto a ti y avanza
+                // hacia la derecha, con su propia velocidad fija, no la de scroll de la carrera.
+                if (o.isProjectile) o.x += POWER_PROJECTILE_SPEED * dt;
+                else o.x -= currentSpeed * dt;
+            });
+            list = list.filter(o => o.isProjectile ? (o.x < trackWidth + o.size && !o.hit) : o.x > -o.size);
             const despawned = list.length !== beforeLen;
 
             // La CPU evalua su situacion real cada frame: si no hace nada, ¿le choca algo? si es asi,
             // ¿saltar (o doble saltar) la libra? Reemplaza la tirada de dado por obstaculo de antes.
-            decideCpuAction(now, currentSpeed, list);
-            if (cpuJumpAtRef.current !== null && now >= cpuJumpAtRef.current) {
-                cpuJumpAtRef.current = null;
-                if (!cpuIsJumpingRef.current) {
-                    cpuIsJumpingRef.current = true;
-                    cpuDoubleJumpUsedRef.current = false;
-                    cpuVelocityRef.current = JUMP_VELOCITY_SINGLE;
-                    setCpuAirborne(true);
+            if (stage === 'cpu') {
+                decideCpuAction(now, currentSpeed, list);
+                if (cpuJumpAtRef.current !== null && now >= cpuJumpAtRef.current) {
+                    cpuJumpAtRef.current = null;
+                    if (!cpuIsJumpingRef.current) {
+                        cpuIsJumpingRef.current = true;
+                        cpuDoubleJumpUsedRef.current = false;
+                        cpuVelocityRef.current = JUMP_VELOCITY_SINGLE;
+                        setCpuAirborne(true);
+                    }
                 }
-            }
-            if (cpuDoubleJumpAtRef.current !== null && now >= cpuDoubleJumpAtRef.current) {
-                cpuDoubleJumpAtRef.current = null;
-                if (cpuIsJumpingRef.current && !cpuDoubleJumpUsedRef.current) {
-                    cpuDoubleJumpUsedRef.current = true;
-                    cpuVelocityRef.current = JUMP_VELOCITY;
+                if (cpuDoubleJumpAtRef.current !== null && now >= cpuDoubleJumpAtRef.current) {
+                    cpuDoubleJumpAtRef.current = null;
+                    if (cpuIsJumpingRef.current && !cpuDoubleJumpUsedRef.current) {
+                        cpuDoubleJumpUsedRef.current = true;
+                        cpuVelocityRef.current = JUMP_VELOCITY;
+                    }
                 }
             }
 
@@ -497,7 +713,7 @@ export default function RunnerScreen({ onClose }) {
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
-                    if (o.hit) continue;
+                    if (o.hit || o.lane === 'cpu') continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
@@ -512,18 +728,34 @@ export default function RunnerScreen({ onClose }) {
             }
 
             // Colision CPU
-            const cpuInvuln = now < cpuInvulnUntilRef.current;
             let cpuLifeLost = false;
-            if (!cpuInvuln) {
+            if (stage === 'cpu') {
+                const cpuInvuln = now < cpuInvulnUntilRef.current;
+                if (!cpuInvuln) {
+                    for (const o of list) {
+                        if (o.cpuHit || o.lane === 'player') continue;
+                        const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                        if (!overlapX) continue;
+                        const cpuDangerous = isDangerousY(cpuDogYRef.current, o.aerial, o.clearY);
+                        if (cpuDangerous) {
+                            o.cpuHit = true;
+                            cpuLifeLost = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Colision con el boss: cualquier proyectil de poder que llegue a su posicion le resta vida
+            let bossHit = false;
+            if (stage === 'boss') {
+                const bossX = trackWidth * BOSS_X_RATIO;
+                if (bossElRef.current) bossElRef.current.style.left = `${bossX}px`;
                 for (const o of list) {
-                    if (o.cpuHit) continue;
-                    const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
-                    if (!overlapX) continue;
-                    const cpuDangerous = isDangerousY(cpuDogYRef.current, o.aerial, o.clearY);
-                    if (cpuDangerous) {
-                        o.cpuHit = true;
-                        cpuLifeLost = true;
-                        break;
+                    if (!o.isProjectile || o.hit) continue;
+                    if (o.x >= bossX) {
+                        o.hit = true;
+                        bossHit = true;
                     }
                 }
             }
@@ -533,8 +765,19 @@ export default function RunnerScreen({ onClose }) {
                 if (o.cpuEl) o.cpuEl.style.left = `${o.x}px`;
             });
             obstaclesDataRef.current = list;
-            if (spawned || despawned) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial })));
+            if (spawned || despawned || bossHit) {
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile })));
+            }
+
+            if (bossHit) {
+                setBossHp(prev => {
+                    const next = Math.max(0, prev - BOSS_POWER_DAMAGE);
+                    if (next <= 0 && !endingRef.current) {
+                        endingRef.current = true;
+                        setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                    }
+                    return next;
+                });
             }
 
             scoreAccumRef.current += dt * 10;
@@ -550,7 +793,10 @@ export default function RunnerScreen({ onClose }) {
                 setTimeout(() => setHitFlash(false), HIT_INVULN_MS);
                 setLives(prev => {
                     const next = prev - 1;
-                    if (next <= 0) { setWon(false); setPhase('gameover'); }
+                    if (next <= 0 && !endingRef.current) {
+                        endingRef.current = true;
+                        setTimeout(() => { setWon(false); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                    }
                     return next;
                 });
             }
@@ -561,7 +807,7 @@ export default function RunnerScreen({ onClose }) {
                 setTimeout(() => setCpuHitFlash(false), HIT_INVULN_MS);
                 setCpuLives(prev => {
                     const next = prev - 1;
-                    if (next <= 0) { setWon(true); setPhase('gameover'); }
+                    if (next <= 0) { setStage('boss'); }
                     return next;
                 });
             }
@@ -571,10 +817,11 @@ export default function RunnerScreen({ onClose }) {
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage]);
 
     const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
+    const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
 
     return (
         <div className="runner-backdrop" onClick={phase !== 'playing' ? onClose : undefined}>
@@ -585,38 +832,48 @@ export default function RunnerScreen({ onClose }) {
 
                 <div className="runner-tracks">
                     {phase !== 'ready' && (
-                        <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}`}>
+                        <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
-                            {phase === 'playing' && <div className="runner-sky-overlay" />}
-                            <div className="runner-track-cpu-label">
-                                <span>CPU</span>
-                                <span className="runner-track-cpu-lives">{'❤'.repeat(cpuLives)}{'♡'.repeat(MAX_LIVES - cpuLives)}</span>
-                            </div>
+                            {phase === 'playing' && stage === 'cpu' && <div className="runner-sky-overlay" />}
 
-                            <img
-                                ref={cpuDogElRef}
-                                src={cpuDogImg}
-                                alt={DogsConfig[cpuDogId]?.name ?? cpuDogId}
-                                className={`runner-dog${cpuHitFlash ? ' runner-dog-hit' : ''}`}
-                            />
-
-                            {obstacles.map(o => (
-                                <img
-                                    key={o.id}
-                                    ref={el => setCpuObstacleEl(o.id, el)}
-                                    src={o.img}
-                                    alt=""
-                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
-                                />
-                            ))}
+                            {stage === 'cpu' && (
+                                <>
+                                    <div className="runner-track-cpu-label">
+                                        <span>CPU</span>
+                                        <span className="runner-track-cpu-lives">{'❤'.repeat(cpuLives)}{'♡'.repeat(MAX_LIVES - cpuLives)}</span>
+                                    </div>
+                                    <img
+                                        ref={cpuDogElRef}
+                                        src={cpuDogImg}
+                                        alt={DogsConfig[cpuDogId]?.name ?? cpuDogId}
+                                        className={`runner-dog${cpuHitFlash ? ' runner-dog-hit' : ''}`}
+                                    />
+                                    {obstacles.filter(o => o.lane !== 'player').map(o => (
+                                        <img
+                                            key={o.id}
+                                            ref={el => setCpuObstacleEl(o.id, el)}
+                                            src={o.img}
+                                            alt=""
+                                            className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
+                                        />
+                                    ))}
+                                </>
+                            )}
                         </div>
                     )}
 
-                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}`} ref={trackRef}>
+                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className="runner-sky-overlay" />}
 
                         <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
+
+                        {stage === 'boss' && (
+                            <div className="runner-boss-label">
+                                <span>BOSS</span>
+                                <span className="runner-track-cpu-lives">{bossHp}/{BOSS_MAX_HP}</span>
+                            </div>
+                        )}
 
                         {phase === 'ready' && (
                             <button className="runner-track-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
@@ -629,7 +886,9 @@ export default function RunnerScreen({ onClose }) {
                             className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}`}
                         />
 
-                        {obstacles.map(o => (
+                        {stage === 'boss' && <img ref={bossElRef} src={batBoss} alt="Boss" className="runner-boss" />}
+
+                        {obstacles.filter(o => o.lane !== 'cpu' || o.isProjectile).map(o => (
                             <img
                                 key={o.id}
                                 ref={el => setObstacleEl(o.id, el)}
@@ -670,8 +929,11 @@ export default function RunnerScreen({ onClose }) {
                         <button className="runner-jump-btn" onPointerDown={jump}>
                             <ArrowUp size={28} color="#2ecc71" />
                         </button>
-                        <button className="runner-power-btn" disabled>
-                            PODER
+                        <button className="runner-power-btn" onPointerDown={usePower} disabled={powerCharges <= 0}>
+                            {playerPowerObstacleImg && (
+                                <img src={playerPowerObstacleImg} alt="" className="runner-power-btn-img" />
+                            )}
+                            <span className="runner-power-btn-charges">{powerCharges}</span>
                         </button>
                     </div>
                 )}
@@ -692,17 +954,25 @@ export default function RunnerScreen({ onClose }) {
 
                 {phase === 'ready' && (
                     <div className="runner-dog-select">
-                        {DOG_SELECT_ORDER.map(id => (
-                            <div key={id} className="runner-dog-select-col">
-                                <button
-                                    className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
-                                    onClick={() => setSelectedDogId(id)}
-                                >
-                                    <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                                </button>
-                                <span className="runner-dog-select-name">{DogsConfig[id]?.name ?? id}</span>
-                            </div>
-                        ))}
+                        {DOG_SELECT_ORDER.map(id => {
+                            const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
+                            return (
+                                <div key={id} className="runner-dog-select-col">
+                                    <button
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
+                                        onClick={() => setSelectedDogId(id)}
+                                    >
+                                        <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
+                                        {elementInfo && (
+                                            <span className={`runner-dog-select-element runner-dog-select-element-${DogsConfig[id]?.element}`}>
+                                                <elementInfo.Icon size={11} color="#14100c" />
+                                            </span>
+                                        )}
+                                    </button>
+                                    <span className="runner-dog-select-name">{DogsConfig[id]?.name ?? id}</span>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 

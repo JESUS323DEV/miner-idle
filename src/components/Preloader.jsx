@@ -335,6 +335,16 @@ import zeusRunP3 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp"
 import zeusRunP4 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp"
 import runnerFondo1 from "../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp"
 import runnerFondoRun from "../assets/ui/icons-hud/hud-modals/game-run/fondo-run.webp"
+import runnerObstaculo1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo1.webp"
+import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo2.webp"
+import runnerObstaculo3 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo3.webp"
+import runnerObstaculoAereo from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo-aereo.webp"
+import runnerPowerFuego from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-fuego2.webp"
+import runnerPowerElectrico from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-electrico2.webp"
+import runnerPowerAgua from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-hielo2.webp"
+import runnerPowerTierra from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-tierra2.webp"
+import runnerPowerOscuro from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp"
+import runnerBatBoss from "../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp"
 
 // ===== SPRITES DE CARRERA (ANIMACIÓN DE COMPRA DE SKINS) =====
 import ladySkinRunP1 from "../assets/ui/lady-sprite/sprites-run-skins/lady-run-skin/lady-1.webp"
@@ -543,7 +553,8 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
-    runnerFondo1, runnerFondoRun,
+    runnerFondo1, runnerFondoRun, runnerObstaculo1, runnerObstaculo2, runnerObstaculo3, runnerObstaculoAereo,
+    runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerBatBoss,
     // sprites de carrera (animación de compra de skins)
     ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4, ladyGafasRunP, ladyCascosRunP, ladyCapuchaRunP, ladyMineraRunP, ladyPirataRunP, ladyUltimateRunP,
     munaCascosRunSkinP, munaMineraRunSkinP, munaPilotoRunSkinP, munaPirataRunSkinP, munaReinaRunSkinP, munaUltimateRunSkinP,
