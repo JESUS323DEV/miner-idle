@@ -1394,6 +1394,7 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                 return (
                 <div className="skin-preview-overlay" onClick={e => { e.stopPropagation(); setUltimatePreview(null); }}>
                     <div className={`skin-preview-frame dog-rarity-${ultimatePreview.skin.tier} skin-preview-${ultimatePreview.dogId}`} onClick={e => e.stopPropagation()}>
+                        <button className="skin-preview-close" onClick={() => setUltimatePreview(null)}><X /></button>
                         <div className="skin-preview-darken" />
                         {isUltimate && (
                             <>
@@ -1407,7 +1408,6 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                         <div className="skin-preview-particles">
                             <span></span><span></span><span></span><span></span><span></span><span></span>
                         </div>
-                        <button className="skin-preview-close" onClick={() => setUltimatePreview(null)}><X size={18} /></button>
                         <h2 className="skin-preview-title">{skinName}</h2>
                         {isUltimate ? (
                             <div className="skin-preview-phase-badge">
