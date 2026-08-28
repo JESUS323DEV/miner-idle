@@ -423,12 +423,16 @@ const HUB_BUTTONS = {
     tablon:  { top: '40%', left: '87%' },
 };
 
-const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep, onTutorialAdvanceToPassive, onTutorialRaidSent }) => {
+const RaidScreen = ({
+    isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep,
+    onTutorialAdvanceToPassive, onTutorialRaidSent,
+    onTutorialAsaltoReady, onTutorialAsaltoOpened,
+    onTutorialTablonOpened, onTutorialTablonCanjeViewed, onTutorialTablonSkinsViewed,
+}) => {
     const {
         gameState, setGameState,
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
-        handleUnlockRaidActivas,
         handleSendOrder,
         handleClaimOrder,
         handleBuyTablonDog,
@@ -462,6 +466,40 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
         setTablonTabsHidden(false);
         tablonScrollLastY.current = 0;
     }, [tablonTab]);
+
+    // Al reabrir el modal, siempre vuelve al hub (evita quedarse en una vista intermedia, como 'active',
+    // que no pinta nada real y solo se usaba como señal para abrir Asaltos en otro modal aparte).
+    useEffect(() => {
+        if (isOpen) setRaidView('hub');
+    }, [isOpen]);
+
+    // Tutorial Asalto: en el hub, ya desbloqueado, sin haberlo visto y sin otro paso activo -> arranca el hint
+    useEffect(() => {
+        if (isOpen && raidView === 'hub' && gameState.raidActivasUnlocked && !gameState.tutorial?.asaltoHinted && !tutorialStep) {
+            onTutorialAsaltoReady?.();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, raidView, gameState.raidActivasUnlocked, gameState.tutorial?.asaltoHinted, tutorialStep]);
+
+    // Tutorial Tablon: al entrar con el hint activo, avanza a resaltar la pestaña Canje
+    useEffect(() => {
+        if (tutorialStep === 'asalto_tablon_hint' && raidView === 'tablon') {
+            onTutorialTablonOpened?.();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tutorialStep, raidView]);
+
+    // Tutorial Tablon: avanza segun la pestaña que se mire
+    useEffect(() => {
+        if (tutorialStep === 'asalto_tablon_canje_hint' && tablonTab === 'canje') {
+            onTutorialTablonCanjeViewed?.();
+        }
+        if (tutorialStep === 'asalto_tablon_skins_hint' && tablonTab === 'skins') {
+            onTutorialTablonSkinsViewed?.();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tutorialStep, tablonTab]);
+
     const [showRaidIntro, setShowRaidIntro] = useState(false);
     const [prizeQueue, setPrizeQueue] = useState([]);
     const [skinJustBought, setSkinJustBought] = useState(false);
@@ -709,6 +747,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                 {/* HUB */}
                 {raidView === 'hub' && (
                     <div className="raid-hub">
+                        {(tutorialStep === 'asalto_hint' || tutorialStep === 'asalto_tablon_hint') && (
+                            <div className="raid-hub-tutorial-dim" />
+                        )}
                         <button
                             className={`raid-hub-btn ${tutorialStep === 'hint_raids' ? 'tutorial-highlight' : (passiveRaids.some(r => now >= r.returnAt) || (availableDogs.length > 0 && passiveRaids.length < RaidConfig.passiveRaids.length)) ? 'btn-notify-dot notify-pulse' : ''}`}
                             style={{ top: HUB_BUTTONS.passive.top, left: HUB_BUTTONS.passive.left, position: 'absolute' }}
@@ -719,20 +760,19 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             {tutorialStep === 'hint_raids' && <TutorialPointer step="hint_raids" />}
                         </button>
                         <button
-                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : ''}`}
+                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : tutorialStep === 'asalto_hint' ? 'tutorial-highlight' : ''}`}
                             style={{ top: HUB_BUTTONS.active.top, left: HUB_BUTTONS.active.left }}
+                            data-tutorial="tut-asalto"
                             onClick={() => {
-                                if (gameState.raidActivasUnlocked) { setRaidView('active'); onOpenCombat?.(); }
-                                else handleUnlockRaidActivas();
+                                if (!gameState.raidActivasUnlocked) return;
+                                if (tutorialStep === 'asalto_hint') onTutorialAsaltoOpened?.();
+                                setRaidView('active');
+                                onOpenCombat?.();
                             }}
-                            disabled={!gameState.raidActivasUnlocked && gameState.gold < 25000}
+                            disabled={!gameState.raidActivasUnlocked}
                         >
                             <img src={btnRaidActive} alt="activa" className="raid-hub-btn-img" />
-                            {!gameState.raidActivasUnlocked && (
-                                <span className={`raid-hub-price ${gameState.gold >= 25000 ? 'raid-hub-price-ready' : ''}`}>
-                                    <img src={iconGold} alt="gold" />25k
-                                </span>
-                            )}
+                            {tutorialStep === 'asalto_hint' && <TutorialPointer step="asalto_hint" />}
                         </button>
                         {SHOW_ENVIOS_TABLON && (
                             <button
@@ -744,16 +784,22 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                             </button>
                         )}
                         <button
-                            className={`raid-hub-btn ${!gameState.raidActivasUnlocked ? 'raid-hub-btn-locked' : (misionesPending || canjePending || skinsPending) ? 'btn-notify-dot' : ''}`}
+                            className={`raid-hub-btn ${!gameState.raidActivasFirstFightDone ? 'raid-hub-btn-locked' : tutorialStep === 'asalto_tablon_hint' ? 'tutorial-highlight' : (misionesPending || canjePending || skinsPending) ? 'btn-notify-dot' : ''}`}
                             style={{ top: HUB_BUTTONS.tablon.top, left: HUB_BUTTONS.tablon.left }}
-                            disabled={!gameState.raidActivasUnlocked}
+                            data-tutorial="tut-tablon"
+                            disabled={!gameState.raidActivasFirstFightDone}
                             onClick={() => {
-                                const nothingToDo = huntContractsNotify.every(({ bossId }) => huntStateNotify[bossId] === 'claimed');
-                                setTablonTab(nothingToDo ? 'canje' : 'misiones');
+                                if (tutorialStep === 'asalto_tablon_hint') {
+                                    setTablonTab('misiones');
+                                } else {
+                                    const nothingToDo = huntContractsNotify.every(({ bossId }) => huntStateNotify[bossId] === 'claimed');
+                                    setTablonTab(nothingToDo ? 'canje' : 'misiones');
+                                }
                                 setRaidView('tablon');
                             }}
                         >
                             <img src={btnTablon} alt="tablón" className="raid-hub-btn-img" />
+                            {tutorialStep === 'asalto_tablon_hint' && <TutorialPointer step="asalto_tablon_hint" />}
                         </button>
                         {import.meta.env.DEV && (
                             <button
@@ -1198,6 +1244,9 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
 
                     return (
                         <div className="raid-tablon">
+                            {(tutorialStep === 'asalto_tablon_canje_hint' || tutorialStep === 'asalto_tablon_skins_hint') && (
+                                <div className="raid-hub-tutorial-dim" />
+                            )}
                             <div className="raid-tablon-header">
                                 <div className="tavern-title-row">
                                     <button className="tavern-back-btn-inline" onClick={() => setRaidView('hub')}>
@@ -1211,19 +1260,21 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                                         onClick={() => setTablonTab('misiones')}
                                     ><img src={tabMisiones} alt="misiones" /></button>
                                     <button
-                                        className={`rewards-tab ${tablonTab === 'canje' ? 'active' : ''} ${canjePending && tablonTab !== 'canje' ? 'tab-pulse' : ''}`}
+                                        className={`rewards-tab ${tablonTab === 'canje' ? 'active' : ''} ${tutorialStep === 'asalto_tablon_canje_hint' ? 'tutorial-highlight-subtle' : canjePending && tablonTab !== 'canje' ? 'tab-pulse' : ''}`}
+                                        data-tutorial="tut-tablon-canje"
                                         onClick={() => {
                                             setTablonTab('canje');
                                             setGameState(prev => ({ ...prev, tablonCanjeSeenTier: canjeCurrentTier }));
                                         }}
-                                    ><img src={tabShop} alt="canje" /></button>
+                                    ><img src={tabShop} alt="canje" />{tutorialStep === 'asalto_tablon_canje_hint' && <TutorialPointer step="asalto_tablon_canje_hint" />}</button>
                                     <button
-                                        className={`rewards-tab ${tablonTab === 'skins' ? 'active' : ''} ${skinsPending && tablonTab !== 'skins' ? 'tab-pulse' : ''}`}
+                                        className={`rewards-tab ${tablonTab === 'skins' ? 'active' : ''} ${tutorialStep === 'asalto_tablon_skins_hint' ? 'tutorial-highlight-subtle' : skinsPending && tablonTab !== 'skins' ? 'tab-pulse' : ''}`}
+                                        data-tutorial="tut-tablon-skins"
                                         onClick={() => {
                                             setTablonTab('skins');
                                             setGameState(prev => ({ ...prev, skinsSeenBuyCount: skinsBuyableCount }));
                                         }}
-                                    ><img src={tabSkins} alt="skins" /></button>
+                                    ><img src={tabSkins} alt="skins" />{tutorialStep === 'asalto_tablon_skins_hint' && <TutorialPointer step="asalto_tablon_skins_hint" />}</button>
                                 </div>
                                 {tablonTab === 'skins' && (
                                     <div className="rarity-filter-bar">

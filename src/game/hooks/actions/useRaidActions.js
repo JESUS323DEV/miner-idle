@@ -175,13 +175,6 @@ export const useRaidActions = (gameState, setGameState) => {
         });
     };
 
-    const handleUnlockRaidActivas = () => {
-        setGameState(prev => {
-            if (prev.gold < 25000 || prev.raidActivasUnlocked) return prev;
-            return { ...prev, gold: prev.gold - 25000, raidActivasUnlocked: true };
-        });
-    };
-
     // ===== ENVIAR PEDIDO (tablón de envíos: trigo/lupulo) =====
     const handleSendOrder = (material, dogId, isForge, times = 1, autoResend = false) => {
         setGameState(prevState => {
@@ -253,7 +246,6 @@ export const useRaidActions = (gameState, setGameState) => {
         handleSendPassiveRaid,
         handleClaimPassiveRaid,
         handleCancelPassiveRaid,
-        handleUnlockRaidActivas,
         handleSendOrder,
         handleClaimOrder,
     };

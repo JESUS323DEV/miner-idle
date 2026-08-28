@@ -53,6 +53,14 @@
     pointer-events: none;
 }
 
+.raid-hub-tutorial-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 5;
+    pointer-events: all;
+}
+
 .raid-hub-btn {
     position: absolute;
     transform: translate(-50%, -50%);
@@ -114,34 +122,6 @@
     letter-spacing: 0.5px;
     text-align: center;
     padding: 4px;
-}
-
-.raid-hub-price {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    background: rgba(20, 10, 0, 0.9);
-    border-radius: 20px;
-    padding: 2px 8px;
-    font-size: 0.6rem;
-    font-weight: 700;
-    color: #888;
-    white-space: nowrap;
-}
-
-.raid-hub-price img {
-    width: 12px;
-    height: 12px;
-    object-fit: contain;
-}
-
-.raid-hub-price-ready {
-    border-color: #f5c842;
-    color: #f5c842;
-}
-
-.raid-hub-price-ready img {
-    filter: none;
 }
 
 /* TABS */

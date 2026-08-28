@@ -118,6 +118,7 @@ const InitialGameState = {
 
     // ========== RAIDS ACTIVAS ==========
     raidActivasUnlocked: false,
+    raidActivasFirstFightDone: false,
     raidBestStars: {},
 
     // ========== TIEMPO ==========
@@ -206,6 +207,8 @@ const InitialGameState = {
         mineIntroBronzeDone: false,
         mineIntroIronDone: false,
         mineIntroDiamondDone: false,
+        asaltoHinted: false,
+        tablonHinted: false,
     },
 };
 

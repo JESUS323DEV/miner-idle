@@ -306,7 +306,6 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
-    handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
     handleSendOrder,
@@ -381,6 +380,13 @@ function GameRoot({ onBack }) {
       'hint_snacks_modal':  'tut-snacks-modal',
       'hint_stamina_modal': 'tut-stamina-modal',
       'hint_pickaxe_modal': 'tut-pickaxe-modal',
+      'asalto_hint':               'tut-asalto',
+      'asalto_combat_hp':          'tut-combat-hp',
+      'asalto_combat_ult':         'tut-combat-ult',
+      'asalto_combat_tap':         'tut-combat-enemy',
+      'asalto_tablon_hint':        'tut-tablon',
+      'asalto_tablon_canje_hint':  'tut-tablon-canje',
+      'asalto_tablon_skins_hint':  'tut-tablon-skins',
     };
     if (tutActiveStep === null || tutActiveStep === undefined) { setTutDialogStyle({ bottom: '4dvh' }); return; }
     if (FALLBACKS[tutActiveStep]) { setTutDialogStyle(FALLBACKS[tutActiveStep]); return; }
@@ -471,7 +477,6 @@ function GameRoot({ onBack }) {
     handleSendPassiveRaid,
     handleClaimPassiveRaid,
     handleCancelPassiveRaid,
-    handleUnlockRaidActivas,
     handleAssignMineDog,
     handleUnassignMineDog,
     handleSendOrder,
@@ -535,6 +540,8 @@ function GameRoot({ onBack }) {
         tutorial: { ...prev.tutorial, completed: true }
       }));
       setTutorialStep(null);
+    } else if (tutorialStep === 'asalto_combat_hp') {
+      setTutorialStep('asalto_combat_ult');
     }
   };
 
@@ -848,7 +855,9 @@ function GameRoot({ onBack }) {
         </>
         )}
 
-        {/* OVERLAY OSCURO DURANTE TUTORIAL */}
+        {/* OVERLAY OSCURO DURANTE TUTORIAL. RaidScreen tiene su propio z-index bajo (10), asi que sus
+            pasos de tutorial (asalto_*) usan un oscurecido LOCAL dentro de RaidScreen.jsx en vez de este,
+            porque un hijo suyo nunca podria superar visualmente a este overlay aunque tenga mas z-index. */}
         {tutorialStep !== null && tutorialStep !== 'done' && openModal === null && !rewardsOpen && !rentalModalOpen && !raidOpen && (
           <div
             style={{
@@ -1440,6 +1449,14 @@ function GameRoot({ onBack }) {
             setRaidOpen(false);
             setTutorialStep('hint_mine_dog');
           }}
+          onTutorialAsaltoReady={() => setTutorialStep('asalto_hint')}
+          onTutorialAsaltoOpened={() => setTutorialStep(null)}
+          onTutorialTablonOpened={() => setTutorialStep('asalto_tablon_canje_hint')}
+          onTutorialTablonCanjeViewed={() => setTutorialStep('asalto_tablon_skins_hint')}
+          onTutorialTablonSkinsViewed={() => {
+            setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, tablonHinted: true } }));
+            setTutorialStep(null);
+          }}
         />
 
         <CombatScreen
@@ -1449,6 +1466,14 @@ function GameRoot({ onBack }) {
           onFightStart={fadeOutMusic}
           onFightEnd={() => setTimeout(resumeFadeMusic, 400)}
           musicVolume={musicVolume}
+          tutorialStep={tutorialStep}
+          onTutorialFightStarted={() => setTutorialStep('asalto_combat_hp')}
+          onTutorialUltUsed={() => setTutorialStep('asalto_combat_tap')}
+          onTutorialTapUsed={() => {
+            setGameState(prev => ({ ...prev, tutorial: { ...prev.tutorial, asaltoHinted: true } }));
+            setTutorialStep(null);
+          }}
+          onTutorialFirstFightBack={() => setTutorialStep('asalto_tablon_hint')}
         />
 
         {/* MENA DE ORO + AUTOMINE + SLOTS PERROS — posicionados juntos como unidad */}

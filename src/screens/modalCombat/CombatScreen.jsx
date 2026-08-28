@@ -2,6 +2,7 @@
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Star, Swords, Pickaxe, Lock, Info, RotateCcw } from 'lucide-react';
 import { useGameContext } from '../../game/context/GameContext.jsx';
+import TutorialPointer from '../../components/TutorialPointer.jsx';
 import { dogSkinAssets } from '../../game/utils/dogSkinAssets.js';
 import iconGold from '../../assets/ui/icons-hud/hud-principal/oro1.webp';
 import huesinCoin from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
@@ -231,10 +232,15 @@ const biomeBg = {
     scorpions: bgTopos,
 };
 
-const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, musicVolume = 0.08 }) => {
+const CombatScreen = ({
+    isOpen, onClose, onBack, onFightStart, onFightEnd, musicVolume = 0.08,
+    tutorialStep, onTutorialFightStarted, onTutorialUltUsed, onTutorialTapUsed, onTutorialFirstFightBack,
+}) => {
     const { gameState, setGameState } = useGameContext();
     const raidAudioRef   = useRef(null);
     const selectAudioRef = useRef(null);
+    const isFirstFightRef = useRef(false); // "esta pelea en concreto es la primera de verdad", capturado antes de que se resuelva
+    const firstFightTutorialStartedRef = useRef(false);
 
     useEffect(() => {
         const fight = new Audio(raidActiveBg);
@@ -544,6 +550,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                 const next = {
                     ...prev,
                     raidBestStars: { ...(prev.raidBestStars ?? {}), [activeEnemy.id]: Math.max(currentBest, starsEarned) },
+                    raidActivasFirstFightDone: true,
                     gold: prev.gold + gold,
                     huesin: prev.huesin + huesinDropped,
                     raidAttempts: newRaidAttempts,
@@ -746,6 +753,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
     const handleTap = (e) => {
         if (phase !== 'fight' || ultImpactActive) return;
+        if (tutorialStep === 'asalto_combat_hp' || tutorialStep === 'asalto_combat_ult') return;
         if (!fightStarted) setFightStarted(true);
         const pickDmg  = gameState.pickaxe.miningPowerByMaterial?.[gameState.pickaxe.material] ?? 2;
         const activeId = slots[1];
@@ -785,6 +793,8 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         const isDoubleHit = isGuaranteedDouble || Math.random() < passive.doubleHitChance;
         const finalDmg = isDoubleHit ? dmg * 2 : dmg;
         setEnemyHp(prev => Math.max(0, prev - finalDmg));
+
+        if (tutorialStep === 'asalto_combat_tap') onTutorialTapUsed?.();
 
         setShakeKey(k => k + 1);
 
@@ -855,6 +865,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
     const handleUlt = () => {
         if (phase !== 'fight' || ultCooldown > 0 || !slots[1]) return;
         if (!fightStarted) setFightStarted(true);
+        if (tutorialStep === 'asalto_combat_ult') onTutorialUltUsed?.();
         advanceDailyQuest(setGameState, 'abilityUses', 1);
         const activeId = slots[1];
         const cfg      = getConfig(activeId);
@@ -972,6 +983,11 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
         autoUsedRef.current = false;
         resultsHandledRef.current = false;
         resultsUnlockedRef.current = false;
+        isFirstFightRef.current = !gameState.raidActivasFirstFightDone;
+        if (isFirstFightRef.current && !firstFightTutorialStartedRef.current) {
+            firstFightTutorialStartedRef.current = true;
+            onTutorialFightStarted?.();
+        }
         setPhase('fight');
     };
 
@@ -1353,13 +1369,19 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
 
                     <div className="combat-boss-area">
                         <p className="combat-boss-label">{activeEnemy.name}</p>
-                        <div className="combat-hp-bar-wrap">
+                        <div className={`combat-hp-bar-wrap${tutorialStep === 'asalto_combat_hp' ? ' tutorial-highlight' : ''}`} data-tutorial="tut-combat-hp">
                             <div className="combat-hp-bar">
                                 <div className="combat-hp-fill" style={{ width: `${hpPct}%` }} />
                             </div>
                             <span className="combat-hp-text">{enemyHp} / {activeEnemy.hp}</span>
+                            {tutorialStep === 'asalto_combat_hp' && <TutorialPointer step="asalto_combat_hp" />}
                         </div>
-                        <button className="combat-boss-portrait" onClick={handleTap}>
+                        <button
+                            className={`combat-boss-portrait${tutorialStep === 'asalto_combat_tap' ? ' tutorial-highlight' : ''}${(tutorialStep === 'asalto_combat_hp' || tutorialStep === 'asalto_combat_ult') ? ' combat-boss-portrait-locked' : ''}`}
+                            data-tutorial="tut-combat-enemy"
+                            onClick={handleTap}
+                            disabled={tutorialStep === 'asalto_combat_hp' || tutorialStep === 'asalto_combat_ult'}
+                        >
                             <img
                                 src={enemyImgs[activeEnemy.id]}
                                 alt={activeEnemy.name}
@@ -1458,12 +1480,14 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                         const asset   = ULT_ASSET[element];
                         return (
                             <button
-                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}`}
+                                className={`combat-ult-btn${isReady ? ' ult-ready' : ''}${autoFiring ? ' ult-auto-firing' : ''}${tutorialStep === 'asalto_combat_ult' ? ' tutorial-highlight' : ''}`}
+                                data-tutorial="tut-combat-ult"
                                 onClick={handleUlt}
                                 disabled={!isReady}
                             >
                                 {asset && <img src={asset} alt={element} className="ult-btn-img" />}
                                 {!isReady && <span className="ult-btn-cd">{ultCooldown}s</span>}
+                                {tutorialStep === 'asalto_combat_ult' && <TutorialPointer step="asalto_combat_ult" />}
                             </button>
                         );
                     })()}
@@ -1593,7 +1617,7 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                     </div>
 
                     <div className="combat-results-actions-col">
-                        {(() => {
+                        {!isFirstFightRef.current && (() => {
                             const nextIdx = activeBiome.enemies.findIndex(e => e.id === activeEnemy.id) + 1;
                             const nextEnemy = activeBiome.enemies[nextIdx] ?? null;
                             const nextUnlocked = nextEnemy && (
@@ -1609,12 +1633,19 @@ const CombatScreen = ({ isOpen, onClose, onBack, onFightStart, onFightEnd, music
                                 </button>
                             ) : null;
                         })()}
-                        {!resultsData.isFirstBossWin && !getAttemptStatus(activeEnemy).isOnCooldown && (
+                        {!isFirstFightRef.current && !resultsData.isFirstBossWin && !getAttemptStatus(activeEnemy).isOnCooldown && (
                             <button className="combat-retry-btn" onClick={() => { if (!resultsUnlockedRef.current) return; setPhase('select'); }}>
                                 Repetir <RotateCcw size={16} />
                             </button>
                         )}
-                        <button className="combat-exit-btn" onClick={() => { if (!resultsUnlockedRef.current) return; goToBiome(); }}>
+                        <button
+                            className="combat-exit-btn"
+                            onClick={() => {
+                                if (!resultsUnlockedRef.current) return;
+                                if (isFirstFightRef.current) { onBack?.(); onTutorialFirstFightBack?.(); }
+                                else goToBiome();
+                            }}
+                        >
                             <ArrowLeft size={16} /> Volver
                         </button>
                     </div>

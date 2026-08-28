@@ -163,4 +163,14 @@ export const useTutorialTriggers = ({
             setTutorialStep(null);
         }
     }, [gameState.automine?.isActive, tutorialStep]); // eslint-disable-line
+
+    // Auto-desbloqueo de Asaltos: en cuanto tienes 1 minero + 1 perro de forja contratados
+    useEffect(() => {
+        if (gameState.raidActivasUnlocked) return;
+        const hasMinero = Object.values(gameState.dogs ?? {}).some(d => d && typeof d === 'object' && d.hired);
+        const hasForja = Object.values(gameState.forgeDogs ?? {}).some(d => d?.hired);
+        if (hasMinero && hasForja) {
+            setGameState(prev => ({ ...prev, raidActivasUnlocked: true }));
+        }
+    }, [gameState.dogs, gameState.forgeDogs, gameState.raidActivasUnlocked]); // eslint-disable-line
 };

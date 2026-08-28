@@ -156,6 +156,41 @@ const STEPS = {
         counter: null,
         showSkip: false,
     },
+    asalto_hint: {
+        title: "¡Asaltos disponible!",
+        text: "Ya tienes un minero y un perro de forja. Ahora puedes combatir enemigos en Asaltos para conseguir fragmentos y recompensas.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    asalto_combat_hp: {
+        title: "Vida del enemigo",
+        text: "Esta barra muestra cuánta vida le queda al enemigo. Al llegar a cero, lo derrotas.",
+        action: "Entendido",
+        counter: null,
+        showSkip: false,
+    },
+    asalto_combat_ult: {
+        title: "Usa el poder",
+        text: "Este botón lanza el poder de tu perro central. Tócalo para empezar el combate.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    asalto_combat_tap: {
+        title: "Ataca al enemigo",
+        text: "Toca al enemigo directamente para hacerle daño. ¡Cuanto más rápido tapees, más combo consigues!",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
+    asalto_tablon_hint: {
+        title: "El Tablón",
+        text: "Aquí encontrarás contratos de caza contra bosses con recompensa garantizada en Huesín.",
+        action: null,
+        counter: null,
+        showSkip: false,
+    },
 };
 
 const TutorialDialog = ({ step, onAction, dialogStyle = {} }) => {

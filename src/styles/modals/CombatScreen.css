@@ -830,6 +830,12 @@
     box-shadow: 0 0 20px rgba(239,68,68,0.15);
 }
 
+.combat-boss-portrait-locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(60%);
+}
+
 .combat-boss-portrait:active {
     transform: scale(0.91);
     background: rgba(239,68,68,0.18);

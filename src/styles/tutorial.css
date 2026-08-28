@@ -22,6 +22,27 @@
     }
 }
 
+/* Version reducida: para resaltar algo pequeño (ej. una pestaña) sin caja de dialogo al lado,
+   el brillo grande queda desproporcionado cuando no hay texto explicando el porque. */
+.tutorial-highlight-subtle {
+    z-index: 1000 !important;
+    animation: pulse-glow-border-subtle 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-border-subtle {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.5);
+        filter: brightness(1.05);
+    }
+
+    50% {
+        box-shadow: 0 0 14px 5px rgba(255, 215, 0, 0.85);
+        filter: brightness(1.15);
+    }
+}
+
 /* Flecha animada */
 .tutorial-arrow {
     position: absolute;
