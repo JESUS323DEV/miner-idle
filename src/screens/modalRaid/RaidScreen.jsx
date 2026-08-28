@@ -755,12 +755,14 @@ const RaidScreen = ({ isOpen, onClose, onOpenCombat, onGoEquipSkin, tutorialStep
                         >
                             <img src={btnTablon} alt="tablón" className="raid-hub-btn-img" />
                         </button>
-                        <button
-                            className="raid-hub-btn raid-hub-btn-runner"
-                            onClick={() => setRunnerOpen(true)}
-                        >
-                            <span className="raid-hub-btn-label">Carrera</span>
-                        </button>
+                        {import.meta.env.DEV && (
+                            <button
+                                className="raid-hub-btn raid-hub-btn-runner"
+                                onClick={() => setRunnerOpen(true)}
+                            >
+                                <span className="raid-hub-btn-label">Carrera</span>
+                            </button>
+                        )}
                     </div>
                 )}
 
