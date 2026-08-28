@@ -1,0 +1,29 @@
+.lady-run-standalone-skins {
+    position: fixed;
+    inset: 0;
+    background: #14100c;
+    padding: 16px;
+    padding-top: 56px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lady-run-standalone-back {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 215, 64, 0.4);
+    border-radius: 8px;
+    color: #ffd740;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    cursor: pointer;
+}

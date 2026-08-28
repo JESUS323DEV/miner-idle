@@ -1071,7 +1071,7 @@ const CombatScreen = ({
                         <div style={{ width: 32 }} />
                     </div>
                     <div className="combat-enemy-grid">
-                        {activeBiome.enemies.map((enemy, idx) => {
+                        {activeBiome.enemies.map((enemy) => {
                             const req     = enemy.requiresStars;
                             const locked  = req ? (raidBestStars[req.enemyId] ?? 0) < req.stars : false;
                             const { isOnCooldown, remainingMin } = getAttemptStatus(enemy);

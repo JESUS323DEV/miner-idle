@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowUp, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
+import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -225,6 +225,7 @@ const saveHighScore = (score, dogId) => {
 export default function RunnerScreen({ onClose }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
+    const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
     const [bossHp, setBossHp] = useState(BOSS_MAX_HP);
     const [paused, setPaused] = useState(false);
     const [won, setWon] = useState(false);
@@ -514,38 +515,40 @@ export default function RunnerScreen({ onClose }) {
                     setPowerCharges(powerChargesRef.current);
                 }
             }
-            if (stage === 'cpu') {
-                // La CPU decide sola cuando sabotearte durante la carrera: al azar, mas probable desde tramo 3
-                cpuPowerRechargeTimerRef.current -= dt * 1000;
-                if (cpuPowerRechargeTimerRef.current <= 0) {
-                    cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
-                    if (cpuPowerChargesRef.current < MAX_POWER_CHARGES) {
-                        cpuPowerChargesRef.current += 1;
+            if (runMode === 'historia') {
+                if (stage === 'cpu') {
+                    // La CPU decide sola cuando sabotearte durante la carrera: al azar, mas probable desde tramo 3
+                    cpuPowerRechargeTimerRef.current -= dt * 1000;
+                    if (cpuPowerRechargeTimerRef.current <= 0) {
+                        cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
+                        if (cpuPowerChargesRef.current < MAX_POWER_CHARGES) {
+                            cpuPowerChargesRef.current += 1;
+                        }
                     }
-                }
-                const cpuPowerChance = tierNumber >= CPU_POWER_TIER_THRESHOLD
-                    ? CPU_POWER_CHANCE_PER_SEC_LATE
-                    : CPU_POWER_CHANCE_PER_SEC_EARLY;
-                if (cpuPowerChargesRef.current > 0 && Math.random() < cpuPowerChance * dt) {
-                    cpuPowerChargesRef.current -= 1;
-                    pendingPowerForPlayerRef.current += 1;
-                    setPlayerPowerPending(true);
-                }
-            } else {
-                // El boss ataca con su propia cadencia, independiente de la carrera: mas cargas,
-                // recarga mas rapida y mas probabilidad, para que sea el reto principal de esta fase
-                // (puede soltar 2 ataques seguidos si lleva varias cargas acumuladas).
-                bossAttackRechargeTimerRef.current -= dt * 1000;
-                if (bossAttackRechargeTimerRef.current <= 0) {
-                    bossAttackRechargeTimerRef.current = BOSS_ATTACK_RECHARGE_MS;
-                    if (bossAttackChargesRef.current < BOSS_ATTACK_MAX_CHARGES) {
-                        bossAttackChargesRef.current += 1;
+                    const cpuPowerChance = tierNumber >= CPU_POWER_TIER_THRESHOLD
+                        ? CPU_POWER_CHANCE_PER_SEC_LATE
+                        : CPU_POWER_CHANCE_PER_SEC_EARLY;
+                    if (cpuPowerChargesRef.current > 0 && Math.random() < cpuPowerChance * dt) {
+                        cpuPowerChargesRef.current -= 1;
+                        pendingPowerForPlayerRef.current += 1;
+                        setPlayerPowerPending(true);
                     }
-                }
-                if (bossAttackChargesRef.current > 0 && Math.random() < BOSS_ATTACK_CHANCE_PER_SEC * dt) {
-                    bossAttackChargesRef.current -= 1;
-                    pendingPowerForPlayerRef.current += 1;
-                    setPlayerPowerPending(true);
+                } else {
+                    // El boss ataca con su propia cadencia, independiente de la carrera: mas cargas,
+                    // recarga mas rapida y mas probabilidad, para que sea el reto principal de esta fase
+                    // (puede soltar 2 ataques seguidos si lleva varias cargas acumuladas).
+                    bossAttackRechargeTimerRef.current -= dt * 1000;
+                    if (bossAttackRechargeTimerRef.current <= 0) {
+                        bossAttackRechargeTimerRef.current = BOSS_ATTACK_RECHARGE_MS;
+                        if (bossAttackChargesRef.current < BOSS_ATTACK_MAX_CHARGES) {
+                            bossAttackChargesRef.current += 1;
+                        }
+                    }
+                    if (bossAttackChargesRef.current > 0 && Math.random() < BOSS_ATTACK_CHANCE_PER_SEC * dt) {
+                        bossAttackChargesRef.current -= 1;
+                        pendingPowerForPlayerRef.current += 1;
+                        setPlayerPowerPending(true);
+                    }
                 }
             }
 
@@ -807,7 +810,14 @@ export default function RunnerScreen({ onClose }) {
                 setTimeout(() => setCpuHitFlash(false), HIT_INVULN_MS);
                 setCpuLives(prev => {
                     const next = prev - 1;
-                    if (next <= 0) { setStage('boss'); }
+                    if (next <= 0) {
+                        if (runMode === 'historia') {
+                            setStage('boss');
+                        } else if (!endingRef.current) {
+                            endingRef.current = true;
+                            setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                        }
+                    }
                     return next;
                 });
             }
@@ -817,7 +827,7 @@ export default function RunnerScreen({ onClose }) {
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode]);
 
     const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
@@ -901,8 +911,21 @@ export default function RunnerScreen({ onClose }) {
 
                     {(phase === 'ready' || phase === 'gameover') && (
                         <div className="runner-overlay">
-                            {phase === 'ready' && (
+                            {phase === 'ready' && !runMode && (
+                                <div className="runner-mode-select">
+                                    <button className="runner-mode-btn" onClick={() => setRunMode('historia')}>
+                                        <span className="runner-mode-btn-title">Historia</span>
+                                        <span className="runner-mode-btn-desc">Carrera con poderes elementales y jefe final</span>
+                                    </button>
+                                    <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
+                                        <span className="runner-mode-btn-title">Arcade</span>
+                                        <span className="runner-mode-btn-desc">Solo esquivar, sin poderes</span>
+                                    </button>
+                                </div>
+                            )}
+                            {phase === 'ready' && runMode && (
                                 <>
+                                    <button className="runner-mode-back-btn" onClick={() => setRunMode(null)}><ArrowLeft size={16} /></button>
                                     <p className="runner-overlay-title">Corre y esquiva</p>
                                     <button className="runner-start-btn" onClick={resetGame}>Empezar</button>
                                 </>
@@ -929,12 +952,14 @@ export default function RunnerScreen({ onClose }) {
                         <button className="runner-jump-btn" onPointerDown={jump}>
                             <ArrowUp size={28} color="#2ecc71" />
                         </button>
-                        <button className="runner-power-btn" onPointerDown={usePower} disabled={powerCharges <= 0}>
-                            {playerPowerObstacleImg && (
-                                <img src={playerPowerObstacleImg} alt="" className="runner-power-btn-img" />
-                            )}
-                            <span className="runner-power-btn-charges">{powerCharges}</span>
-                        </button>
+                        {runMode === 'historia' && (
+                            <button className="runner-power-btn" onPointerDown={usePower} disabled={powerCharges <= 0}>
+                                {playerPowerObstacleImg && (
+                                    <img src={playerPowerObstacleImg} alt="" className="runner-power-btn-img" />
+                                )}
+                                <span className="runner-power-btn-charges">{powerCharges}</span>
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -952,7 +977,7 @@ export default function RunnerScreen({ onClose }) {
                     </div>
                 )}
 
-                {phase === 'ready' && (
+                {phase === 'ready' && runMode && (
                     <div className="runner-dog-select">
                         {DOG_SELECT_ORDER.map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
@@ -976,7 +1001,7 @@ export default function RunnerScreen({ onClose }) {
                     </div>
                 )}
 
-                {phase === 'ready' && (
+                {phase === 'ready' && runMode && (
                     <div className="runner-difficulty-select">
                         {DIFFICULTY_ORDER.map(id => (
                             <button
