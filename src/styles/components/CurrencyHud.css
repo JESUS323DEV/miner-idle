@@ -1,0 +1,31 @@
+.currency-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 600;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.55);
+    border-bottom: 1px solid rgba(255, 215, 64, 0.25);
+}
+
+.currency-hud-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.currency-hud-item img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.currency-hud-item span {
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 0.8rem;
+}

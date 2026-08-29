@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import SkinShopModal from '../modalRaid/SkinShopModal.jsx';
+import CurrencyHud from '../../components/CurrencyHud.jsx';
 import { loadSavedState } from '../../game/initialState/loadSavedState.js';
 import { usePreloadImages } from '../../game/hooks/usePreloadImages.js';
 import { RUNNER_PRELOAD_IMAGES } from '../modalRunner/runnerPreloadAssets.js';
@@ -33,16 +34,24 @@ const LadyRunStandalone = () => {
 
     if (view === 'skins') {
         return (
-            <div className="lady-run-standalone-skins">
-                <button className="lady-run-standalone-back" onClick={() => setView('run')}>
-                    <ArrowLeft size={16} /> Volver a Lady Run
-                </button>
-                <SkinShopModal gameState={gameState} setGameState={setGameState} />
-            </div>
+            <>
+                <CurrencyHud gold={gameState.gold} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+                <div className="lady-run-standalone-skins">
+                    <button className="lady-run-standalone-back" onClick={() => setView('run')}>
+                        <ArrowLeft size={16} /> Volver a Lady Run
+                    </button>
+                    <SkinShopModal gameState={gameState} setGameState={setGameState} />
+                </div>
+            </>
         );
     }
 
-    return <RunnerScreen onClose={() => setView('skins')} />;
+    return (
+        <>
+            <CurrencyHud gold={gameState.gold} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+            <RunnerScreen onClose={() => setView('skins')} />
+        </>
+    );
 };
 
 export default LadyRunStandalone;
