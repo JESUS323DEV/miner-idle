@@ -49,8 +49,20 @@ import tukaIcon    from '../../assets/ui/icons-pets/mineros/tuka-icon.webp';
 import zeusIcon    from '../../assets/ui/icons-pets/mineros/zeus-icon.webp';
 import druhIcon    from '../../assets/ui/icons-pets/mineros/druh-icon.webp';
 
-import obstaculo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo3.webp';
-import obstaculoAereo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/obstaculo-aereo.webp';
+import obstaculo2 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo2.webp';
+import obstaculoRata from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-rata.webp';
+import obstaculoTopo1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp';
+import obstaculo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp';
+import obstaculo4 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp';
+import obstaculo5 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo5.webp';
+import obstaculo6 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp';
+import obstaculoArmadillo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo-armadillo.webp';
+import obstaculoGato1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/ciudad/obstaculo-gato1.webp';
+import obstaculoAereo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/aereos/ciudad/obstaculo-aereo.webp';
+import obstaculoAereo2 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/aereos/desierto/obstaculo-aereo2.webp';
+import obstaculoAereo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/aereos/libre/obstaculo-aereo3.webp';
+import obstaculoAereoCuevas from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/aereos/mina/obstaculo-aereo-cuevas.webp';
+import obstaculoAereoCuevas2 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/aereos/mina/obstaculo-aereo-cuevas2.webp';
 
 import fuegoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-fuego2.webp';
 import electricoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-electrico2.webp';
@@ -107,14 +119,21 @@ const DOG_ICONS = {
 };
 
 const BIOMES = {
-    desierto: { title: 'Desierto/Mina', desc: '3-4 escenarios encadenados', scenes: [escenarioMina1, escenarioMina2, escenarioMina3], interior: true },
+    mina: { title: 'Mina', desc: '3-4 escenarios encadenados', scenes: [escenarioMina1, escenarioMina2, escenarioMina3], interior: true },
     ciudad: { title: 'Ciudad', desc: '3-4 escenarios encadenados', scenes: [escenarioCiudad1, escenarioCiudad2, escenarioCiudad3], interior: false },
+    // desierto: pendiente de escenarios propios (exterior) -- de momento sin card, solo assets de obstaculos reservados
 };
-const BIOME_ORDER = ['desierto', 'ciudad'];
+const BIOME_ORDER = ['mina', 'ciudad'];
 
 const RUN_FRAME_MS = 130;
-const GROUND_OBSTACLE_IMGS = [obstaculo3];
-const AERIAL_OBSTACLE_IMGS = [obstaculoAereo];
+// Pools tematicos por contexto (libre / bioma) -- terrestres
+const GROUND_OBSTACLE_IMGS_LIBRE = [obstaculo3, obstaculo4, obstaculo5, obstaculo6, obstaculoArmadillo]; // fondo actual de Libre es desierto, mezcla libre+desierto
+const GROUND_OBSTACLE_IMGS_MINA = [obstaculo2, obstaculoRata, obstaculoTopo1];
+const GROUND_OBSTACLE_IMGS_CIUDAD = [obstaculo3, obstaculo4, obstaculoGato1];
+// Pools tematicos por contexto -- aereos (mina usa el set de cuevas, es un bioma interior)
+const AERIAL_OBSTACLE_IMGS_LIBRE = [obstaculoAereo3, obstaculoAereo2];
+const AERIAL_OBSTACLE_IMGS_CIUDAD = [obstaculoAereo];
+const AERIAL_OBSTACLE_IMGS_MINA_CUEVAS = [obstaculoAereoCuevas, obstaculoAereoCuevas2];
 
 const GROUND_VISUAL_OFFSET = 12; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
 const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
@@ -248,6 +267,7 @@ export default function RunnerScreen({ onClose }) {
     const [cpuDogId, setCpuDogId] = useState('gordo');
     const [difficulty, setDifficulty] = useState('medio');
     const [lives, setLives] = useState(MAX_LIVES);
+    const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
     const [rivalsDefeated, setRivalsDefeated] = useState(0);
     const [checkpointOpen, setCheckpointOpen] = useState(false);
@@ -396,6 +416,7 @@ export default function RunnerScreen({ onClose }) {
         setAirborne(false);
         setCpuAirborne(false);
         setLives(MAX_LIVES);
+        setBonusLives(0);
         setCpuLives(MAX_LIVES);
         setRivalsDefeated(0);
         setCheckpointOpen(false);
@@ -681,6 +702,14 @@ export default function RunnerScreen({ onClose }) {
                     aerial = pattern === 1;
                 }
                 spawnPatternIndexRef.current += 1;
+                const isBiomeCiudad = arcadeSubMode === 'biome' && selectedBiomeId === 'ciudad';
+                const isBiomeMina = arcadeSubMode === 'biome' && selectedBiomeId === 'mina';
+                const groundObstaclePool = isBiomeCiudad ? GROUND_OBSTACLE_IMGS_CIUDAD
+                    : isBiomeMina ? GROUND_OBSTACLE_IMGS_MINA
+                    : GROUND_OBSTACLE_IMGS_LIBRE;
+                const aerialObstaclePool = isBiomeCiudad ? AERIAL_OBSTACLE_IMGS_CIUDAD
+                    : isBiomeMina ? AERIAL_OBSTACLE_IMGS_MINA_CUEVAS
+                    : AERIAL_OBSTACLE_IMGS_LIBRE;
                 const makeObstacle = (x, lane = 'both', element = null) => {
                     // En fase boss, los terrestres normales tambien se tematizan solos con el elemento
                     // del CPU derrotado (salvo que ya venga uno explicito, como los de poder). Aereos, no.
@@ -691,8 +720,8 @@ export default function RunnerScreen({ onClose }) {
                         img: resolvedElement && ELEMENT_POWER_OBSTACLE_IMGS[resolvedElement]
                             ? ELEMENT_POWER_OBSTACLE_IMGS[resolvedElement]
                             : (aerial
-                                ? AERIAL_OBSTACLE_IMGS[Math.floor(Math.random() * AERIAL_OBSTACLE_IMGS.length)]
-                                : GROUND_OBSTACLE_IMGS[Math.floor(Math.random() * GROUND_OBSTACLE_IMGS.length)]),
+                                ? aerialObstaclePool[Math.floor(Math.random() * aerialObstaclePool.length)]
+                                : groundObstaclePool[Math.floor(Math.random() * groundObstaclePool.length)]),
                         aerial,
                         lane, // 'both' | 'player' | 'cpu' -- de poder, solo afecta/se ve en el carril indicado
                         size: OBSTACLE_SIZE,
@@ -881,7 +910,7 @@ export default function RunnerScreen({ onClose }) {
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId]);
 
     const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
@@ -932,7 +961,7 @@ export default function RunnerScreen({ onClose }) {
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
-                        <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
+                        <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(Math.max(0, (MAX_LIVES + bonusLives) - lives))}</span>
 
                         {stage === 'boss' && (
                             <div className="runner-boss-label">
@@ -1026,9 +1055,17 @@ export default function RunnerScreen({ onClose }) {
                         <div className="runner-overlay">
                             <p className="runner-overlay-title">¡Meta alcanzada!</p>
                             <p className="runner-overlay-score">Puntos: {score}</p>
-                            {lives < MAX_LIVES && (
-                                <button className="runner-start-btn runner-start-btn-secondary" onClick={() => setLives(MAX_LIVES)}>
+                            {lives < MAX_LIVES + bonusLives && (
+                                <button className="runner-start-btn runner-start-btn-secondary" onClick={() => setLives(MAX_LIVES + bonusLives)}>
                                     Recargar vida (gratis)
+                                </button>
+                            )}
+                            {lives >= MAX_LIVES + bonusLives && (
+                                <button
+                                    className="runner-start-btn runner-start-btn-secondary"
+                                    onClick={() => { setLives(l => l + 1); setBonusLives(b => b + 1); }}
+                                >
+                                    Corazón extra
                                 </button>
                             )}
                             <div className="runner-action-row">
