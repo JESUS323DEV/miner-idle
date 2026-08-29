@@ -101,6 +101,30 @@
     border: 1px solid #3a2c18;
 }
 
+.runner-track-scene-desierto-1 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp');
+}
+
+.runner-track-scene-desierto-2 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp');
+}
+
+.runner-track-scene-desierto-3 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp');
+}
+
+.runner-track-scene-ciudad-1 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp');
+}
+
+.runner-track-scene-ciudad-2 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp');
+}
+
+.runner-track-scene-ciudad-3 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp');
+}
+
 .runner-track-static {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp');
 }
@@ -187,8 +211,12 @@
     left: 0;
     right: 0;
     height: 86.9%;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(0, 0, 0, 0.35);
     pointer-events: none;
+}
+
+.runner-sky-overlay-interior {
+    background: rgba(0, 0, 0, 0.50);
 }
 
 .runner-dog {

@@ -60,6 +60,13 @@ import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/podere
 
 import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
 
+import escenarioMina1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp';
+import escenarioMina2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp';
+import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp';
+import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp';
+import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
+import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
+
 import '../../styles/modals/RunnerScreen.css';
 
 // Misma paleta que ELEMENT_ICON de CombatScreen.jsx, replicada aqui a proposito (componente aislado, ver feedback_sistemas_aislados)
@@ -99,12 +106,19 @@ const DOG_ICONS = {
     smoke: smokeIcon, tokio: tokyoIcon, tuka: tukaIcon, zeus: zeusIcon, druh: druhIcon,
 };
 
+const BIOMES = {
+    desierto: { title: 'Desierto/Mina', desc: '3-4 escenarios encadenados', scenes: [escenarioMina1, escenarioMina2, escenarioMina3], interior: true },
+    ciudad: { title: 'Ciudad', desc: '3-4 escenarios encadenados', scenes: [escenarioCiudad1, escenarioCiudad2, escenarioCiudad3], interior: false },
+};
+const BIOME_ORDER = ['desierto', 'ciudad'];
+
 const RUN_FRAME_MS = 130;
 const GROUND_OBSTACLE_IMGS = [obstaculo3];
 const AERIAL_OBSTACLE_IMGS = [obstaculoAereo];
 
 const GROUND_VISUAL_OFFSET = 12; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
 const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
+const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) aparece la pantalla de meta/recompensa
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
@@ -236,6 +250,11 @@ export default function RunnerScreen({ onClose }) {
     const [lives, setLives] = useState(MAX_LIVES);
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
     const [rivalsDefeated, setRivalsDefeated] = useState(0);
+    const [checkpointOpen, setCheckpointOpen] = useState(false);
+    const [sceneIndex, setSceneIndex] = useState(0);
+    const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
+    const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
+    const [selectedBiomeId, setSelectedBiomeId] = useState(null); // key de BIOMES cuando arcadeSubMode === 'biome'
     const [score, setScore] = useState(0);
     const [speedTierDisplay, setSpeedTierDisplay] = useState(1);
     const [airborne, setAirborne] = useState(false);
@@ -274,6 +293,7 @@ export default function RunnerScreen({ onClose }) {
     const scoreShownRef = useRef(0);
     const speedTierShownRef = useRef(1);
     const matchTimeRef = useRef(0);
+    const nextCheckpointAtRef = useRef(CHECKPOINT_INTERVAL_S);
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
     const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
     const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
@@ -359,6 +379,7 @@ export default function RunnerScreen({ onClose }) {
         scoreShownRef.current = 0;
         speedTierShownRef.current = 1;
         matchTimeRef.current = 0;
+        nextCheckpointAtRef.current = CHECKPOINT_INTERVAL_S;
         powerChargesRef.current = MAX_POWER_CHARGES;
         cpuPowerChargesRef.current = MAX_POWER_CHARGES;
         powerRechargeTimerRef.current = POWER_RECHARGE_MS;
@@ -377,6 +398,9 @@ export default function RunnerScreen({ onClose }) {
         setLives(MAX_LIVES);
         setCpuLives(MAX_LIVES);
         setRivalsDefeated(0);
+        setCheckpointOpen(false);
+        setSceneIndex(0);
+        setBiomeSelectOpen(false);
         setStage('cpu');
         setBossHp(BOSS_MAX_HP);
         setScore(0);
@@ -396,6 +420,25 @@ export default function RunnerScreen({ onClose }) {
         resetStats();
         setPhase('ready');
     }, [resetStats]);
+
+    // Arcade: pantalla de meta cada CHECKPOINT_INTERVAL_S, encadena los escenarios del bioma elegido.
+    // "Reclamar" es un label sin logica aun.
+    const handleCheckpointContinue = useCallback(() => {
+        const totalScenes = BIOMES[selectedBiomeId]?.scenes.length ?? 1;
+        if (sceneIndex >= totalScenes - 1) {
+            // Ultimo escenario del bioma completado: termina la run, vuelve a elegir bioma
+            resetStats();
+            setPhase('ready');
+            setBiomeSelectOpen(true);
+            return;
+        }
+        nextCheckpointAtRef.current += CHECKPOINT_INTERVAL_S;
+        setSceneIndex(i => i + 1);
+        obstaclesDataRef.current = [];
+        setObstacles([]);
+        spawnTimerRef.current = SPAWN_MIN_MS;
+        setCheckpointOpen(false);
+    }, [sceneIndex, selectedBiomeId, resetStats]);
 
     // Guarda la puntuacion al entrar en game over
     useEffect(() => {
@@ -425,7 +468,7 @@ export default function RunnerScreen({ onClose }) {
     // Bucle principal: fisica (jugador + CPU), spawns, colisiones. Las posiciones
     // se escriben directo en el DOM via refs, nunca por props style dinamicas en el JSX.
     useEffect(() => {
-        if (phase !== 'playing' || paused) return;
+        if (phase !== 'playing' || paused || checkpointOpen) return;
         let rafId;
         let lastTime = performance.now();
 
@@ -491,6 +534,12 @@ export default function RunnerScreen({ onClose }) {
             lastTime = now;
 
             matchTimeRef.current += dt;
+
+            if (arcadeSubMode === 'biome' && matchTimeRef.current >= nextCheckpointAtRef.current) {
+                setCheckpointOpen(true);
+                return;
+            }
+
             const matchTimeMs = matchTimeRef.current * 1000;
             const rampStartMs = (SPEED_TIERS.length - 1) * SPEED_TIER_MS;
             let currentSpeed;
@@ -832,11 +881,13 @@ export default function RunnerScreen({ onClose }) {
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode]);
 
     const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
     const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
+    const biomeSceneClass = arcadeSubMode === 'biome' && selectedBiomeId ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}` : '';
+    const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
 
     return (
         <div className="runner-backdrop" onClick={phase !== 'playing' ? onClose : undefined}>
@@ -847,9 +898,9 @@ export default function RunnerScreen({ onClose }) {
 
                 <div className="runner-tracks">
                     {phase !== 'ready' && (
-                        <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
+                        <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
-                            {phase === 'playing' && stage === 'cpu' && <div className="runner-sky-overlay" />}
+                            {phase === 'playing' && stage === 'cpu' && <div className={skyOverlayClass} />}
 
                             {stage === 'cpu' && (
                                 <>
@@ -877,9 +928,9 @@ export default function RunnerScreen({ onClose }) {
                         </div>
                     )}
 
-                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
+                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
                         <div className="runner-ground" />
-                        {phase === 'playing' && <div className="runner-sky-overlay" />}
+                        {phase === 'playing' && <div className={skyOverlayClass} />}
 
                         <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(MAX_LIVES - lives)}</span>
 
@@ -928,11 +979,35 @@ export default function RunnerScreen({ onClose }) {
                                     </button>
                                 </div>
                             )}
-                            {phase === 'ready' && runMode && (
+                            {phase === 'ready' && runMode && !biomeSelectOpen && (
                                 <>
-                                    <button className="runner-mode-back-btn" onClick={() => setRunMode(null)}><ArrowLeft size={16} /></button>
+                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); }}><ArrowLeft size={16} /></button>
                                     <p className="runner-overlay-title">Corre y esquiva</p>
-                                    <button className="runner-start-btn" onClick={resetGame}>Empezar</button>
+                                    <button
+                                        className="runner-start-btn"
+                                        onClick={runMode === 'arcade' ? () => setBiomeSelectOpen(true) : resetGame}
+                                    >Empezar</button>
+                                </>
+                            )}
+                            {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
+                                <>
+                                    <button className="runner-mode-back-btn" onClick={() => setBiomeSelectOpen(false)}><ArrowLeft size={16} /></button>
+                                    <div className="runner-mode-select">
+                                        <button className="runner-mode-btn" onClick={() => { setArcadeSubMode('libre'); setBiomeSelectOpen(false); resetGame(); }}>
+                                            <span className="runner-mode-btn-title">Modo Libre</span>
+                                            <span className="runner-mode-btn-desc">Carrera infinita, sin cambio de escena</span>
+                                        </button>
+                                        {BIOME_ORDER.map(biomeId => (
+                                            <button
+                                                key={biomeId}
+                                                className="runner-mode-btn"
+                                                onClick={() => { setArcadeSubMode('biome'); setSelectedBiomeId(biomeId); setBiomeSelectOpen(false); resetGame(); }}
+                                            >
+                                                <span className="runner-mode-btn-title">{BIOMES[biomeId].title}</span>
+                                                <span className="runner-mode-btn-desc">{BIOMES[biomeId].desc}</span>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </>
                             )}
                             {phase === 'gameover' && (
@@ -944,6 +1019,22 @@ export default function RunnerScreen({ onClose }) {
                                     )}
                                 </>
                             )}
+                        </div>
+                    )}
+
+                    {checkpointOpen && (
+                        <div className="runner-overlay">
+                            <p className="runner-overlay-title">¡Meta alcanzada!</p>
+                            <p className="runner-overlay-score">Puntos: {score}</p>
+                            {lives < MAX_LIVES && (
+                                <button className="runner-start-btn runner-start-btn-secondary" onClick={() => setLives(MAX_LIVES)}>
+                                    Recargar vida (gratis)
+                                </button>
+                            )}
+                            <div className="runner-action-row">
+                                <button className="runner-start-btn" onClick={handleCheckpointContinue}>Continuar</button>
+                                <button className="runner-start-btn runner-start-btn-secondary">Reclamar</button>
+                            </div>
                         </div>
                     )}
                 </div>
