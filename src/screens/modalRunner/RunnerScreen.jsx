@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon } from 'lucide-react';
+import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull } from 'lucide-react';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -103,7 +103,7 @@ const RUN_FRAME_MS = 130;
 const GROUND_OBSTACLE_IMGS = [obstaculo3];
 const AERIAL_OBSTACLE_IMGS = [obstaculoAereo];
 
-const GROUND_VISUAL_OFFSET = 22; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
+const GROUND_VISUAL_OFFSET = 12; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
 const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
@@ -122,6 +122,7 @@ const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
 const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
 const AERIAL_MAX_Y = 130;
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
+const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
 const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, para que el aereo llegue justo al aterrizar
 const HIT_INVULN_MS = 900;
@@ -234,6 +235,7 @@ export default function RunnerScreen({ onClose }) {
     const [difficulty, setDifficulty] = useState('medio');
     const [lives, setLives] = useState(MAX_LIVES);
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
+    const [rivalsDefeated, setRivalsDefeated] = useState(0);
     const [score, setScore] = useState(0);
     const [speedTierDisplay, setSpeedTierDisplay] = useState(1);
     const [airborne, setAirborne] = useState(false);
@@ -374,6 +376,7 @@ export default function RunnerScreen({ onClose }) {
         setCpuAirborne(false);
         setLives(MAX_LIVES);
         setCpuLives(MAX_LIVES);
+        setRivalsDefeated(0);
         setStage('cpu');
         setBossHp(BOSS_MAX_HP);
         setScore(0);
@@ -619,9 +622,10 @@ export default function RunnerScreen({ onClose }) {
                 let isPair = false;
                 if (tierNow >= AERIAL_UNLOCK_TIER) {
                     // Tramo 3+: pareja terrestre -> aereo -> terrestre suelto (repite)
+                    // Tramo 5+: el terrestre "suelto" tambien sale en pareja
                     const pattern = spawnPatternIndexRef.current % 3;
                     aerial = pattern === 1;
-                    isPair = pattern === 0;
+                    isPair = pattern === 0 || (pattern === 2 && tierNow >= DOUBLE_SOLO_UNLOCK_TIER);
                 } else {
                     // Tramo 1-2: terrestre -> aereo (repite), sin parejas todavia
                     const pattern = spawnPatternIndexRef.current % 2;
@@ -810,15 +814,16 @@ export default function RunnerScreen({ onClose }) {
                 setTimeout(() => setCpuHitFlash(false), HIT_INVULN_MS);
                 setCpuLives(prev => {
                     const next = prev - 1;
-                    if (next <= 0) {
-                        if (runMode === 'historia') {
-                            setStage('boss');
-                        } else if (!endingRef.current) {
-                            endingRef.current = true;
-                            setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
-                        }
+                    if (next > 0) return next;
+                    if (runMode === 'historia') {
+                        setStage('boss');
+                        return next;
                     }
-                    return next;
+                    // Arcade infinito: en vez de terminar la partida, aparece otro rival
+                    setRivalsDefeated(r => r + 1);
+                    const rivalPool = DOG_SELECT_ORDER.filter(id => id !== selectedDogId && id !== cpuDogId);
+                    setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
+                    return MAX_LIVES;
                 });
             }
 
@@ -934,6 +939,9 @@ export default function RunnerScreen({ onClose }) {
                                 <>
                                     <p className="runner-overlay-title">{won ? '¡Has ganado!' : 'Game Over'}</p>
                                     <p className="runner-overlay-score">Puntos: {score}</p>
+                                    {runMode === 'arcade' && (
+                                        <p className="runner-overlay-score">Rivales vencidos: {rivalsDefeated}</p>
+                                    )}
                                 </>
                             )}
                         </div>
@@ -974,6 +982,9 @@ export default function RunnerScreen({ onClose }) {
                         <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
                         <span className="runner-hud-score">{score}</span>
                         {phase === 'playing' && <span className="runner-hud-tier">T{speedTierDisplay}</span>}
+                        {phase === 'playing' && runMode === 'arcade' && (
+                            <span className="runner-hud-rivals"><Skull size={13} />{rivalsDefeated}</span>
+                        )}
                     </div>
                 )}
 

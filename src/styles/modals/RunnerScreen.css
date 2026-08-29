@@ -52,6 +52,15 @@
     font-size: 0.85rem;
 }
 
+.runner-hud-rivals {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #ff8f6b;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
 .runner-scores-btn {
     border: none;
     background: none;
@@ -87,7 +96,7 @@
     position: relative;
     width: 99%;
     overflow: hidden;
-    background: url('../../assets/ui/icons-hud/hud-modals/game-run/fondo-run.webp') center / cover no-repeat;
+    background: url('../../assets/ui/icons-hud/hud-modals/game-run/pruebas/nueva-escena-2.webp') center / cover no-repeat;
     border-radius: 10px;
     border: 1px solid #3a2c18;
 }
@@ -177,7 +186,7 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 85%;
+    height: 86.9%;
     background: rgba(0, 0, 0, 0.65);
     pointer-events: none;
 }
@@ -204,7 +213,7 @@
 
 .runner-obstacle {
     position: absolute;
-    bottom: 22px;
+    bottom: 12px;
     left: 100%;
     width: 46px;
     height: 46px;

@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import SkinShopModal from '../modalRaid/SkinShopModal.jsx';
 import { loadSavedState } from '../../game/initialState/loadSavedState.js';
+import { usePreloadImages } from '../../game/hooks/usePreloadImages.js';
+import { RUNNER_PRELOAD_IMAGES } from '../modalRunner/runnerPreloadAssets.js';
+import { SKIN_SHOP_PRELOAD_IMAGES } from '../modalRaid/skinShopPreloadAssets.js';
 import '../../styles/standalone/LadyRunStandalone.css';
 
 /**
@@ -13,10 +16,20 @@ import '../../styles/standalone/LadyRunStandalone.css';
 const LadyRunStandalone = () => {
     const [gameState, setGameState] = useState(loadSavedState);
     const [view, setView] = useState('run'); // 'run' | 'skins'
+    const preloadList = useMemo(() => [...RUNNER_PRELOAD_IMAGES, ...SKIN_SHOP_PRELOAD_IMAGES], []);
+    const loaded = usePreloadImages(preloadList);
 
     useEffect(() => {
         localStorage.setItem('ladyHungryGame', JSON.stringify({ ...gameState, savedAt: Date.now() }));
     }, [gameState]);
+
+    if (!loaded) {
+        return (
+            <div className="loading-screen">
+                <div className="loading-spinner" />
+            </div>
+        );
+    }
 
     if (view === 'skins') {
         return (
