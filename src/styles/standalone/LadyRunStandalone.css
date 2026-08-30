@@ -1,6 +1,9 @@
 .lady-run-standalone-skins {
     position: fixed;
-    inset: 0;
+    top: 40px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #14100c;
     padding: 16px;
     padding-top: 56px;
@@ -12,7 +15,7 @@
 
 .lady-run-standalone-back {
     position: fixed;
-    top: 12px;
+    top: 52px;
     left: 12px;
     z-index: 10;
     display: flex;

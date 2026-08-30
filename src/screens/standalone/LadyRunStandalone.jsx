@@ -49,7 +49,7 @@ const LadyRunStandalone = () => {
     return (
         <>
             <CurrencyHud gold={gameState.gold} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
-            <RunnerScreen onClose={() => setView('skins')} />
+            <RunnerScreen belowHud />
         </>
     );
 };

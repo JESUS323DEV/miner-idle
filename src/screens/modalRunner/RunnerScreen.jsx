@@ -256,7 +256,7 @@ const saveHighScore = (score, dogId) => {
     return trimmed;
 };
 
-export default function RunnerScreen({ onClose }) {
+export default function RunnerScreen({ onClose, belowHud = false }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -919,9 +919,9 @@ export default function RunnerScreen({ onClose }) {
     const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
 
     return (
-        <div className="runner-backdrop" onClick={phase !== 'playing' ? onClose : undefined}>
+        <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
             <div className="runner-screen" onClick={e => e.stopPropagation()}>
-                {phase !== 'playing' && (
+                {phase !== 'playing' && onClose && (
                     <button className="modal-close" onClick={onClose}><X /></button>
                 )}
 
@@ -998,13 +998,11 @@ export default function RunnerScreen({ onClose }) {
                         <div className="runner-overlay">
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
+                                    <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
+                                        <span className="runner-mode-btn-title">Modo Libre</span>
+                                    </button>
                                     <button className="runner-mode-btn" onClick={() => setRunMode('historia')}>
                                         <span className="runner-mode-btn-title">Historia</span>
-                                        <span className="runner-mode-btn-desc">Carrera con poderes elementales y jefe final</span>
-                                    </button>
-                                    <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
-                                        <span className="runner-mode-btn-title">Arcade</span>
-                                        <span className="runner-mode-btn-desc">Solo esquivar, sin poderes</span>
                                     </button>
                                 </div>
                             )}
@@ -1014,7 +1012,7 @@ export default function RunnerScreen({ onClose }) {
                                     <p className="runner-overlay-title">Corre y esquiva</p>
                                     <button
                                         className="runner-start-btn"
-                                        onClick={runMode === 'arcade' ? () => setBiomeSelectOpen(true) : resetGame}
+                                        onClick={runMode === 'arcade' ? () => { setArcadeSubMode('libre'); resetGame(); } : resetGame}
                                     >Empezar</button>
                                 </>
                             )}
@@ -1076,6 +1074,7 @@ export default function RunnerScreen({ onClose }) {
                     )}
                 </div>
 
+
                 {phase === 'gameover' && (
                     <div className="runner-action-row">
                         <button className="runner-start-btn" onClick={resetGame}>Reintentar</button>
@@ -1116,7 +1115,7 @@ export default function RunnerScreen({ onClose }) {
                     </div>
                 )}
 
-                {phase === 'ready' && runMode && (
+                {phase === 'ready' && (
                     <div className="runner-dog-select">
                         {DOG_SELECT_ORDER.map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
@@ -1140,7 +1139,7 @@ export default function RunnerScreen({ onClose }) {
                     </div>
                 )}
 
-                {phase === 'ready' && runMode && (
+                {phase === 'ready' && (
                     <div className="runner-difficulty-select">
                         {DIFFICULTY_ORDER.map(id => (
                             <button

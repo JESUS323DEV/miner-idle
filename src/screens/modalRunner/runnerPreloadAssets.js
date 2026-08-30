@@ -73,7 +73,7 @@ import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/podere
 import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
 
 import runnerFondo1 from '../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp';
-import runnerFondoRun from '../../assets/ui/icons-hud/hud-modals/game-run/pruebas/nueva-escena-2.webp';
+import runnerFondoRun from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp';
 
 export const RUNNER_PRELOAD_IMAGES = [
     ladyRun1, ladyRun2, ladyRun3, ladyRun4,
