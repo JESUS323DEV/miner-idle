@@ -289,6 +289,16 @@
     50%      { transform: scale(1.18); }
 }
 
+.runner-obstacle-coin {
+    animation: runner-coin-pulse 0.7s ease-in-out infinite;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(255, 215, 64, 0.7));
+}
+
+@keyframes runner-coin-pulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50%      { transform: scale(1.15) rotate(0deg); }
+}
+
 .runner-obstacle-aerial {
     animation: none;
     bottom: 92px;
@@ -297,6 +307,10 @@
 .runner-obstacle-heart.runner-obstacle-aerial {
     animation: runner-heart-pulse 0.7s ease-in-out infinite;
     bottom: 110px;
+}
+
+.runner-obstacle-coin.runner-obstacle-aerial {
+    animation: runner-coin-pulse 0.7s ease-in-out infinite;
 }
 
 .runner-overlay {

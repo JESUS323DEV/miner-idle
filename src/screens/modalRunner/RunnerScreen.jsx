@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
+import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -148,12 +149,15 @@ const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la
 const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) aparece la pantalla de meta/recompensa
 const HEART_FIRST_AT_S = 25;  // modo libre: primer corazon extra al llegar al tramo 5 (25s, 5 tramos x 5s)
 const HEART_INTERVAL_S = 20;  // luego uno cada 4 tramos (20s)
+const TAVERN_COIN_TIER_INTERVAL = 4; // modo libre: 1 tavern coin cada 4 tramos, toda la partida
 const LIBRE_SCENE_COUNT = 4;  // fondos disponibles en escenarios-run-libre/ (libre-1, libre-2, libre-3...), se sortea 1 al empezar
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
 const SPEED_TIERS = [280, 320, 380, 440];
 const SPEED_TIER_MS = 5000;
+const TRAMO1_DURATION_FACIL_MS = 15000; // en Facil, tramo1 dura 15s en vez de 5s
+const TRAMO2_DURATION_FACIL_MS = 10000; // en Facil, tramo2 dura 10s en vez de 5s
 const SPEED_RAMP_STEP = 20;   // px/s que se suma cada SPEED_RAMP_MS tras agotar los tramos
 const SPEED_RAMP_MS = 10000;
 const SPEED_MAX = 700;
@@ -273,8 +277,11 @@ const saveHighScore = (score, dogId) => {
     return trimmed;
 };
 
-export default function RunnerScreen({ onClose, belowHud = false }) {
+export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCoins }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
+    const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
+    onEarnTavernCoinsRef.current = onEarnTavernCoins;
+
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
     const [bossHp, setBossHp] = useState(BOSS_MAX_HP);
@@ -336,6 +343,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const nextCheckpointAtRef = useRef(CHECKPOINT_INTERVAL_S);
     const nextHeartAtRef = useRef(HEART_FIRST_AT_S);
     const pendingHeartRef = useRef(false);
+    const nextTavernCoinAtTierRef = useRef(TAVERN_COIN_TIER_INTERVAL);
+    const pendingTavernCoinRef = useRef(false);
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
     const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
     const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
@@ -393,7 +402,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                 cpuEl: null,
             };
             obstaclesDataRef.current = [...obstaclesDataRef.current, projectile];
-            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart })));
+            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin })));
         } else {
             pendingPowerForCpuRef.current += 1;
             setCpuPowerPending(true);
@@ -426,6 +435,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
         nextCheckpointAtRef.current = CHECKPOINT_INTERVAL_S;
         nextHeartAtRef.current = HEART_FIRST_AT_S;
         pendingHeartRef.current = false;
+        nextTavernCoinAtTierRef.current = TAVERN_COIN_TIER_INTERVAL;
+        pendingTavernCoinRef.current = false;
         powerChargesRef.current = MAX_POWER_CHARGES;
         cpuPowerChargesRef.current = MAX_POWER_CHARGES;
         powerRechargeTimerRef.current = POWER_RECHARGE_MS;
@@ -460,7 +471,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
         resetStats();
         const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
         setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
-        setLibreSceneIndex(4); // TEMPORAL: forzado para probar libre-4, revertir a random cuando se confirme
+        setLibreSceneIndex(1 + Math.floor(Math.random() * LIBRE_SCENE_COUNT));
         setPhase('playing');
     }, [resetStats, selectedDogId]);
 
@@ -593,21 +604,41 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
             }
 
             const matchTimeMs = matchTimeRef.current * 1000;
+            // En Facil, tramo1 y tramo2 duran mas (15s y 10s) para dar mas margen al empezar. El resto
+            // de tramos mantiene su duracion normal, solo se desplaza en el tiempo lo que dure ese extra.
+            const tramoDurationsMs = difficulty === 'facil'
+                ? [TRAMO1_DURATION_FACIL_MS, TRAMO2_DURATION_FACIL_MS, SPEED_TIER_MS]
+                : [SPEED_TIER_MS, SPEED_TIER_MS, SPEED_TIER_MS];
             const rampStartMs = (SPEED_TIERS.length - 1) * SPEED_TIER_MS;
             let currentSpeed;
             let tierNumber;
-            if (matchTimeMs < rampStartMs) {
-                const speedTier = Math.floor(matchTimeMs / SPEED_TIER_MS);
-                currentSpeed = SPEED_TIERS[speedTier];
-                tierNumber = speedTier + 1;
-            } else {
-                const rampSteps = Math.floor((matchTimeMs - rampStartMs) / SPEED_RAMP_MS);
+            let cumulativeMs = 0;
+            let matchedTramo = false;
+            for (let i = 0; i < tramoDurationsMs.length; i++) {
+                cumulativeMs += tramoDurationsMs[i];
+                if (matchTimeMs < cumulativeMs) {
+                    currentSpeed = SPEED_TIERS[i];
+                    tierNumber = i + 1;
+                    matchedTramo = true;
+                    break;
+                }
+            }
+            if (!matchedTramo) {
+                const shiftedMs = matchTimeMs - cumulativeMs + rampStartMs;
+                const rampSteps = Math.floor((shiftedMs - rampStartMs) / SPEED_RAMP_MS);
                 currentSpeed = Math.min(SPEED_MAX, SPEED_TIERS[SPEED_TIERS.length - 1] + rampSteps * SPEED_RAMP_STEP);
                 tierNumber = SPEED_TIERS.length + 1 + rampSteps;
             }
             if (tierNumber !== speedTierShownRef.current) {
                 speedTierShownRef.current = tierNumber;
                 setSpeedTierDisplay(tierNumber);
+            }
+
+            // Modo Libre: 1 tavern coin cada TAVERN_COIN_TIER_INTERVAL tramos, toda la partida. Igual que
+            // el corazon, no se genera suelto: se marca pendiente y se engancha al proximo obstaculo real.
+            if (arcadeSubMode === 'libre' && tierNumber >= nextTavernCoinAtTierRef.current) {
+                nextTavernCoinAtTierRef.current += TAVERN_COIN_TIER_INTERVAL;
+                pendingTavernCoinRef.current = true;
             }
 
             // Recarga de cargas de poder (jugador y CPU, independiente cada una)
@@ -823,6 +854,27 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                         if (pendingPowerForPlayerRef.current === 0) setPlayerPowerPending(false);
                     }
                 }
+                if (arcadeSubMode === 'libre' && pendingTavernCoinRef.current) {
+                    pendingTavernCoinRef.current = false;
+                    // Separada en X de cualquier obstaculo real de este spawn (mismo hueco que usan las
+                    // parejas/inyecciones de poder), para que nunca coincida en el mismo instante con un
+                    // obstaculo peligroso. La altura (arriba/abajo) sigue saliendo al azar.
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
+                        img: tavernCoinIcon,
+                        isCoin: true,
+                        aerial: Math.random() < 0.5,
+                        lane: 'player',
+                        size: OBSTACLE_SIZE,
+                        clearY: OBSTACLE_CLEAR_Y,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                    groupCount += 1;
+                }
                 if (groupCount >= 2) {
                     spawnTimerRef.current = LANDING_SYNC_DELAY_MS;
                 }
@@ -878,12 +930,28 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
             }
             if (heartCollected) setLives(l => l + 1);
 
+            // Recogida de tavern coins: mismo criterio, independiente de la invulnerabilidad.
+            let coinsCollected = 0;
+            for (const o of list) {
+                if (!o.isCoin || o.hit) continue;
+                const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                if (!overlapX) continue;
+                const inCoinZone = o.aerial
+                    ? (dogYRef.current > AERIAL_MIN_Y && dogYRef.current < AERIAL_MAX_Y)
+                    : (dogYRef.current < o.clearY);
+                if (inCoinZone) {
+                    o.hit = true;
+                    coinsCollected += 1;
+                }
+            }
+            if (coinsCollected > 0) onEarnTavernCoinsRef.current?.(coinsCollected);
+
             // Colision jugador
             const invuln = now < invulnUntilRef.current;
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
-                    if (o.hit || o.lane === 'cpu' || o.isHeart) continue;
+                    if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
@@ -936,7 +1004,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
             });
             obstaclesDataRef.current = list;
             if (spawned || despawned || bossHit) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart })));
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin })));
             }
 
             if (bossHit) {
@@ -1087,7 +1155,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                                     ref={el => setObstacleEl(o.id, el)}
                                     src={o.img}
                                     alt=""
-                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}`}
                                 />
                             )
                         ))}

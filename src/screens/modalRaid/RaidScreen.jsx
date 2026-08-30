@@ -633,7 +633,12 @@ const RaidScreen = ({
                     </div>
                 )}
 
-                {runnerOpen && <RunnerScreen onClose={() => setRunnerOpen(false)} />}
+                {runnerOpen && (
+                    <RunnerScreen
+                        onClose={() => setRunnerOpen(false)}
+                        onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
+                    />
+                )}
 
                 {showRaidIntro && (
                     <div className="forge-intro-overlay">
