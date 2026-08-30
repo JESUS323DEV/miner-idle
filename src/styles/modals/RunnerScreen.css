@@ -329,6 +329,10 @@
     filter: grayscale(60%) brightness(0.5);
 }
 
+.runner-start-btn-compact {
+    padding: 0.5rem 1.2rem;
+}
+
 .runner-mode-select {
     display: flex;
     flex-direction: column;

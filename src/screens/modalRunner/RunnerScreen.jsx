@@ -381,6 +381,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
         cpuDogYRef.current = 0;
+        if (dogElRef.current) dogElRef.current.style.bottom = `${GROUND_VISUAL_OFFSET}px`;
+        if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${GROUND_VISUAL_OFFSET}px`;
         velocityRef.current = 0;
         cpuVelocityRef.current = 0;
         isJumpingRef.current = false;
@@ -440,6 +442,10 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const backToSelect = useCallback(() => {
         resetStats();
         setPhase('ready');
+        setRunMode(null);
+        setBiomeSelectOpen(false);
+        setArcadeSubMode(null);
+        setSelectedBiomeId(null);
     }, [resetStats]);
 
     // Arcade: pantalla de meta cada CHECKPOINT_INTERVAL_S, encadena los escenarios del bioma elegido.
@@ -1077,8 +1083,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
 
                 {phase === 'gameover' && (
                     <div className="runner-action-row">
-                        <button className="runner-start-btn" onClick={resetGame}>Reintentar</button>
-                        <button className="runner-start-btn runner-start-btn-secondary" onClick={backToSelect}>Elegir perro</button>
+                        <button className="runner-start-btn runner-start-btn-compact" onClick={resetGame}>Reintentar</button>
+                        <button className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact" onClick={backToSelect}>Volver</button>
                     </div>
                 )}
 
@@ -1104,7 +1110,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                     </button>
                 )}
 
-                {phase !== 'ready' && (
+                {phase === 'playing' && (
                     <div className="runner-hud">
                         <button className="runner-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
                         <span className="runner-hud-score">{score}</span>
