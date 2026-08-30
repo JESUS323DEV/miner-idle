@@ -9,13 +9,9 @@ import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.web
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
 import gordoJump from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
-import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
-import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
-import munaRun4 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp';
+import munaJump from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
 import nupitoRun1 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp';
-import nupitoRun2 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
-import nupitoRun3 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp';
-import nupitoRun4 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp';
+import nupitoJump from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
 import smokeRun1 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-1.webp';
 import smokeRun2 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-2.webp';
 import smokeRun3 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-3.webp';
@@ -33,9 +29,7 @@ import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.web
 import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
 import zeusRun4 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp';
 import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp';
-import druhRun2 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
-import druhRun3 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp';
-import druhRun4 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp';
+import druhJump from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
 
 import ladyIcon    from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import gordoIcon   from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
@@ -102,19 +96,22 @@ const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', '
 const DOG_RUN_FRAMES = {
     lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
     gordo:  [gordoRun1, gordoRun1, gordoRun1, gordoRun1],
-    muna:   [munaRun1, munaRun2, munaRun3, munaRun4],
-    nupito: [nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4],
+    muna:   [munaRun1, munaRun1, munaRun1, munaRun1],
+    nupito: [nupitoRun1, nupitoRun1, nupitoRun1, nupitoRun1],
     smoke:  [smokeRun1, smokeRun2, smokeRun3, smokeRun4],
     tokio:  [tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4],
     tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
     zeus:   [zeusRun1, zeusRun2, zeusRun3, zeusRun4],
-    druh:   [druhRun1, druhRun2, druhRun3, druhRun4],
+    druh:   [druhRun1, druhRun1, druhRun1, druhRun1],
 };
 
 // Pose de salto propia para perros con sprite de correr animado (webp autoanimado, no ciclo de 4 frames).
 // El resto de perros sigue usando runFrames[1] como pose de salto (ver dogImg/cpuDogImg).
 const DOG_JUMP_FRAME = {
     gordo: gordoJump,
+    druh: druhJump,
+    muna: munaJump,
+    nupito: nupitoJump,
 };
 
 const DOG_ICONS = {
