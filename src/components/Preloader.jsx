@@ -335,12 +335,14 @@ import zeusRunP3 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp"
 import zeusRunP4 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp"
 import runnerFondo1 from "../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp"
 import runnerFondoRun from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp"
+import runnerFondoRun2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp"
+import runnerFondoRun3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp"
+import runnerFondoRun4 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp"
 import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo2.webp"
 import runnerObstaculoRata from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-rata.webp"
 import runnerObstaculoTopo1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp"
 import runnerObstaculo3 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp"
 import runnerObstaculo4 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp"
-import runnerObstaculo5 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo5.webp"
 import runnerObstaculo6 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp"
 import runnerObstaculoGato1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/ciudad/obstaculo-gato1.webp"
 import runnerObstaculoArmadillo from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo-armadillo.webp"
@@ -563,7 +565,7 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
-    runnerFondo1, runnerFondoRun, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo5, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1,
+    runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,
     runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerBatBoss,

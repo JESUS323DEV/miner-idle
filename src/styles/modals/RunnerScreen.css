@@ -105,6 +105,18 @@
     border: 1px solid #3a2c18;
 }
 
+.runner-track-scene-libre-2 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp');
+}
+
+.runner-track-scene-libre-3 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp');
+}
+
+.runner-track-scene-libre-4 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp');
+}
+
 .runner-track-scene-mina-1 {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp');
 }
@@ -127,6 +139,10 @@
 
 .runner-track-scene-ciudad-3 {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp');
+}
+
+.runner-track-scene-ciudad-4 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp');
 }
 
 .runner-track-static {
@@ -262,9 +278,25 @@
     50%      { transform: rotate(3deg); }
 }
 
+.runner-obstacle-heart {
+    padding: 8px;
+    animation: runner-heart-pulse 0.7s ease-in-out infinite;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+}
+
+@keyframes runner-heart-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.18); }
+}
+
 .runner-obstacle-aerial {
     animation: none;
     bottom: 92px;
+}
+
+.runner-obstacle-heart.runner-obstacle-aerial {
+    animation: runner-heart-pulse 0.7s ease-in-out infinite;
+    bottom: 110px;
 }
 
 .runner-overlay {
@@ -379,6 +411,32 @@
 .runner-mode-btn-desc {
     color: rgba(255, 255, 255, 0.75);
     font-size: 0.75rem;
+}
+
+.runner-mode-btn-locked {
+    cursor: not-allowed;
+}
+
+.runner-mode-btn-locked::before {
+    filter: grayscale(100%) brightness(0.5);
+}
+
+.runner-mode-btn-locked .runner-mode-btn-title {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.runner-mode-btn-locked:hover {
+    filter: none;
+}
+
+.runner-mode-btn-lock {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
 }
 
 .runner-mode-back-btn {
@@ -554,6 +612,25 @@
 .runner-dog-select-element-agua      { background-color: #4fc3f7; }
 .runner-dog-select-element-tierra    { background-color: #8b6914; }
 .runner-dog-select-element-oscuro    { background-color: #b45cff; }
+
+.runner-dog-select-locked {
+    cursor: not-allowed;
+}
+
+.runner-dog-select-locked .runner-dog-select-icon {
+    filter: grayscale(100%) brightness(0.45);
+}
+
+.runner-dog-select-lock {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+    z-index: 1;
+}
 
 .runner-dog-select-name {
     font-size: 0.6rem;

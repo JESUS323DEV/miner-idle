@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull } from 'lucide-react';
+import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart } from 'lucide-react';
+import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -46,7 +47,6 @@ import obstaculoRata from '../../assets/ui/icons-hud/hud-modals/game-run/obstacu
 import obstaculoTopo1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp';
 import obstaculo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp';
 import obstaculo4 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp';
-import obstaculo5 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo5.webp';
 import obstaculo6 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp';
 import obstaculoArmadillo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo-armadillo.webp';
 import obstaculoGato1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/ciudad/obstaculo-gato1.webp';
@@ -70,6 +70,7 @@ import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escena
 import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp';
 import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
+import escenarioCiudad4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp'; // tambien vale como escenario de Ciudad (skyline)
 
 import '../../styles/modals/RunnerScreen.css';
 
@@ -90,8 +91,14 @@ const ELEMENT_POWER_OBSTACLE_IMGS = {
     oscuro: oscuroObstacle,
 };
 
-// Lady siempre primera en el selector, el resto en el orden que ya usa Ayudantes
 const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', 'tuka', 'zeus', 'druh'];
+
+// Bloqueados temporalmente: su ciclo de correr todavia no esta animado (webp autoanimado como el resto),
+// se nota mucho mas tosco al lado de los que ya se pasaron. Se desbloquean cuando se animen.
+const LOCKED_DOG_IDS = ['lady', 'tuka', 'smoke', 'zeus', 'tokio', 'nupito'];
+const UNLOCKED_DOG_IDS = DOG_SELECT_ORDER.filter(id => !LOCKED_DOG_IDS.includes(id));
+// Desbloqueados primero (en su orden habitual), bloqueados al final.
+const DOG_SELECT_DISPLAY_ORDER = [...UNLOCKED_DOG_IDS, ...DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id))];
 
 const DOG_RUN_FRAMES = {
     lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
@@ -121,14 +128,14 @@ const DOG_ICONS = {
 
 const BIOMES = {
     mina: { title: 'Mina', desc: '3-4 escenarios encadenados', scenes: [escenarioMina1, escenarioMina2, escenarioMina3], interior: true },
-    ciudad: { title: 'Ciudad', desc: '3-4 escenarios encadenados', scenes: [escenarioCiudad1, escenarioCiudad2, escenarioCiudad3], interior: false },
+    ciudad: { title: 'Ciudad', desc: '3-4 escenarios encadenados', scenes: [escenarioCiudad1, escenarioCiudad2, escenarioCiudad3, escenarioCiudad4], interior: false },
     // desierto: pendiente de escenarios propios (exterior) -- de momento sin card, solo assets de obstaculos reservados
 };
 const BIOME_ORDER = ['mina', 'ciudad'];
 
 const RUN_FRAME_MS = 130;
 // Pools tematicos por contexto (libre / bioma) -- terrestres
-const GROUND_OBSTACLE_IMGS_LIBRE = [obstaculo3, obstaculo4, obstaculo5, obstaculo6, obstaculoArmadillo]; // fondo actual de Libre es desierto, mezcla libre+desierto
+const GROUND_OBSTACLE_IMGS_LIBRE = [obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo]; // fondo actual de Libre es desierto, mezcla libre+desierto
 const GROUND_OBSTACLE_IMGS_MINA = [obstaculo2, obstaculoRata, obstaculoTopo1];
 const GROUND_OBSTACLE_IMGS_CIUDAD = [obstaculo3, obstaculo4, obstaculoGato1];
 // Pools tematicos por contexto -- aereos (mina usa el set de cuevas, es un bioma interior)
@@ -139,6 +146,9 @@ const AERIAL_OBSTACLE_IMGS_MINA_CUEVAS = [obstaculoAereoCuevas, obstaculoAereoCu
 const GROUND_VISUAL_OFFSET = 12; // sube el perro un poco para que pise el camino del fondo, no la piedra de abajo
 const MAX_JUMP_HEIGHT = 130; // tope para que ni el doble salto sobresalga de la card
 const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) aparece la pantalla de meta/recompensa
+const HEART_FIRST_AT_S = 25;  // modo libre: primer corazon extra al llegar al tramo 5 (25s, 5 tramos x 5s)
+const HEART_INTERVAL_S = 20;  // luego uno cada 4 tramos (20s)
+const LIBRE_SCENE_COUNT = 4;  // fondos disponibles en escenarios-run-libre/ (libre-1, libre-2, libre-3...), se sortea 1 al empezar
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
@@ -155,6 +165,11 @@ const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
 const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
 const AERIAL_MAX_Y = 130;
+// Franja del corazon cuando toca cogerlo saltando (va emparejado con un obstaculo terrestre): mas arriba
+// que la franja normal de peligro aereo, cerca del pico del salto sencillo (~96px) donde el perro se
+// queda "flotando" un instante (velocidad vertical casi 0), asi da mas margen de timing para cogerlo.
+const HEART_AERIAL_MIN_Y = 90;
+const HEART_AERIAL_MAX_Y = 130;
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
@@ -188,6 +203,7 @@ const CPU_DIFFICULTY_PRESETS = {
     dificil: { label: 'Difícil', reactionDelayMs: 50,  timingJitterMs: 10,  visionPx: 410 },
 };
 const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
+const MEDIUM_PAIR_CHANCE = 0.35; // en Medio, la pareja de obstaculos solo sale esta fraccion de las veces que tocaria en Dificil
 
 const CPU_SIM_STEP_MS = 16;      // paso de la mini-simulacion que usa la CPU para predecir su propia trayectoria
 const CPU_SIM_HORIZON_MS = 1500; // hasta donde mira hacia delante como mucho
@@ -264,15 +280,18 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const [bossHp, setBossHp] = useState(BOSS_MAX_HP);
     const [paused, setPaused] = useState(false);
     const [won, setWon] = useState(false);
-    const [selectedDogId, setSelectedDogId] = useState('lady');
+    const [selectedDogId, setSelectedDogId] = useState(
+        () => UNLOCKED_DOG_IDS[Math.floor(Math.random() * UNLOCKED_DOG_IDS.length)]
+    );
     const [cpuDogId, setCpuDogId] = useState('gordo');
-    const [difficulty, setDifficulty] = useState('medio');
+    const [difficulty, setDifficulty] = useState('facil');
     const [lives, setLives] = useState(MAX_LIVES);
     const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
     const [rivalsDefeated, setRivalsDefeated] = useState(0);
     const [checkpointOpen, setCheckpointOpen] = useState(false);
     const [sceneIndex, setSceneIndex] = useState(0);
+    const [libreSceneIndex, setLibreSceneIndex] = useState(1); // 1 o 2: fondo de Modo Libre, se sortea cada partida
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
     const [selectedBiomeId, setSelectedBiomeId] = useState(null); // key de BIOMES cuando arcadeSubMode === 'biome'
@@ -315,6 +334,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const speedTierShownRef = useRef(1);
     const matchTimeRef = useRef(0);
     const nextCheckpointAtRef = useRef(CHECKPOINT_INTERVAL_S);
+    const nextHeartAtRef = useRef(HEART_FIRST_AT_S);
+    const pendingHeartRef = useRef(false);
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
     const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
     const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
@@ -372,7 +393,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                 cpuEl: null,
             };
             obstaclesDataRef.current = [...obstaclesDataRef.current, projectile];
-            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile })));
+            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart })));
         } else {
             pendingPowerForCpuRef.current += 1;
             setCpuPowerPending(true);
@@ -403,6 +424,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
         speedTierShownRef.current = 1;
         matchTimeRef.current = 0;
         nextCheckpointAtRef.current = CHECKPOINT_INTERVAL_S;
+        nextHeartAtRef.current = HEART_FIRST_AT_S;
+        pendingHeartRef.current = false;
         powerChargesRef.current = MAX_POWER_CHARGES;
         cpuPowerChargesRef.current = MAX_POWER_CHARGES;
         powerRechargeTimerRef.current = POWER_RECHARGE_MS;
@@ -435,8 +458,9 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
 
     const resetGame = useCallback(() => {
         resetStats();
-        const rivalPool = DOG_SELECT_ORDER.filter(id => id !== selectedDogId);
+        const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
         setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
+        setLibreSceneIndex(4); // TEMPORAL: forzado para probar libre-4, revertir a random cuando se confirme
         setPhase('playing');
     }, [resetStats, selectedDogId]);
 
@@ -670,6 +694,14 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
             let list = obstaclesDataRef.current;
             let spawned = false;
 
+            // Modo Libre: corazon extra cada HEART_INTERVAL_S a partir de HEART_FIRST_AT_S. No se genera
+            // suelto: se marca pendiente y se engancha al PROXIMO obstaculo real (ver mas abajo), exigiendo
+            // la accion contraria a la que hace falta para esquivarlo (asi solo lo coges esquivando bien).
+            if (arcadeSubMode === 'libre' && matchTimeRef.current >= nextHeartAtRef.current) {
+                nextHeartAtRef.current += HEART_INTERVAL_S;
+                pendingHeartRef.current = true;
+            }
+
             // En fase boss ya no hay generador automatico: el unico origen de obstaculos terrestres
             // es el propio ataque del boss, disparado al momento (sin esperar a ningun spawn base).
             if (stage === 'boss' && pendingPowerForPlayerRef.current > 0) {
@@ -702,7 +734,16 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                     // Tramo 5+: el terrestre "suelto" tambien sale en pareja
                     const pattern = spawnPatternIndexRef.current % 3;
                     aerial = pattern === 1;
-                    isPair = pattern === 0 || (pattern === 2 && tierNow >= DOUBLE_SOLO_UNLOCK_TIER);
+                    const wouldBePair = pattern === 0 || (pattern === 2 && tierNow >= DOUBLE_SOLO_UNLOCK_TIER);
+                    // Dificultad del jugador: en Facil nunca hay pareja, en Medio sale rara vez,
+                    // en Dificil es el comportamiento de siempre (fijo segun el patron).
+                    if (difficulty === 'facil') {
+                        isPair = false;
+                    } else if (difficulty === 'medio') {
+                        isPair = wouldBePair && Math.random() < MEDIUM_PAIR_CHANCE;
+                    } else {
+                        isPair = wouldBePair;
+                    }
                 } else {
                     // Tramo 1-2: terrestre -> aereo (repite), sin parejas todavia
                     const pattern = spawnPatternIndexRef.current % 2;
@@ -741,6 +782,26 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                 };
                 let groupCount = 1;
                 list = [...list, makeObstacle(trackWidth)];
+                if (arcadeSubMode === 'libre' && pendingHeartRef.current) {
+                    pendingHeartRef.current = false;
+                    // Exige la accion CONTRARIA a la que hace falta para esquivar el obstaculo real que
+                    // acompaña: si el obstaculo es terrestre, el corazon solo se coge saltando (arriba);
+                    // si es aereo, se coge quedandose abajo. Asi solo se recoge esquivando bien, no aparte.
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth,
+                        img: null,
+                        isHeart: true,
+                        aerial: !aerial,
+                        lane: 'player',
+                        size: OBSTACLE_SIZE,
+                        clearY: OBSTACLE_CLEAR_Y,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                }
                 if (isPair) {
                     list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX));
                     groupCount += 1;
@@ -800,12 +861,29 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                 }
             }
 
+            // Recogida de corazones: independiente de la invulnerabilidad por golpe, se puede coger
+            // aunque acabes de perder una vida.
+            let heartCollected = false;
+            for (const o of list) {
+                if (!o.isHeart || o.hit) continue;
+                const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                if (!overlapX) continue;
+                const inHeartZone = o.aerial
+                    ? (dogYRef.current > HEART_AERIAL_MIN_Y && dogYRef.current < HEART_AERIAL_MAX_Y)
+                    : (dogYRef.current < o.clearY);
+                if (inHeartZone) {
+                    o.hit = true;
+                    heartCollected = true;
+                }
+            }
+            if (heartCollected) setLives(l => l + 1);
+
             // Colision jugador
             const invuln = now < invulnUntilRef.current;
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
-                    if (o.hit || o.lane === 'cpu') continue;
+                    if (o.hit || o.lane === 'cpu' || o.isHeart) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
@@ -858,7 +936,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
             });
             obstaclesDataRef.current = list;
             if (spawned || despawned || bossHit) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile })));
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart })));
             }
 
             if (bossHit) {
@@ -906,7 +984,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                     }
                     // Arcade infinito: en vez de terminar la partida, aparece otro rival
                     setRivalsDefeated(r => r + 1);
-                    const rivalPool = DOG_SELECT_ORDER.filter(id => id !== selectedDogId && id !== cpuDogId);
+                    const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId && id !== cpuDogId);
                     setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
                     return MAX_LIVES;
                 });
@@ -922,7 +1000,11 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
     const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
-    const biomeSceneClass = arcadeSubMode === 'biome' && selectedBiomeId ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}` : '';
+    const biomeSceneClass = arcadeSubMode === 'biome' && selectedBiomeId
+        ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}`
+        : arcadeSubMode === 'libre'
+            ? ` runner-track-scene-libre-${libreSceneIndex}`
+            : '';
     const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
 
     return (
@@ -991,13 +1073,23 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                         {stage === 'boss' && <img ref={bossElRef} src={batBoss} alt="Boss" className="runner-boss" />}
 
                         {obstacles.filter(o => o.lane !== 'cpu' || o.isProjectile).map(o => (
-                            <img
-                                key={o.id}
-                                ref={el => setObstacleEl(o.id, el)}
-                                src={o.img}
-                                alt=""
-                                className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
-                            />
+                            o.isHeart ? (
+                                <Heart
+                                    key={o.id}
+                                    ref={el => setObstacleEl(o.id, el)}
+                                    className={`runner-obstacle runner-obstacle-heart${o.aerial ? ' runner-obstacle-aerial' : ''}`}
+                                    fill="#ff4d6d"
+                                    color="#ff4d6d"
+                                />
+                            ) : (
+                                <img
+                                    key={o.id}
+                                    ref={el => setObstacleEl(o.id, el)}
+                                    src={o.img}
+                                    alt=""
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}`}
+                                />
+                            )
                         ))}
                     </div>
 
@@ -1008,8 +1100,9 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                                     <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
-                                    <button className="runner-mode-btn" onClick={() => setRunMode('historia')}>
+                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                         <span className="runner-mode-btn-title">Historia</span>
+                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
                                 </div>
                             )}
@@ -1124,16 +1217,20 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
 
                 {phase === 'ready' && (
                     <div className="runner-dog-select">
-                        {DOG_SELECT_ORDER.map(id => {
+                        {DOG_SELECT_DISPLAY_ORDER.map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
+                            const locked = LOCKED_DOG_IDS.includes(id);
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
-                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
-                                        onClick={() => setSelectedDogId(id)}
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}${locked ? ' runner-dog-select-locked' : ''}`}
+                                        onClick={() => !locked && setSelectedDogId(id)}
+                                        disabled={locked}
                                     >
                                         <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                                        {elementInfo && (
+                                        {locked ? (
+                                            <img src={lockIcon} alt="Bloqueado" className="runner-dog-select-lock" />
+                                        ) : elementInfo && (
                                             <span className={`runner-dog-select-element runner-dog-select-element-${DogsConfig[id]?.element}`}>
                                                 <elementInfo.Icon size={11} color="#14100c" />
                                             </span>
@@ -1146,7 +1243,7 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
                     </div>
                 )}
 
-                {phase === 'ready' && (
+                {phase === 'ready' && runMode && !biomeSelectOpen && (
                     <div className="runner-difficulty-select">
                         {DIFFICULTY_ORDER.map(id => (
                             <button

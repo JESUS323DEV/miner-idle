@@ -7,17 +7,11 @@ import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.web
 import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
 import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
-import gordoRun2 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
-import gordoRun3 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp';
-import gordoRun4 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp';
+import gordoJump from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
-import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
-import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
-import munaRun4 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp';
+import munaJump from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
 import nupitoRun1 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp';
-import nupitoRun2 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
-import nupitoRun3 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp';
-import nupitoRun4 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp';
+import nupitoJump from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
 import smokeRun1 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-1.webp';
 import smokeRun2 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-2.webp';
 import smokeRun3 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-3.webp';
@@ -35,9 +29,7 @@ import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.web
 import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
 import zeusRun4 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp';
 import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp';
-import druhRun2 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
-import druhRun3 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp';
-import druhRun4 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp';
+import druhJump from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
 
 import ladyIcon    from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import gordoIcon   from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
@@ -54,7 +46,6 @@ import obstaculoRata from '../../assets/ui/icons-hud/hud-modals/game-run/obstacu
 import obstaculoTopo1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp';
 import obstaculo3 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp';
 import obstaculo4 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp';
-import obstaculo5 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo5.webp';
 import obstaculo6 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp';
 import obstaculoGato1 from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/ciudad/obstaculo-gato1.webp';
 import obstaculoArmadillo from '../../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo-armadillo.webp';
@@ -74,22 +65,28 @@ import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.web
 
 import runnerFondo1 from '../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp';
 import runnerFondoRun from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp';
+import runnerFondoRun2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp';
+import runnerFondoRun3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp';
+import runnerFondoRun4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp';
+
+import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 
 export const RUNNER_PRELOAD_IMAGES = [
     ladyRun1, ladyRun2, ladyRun3, ladyRun4,
-    gordoRun1, gordoRun2, gordoRun3, gordoRun4,
-    munaRun1, munaRun2, munaRun3, munaRun4,
-    nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4,
+    gordoRun1, gordoJump,
+    munaRun1, munaJump,
+    nupitoRun1, nupitoJump,
     smokeRun1, smokeRun2, smokeRun3, smokeRun4,
     tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4,
     tukaRun1, tukaRun2, tukaRun3, tukaRun4,
     zeusRun1, zeusRun2, zeusRun3, zeusRun4,
-    druhRun1, druhRun2, druhRun3, druhRun4,
+    druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
-    obstaculo2, obstaculo3, obstaculo4, obstaculo5, obstaculo6, obstaculoRata, obstaculoTopo1,
+    lockIcon,
+    obstaculo2, obstaculo3, obstaculo4, obstaculo6, obstaculoRata, obstaculoTopo1,
     obstaculoGato1, obstaculoArmadillo,
     obstaculoAereo, obstaculoAereo2, obstaculoAereo3, obstaculoAereoCuevas, obstaculoAereoCuevas2,
     fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle,
     batBoss,
-    runnerFondo1, runnerFondoRun,
+    runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4,
 ];
