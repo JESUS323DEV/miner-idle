@@ -7,9 +7,7 @@ import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.web
 import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
 import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
-import gordoRun2 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
-import gordoRun3 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp';
-import gordoRun4 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp';
+import gordoJump from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
 import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
 import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
@@ -103,7 +101,7 @@ const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', '
 
 const DOG_RUN_FRAMES = {
     lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
-    gordo:  [gordoRun1, gordoRun2, gordoRun3, gordoRun4],
+    gordo:  [gordoRun1, gordoRun1, gordoRun1, gordoRun1],
     muna:   [munaRun1, munaRun2, munaRun3, munaRun4],
     nupito: [nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4],
     smoke:  [smokeRun1, smokeRun2, smokeRun3, smokeRun4],
@@ -111,6 +109,12 @@ const DOG_RUN_FRAMES = {
     tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
     zeus:   [zeusRun1, zeusRun2, zeusRun3, zeusRun4],
     druh:   [druhRun1, druhRun2, druhRun3, druhRun4],
+};
+
+// Pose de salto propia para perros con sprite de correr animado (webp autoanimado, no ciclo de 4 frames).
+// El resto de perros sigue usando runFrames[1] como pose de salto (ver dogImg/cpuDogImg).
+const DOG_JUMP_FRAME = {
+    gordo: gordoJump,
 };
 
 const DOG_ICONS = {
@@ -918,8 +922,8 @@ export default function RunnerScreen({ onClose, belowHud = false }) {
         return () => cancelAnimationFrame(rafId);
     }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId]);
 
-    const dogImg = airborne ? runFrames[1] : runFrames[frameIdx];
-    const cpuDogImg = cpuAirborne ? cpuRunFrames[1] : cpuRunFrames[frameIdx];
+    const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
+    const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
     const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
     const biomeSceneClass = arcadeSubMode === 'biome' && selectedBiomeId ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}` : '';
     const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
