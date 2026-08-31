@@ -638,6 +638,35 @@ const RaidScreen = ({
                         onClose={() => setRunnerOpen(false)}
                         onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
                         onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
+                        chapas={gameState.chapas ?? 0}
+                        pendingHeartsBonus={gameState.ladyRunPendingHearts ?? 0}
+                        onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
+                        onBuyItem={(itemId, price) => setGameState(prev => {
+                            if ((prev.chapas ?? 0) < price) return prev;
+                            if (itemId === 'corazon_extra') {
+                                return { ...prev, chapas: prev.chapas - price, ladyRunPendingHearts: (prev.ladyRunPendingHearts ?? 0) + 1 };
+                            }
+                            return prev;
+                        })}
+                        fullLootRunsByDifficulty={(() => {
+                            const key = getHuntRotationKey(gameState.debugDayOffset ?? 0);
+                            const byDiff = gameState.ladyRunDailyRuns ?? {};
+                            return {
+                                facil: byDiff.facil?.rotationKey === key ? (byDiff.facil.count ?? 0) : 0,
+                                medio: byDiff.medio?.rotationKey === key ? (byDiff.medio.count ?? 0) : 0,
+                                dificil: byDiff.dificil?.rotationKey === key ? (byDiff.dificil.count ?? 0) : 0,
+                            };
+                        })()}
+                        onGameOverRun={(diff) => setGameState(prev => {
+                            const key = getHuntRotationKey(prev.debugDayOffset ?? 0);
+                            const byDiff = prev.ladyRunDailyRuns ?? {};
+                            const current = byDiff[diff]?.rotationKey === key ? byDiff[diff].count : 0;
+                            return { ...prev, ladyRunDailyRuns: { ...byDiff, [diff]: { rotationKey: key, count: current + 1 } } };
+                        })}
+                        onResetDailyRuns={(diff) => setGameState(prev => ({
+                            ...prev,
+                            ladyRunDailyRuns: { ...(prev.ladyRunDailyRuns ?? {}), [diff]: { rotationKey: '', count: 0 } },
+                        }))}
                     />
                 )}
 

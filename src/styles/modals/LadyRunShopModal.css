@@ -1,0 +1,152 @@
+.lady-run-shop-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 20;
+}
+
+.lady-run-shop-panel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a140d;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.lady-run-shop-tabs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.lady-run-shop-tab-btn {
+    flex: 1;
+    padding: 6px;
+    border-radius: 8px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    cursor: pointer;
+}
+
+.lady-run-shop-tab-active {
+    background: rgba(255, 140, 0, 0.18);
+    border-color: rgba(255, 140, 0, 0.5);
+    color: #ffa500;
+}
+
+.lady-run-shop-content {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lady-run-shop-empty {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+}
+
+.lady-run-shop-items {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lady-run-shop-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.lady-run-shop-item-icon {
+    flex-shrink: 0;
+    color: #ffd740;
+}
+
+.lady-run-shop-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lady-run-shop-item-name {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.lady-run-shop-item-desc {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+}
+
+.lady-run-shop-item-price {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.lady-run-shop-item-price img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.lady-run-shop-item-price span {
+    color: #ffd740;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.lady-run-shop-buy-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: rgba(255, 215, 64, 0.15);
+    border: 1px solid #ffd740;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.lady-run-shop-buy-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.lady-run-shop-buy-btn span {
+    color: #ffd740;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.lady-run-shop-buy-btn:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    cursor: not-allowed;
+}
+
+.lady-run-shop-buy-btn:disabled span {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.lady-run-shop-buy-btn:disabled img {
+    filter: grayscale(100%) brightness(0.6);
+}

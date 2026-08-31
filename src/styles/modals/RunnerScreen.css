@@ -497,6 +497,24 @@
     gap: 14px;
 }
 
+.runner-loot-limit-text {
+    margin-top: 6px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.runner-dev-reset-btn {
+    margin-top: 4px;
+    padding: 3px 8px;
+    background: rgba(255, 0, 0, 0.15);
+    border: 1px solid rgba(255, 80, 80, 0.4);
+    border-radius: 6px;
+    color: #ff8080;
+    font-size: 0.65rem;
+    cursor: pointer;
+}
+
 .runner-jump-btn {
     width: 64px;
     height: 64px;

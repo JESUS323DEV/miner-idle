@@ -100,6 +100,13 @@ const InitialGameState = {
 
     // ========== CHAPAS (moneda exclusiva de Lady Run) ==========
     chapas: 0,
+    ladyRunPendingHearts: 0, // corazones extra comprados en la tienda, se gastan enteros al empezar la proxima partida
+    // game overs de hoy por dificultad: las 3 primeras de cada una dan loot normal, de la 4a en adelante sale reducido. Independiente entre dificultades.
+    ladyRunDailyRuns: {
+        facil: { rotationKey: '', count: 0 },
+        medio: { rotationKey: '', count: 0 },
+        dificil: { rotationKey: '', count: 0 },
+    },
 
     // ========== SKINS DE PERROS ==========
     dogSkins: {},

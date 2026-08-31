@@ -4,6 +4,7 @@ import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
+import LadyRunShopModal from './LadyRunShopModal.jsx';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
 import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
@@ -215,6 +216,18 @@ const CPU_DIFFICULTY_PRESETS = {
 const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
 const MEDIUM_PAIR_CHANCE = 0.35; // en Medio, la pareja de obstaculos solo sale esta fraccion de las veces que tocaria en Dificil
 const FACIL_HARD_SWITCH_TIER = 10; // en Facil, a partir de este tramo las parejas se comportan como en Dificil (limite natural)
+// El regalo de chapas se repite en las 3 dificultades: cada 10 tramos en Facil (10, 20, 30...),
+// cada 5 tramos en Medio/Dificil (5, 10, 15...).
+const CHAPA_BONUS_INTERVAL_TIER_FACIL = 10;
+const CHAPA_BONUS_INTERVAL_TIER_OTHER = 5;
+const getChapaBonusIntervalTier = (diff) => diff === 'facil' ? CHAPA_BONUS_INTERVAL_TIER_FACIL : CHAPA_BONUS_INTERVAL_TIER_OTHER;
+
+// Limite anti-farmeo: solo las 3 primeras partidas (game overs) del dia dan loot normal por dificultad.
+// De la 4a en adelante, en vez de reducir el valor de cada chapa/tavern coin (eso se probo y se sentia
+// como "moneda fantasma": el icono se veia y se recogia igual, pero a veces no sumaba nada), se reduce
+// directamente CUANTAS aparecen: chapas 1-2 al azar (en vez de 3-5 segun dificultad) y tavern coin 0-1 al
+// azar por disparo (en vez de 1-3). Lo que sale, sale a su valor completo, sin tirada oculta al recogerlo.
+const MAX_FULL_LOOT_RUNS_PER_DAY = 3;
 
 const CPU_SIM_STEP_MS = 16;      // paso de la mini-simulacion que usa la CPU para predecir su propia trayectoria
 const CPU_SIM_HORIZON_MS = 1500; // hasta donde mira hacia delante como mucho
@@ -284,7 +297,19 @@ const saveHighScore = (score, dogId) => {
     return trimmed;
 };
 
-export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCoins, onEarnChapas }) {
+export default function RunnerScreen({
+    onClose,
+    belowHud = false,
+    onEarnTavernCoins,
+    onEarnChapas,
+    chapas = 0,
+    pendingHeartsBonus = 0,
+    onBuyItem,
+    onConsumePendingHearts,
+    fullLootRunsByDifficulty,
+    onGameOverRun,
+    onResetDailyRuns,
+}) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
     onEarnTavernCoinsRef.current = onEarnTavernCoins;
@@ -301,6 +326,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
     );
     const [cpuDogId, setCpuDogId] = useState('gordo');
     const [difficulty, setDifficulty] = useState('facil');
+    const fullLootRunsToday = fullLootRunsByDifficulty?.[difficulty] ?? 0;
     const [lives, setLives] = useState(MAX_LIVES);
     const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
@@ -320,6 +346,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
     const [hitFlash, setHitFlash] = useState(false);
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [scoresOpen, setScoresOpen] = useState(false);
+    const [shopOpen, setShopOpen] = useState(false);
     const [highScores, setHighScores] = useState(loadHighScores);
     const [powerCharges, setPowerCharges] = useState(MAX_POWER_CHARGES);
     const [cpuPowerPending, setCpuPowerPending] = useState(false); // brilla la pista CPU: tiene un poder tuyo por llegar
@@ -356,6 +383,14 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
     const pendingTavernCoinRef = useRef(false);
     const firstGroundBonusGivenRef = useRef(false); // regalo de chapa en el 1er terrestre/aereo de la partida
     const firstAerialBonusGivenRef = useRef(false);
+    const thirdBonusGivenRef = useRef(false); // 3a chapa, un poco mas atras: en el siguiente obstaculo tras las 2 primeras
+    const fourthBonusGivenRef = useRef(false); // 4a chapa, Medio y Dificil, un obstaculo mas atras que la 3a
+    const fifthBonusGivenRef = useRef(false); // 5a chapa, solo Dificil, un obstaculo mas atras que la 4a
+    const chapaExtraSpawnsRef = useRef(0); // cuenta spawns desde que la ground+aerial ya se dieron, para espaciar 3a/4a/5a
+    const nextChapaBonusTierRef = useRef(CHAPA_BONUS_INTERVAL_TIER_FACIL); // proximo tramo en que se re-arma el regalo
+    const runIsReducedRef = useRef(false); // se fija al empezar la partida (4a+ game over del dia = loot reducido toda la run)
+    const chapaSpawnCapRef = useRef(Infinity); // en partida reducida, tope de chapas que pueden llegar a aparecer en toda la run (1 o 2 al azar)
+    const chapasSpawnedCountRef = useRef(0); // cuantas chapas han aparecido ya esta run (para respetar el tope)
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
     const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
     const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
@@ -450,6 +485,12 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
         pendingTavernCoinRef.current = false;
         firstGroundBonusGivenRef.current = false;
         firstAerialBonusGivenRef.current = false;
+        thirdBonusGivenRef.current = false;
+        fourthBonusGivenRef.current = false;
+        fifthBonusGivenRef.current = false;
+        chapaExtraSpawnsRef.current = 0;
+        chapasSpawnedCountRef.current = 0;
+        nextChapaBonusTierRef.current = getChapaBonusIntervalTier(difficulty);
         powerChargesRef.current = MAX_POWER_CHARGES;
         cpuPowerChargesRef.current = MAX_POWER_CHARGES;
         powerRechargeTimerRef.current = POWER_RECHARGE_MS;
@@ -465,7 +506,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
         setObstacles([]);
         setAirborne(false);
         setCpuAirborne(false);
-        setLives(MAX_LIVES);
+        setLives(MAX_LIVES + pendingHeartsBonus);
         setBonusLives(0);
         setCpuLives(MAX_LIVES);
         setRivalsDefeated(0);
@@ -478,15 +519,18 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
         setSpeedTierDisplay(1);
         setWon(false);
         setPaused(false);
-    }, []);
+    }, [pendingHeartsBonus, difficulty]);
 
     const resetGame = useCallback(() => {
         resetStats();
         const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
         setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
         setLibreSceneIndex(1 + Math.floor(Math.random() * LIBRE_SCENE_COUNT));
+        if (pendingHeartsBonus > 0) onConsumePendingHearts?.();
+        runIsReducedRef.current = fullLootRunsToday >= MAX_FULL_LOOT_RUNS_PER_DAY;
+        chapaSpawnCapRef.current = runIsReducedRef.current ? (1 + Math.floor(Math.random() * 2)) : Infinity;
         setPhase('playing');
-    }, [resetStats, selectedDogId]);
+    }, [resetStats, selectedDogId, pendingHeartsBonus, onConsumePendingHearts, fullLootRunsToday]);
 
     const backToSelect = useCallback(() => {
         resetStats();
@@ -516,10 +560,17 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
         setCheckpointOpen(false);
     }, [sceneIndex, selectedBiomeId, resetStats]);
 
-    // Guarda la puntuacion al entrar en game over
+    // Refleja en la vista previa (pantalla de seleccion) los corazones extra comprados en la tienda,
+    // sin necesidad de reiniciar partida para verlo sumado.
+    useEffect(() => {
+        if (phase === 'ready') setLives(MAX_LIVES + pendingHeartsBonus);
+    }, [phase, pendingHeartsBonus]);
+
+    // Guarda la puntuacion al entrar en game over, y cuenta esta partida para el limite diario anti-farmeo
     useEffect(() => {
         if (phase !== 'gameover') return;
         setHighScores(saveHighScore(score, selectedDogId));
+        if (arcadeSubMode === 'libre') onGameOverRun?.(difficulty);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [phase]);
 
@@ -617,11 +668,13 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
             }
 
             const matchTimeMs = matchTimeRef.current * 1000;
-            // En Facil, tramo1 y tramo2 duran mas (15s y 10s) para dar mas margen al empezar. El resto
-            // de tramos mantiene su duracion normal, solo se desplaza en el tiempo lo que dure ese extra.
+            // En Facil, tramo1 y tramo2 duran mas (15s y 10s) para dar mas margen al empezar.
+            // En Medio y Dificil, tramo2 y tramo3 duran mas (10s en vez de 5s) para que salgan mas
+            // obstaculos ahi (el ritmo de spawn es por tiempo, no por tramo, asi que alargar la ventana
+            // ya los aumenta solo, sin tocar el patron ni el timing entre obstaculos).
             const tramoDurationsMs = difficulty === 'facil'
                 ? [TRAMO1_DURATION_FACIL_MS, TRAMO2_DURATION_FACIL_MS, SPEED_TIER_MS]
-                : [SPEED_TIER_MS, SPEED_TIER_MS, SPEED_TIER_MS];
+                : [SPEED_TIER_MS, SPEED_TIER_MS * 2, SPEED_TIER_MS * 2];
             const rampStartMs = (SPEED_TIERS.length - 1) * SPEED_TIER_MS;
             let currentSpeed;
             let tierNumber;
@@ -652,6 +705,18 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
             if (arcadeSubMode === 'libre' && tierNumber >= nextTavernCoinAtTierRef.current) {
                 nextTavernCoinAtTierRef.current += TAVERN_COIN_TIER_INTERVAL;
                 pendingTavernCoinRef.current = true;
+            }
+
+            // El regalo de chapas se repite en las 3 dificultades: cada 10 tramos en Facil, cada 5 en
+            // Medio/Dificil, durante toda la partida (no solo al principio).
+            if (arcadeSubMode === 'libre' && tierNumber >= nextChapaBonusTierRef.current) {
+                nextChapaBonusTierRef.current += getChapaBonusIntervalTier(difficulty);
+                firstGroundBonusGivenRef.current = false;
+                firstAerialBonusGivenRef.current = false;
+                thirdBonusGivenRef.current = false;
+                fourthBonusGivenRef.current = false;
+                fifthBonusGivenRef.current = false;
+                chapaExtraSpawnsRef.current = 0;
             }
 
             // Recarga de cargas de poder (jugador y CPU, independiente cada una)
@@ -828,8 +893,9 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                 };
                 let groupCount = 1;
                 list = [...list, makeObstacle(trackWidth)];
-                if (arcadeSubMode === 'libre' && !aerial && !firstGroundBonusGivenRef.current) {
+                if (arcadeSubMode === 'libre' && !aerial && !firstGroundBonusGivenRef.current && chapasSpawnedCountRef.current < chapaSpawnCapRef.current) {
                     firstGroundBonusGivenRef.current = true;
+                    chapasSpawnedCountRef.current += 1;
                     // Regalo unico de chapas en el 1er terrestre de la partida: nace un poco antes que el
                     // obstaculo (a su izquierda, llega antes al jugador) y arriba, como enseñando a saltar.
                     list.push({
@@ -847,8 +913,9 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                         cpuEl: null,
                     });
                 }
-                if (arcadeSubMode === 'libre' && aerial && !firstAerialBonusGivenRef.current) {
+                if (arcadeSubMode === 'libre' && aerial && !firstAerialBonusGivenRef.current && chapasSpawnedCountRef.current < chapaSpawnCapRef.current) {
                     firstAerialBonusGivenRef.current = true;
+                    chapasSpawnedCountRef.current += 1;
                     // Regalo unico de chapas en el 1er aereo de la partida, abajo (se coge sin saltar).
                     list.push({
                         id: obstacleIdSeq++,
@@ -864,6 +931,44 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                         el: null,
                         cpuEl: null,
                     });
+                }
+                // 3a chapa (Facil/Medio/Dificil), 4a (Medio y Dificil) y 5a (solo Dificil): se cuentan los
+                // spawns que pasan DESPUES de tener ya la de terrestre y la de aereo, para separarlas bien
+                // entre si. 3a = 2 spawns despues (obstaculo nº4). 4a = 3 spawns despues (nº5). 5a = 4 spawns despues (nº6).
+                const pushChapaBonus = () => {
+                    chapasSpawnedCountRef.current += 1;
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth + CHAPA_LEAD_OFFSET_PX,
+                        img: chapaIcon,
+                        isChapa: true,
+                        aerial: !aerial,
+                        lane: 'player',
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                };
+                const chapaBonusPending =
+                    (!thirdBonusGivenRef.current
+                        || ((difficulty === 'medio' || difficulty === 'dificil') && !fourthBonusGivenRef.current)
+                        || (difficulty === 'dificil' && !fifthBonusGivenRef.current))
+                    && chapasSpawnedCountRef.current < chapaSpawnCapRef.current;
+                if (arcadeSubMode === 'libre' && firstGroundBonusGivenRef.current && firstAerialBonusGivenRef.current && chapaBonusPending) {
+                    chapaExtraSpawnsRef.current += 1;
+                    if (chapaExtraSpawnsRef.current === 2 && !thirdBonusGivenRef.current) {
+                        thirdBonusGivenRef.current = true;
+                        pushChapaBonus();
+                    } else if ((difficulty === 'medio' || difficulty === 'dificil') && chapaExtraSpawnsRef.current === 3 && !fourthBonusGivenRef.current) {
+                        fourthBonusGivenRef.current = true;
+                        pushChapaBonus();
+                    } else if (difficulty === 'dificil' && chapaExtraSpawnsRef.current === 4 && !fifthBonusGivenRef.current) {
+                        fifthBonusGivenRef.current = true;
+                        pushChapaBonus();
+                    }
                 }
                 if (arcadeSubMode === 'libre' && pendingHeartRef.current) {
                     pendingHeartRef.current = false;
@@ -908,24 +1013,30 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                 }
                 if (arcadeSubMode === 'libre' && pendingTavernCoinRef.current) {
                     pendingTavernCoinRef.current = false;
-                    // Separada en X de cualquier obstaculo real de este spawn (mismo hueco que usan las
-                    // parejas/inyecciones de poder), para que nunca coincida en el mismo instante con un
-                    // obstaculo peligroso. La altura (arriba/abajo) sigue saliendo al azar.
-                    list.push({
-                        id: obstacleIdSeq++,
-                        x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
-                        img: tavernCoinIcon,
-                        isCoin: true,
-                        aerial: Math.random() < 0.5,
-                        lane: 'player',
-                        size: PICKUP_SIZE,
-                        clearY: PICKUP_SIZE * 0.75,
-                        hit: false,
-                        cpuHit: false,
-                        el: null,
-                        cpuEl: null,
-                    });
-                    groupCount += 1;
+                    // 1 en Facil, 2 en Medio, 3 en Dificil. En partida reducida, 0 o 1 al azar en vez de eso
+                    // (no hay tirada de valor: la que sale, si sale, vale su valor completo).
+                    // Cada una separada en X de cualquier obstaculo real de este spawn (mismo hueco que usan
+                    // las parejas/inyecciones de poder), para que nunca coincida con un obstaculo peligroso.
+                    const tavernCoinCount = runIsReducedRef.current
+                        ? (Math.random() < 0.5 ? 0 : 1)
+                        : (difficulty === 'dificil' ? 3 : difficulty === 'medio' ? 2 : 1);
+                    for (let i = 0; i < tavernCoinCount; i++) {
+                        list.push({
+                            id: obstacleIdSeq++,
+                            x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
+                            img: tavernCoinIcon,
+                            isCoin: true,
+                            aerial: Math.random() < 0.5,
+                            lane: 'player',
+                            size: PICKUP_SIZE,
+                            clearY: PICKUP_SIZE * 0.75,
+                            hit: false,
+                            cpuHit: false,
+                            el: null,
+                            cpuEl: null,
+                        });
+                        groupCount += 1;
+                    }
                 }
                 if (groupCount >= 2) {
                     spawnTimerRef.current = LANDING_SYNC_DELAY_MS;
@@ -1152,6 +1263,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
             ? ` runner-track-scene-libre-${libreSceneIndex}`
             : '';
     const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
+    const lootRunsLeftToday = Math.max(0, MAX_FULL_LOOT_RUNS_PER_DAY - fullLootRunsToday);
 
     return (
         <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
@@ -1251,6 +1363,9 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                                         <span className="runner-mode-btn-title">Historia</span>
                                         <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
+                                    <button className="runner-mode-btn" onClick={() => setShopOpen(true)}>
+                                        <span className="runner-mode-btn-title">Tienda</span>
+                                    </button>
                                 </div>
                             )}
                             {phase === 'ready' && runMode && !biomeSelectOpen && (
@@ -1261,6 +1376,14 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                                         className="runner-start-btn"
                                         onClick={runMode === 'arcade' ? () => { setArcadeSubMode('libre'); resetGame(); } : resetGame}
                                     >Empezar</button>
+                                    {runMode === 'arcade' && (
+                                        <p className="runner-loot-limit-text">
+                                            {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
+                                        </p>
+                                    )}
+                                    {runMode === 'arcade' && import.meta.env.DEV && (
+                                        <button className="runner-dev-reset-btn" onClick={() => onResetDailyRuns?.(difficulty)}>DEV: resetear límite de {difficulty}</button>
+                                    )}
                                 </>
                             )}
                             {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
@@ -1323,10 +1446,20 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
 
 
                 {phase === 'gameover' && (
-                    <div className="runner-action-row">
-                        <button className="runner-start-btn runner-start-btn-compact" onClick={resetGame}>Reintentar</button>
-                        <button className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact" onClick={backToSelect}>Volver</button>
-                    </div>
+                    <>
+                        <div className="runner-action-row">
+                            <button className="runner-start-btn runner-start-btn-compact" onClick={resetGame}>Reintentar</button>
+                            <button className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact" onClick={backToSelect}>Volver</button>
+                        </div>
+                        {arcadeSubMode === 'libre' && (
+                            <p className="runner-loot-limit-text">
+                                {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
+                            </p>
+                        )}
+                        {arcadeSubMode === 'libre' && import.meta.env.DEV && (
+                            <button className="runner-dev-reset-btn" onClick={() => onResetDailyRuns?.(difficulty)}>DEV: resetear límite de {difficulty}</button>
+                        )}
+                    </>
                 )}
 
                 {phase === 'playing' && (
@@ -1421,6 +1554,14 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                             <button className="runner-start-btn" onClick={() => setScoresOpen(false)}>Cerrar</button>
                         </div>
                     </div>
+                )}
+
+                {shopOpen && (
+                    <LadyRunShopModal
+                        onClose={() => setShopOpen(false)}
+                        chapas={chapas}
+                        onBuyItem={onBuyItem}
+                    />
                 )}
             </div>
         </div>
