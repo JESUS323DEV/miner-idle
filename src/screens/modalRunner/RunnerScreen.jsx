@@ -308,7 +308,6 @@ export default function RunnerScreen({
     onConsumePendingHearts,
     fullLootRunsByDifficulty,
     onGameOverRun,
-    onResetDailyRuns,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -1381,9 +1380,6 @@ export default function RunnerScreen({
                                             {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
                                         </p>
                                     )}
-                                    {runMode === 'arcade' && import.meta.env.DEV && (
-                                        <button className="runner-dev-reset-btn" onClick={() => onResetDailyRuns?.(difficulty)}>DEV: resetear límite de {difficulty}</button>
-                                    )}
                                 </>
                             )}
                             {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
@@ -1455,9 +1451,6 @@ export default function RunnerScreen({
                             <p className="runner-loot-limit-text">
                                 {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
                             </p>
-                        )}
-                        {arcadeSubMode === 'libre' && import.meta.env.DEV && (
-                            <button className="runner-dev-reset-btn" onClick={() => onResetDailyRuns?.(difficulty)}>DEV: resetear límite de {difficulty}</button>
                         )}
                     </>
                 )}

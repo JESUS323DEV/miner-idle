@@ -663,10 +663,6 @@ const RaidScreen = ({
                             const current = byDiff[diff]?.rotationKey === key ? byDiff[diff].count : 0;
                             return { ...prev, ladyRunDailyRuns: { ...byDiff, [diff]: { rotationKey: key, count: current + 1 } } };
                         })}
-                        onResetDailyRuns={(diff) => setGameState(prev => ({
-                            ...prev,
-                            ladyRunDailyRuns: { ...(prev.ladyRunDailyRuns ?? {}), [diff]: { rotationKey: '', count: 0 } },
-                        }))}
                     />
                 )}
 

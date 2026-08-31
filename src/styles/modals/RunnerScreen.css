@@ -504,17 +504,6 @@
     text-align: center;
 }
 
-.runner-dev-reset-btn {
-    margin-top: 4px;
-    padding: 3px 8px;
-    background: rgba(255, 0, 0, 0.15);
-    border: 1px solid rgba(255, 80, 80, 0.4);
-    border-radius: 6px;
-    color: #ff8080;
-    font-size: 0.65rem;
-    cursor: pointer;
-}
-
 .runner-jump-btn {
     width: 64px;
     height: 64px;
