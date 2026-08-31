@@ -66,6 +66,11 @@ import tierraObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/podere
 import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp';
 
 import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
+import bat002 from '../../assets/ui/icons-enemy/enemy-animation/bats/bat002.webp';
+import batBossFinal from '../../assets/ui/icons-enemy/enemy-animation/bats/bat-boss.webp';
+import spider001 from '../../assets/ui/icons-enemy/enemy-animation/spider/spider001.webp';
+import spider002 from '../../assets/ui/icons-enemy/enemy-animation/spider/spider002.webp';
+import spiderBossFinal from '../../assets/ui/icons-enemy/enemy-animation/spider/spider-boss.webp';
 
 import escenarioMina1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp';
 import escenarioMina2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp';
@@ -133,6 +138,12 @@ const BIOMES = {
     mina: { title: 'Mina', desc: '3-4 escenarios encadenados', scenes: [escenarioMina1, escenarioMina2, escenarioMina3], interior: true },
     ciudad: { title: 'Ciudad', desc: '3-4 escenarios encadenados', scenes: [escenarioCiudad1, escenarioCiudad2, escenarioCiudad3, escenarioCiudad4], interior: false },
     // desierto: pendiente de escenarios propios (exterior) -- de momento sin card, solo assets de obstaculos reservados
+};
+
+// Boss por escenario dentro de cada capitulo de Historia (indice = sceneIndex).
+const CHAPTER_BOSS_IMAGES = {
+    mina: [batBoss, bat002, batBossFinal],
+    ciudad: [spider001, spider002, spiderBossFinal],
 };
 const BIOME_ORDER = ['mina', 'ciudad'];
 
@@ -575,9 +586,33 @@ export default function RunnerScreen({
         setSelectedChapter(null);
     }, [resetStats]);
 
-    // Arcade: pantalla de meta cada CHECKPOINT_INTERVAL_S, encadena los escenarios del bioma elegido.
     // "Reclamar" es un label sin logica aun.
     const handleCheckpointContinue = useCallback(() => {
+        if (runMode === 'historia') {
+            // Siguiente escenario del capitulo: nuevo rival CPU, boss reiniciado, se conserva
+            // vida/puntuacion/chapas del jugador (esto NO es un reinicio de partida).
+            setSceneIndex(i => i + 1);
+            const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
+            setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
+            setCpuLives(MAX_LIVES);
+            setStage('cpu');
+            setBossHp(BOSS_MAX_HP);
+            cpuDogYRef.current = 0;
+            cpuVelocityRef.current = 0;
+            cpuIsJumpingRef.current = false;
+            cpuDoubleJumpUsedRef.current = false;
+            cpuJumpAtRef.current = null;
+            cpuDoubleJumpAtRef.current = null;
+            cpuObstacleSeenAtRef.current = new Map();
+            spawnPatternIndexRef.current = 0;
+            if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${GROUND_VISUAL_OFFSET}px`;
+            obstaclesDataRef.current = [];
+            setObstacles([]);
+            spawnTimerRef.current = SPAWN_MIN_MS;
+            setCheckpointOpen(false);
+            return;
+        }
+        // Arcade/bioma (dormant): pantalla de meta cada CHECKPOINT_INTERVAL_S, encadena los escenarios.
         const totalScenes = BIOMES[selectedBiomeId]?.scenes.length ?? 1;
         if (sceneIndex >= totalScenes - 1) {
             // Ultimo escenario del bioma completado: termina la run, vuelve a elegir bioma
@@ -592,7 +627,15 @@ export default function RunnerScreen({
         setObstacles([]);
         spawnTimerRef.current = SPAWN_MIN_MS;
         setCheckpointOpen(false);
-    }, [sceneIndex, selectedBiomeId, resetStats]);
+    }, [runMode, sceneIndex, selectedBiomeId, selectedDogId, resetStats]);
+
+    // Ultimo escenario del capitulo completado: aqui es donde de verdad se "reclama" (recompensa real
+    // sin definir todavia). De momento solo termina la partida como victoria.
+    const handleClaimChapter = useCallback(() => {
+        setCheckpointOpen(false);
+        setWon(true);
+        setPhase('gameover');
+    }, []);
 
     // Al montar, si habia una partida en curso guardada (recarga de pagina o cierre y vuelta), la
     // restaura en PAUSA con la vida/puntuacion/modo tal cual estaban, sin arrancar sola.
@@ -1260,7 +1303,14 @@ export default function RunnerScreen({
                     const next = Math.max(0, prev - BOSS_POWER_DAMAGE);
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
-                        setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                        if (runMode === 'historia' && selectedBiomeId) {
+                            // Historia con capitulo: SIEMPRE checkpoint al vencer al boss, tanto entre
+                            // escenarios (solo "Continuar") como en el ultimo (solo "Reclamar" ahi).
+                            setTimeout(() => { setCheckpointOpen(true); endingRef.current = false; }, GAME_END_DELAY_MS);
+                        } else {
+                            // Historia sin capitulo (no deberia pasar ya, pero por si acaso): victoria real.
+                            setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                        }
                     }
                     return next;
                 });
@@ -1311,18 +1361,21 @@ export default function RunnerScreen({
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex]);
 
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
     const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
-    const biomeSceneClass = arcadeSubMode === 'biome' && selectedBiomeId
+    const biomeSceneClass = (arcadeSubMode === 'biome' || runMode === 'historia') && selectedBiomeId
         ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}`
         : arcadeSubMode === 'libre'
             ? ` runner-track-scene-libre-${libreSceneIndex}`
             : '';
-    const skyOverlayClass = `runner-sky-overlay${arcadeSubMode === 'biome' && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
+    const skyOverlayClass = `runner-sky-overlay${(arcadeSubMode === 'biome' || runMode === 'historia') && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
     const lootRunsLeftToday = Math.max(0, MAX_FULL_LOOT_RUNS_PER_DAY - fullLootRunsToday);
+    const bossImg = (runMode === 'historia' && CHAPTER_BOSS_IMAGES[selectedBiomeId]?.[sceneIndex]) || batBoss;
+    const checkpointTotalScenes = BIOMES[selectedBiomeId]?.scenes.length ?? 1;
+    const checkpointIsFinalScene = sceneIndex >= checkpointTotalScenes - 1;
 
     return (
         <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
@@ -1387,7 +1440,7 @@ export default function RunnerScreen({
                             className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}`}
                         />
 
-                        {stage === 'boss' && <img ref={bossElRef} src={batBoss} alt="Boss" className="runner-boss" />}
+                        {stage === 'boss' && <img ref={bossElRef} src={bossImg} alt="Boss" className="runner-boss" />}
 
                         {obstacles.filter(o => o.lane !== 'cpu' || o.isProjectile).map(o => {
                             const collectedClass = ((o.isHeart || o.isCoin || o.isChapa) && o.hit) ? ' runner-obstacle-collected' : '';
@@ -1430,10 +1483,10 @@ export default function RunnerScreen({
                                 <>
                                     <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
                                     <div className="runner-mode-select">
-                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(1); setChapterSelectOpen(false); }}>
+                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(1); setSelectedBiomeId('mina'); setSceneIndex(0); setChapterSelectOpen(false); }}>
                                             <span className="runner-mode-btn-title">Capítulo 1</span>
                                         </button>
-                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(2); setChapterSelectOpen(false); }}>
+                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(2); setSelectedBiomeId('ciudad'); setSceneIndex(0); setChapterSelectOpen(false); }}>
                                             <span className="runner-mode-btn-title">Capítulo 2</span>
                                         </button>
                                     </div>
@@ -1505,8 +1558,11 @@ export default function RunnerScreen({
                                 </button>
                             )}
                             <div className="runner-action-row">
-                                <button className="runner-start-btn" onClick={handleCheckpointContinue}>Continuar</button>
-                                <button className="runner-start-btn runner-start-btn-secondary">Reclamar</button>
+                                {runMode === 'historia' && checkpointIsFinalScene ? (
+                                    <button className="runner-start-btn runner-start-btn-secondary" onClick={handleClaimChapter}>Reclamar</button>
+                                ) : (
+                                    <button className="runner-start-btn" onClick={handleCheckpointContinue}>Continuar</button>
+                                )}
                             </div>
                         </div>
                     )}

@@ -62,12 +62,23 @@ import tierraObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/podere
 import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp';
 
 import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
+import bat002 from '../../assets/ui/icons-enemy/enemy-animation/bats/bat002.webp';
+import batBossFinal from '../../assets/ui/icons-enemy/enemy-animation/bats/bat-boss.webp';
+import spider001 from '../../assets/ui/icons-enemy/enemy-animation/spider/spider001.webp';
+import spider002 from '../../assets/ui/icons-enemy/enemy-animation/spider/spider002.webp';
+import spiderBossFinal from '../../assets/ui/icons-enemy/enemy-animation/spider/spider-boss.webp';
 
 import runnerFondo1 from '../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp';
 import runnerFondoRun from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp';
 import runnerFondoRun2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp';
 import runnerFondoRun3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp';
 import runnerFondoRun4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp';
+import escenarioMina1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp';
+import escenarioMina2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp';
+import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp';
+import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp';
+import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
+import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
 
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
@@ -89,6 +100,7 @@ export const RUNNER_PRELOAD_IMAGES = [
     obstaculoGato1, obstaculoArmadillo,
     obstaculoAereo, obstaculoAereo2, obstaculoAereo3, obstaculoAereoCuevas, obstaculoAereoCuevas2,
     fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle,
-    batBoss,
+    batBoss, bat002, batBossFinal, spider001, spider002, spiderBossFinal,
     runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4,
+    escenarioMina1, escenarioMina2, escenarioMina3, escenarioCiudad1, escenarioCiudad2, escenarioCiudad3,
 ];

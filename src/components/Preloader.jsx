@@ -338,6 +338,12 @@ import runnerFondoRun from "../assets/ui/icons-hud/hud-modals/game-run/escenario
 import runnerFondoRun2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp"
 import runnerFondoRun3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp"
 import runnerFondoRun4 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp"
+import runnerEscenarioMina1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp"
+import runnerEscenarioMina2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp"
+import runnerEscenarioMina3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp"
+import runnerEscenarioCiudad1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp"
+import runnerEscenarioCiudad2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp"
+import runnerEscenarioCiudad3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp"
 import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo2.webp"
 import runnerObstaculoRata from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-rata.webp"
 import runnerObstaculoTopo1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp"
@@ -567,6 +573,7 @@ const IMAGES = [
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
     runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon,
+    runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,
     runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerBatBoss,
