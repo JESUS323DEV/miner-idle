@@ -637,6 +637,7 @@ const RaidScreen = ({
                     <RunnerScreen
                         onClose={() => setRunnerOpen(false)}
                         onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
+                        onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
                     />
                 )}
 

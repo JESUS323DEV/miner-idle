@@ -35,7 +35,7 @@ const LadyRunStandalone = () => {
     if (view === 'skins') {
         return (
             <>
-                <CurrencyHud tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+                <CurrencyHud chapas={gameState.chapas} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
                 <div className="lady-run-standalone-skins">
                     <button className="lady-run-standalone-back" onClick={() => setView('run')}>
                         <ArrowLeft size={16} /> Volver a Lady Run
@@ -48,10 +48,11 @@ const LadyRunStandalone = () => {
 
     return (
         <>
-            <CurrencyHud tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+            <CurrencyHud chapas={gameState.chapas} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
             <RunnerScreen
                 belowHud
                 onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
+                onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
             />
         </>
     );

@@ -98,6 +98,9 @@ const InitialGameState = {
     // ========== HUESÍN ==========
     huesin: 0,
 
+    // ========== CHAPAS (moneda exclusiva de Lady Run) ==========
+    chapas: 0,
+
     // ========== SKINS DE PERROS ==========
     dogSkins: {},
 

@@ -71,6 +71,7 @@ import runnerFondoRun4 from '../../assets/ui/icons-hud/hud-modals/game-run/escen
 
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 
 export const RUNNER_PRELOAD_IMAGES = [
     ladyRun1, ladyRun2, ladyRun3, ladyRun4,
@@ -83,7 +84,7 @@ export const RUNNER_PRELOAD_IMAGES = [
     zeusRun1, zeusRun2, zeusRun3, zeusRun4,
     druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
-    lockIcon, tavernCoinIcon,
+    lockIcon, tavernCoinIcon, chapaIcon,
     obstaculo2, obstaculo3, obstaculo4, obstaculo6, obstaculoRata, obstaculoTopo1,
     obstaculoGato1, obstaculoArmadillo,
     obstaculoAereo, obstaculoAereo2, obstaculoAereo3, obstaculoAereoCuevas, obstaculoAereoCuevas2,

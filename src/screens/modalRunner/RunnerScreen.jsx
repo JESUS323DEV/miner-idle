@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -174,6 +175,11 @@ const AERIAL_MAX_Y = 130;
 // queda "flotando" un instante (velocidad vertical casi 0), asi da mas margen de timing para cogerlo.
 const HEART_AERIAL_MIN_Y = 90;
 const HEART_AERIAL_MAX_Y = 130;
+const CHAPA_AERIAL_MIN_Y = 95; // mismo espiritu que la franja del corazon, un poco mas arriba todavia
+const CHAPA_AERIAL_MAX_Y = 130;
+const CHAPA_LEAD_OFFSET_PX = 30; // la chapa del 1er terrestre nace un poco antes que el obstaculo (llega antes al jugador)
+const PICKUP_SIZE = 38; // corazon/tavern coin/chapa son un pelin mas pequeños que un obstaculo normal (46)
+const PICKUP_COLLECT_ANIM_MS = 350; // se paran en el sitio y se encogen/desvanecen al recogerlos
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
@@ -208,6 +214,7 @@ const CPU_DIFFICULTY_PRESETS = {
 };
 const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
 const MEDIUM_PAIR_CHANCE = 0.35; // en Medio, la pareja de obstaculos solo sale esta fraccion de las veces que tocaria en Dificil
+const FACIL_HARD_SWITCH_TIER = 10; // en Facil, a partir de este tramo las parejas se comportan como en Dificil (limite natural)
 
 const CPU_SIM_STEP_MS = 16;      // paso de la mini-simulacion que usa la CPU para predecir su propia trayectoria
 const CPU_SIM_HORIZON_MS = 1500; // hasta donde mira hacia delante como mucho
@@ -277,10 +284,12 @@ const saveHighScore = (score, dogId) => {
     return trimmed;
 };
 
-export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCoins }) {
+export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCoins, onEarnChapas }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
     onEarnTavernCoinsRef.current = onEarnTavernCoins;
+    const onEarnChapasRef = useRef(onEarnChapas);
+    onEarnChapasRef.current = onEarnChapas;
 
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -345,6 +354,8 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
     const pendingHeartRef = useRef(false);
     const nextTavernCoinAtTierRef = useRef(TAVERN_COIN_TIER_INTERVAL);
     const pendingTavernCoinRef = useRef(false);
+    const firstGroundBonusGivenRef = useRef(false); // regalo de chapa en el 1er terrestre/aereo de la partida
+    const firstAerialBonusGivenRef = useRef(false);
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
     const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
     const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
@@ -402,7 +413,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                 cpuEl: null,
             };
             obstaclesDataRef.current = [...obstaclesDataRef.current, projectile];
-            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin })));
+            setObstacles(obstaclesDataRef.current.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin, isChapa: o.isChapa })));
         } else {
             pendingPowerForCpuRef.current += 1;
             setCpuPowerPending(true);
@@ -437,6 +448,8 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
         pendingHeartRef.current = false;
         nextTavernCoinAtTierRef.current = TAVERN_COIN_TIER_INTERVAL;
         pendingTavernCoinRef.current = false;
+        firstGroundBonusGivenRef.current = false;
+        firstAerialBonusGivenRef.current = false;
         powerChargesRef.current = MAX_POWER_CHARGES;
         cpuPowerChargesRef.current = MAX_POWER_CHARGES;
         powerRechargeTimerRef.current = POWER_RECHARGE_MS;
@@ -767,8 +780,10 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                     aerial = pattern === 1;
                     const wouldBePair = pattern === 0 || (pattern === 2 && tierNow >= DOUBLE_SOLO_UNLOCK_TIER);
                     // Dificultad del jugador: en Facil nunca hay pareja, en Medio sale rara vez,
-                    // en Dificil es el comportamiento de siempre (fijo segun el patron).
-                    if (difficulty === 'facil') {
+                    // en Dificil es el comportamiento de siempre (fijo segun el patron). Limite natural:
+                    // en Facil, a partir de FACIL_HARD_SWITCH_TIER se comporta como Dificil, para que no
+                    // se pueda alargar la partida indefinidamente farmeando moneda sin riesgo real.
+                    if (difficulty === 'facil' && tierNow < FACIL_HARD_SWITCH_TIER) {
                         isPair = false;
                     } else if (difficulty === 'medio') {
                         isPair = wouldBePair && Math.random() < MEDIUM_PAIR_CHANCE;
@@ -813,6 +828,43 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                 };
                 let groupCount = 1;
                 list = [...list, makeObstacle(trackWidth)];
+                if (arcadeSubMode === 'libre' && !aerial && !firstGroundBonusGivenRef.current) {
+                    firstGroundBonusGivenRef.current = true;
+                    // Regalo unico de chapas en el 1er terrestre de la partida: nace un poco antes que el
+                    // obstaculo (a su izquierda, llega antes al jugador) y arriba, como enseñando a saltar.
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth - CHAPA_LEAD_OFFSET_PX,
+                        img: chapaIcon,
+                        isChapa: true,
+                        aerial: true,
+                        lane: 'player',
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                }
+                if (arcadeSubMode === 'libre' && aerial && !firstAerialBonusGivenRef.current) {
+                    firstAerialBonusGivenRef.current = true;
+                    // Regalo unico de chapas en el 1er aereo de la partida, abajo (se coge sin saltar).
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth,
+                        img: chapaIcon,
+                        isChapa: true,
+                        aerial: false,
+                        lane: 'player',
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                }
                 if (arcadeSubMode === 'libre' && pendingHeartRef.current) {
                     pendingHeartRef.current = false;
                     // Exige la accion CONTRARIA a la que hace falta para esquivar el obstaculo real que
@@ -825,8 +877,8 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                         isHeart: true,
                         aerial: !aerial,
                         lane: 'player',
-                        size: OBSTACLE_SIZE,
-                        clearY: OBSTACLE_CLEAR_Y,
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
                         hit: false,
                         cpuHit: false,
                         el: null,
@@ -866,8 +918,8 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                         isCoin: true,
                         aerial: Math.random() < 0.5,
                         lane: 'player',
-                        size: OBSTACLE_SIZE,
-                        clearY: OBSTACLE_CLEAR_Y,
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
                         hit: false,
                         cpuHit: false,
                         el: null,
@@ -882,13 +934,20 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
             }
 
             const beforeLen = list.length;
+            const isPickup = o => o.isHeart || o.isCoin || o.isChapa;
             list.forEach(o => {
                 // El proyectil de tu poder viaja al reves que todo lo demas: nace junto a ti y avanza
                 // hacia la derecha, con su propia velocidad fija, no la de scroll de la carrera.
                 if (o.isProjectile) o.x += POWER_PROJECTILE_SPEED * dt;
-                else o.x -= currentSpeed * dt;
+                // Un recogible ya cogido se para en el sitio (deja de moverse con el scroll) mientras
+                // dura su animacion de encogerse/desvanecerse.
+                else if (!(o.hit && isPickup(o))) o.x -= currentSpeed * dt;
             });
-            list = list.filter(o => o.isProjectile ? (o.x < trackWidth + o.size && !o.hit) : o.x > -o.size);
+            list = list.filter(o => {
+                if (o.isProjectile) return o.x < trackWidth + o.size && !o.hit;
+                if (o.hit && isPickup(o)) return now - (o.collectedAt ?? now) < PICKUP_COLLECT_ANIM_MS;
+                return o.x > -o.size;
+            });
             const despawned = list.length !== beforeLen;
 
             // La CPU evalua su situacion real cada frame: si no hace nada, ¿le choca algo? si es asi,
@@ -925,6 +984,7 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                     : (dogYRef.current < o.clearY);
                 if (inHeartZone) {
                     o.hit = true;
+                    o.collectedAt = now;
                     heartCollected = true;
                 }
             }
@@ -941,17 +1001,35 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                     : (dogYRef.current < o.clearY);
                 if (inCoinZone) {
                     o.hit = true;
+                    o.collectedAt = now;
                     coinsCollected += 1;
                 }
             }
             if (coinsCollected > 0) onEarnTavernCoinsRef.current?.(coinsCollected);
+
+            // Recogida del regalo de chapas (1er terrestre/aereo de la partida).
+            let chapasCollected = 0;
+            for (const o of list) {
+                if (!o.isChapa || o.hit) continue;
+                const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                if (!overlapX) continue;
+                const inChapaZone = o.aerial
+                    ? (dogYRef.current > CHAPA_AERIAL_MIN_Y && dogYRef.current < CHAPA_AERIAL_MAX_Y)
+                    : (dogYRef.current < o.clearY);
+                if (inChapaZone) {
+                    o.hit = true;
+                    o.collectedAt = now;
+                    chapasCollected += 1;
+                }
+            }
+            if (chapasCollected > 0) onEarnChapasRef.current?.(chapasCollected);
 
             // Colision jugador
             const invuln = now < invulnUntilRef.current;
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
-                    if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin) continue;
+                    if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin || o.isChapa) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
@@ -1003,8 +1081,8 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                 if (o.cpuEl) o.cpuEl.style.left = `${o.x}px`;
             });
             obstaclesDataRef.current = list;
-            if (spawned || despawned || bossHit) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin })));
+            if (spawned || despawned || bossHit || heartCollected || coinsCollected > 0 || chapasCollected > 0) {
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isProjectile: o.isProjectile, isHeart: o.isHeart, isCoin: o.isCoin, isChapa: o.isChapa, hit: o.hit })));
             }
 
             if (bossHit) {
@@ -1140,12 +1218,13 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
 
                         {stage === 'boss' && <img ref={bossElRef} src={batBoss} alt="Boss" className="runner-boss" />}
 
-                        {obstacles.filter(o => o.lane !== 'cpu' || o.isProjectile).map(o => (
-                            o.isHeart ? (
+                        {obstacles.filter(o => o.lane !== 'cpu' || o.isProjectile).map(o => {
+                            const collectedClass = ((o.isHeart || o.isCoin || o.isChapa) && o.hit) ? ' runner-obstacle-collected' : '';
+                            return o.isHeart ? (
                                 <Heart
                                     key={o.id}
                                     ref={el => setObstacleEl(o.id, el)}
-                                    className={`runner-obstacle runner-obstacle-heart${o.aerial ? ' runner-obstacle-aerial' : ''}`}
+                                    className={`runner-obstacle runner-obstacle-heart${o.aerial ? ' runner-obstacle-aerial' : ''}${collectedClass}`}
                                     fill="#ff4d6d"
                                     color="#ff4d6d"
                                 />
@@ -1155,10 +1234,10 @@ export default function RunnerScreen({ onClose, belowHud = false, onEarnTavernCo
                                     ref={el => setObstacleEl(o.id, el)}
                                     src={o.img}
                                     alt=""
-                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}`}
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}${o.isChapa ? ' runner-obstacle-chapa' : ''}${collectedClass}`}
                                 />
-                            )
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {(phase === 'ready' || phase === 'gameover') && (

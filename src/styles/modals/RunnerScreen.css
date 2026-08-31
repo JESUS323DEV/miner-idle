@@ -278,8 +278,15 @@
     50%      { transform: rotate(3deg); }
 }
 
+.runner-obstacle-heart,
+.runner-obstacle-coin,
+.runner-obstacle-chapa {
+    width: 38px;
+    height: 38px;
+}
+
 .runner-obstacle-heart {
-    padding: 8px;
+    padding: 6px;
     animation: runner-heart-pulse 0.7s ease-in-out infinite;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
 }
@@ -289,7 +296,8 @@
     50%      { transform: scale(1.18); }
 }
 
-.runner-obstacle-coin {
+.runner-obstacle-coin,
+.runner-obstacle-chapa {
     animation: runner-coin-pulse 0.7s ease-in-out infinite;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(255, 215, 64, 0.7));
 }
@@ -311,6 +319,20 @@
 
 .runner-obstacle-coin.runner-obstacle-aerial {
     animation: runner-coin-pulse 0.7s ease-in-out infinite;
+}
+
+.runner-obstacle-chapa.runner-obstacle-aerial {
+    animation: runner-coin-pulse 0.7s ease-in-out infinite;
+    bottom: 120px;
+}
+
+.runner-obstacle-collected {
+    animation: runner-pickup-collect 0.35s ease-out forwards !important;
+}
+
+@keyframes runner-pickup-collect {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.15); opacity: 0; }
 }
 
 .runner-overlay {
