@@ -297,6 +297,36 @@ const saveHighScore = (score, dogId) => {
     return trimmed;
 };
 
+// Guarda una partida en curso para que, si se recarga la pagina o se cierra y se vuelve, no se pierda:
+// al volver a entrar arranca en PAUSA con la vida/puntuacion/modo tal cual estaban, no se intenta
+// recuperar el frame exacto (obstaculos en pantalla), eso no compensa y con pausa no hace falta.
+const IN_PROGRESS_KEY = 'ladyRunInProgress';
+
+const loadInProgressRun = () => {
+    try {
+        const raw = localStorage.getItem(IN_PROGRESS_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+};
+
+const saveInProgressRun = (snapshot) => {
+    try {
+        localStorage.setItem(IN_PROGRESS_KEY, JSON.stringify(snapshot));
+    } catch {
+        // localStorage no disponible o lleno: no es critico, simplemente no se podra reanudar
+    }
+};
+
+const clearInProgressRun = () => {
+    try {
+        localStorage.removeItem(IN_PROGRESS_KEY);
+    } catch {
+        // nada que hacer si falla el borrado
+    }
+};
+
 export default function RunnerScreen({
     onClose,
     belowHud = false,
@@ -346,6 +376,8 @@ export default function RunnerScreen({
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
+    const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
+    const [selectedChapter, setSelectedChapter] = useState(null); // 1 | 2, solo etiqueta por ahora, sin efecto en combate/obstaculos
     const [highScores, setHighScores] = useState(loadHighScores);
     const [powerCharges, setPowerCharges] = useState(MAX_POWER_CHARGES);
     const [cpuPowerPending, setCpuPowerPending] = useState(false); // brilla la pista CPU: tiene un poder tuyo por llegar
@@ -388,6 +420,7 @@ export default function RunnerScreen({
     const chapaExtraSpawnsRef = useRef(0); // cuenta spawns desde que la ground+aerial ya se dieron, para espaciar 3a/4a/5a
     const nextChapaBonusTierRef = useRef(CHAPA_BONUS_INTERVAL_TIER_FACIL); // proximo tramo en que se re-arma el regalo
     const runIsReducedRef = useRef(false); // se fija al empezar la partida (4a+ game over del dia = loot reducido toda la run)
+    const resumedRunRef = useRef(false); // true si esta partida viene de restaurar un guardado de partida en curso
     const chapaSpawnCapRef = useRef(Infinity); // en partida reducida, tope de chapas que pueden llegar a aparecer en toda la run (1 o 2 al azar)
     const chapasSpawnedCountRef = useRef(0); // cuantas chapas han aparecido ya esta run (para respetar el tope)
     const powerChargesRef = useRef(MAX_POWER_CHARGES);
@@ -538,6 +571,8 @@ export default function RunnerScreen({
         setBiomeSelectOpen(false);
         setArcadeSubMode(null);
         setSelectedBiomeId(null);
+        setChapterSelectOpen(false);
+        setSelectedChapter(null);
     }, [resetStats]);
 
     // Arcade: pantalla de meta cada CHECKPOINT_INTERVAL_S, encadena los escenarios del bioma elegido.
@@ -559,10 +594,34 @@ export default function RunnerScreen({
         setCheckpointOpen(false);
     }, [sceneIndex, selectedBiomeId, resetStats]);
 
+    // Al montar, si habia una partida en curso guardada (recarga de pagina o cierre y vuelta), la
+    // restaura en PAUSA con la vida/puntuacion/modo tal cual estaban, sin arrancar sola.
+    useEffect(() => {
+        const saved = loadInProgressRun();
+        if (!saved) return;
+        resumedRunRef.current = true;
+        setRunMode(saved.runMode);
+        setArcadeSubMode(saved.arcadeSubMode);
+        setDifficulty(saved.difficulty);
+        setSelectedDogId(saved.selectedDogId);
+        setCpuDogId(saved.cpuDogId);
+        setLives(saved.lives);
+        setScore(saved.score);
+        setPhase('playing');
+        setPaused(true);
+    }, []);
+
+    // Guarda la partida en curso cada vez que cambia la vida o la puntuacion (eventos reales del juego,
+    // no cada frame), para poder restaurarla si se recarga la pagina o se cierra y se vuelve.
+    useEffect(() => {
+        if (phase !== 'playing') return;
+        saveInProgressRun({ runMode, arcadeSubMode, difficulty, selectedDogId, cpuDogId, lives, score });
+    }, [phase, lives, score, runMode, arcadeSubMode, difficulty, selectedDogId, cpuDogId]);
+
     // Refleja en la vista previa (pantalla de seleccion) los corazones extra comprados en la tienda,
     // sin necesidad de reiniciar partida para verlo sumado.
     useEffect(() => {
-        if (phase === 'ready') setLives(MAX_LIVES + pendingHeartsBonus);
+        if (phase === 'ready' && !resumedRunRef.current) setLives(MAX_LIVES + pendingHeartsBonus);
     }, [phase, pendingHeartsBonus]);
 
     // Guarda la puntuacion al entrar en game over, y cuenta esta partida para el limite diario anti-farmeo
@@ -570,6 +629,7 @@ export default function RunnerScreen({
         if (phase !== 'gameover') return;
         setHighScores(saveHighScore(score, selectedDogId));
         if (arcadeSubMode === 'libre') onGameOverRun?.(difficulty);
+        clearInProgressRun();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [phase]);
 
@@ -1358,19 +1418,31 @@ export default function RunnerScreen({
                                     <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
-                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                    <button className="runner-mode-btn" onClick={() => { setRunMode('historia'); setChapterSelectOpen(true); }}>
                                         <span className="runner-mode-btn-title">Historia</span>
-                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
                                     <button className="runner-mode-btn" onClick={() => setShopOpen(true)}>
                                         <span className="runner-mode-btn-title">Tienda</span>
                                     </button>
                                 </div>
                             )}
-                            {phase === 'ready' && runMode && !biomeSelectOpen && (
+                            {phase === 'ready' && runMode === 'historia' && chapterSelectOpen && (
                                 <>
-                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); }}><ArrowLeft size={16} /></button>
-                                    <p className="runner-overlay-title">Corre y esquiva</p>
+                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
+                                    <div className="runner-mode-select">
+                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(1); setChapterSelectOpen(false); }}>
+                                            <span className="runner-mode-btn-title">Capítulo 1</span>
+                                        </button>
+                                        <button className="runner-mode-btn" onClick={() => { setSelectedChapter(2); setChapterSelectOpen(false); }}>
+                                            <span className="runner-mode-btn-title">Capítulo 2</span>
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                            {phase === 'ready' && runMode && !biomeSelectOpen && !chapterSelectOpen && (
+                                <>
+                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
+                                    <p className="runner-overlay-title">{runMode === 'historia' && selectedChapter ? `Capítulo ${selectedChapter}` : 'Corre y esquiva'}</p>
                                     <button
                                         className="runner-start-btn"
                                         onClick={runMode === 'arcade' ? () => { setArcadeSubMode('libre'); resetGame(); } : resetGame}

@@ -12,11 +12,10 @@ Minijuego "corre y esquiva" dentro de Lady Hungry. Componente aislado (`src/scre
 
 ## Modos
 
-Pantalla única de selección con 3 botones: **Modo Libre**, **Historia** (bloqueado, candado, sin `onClick`), **Tienda**.
+Pantalla única de selección con 3 botones: **Modo Libre**, **Historia**, **Tienda**. (Historia estuvo bloqueada un tiempo mientras se pulía Modo Libre; ya está desbloqueada.)
 
-- **Modo Libre**: el único modo jugable ahora mismo. Carrera infinita 1v1 contra un rival CPU — al dejarlo sin sus 3 vidas no termina la partida, rota a otro perro rival al azar (`rivalsDefeated`, contador con icono `Skull`). Sin poderes, sin boss.
-- **Historia**: CPU 1v1 + poderes de sabotaje + fase boss al vencerla. Sistema completo y funcional pero bloqueado en el selector a propósito, fuera de foco mientras se pule Modo Libre.
-- Sistema de biomas (Desierto/Mina/Ciudad con escenarios encadenados) construido pero **desconectado de la UI** — el código vive en `RunnerScreen.jsx` (`BIOMES`, `BIOME_ORDER`, `checkpointOpen`, `biomeSelectOpen`) sin ningún botón que lo alcance. Sin decidir si se reconecta bajo Historia o se descarta.
+- **Modo Libre**: carrera infinita 1v1 contra un rival CPU — al dejarlo sin sus 3 vidas no termina la partida, rota a otro perro rival al azar (`rivalsDefeated`, contador con icono `Skull`). Sin poderes, sin boss. Sus fondos (`libre-1` a `libre-4`) incluyen uno con temática desierto (`libre-1`) — eso es solo un fondo de Modo Libre, no tiene relación con los capítulos de Historia.
+- **Historia**: CPU 1v1 + poderes de sabotaje + fase boss al vencerla. **En curso: se va a organizar por capítulos**, cada uno con su propio escenario encadenado. Capítulo 1 = Mina, Capítulo 2 = Ciudad. El sistema de biomas (`BIOMES`, `BIOME_ORDER`, `checkpointOpen`, `biomeSelectOpen` en `RunnerScreen.jsx`) ya existía construido pero desconectado de la UI — solo tenía **Mina y Ciudad** como biomas reales (`desierto` nunca pasó de ser un comentario reservado en el código, sin escenarios propios ni obstáculos exclusivos — no confundir con el fondo "desierto" de Modo Libre, que es una cosa aparte). Diseño de la pantalla de capítulos: al entrar en Historia, se muestra una lista de capítulos pegada a la derecha (mismo estilo que la lista Modo Libre/Historia/Tienda de la pantalla anterior). Sin implementar todavía.
 
 ## Roster de perros
 
@@ -130,7 +129,7 @@ Modal propio (`LadyRunShopModal.jsx` + CSS propio), pantalla completa (mismo pat
 - Animar los sprites de correr de Lady, Smoke, Tokio, Tuka, Zeus, Nupito (mismo patrón que Gordo/Muna/Druh) para desbloquearlos.
 - Huesín: recompensa de fin de partida, escalando con la distancia — sin diseñar.
 - Escudo: mecánica real (¿absorbe golpes automáticamente? ¿se ve en HUD con contador?) — sin definir.
-- Sistema de biomas (Desierto/Mina/Ciudad, escenarios encadenados) — construido, desconectado, sin decidir su futuro.
+- Capítulos de Historia (Mina, Ciudad) — decidido que se reconecta bajo Historia, pantalla de lista de capítulos pegada a la derecha, sin implementar todavía (ver sección Historia arriba).
 - Modo 1v1 online (sala + invitar amigo, vía Supabase) — solo diseño de alto nivel hablado, sin empezar. MVP factible: seed de obstáculos compartida entre los 2 clientes + solo eventos de vida/game-over por Realtime, sin sincronizar posición en vivo (eso sería la parte cara).
 - Demo ambiental de CPU en la card de elegir modo (el perro de fondo pasaría a jugar solo de verdad) — solo idea anotada.
 - Obstáculos que exijan doble salto — pendiente de retomar con el salto ya calibrado.
