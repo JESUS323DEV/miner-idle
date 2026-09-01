@@ -60,6 +60,9 @@ import electricoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/pod
 import aguaObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-hielo2.webp';
 import tierraObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-tierra2.webp';
 import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp';
+import attackAgua from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/agua/atack-agua.webp';
+import attackElectrico from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/electrico/ataque-electrico.webp';
+import attackBatsBoss from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/enemigos/bats/atack-bats-1.webp';
 
 import batBoss from '../../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp';
 import minaBoss1 from '../../assets/ui/icons-hud/hud-modals/game-run/bosses/bats/new-boss-1.webp';
@@ -99,7 +102,7 @@ export const RUNNER_PRELOAD_IMAGES = [
     obstaculo2, obstaculo3, obstaculo4, obstaculo6, obstaculoRata, obstaculoTopo1,
     obstaculoGato1, obstaculoArmadillo,
     obstaculoAereo, obstaculoAereo2, obstaculoAereo3, obstaculoAereoCuevas, obstaculoAereoCuevas2,
-    fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle,
+    fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle, attackAgua, attackElectrico, attackBatsBoss,
     batBoss, minaBoss1, minaBoss2, spider001, spider002, spiderBossFinal,
     runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4,
     escenarioMina1, escenarioMina2, escenarioMina3, escenarioCiudad1, escenarioCiudad2, escenarioCiudad3,

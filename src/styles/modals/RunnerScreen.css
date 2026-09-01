@@ -169,8 +169,32 @@
     object-fit: contain;
     z-index: 2;
     filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
-    border: 2px solid red;
     transition: bottom 0.25s ease;
+}
+
+.runner-boss-hit {
+    animation: runner-boss-hit 0.2s ease;
+}
+
+@keyframes runner-boss-hit {
+    0% {
+        filter: brightness(0) saturate(100%) invert(14%) sepia(94%) saturate(7151%) hue-rotate(2deg) brightness(97%) contrast(119%) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+        transform: scale(0.85);
+    }
+    100% {
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+        transform: scale(1);
+    }
+}
+
+.runner-boss-windup {
+    animation: runner-boss-windup 0.35s ease;
+}
+
+@keyframes runner-boss-windup {
+    0% { transform: scale(1); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
 
 .runner-boss-label {
@@ -243,14 +267,13 @@
 
 .runner-dog {
     position: absolute;
-    left: 40px;
+    left: 10px;
     bottom: 22px;
     width: 64px;
     height: 64px;
     object-fit: contain;
     object-position: bottom;
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
-    border: 2px solid red;
 }
 
 .runner-dog-hit {
@@ -288,19 +311,22 @@
     width: 28px;
     height: 28px;
     box-sizing: border-box;
-    border-radius: 6px;
-    border: 3px solid;
-    background: rgba(0, 0, 0, 0.25);
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.7));
-}
-
-.runner-attack-player {
-    border-color: #ff4d4d;
 }
 
 .runner-attack-boss {
     bottom: 35px;
-    border-color: #4d9fff;
+}
+
+.runner-attack-boss.runner-attack-aerial {
+    bottom: 100px;
+}
+
+.runner-attack-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .runner-obstacle-heart,

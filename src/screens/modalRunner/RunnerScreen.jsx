@@ -62,6 +62,9 @@ import obstaculoAereoCuevas2 from '../../assets/ui/icons-hud/hud-modals/game-run
 import fuegoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-fuego2.webp';
 import electricoObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-electrico2.webp';
 import aguaObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-hielo2.webp';
+import attackAgua from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/agua/atack-agua.webp';
+import attackElectrico from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/electrico/ataque-electrico.webp';
+import attackBatsBoss from '../../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/enemigos/bats/atack-bats-1.webp';
 import tierraObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-tierra2.webp';
 import oscuroObstacle from '../../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp';
 
@@ -97,6 +100,17 @@ const ELEMENT_POWER_OBSTACLE_IMGS = {
     agua: aguaObstacle,
     tierra: tierraObstacle,
     oscuro: oscuroObstacle,
+};
+
+// Arte de los ataques de fase boss (proyectil dentro del cuadrado con borde). El tuyo, por elemento
+// del perro; el del boss, por bioma (es el diseño del propio enemigo, no un icono generico del
+// elemento). Los que no tienen arte propio todavia se quedan con el cuadrado vacio.
+const ATTACK_PLAYER_ELEMENT_IMGS = {
+    agua: attackAgua,
+    electrico: attackElectrico,
+};
+const ATTACK_BOSS_BIOME_IMGS = {
+    mina: attackBatsBoss,
 };
 
 const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', 'tuka', 'zeus', 'druh'];
@@ -181,7 +195,7 @@ const SPEED_RAMP_MS = 10000;
 const SPEED_MAX = 700;
 const SPAWN_MIN_MS = 1100;
 const SPAWN_MAX_MS = 1900;
-const DOG_X = 40;
+const DOG_X = 10; // pegado a la izquierda (era 40), asi el proyectil recorre mas distancia visible en fase boss
 const DOG_SIZE = 64;
 const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
@@ -206,7 +220,6 @@ const MAX_LIVES = 3;
 const GAME_END_DELAY_MS = 600; // pausa antes de mostrar la pantalla de resultado, para que clicks de mas no toquen el boton nuevo que aparece ahi
 
 const BOSS_MAX_HP = 40;
-const BOSS_POWER_DAMAGE = 10;
 const BOSS_X_RATIO = 0.65; // posicion del boss como fraccion del ancho de pista, mas a la izquierda para que quepa su tamaño (135px) sin salirse por la derecha
 const BOSS_BOTTOM_PX = 20; // debe coincidir con el bottom base de .runner-boss en CSS
 const BOSS_ELEVATE_PX = 70; // cuanto sube por encima de su bottom base al esquivar
@@ -214,6 +227,14 @@ const BOSS_ELEVATE_PX = 70; // cuanto sube por encima de su bottom base al esqui
 // A partir de la mitad de vida, en Facil, el boss alterna elevado/normal para esquivar el proyectil
 // terrestre (a ras de suelo); el tuyo lanzado saltando si le sigue dando.
 const BOSS_DODGE_TOGGLE_MS = 2000;
+
+// Gesto de aviso antes de disparar: el boss se "carga" (crece + brilla del color de su elemento)
+// y el proyectil no sale hasta que termina, para que se pueda anticipar el ataque. Si suelta varios
+// disparos seguidos (cargas acumuladas), cada uno de la racha carga mas que el anterior, para que se
+// note el ritmo. La racha se corta si pasa un rato sin atacar.
+const BOSS_WINDUP_MS = 350;
+const BOSS_WINDUP_STREAK_STEP_MS = 250;
+const BOSS_ATTACK_STREAK_RESET_MS = 2000;
 
 // Cadencia de ataque del boss, independiente de la que usaba la CPU durante la carrera
 const BOSS_ATTACK_MAX_CHARGES = 3;
@@ -224,11 +245,20 @@ const BOSS_ATTACK_CHANCE_PER_SEC = 0.4;
 // solo en Facil, del escenario del capitulo, 0-1 terrestre y 0-1 aereo cada BOSS_OBSTACLE_WAVE_MS.
 const BOSS_OBSTACLE_WAVE_MS = 5000;
 
-const POWER_PROJECTILE_SPEED = 500; // px/s, propia y fija, no depende del ritmo de la carrera
+const POWER_PROJECTILE_SPEED = 350; // px/s, propia y fija, no depende del ritmo de la carrera
 const ATTACK_SIZE = 28; // ataques de fase boss (placeholder cuadrado), mas pequeño que un obstaculo (46)
 
-const MAX_POWER_CHARGES = 2;
-const POWER_RECHARGE_MS = 10000;
+// Poder de sabotaje durante la carrera (tuyo y de la CPU): sin cambios de cadencia, solo mas cargas.
+const SABOTAGE_MAX_CHARGES = 3;
+const SABOTAGE_RECHARGE_MS = 10000;
+
+// Proyectiles en fase boss: sistema propio, separado del sabotaje. Cooldown entre disparos aparte
+// de las cargas, para que no se puedan soltar las 4 de golpe.
+const PROJECTILE_MAX_CHARGES = 4;
+const PROJECTILE_RECHARGE_MS = 5000;
+const PROJECTILE_DAMAGE = 5;
+const PROJECTILE_COOLDOWN_MS = 1000;
+
 const CPU_POWER_TIER_THRESHOLD = 3; // a partir de aqui la CPU usa el poder con mucha mas frecuencia
 const CPU_POWER_CHANCE_PER_SEC_EARLY = 0.02;
 const CPU_POWER_CHANCE_PER_SEC_LATE = 0.15;
@@ -402,12 +432,17 @@ export default function RunnerScreen({
     const [frameIdx, setFrameIdx] = useState(0);
     const [hitFlash, setHitFlash] = useState(false);
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
+    const [bossHitFlash, setBossHitFlash] = useState(false);
+    const [bossWindingUp, setBossWindingUp] = useState(false);
+    const [bossWindupDurationMs, setBossWindupDurationMs] = useState(BOSS_WINDUP_MS);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
     const [selectedChapter, setSelectedChapter] = useState(null); // 1 | 2, solo etiqueta por ahora, sin efecto en combate/obstaculos
     const [highScores, setHighScores] = useState(loadHighScores);
-    const [powerCharges, setPowerCharges] = useState(MAX_POWER_CHARGES);
+    const [powerCharges, setPowerCharges] = useState(SABOTAGE_MAX_CHARGES);
+    const [projectileCharges, setProjectileCharges] = useState(PROJECTILE_MAX_CHARGES);
+    const [projectileCoolingDown, setProjectileCoolingDown] = useState(false);
     const [cpuPowerPending, setCpuPowerPending] = useState(false); // brilla la pista CPU: tiene un poder tuyo por llegar
     const [playerPowerPending, setPlayerPowerPending] = useState(false); // brilla tu pista: la CPU te la ha jugado
 
@@ -453,10 +488,13 @@ export default function RunnerScreen({
     const resumedRunRef = useRef(false); // true si esta partida viene de restaurar un guardado de partida en curso
     const chapaSpawnCapRef = useRef(Infinity); // en partida reducida, tope de chapas que pueden llegar a aparecer en toda la run (1 o 2 al azar)
     const chapasSpawnedCountRef = useRef(0); // cuantas chapas han aparecido ya esta run (para respetar el tope)
-    const powerChargesRef = useRef(MAX_POWER_CHARGES);
-    const cpuPowerChargesRef = useRef(MAX_POWER_CHARGES);
-    const powerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
-    const cpuPowerRechargeTimerRef = useRef(POWER_RECHARGE_MS);
+    const powerChargesRef = useRef(SABOTAGE_MAX_CHARGES);
+    const cpuPowerChargesRef = useRef(SABOTAGE_MAX_CHARGES);
+    const powerRechargeTimerRef = useRef(SABOTAGE_RECHARGE_MS);
+    const cpuPowerRechargeTimerRef = useRef(SABOTAGE_RECHARGE_MS);
+    const projectileChargesRef = useRef(PROJECTILE_MAX_CHARGES);
+    const projectileRechargeTimerRef = useRef(PROJECTILE_RECHARGE_MS);
+    const projectileCooldownUntilRef = useRef(0);
     const pendingPowerForCpuRef = useRef(0);    // poder del jugador, pendiente de aplicar en la pista CPU
     const pendingPowerForPlayerRef = useRef(0); // poder de la CPU, pendiente de aplicar en la pista del jugador
     const endingRef = useRef(false); // true en cuanto se decide el resultado, congela el tick hasta que se muestre la pantalla
@@ -465,6 +503,9 @@ export default function RunnerScreen({
     const bossHpRef = useRef(BOSS_MAX_HP);
     const bossDodgeTimerRef = useRef(BOSS_DODGE_TOGGLE_MS);
     const bossElevatedRef = useRef(false);
+    const bossWindupTimerRef = useRef(0);
+    const bossAttackStreakRef = useRef(0);
+    const bossLastAttackAtRef = useRef(0);
 
     const runFrames = DOG_RUN_FRAMES[selectedDogId];
     const cpuRunFrames = DOG_RUN_FRAMES[cpuDogId];
@@ -499,10 +540,14 @@ export default function RunnerScreen({
 
     const usePower = useCallback(() => {
         if (phase !== 'playing' || paused) return;
-        if (powerChargesRef.current <= 0) return;
-        powerChargesRef.current -= 1;
-        setPowerCharges(powerChargesRef.current);
         if (stage === 'boss') {
+            if (projectileChargesRef.current <= 0) return;
+            if (performance.now() < projectileCooldownUntilRef.current) return;
+            projectileChargesRef.current -= 1;
+            setProjectileCharges(projectileChargesRef.current);
+            projectileCooldownUntilRef.current = performance.now() + PROJECTILE_COOLDOWN_MS;
+            setProjectileCoolingDown(true);
+            setTimeout(() => setProjectileCoolingDown(false), PROJECTILE_COOLDOWN_MS);
             const attack = {
                 id: obstacleIdSeq++,
                 x: DOG_X + DOG_SIZE,
@@ -513,8 +558,11 @@ export default function RunnerScreen({
                 el: null,
             };
             attacksDataRef.current = [...attacksDataRef.current, attack];
-            setAttacks(attacksDataRef.current.map(a => ({ id: a.id, owner: a.owner, element: a.element })));
+            setAttacks(attacksDataRef.current.map(a => ({ id: a.id, owner: a.owner, element: a.element, aerial: a.aerial })));
         } else {
+            if (powerChargesRef.current <= 0) return;
+            powerChargesRef.current -= 1;
+            setPowerCharges(powerChargesRef.current);
             pendingPowerForCpuRef.current += 1;
             setCpuPowerPending(true);
         }
@@ -558,10 +606,14 @@ export default function RunnerScreen({
         chapaExtraSpawnsRef.current = 0;
         chapasSpawnedCountRef.current = 0;
         nextChapaBonusTierRef.current = getChapaBonusIntervalTier(difficulty);
-        powerChargesRef.current = MAX_POWER_CHARGES;
-        cpuPowerChargesRef.current = MAX_POWER_CHARGES;
-        powerRechargeTimerRef.current = POWER_RECHARGE_MS;
-        cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
+        powerChargesRef.current = SABOTAGE_MAX_CHARGES;
+        cpuPowerChargesRef.current = SABOTAGE_MAX_CHARGES;
+        powerRechargeTimerRef.current = SABOTAGE_RECHARGE_MS;
+        cpuPowerRechargeTimerRef.current = SABOTAGE_RECHARGE_MS;
+        projectileChargesRef.current = PROJECTILE_MAX_CHARGES;
+        projectileRechargeTimerRef.current = PROJECTILE_RECHARGE_MS;
+        projectileCooldownUntilRef.current = 0;
+        setProjectileCoolingDown(false);
         pendingPowerForCpuRef.current = 0;
         pendingPowerForPlayerRef.current = 0;
         endingRef.current = false;
@@ -570,7 +622,12 @@ export default function RunnerScreen({
         bossHpRef.current = BOSS_MAX_HP;
         bossDodgeTimerRef.current = BOSS_DODGE_TOGGLE_MS;
         bossElevatedRef.current = false;
-        setPowerCharges(MAX_POWER_CHARGES);
+        bossWindupTimerRef.current = 0;
+        bossAttackStreakRef.current = 0;
+        bossLastAttackAtRef.current = 0;
+        setBossWindingUp(false);
+        setPowerCharges(SABOTAGE_MAX_CHARGES);
+        setProjectileCharges(PROJECTILE_MAX_CHARGES);
         setCpuPowerPending(false);
         setPlayerPowerPending(false);
         setObstacles([]);
@@ -628,6 +685,15 @@ export default function RunnerScreen({
             bossHpRef.current = BOSS_MAX_HP;
             bossDodgeTimerRef.current = BOSS_DODGE_TOGGLE_MS;
             bossElevatedRef.current = false;
+            bossWindupTimerRef.current = 0;
+            bossAttackStreakRef.current = 0;
+            bossLastAttackAtRef.current = 0;
+            setBossWindingUp(false);
+            projectileChargesRef.current = PROJECTILE_MAX_CHARGES;
+            projectileRechargeTimerRef.current = PROJECTILE_RECHARGE_MS;
+            projectileCooldownUntilRef.current = 0;
+            setProjectileCoolingDown(false);
+            setProjectileCharges(PROJECTILE_MAX_CHARGES);
             cpuDogYRef.current = 0;
             cpuVelocityRef.current = 0;
             cpuIsJumpingRef.current = false;
@@ -858,10 +924,18 @@ export default function RunnerScreen({
             // Recarga de cargas de poder (jugador y CPU, independiente cada una)
             powerRechargeTimerRef.current -= dt * 1000;
             if (powerRechargeTimerRef.current <= 0) {
-                powerRechargeTimerRef.current = POWER_RECHARGE_MS;
-                if (powerChargesRef.current < MAX_POWER_CHARGES) {
+                powerRechargeTimerRef.current = SABOTAGE_RECHARGE_MS;
+                if (powerChargesRef.current < SABOTAGE_MAX_CHARGES) {
                     powerChargesRef.current += 1;
                     setPowerCharges(powerChargesRef.current);
+                }
+            }
+            projectileRechargeTimerRef.current -= dt * 1000;
+            if (projectileRechargeTimerRef.current <= 0) {
+                projectileRechargeTimerRef.current = PROJECTILE_RECHARGE_MS;
+                if (projectileChargesRef.current < PROJECTILE_MAX_CHARGES) {
+                    projectileChargesRef.current += 1;
+                    setProjectileCharges(projectileChargesRef.current);
                 }
             }
             if (runMode === 'historia') {
@@ -869,8 +943,8 @@ export default function RunnerScreen({
                     // La CPU decide sola cuando sabotearte durante la carrera: al azar, mas probable desde tramo 3
                     cpuPowerRechargeTimerRef.current -= dt * 1000;
                     if (cpuPowerRechargeTimerRef.current <= 0) {
-                        cpuPowerRechargeTimerRef.current = POWER_RECHARGE_MS;
-                        if (cpuPowerChargesRef.current < MAX_POWER_CHARGES) {
+                        cpuPowerRechargeTimerRef.current = SABOTAGE_RECHARGE_MS;
+                        if (cpuPowerChargesRef.current < SABOTAGE_MAX_CHARGES) {
                             cpuPowerChargesRef.current += 1;
                         }
                     }
@@ -893,11 +967,29 @@ export default function RunnerScreen({
                             bossAttackChargesRef.current += 1;
                         }
                     }
-                    if (bossAttackChargesRef.current > 0 && Math.random() < BOSS_ATTACK_CHANCE_PER_SEC * dt) {
+                    if (bossWindupTimerRef.current <= 0 && bossAttackChargesRef.current > 0 && Math.random() < BOSS_ATTACK_CHANCE_PER_SEC * dt) {
                         bossAttackChargesRef.current -= 1;
-                        pendingPowerForPlayerRef.current += 1;
-                        setPlayerPowerPending(true);
+                        if (now - bossLastAttackAtRef.current > BOSS_ATTACK_STREAK_RESET_MS) {
+                            bossAttackStreakRef.current = 0;
+                        }
+                        const windupMs = BOSS_WINDUP_MS + bossAttackStreakRef.current * BOSS_WINDUP_STREAK_STEP_MS;
+                        bossWindupTimerRef.current = windupMs;
+                        bossAttackStreakRef.current += 1;
+                        bossLastAttackAtRef.current = now;
+                        setBossWindupDurationMs(windupMs);
+                        setBossWindingUp(true);
                     }
+                }
+            }
+
+            // Gesto de aviso: hasta que no termina, el ataque decidido arriba no llega a dispararse.
+            if (stage === 'boss' && bossWindupTimerRef.current > 0) {
+                bossWindupTimerRef.current -= dt * 1000;
+                if (bossWindupTimerRef.current <= 0) {
+                    bossWindupTimerRef.current = 0;
+                    setBossWindingUp(false);
+                    pendingPowerForPlayerRef.current += 1;
+                    setPlayerPowerPending(true);
                 }
             }
 
@@ -955,11 +1047,12 @@ export default function RunnerScreen({
                     id: obstacleIdSeq++,
                     x: trackWidth,
                     owner: 'boss',
+                    aerial: bossElevatedRef.current,
                     element: CHAPTER_BOSS_ELEMENT[selectedBiomeId],
                     hit: false,
                     el: null,
                 }];
-                setAttacks(attacksDataRef.current.map(a => ({ id: a.id, owner: a.owner, element: a.element })));
+                setAttacks(attacksDataRef.current.map(a => ({ id: a.id, owner: a.owner, element: a.element, aerial: a.aerial })));
                 setPlayerPowerPending(false);
             }
 
@@ -1319,13 +1412,17 @@ export default function RunnerScreen({
                         break;
                     }
                 }
-                // Ataque terrestre del boss: mismo criterio de peligro que un obstaculo terrestre normal.
+                // Ataque del boss: si nacio con el elevado, es aereo (peligroso saltando, como un
+                // obstaculo aereo); si no, es terrestre (peligroso sin saltar), como cualquier otro.
                 if (!lifeLost && stage === 'boss') {
                     for (const a of atkList) {
                         if (a.hit || a.owner !== 'boss') continue;
                         const overlapX = DOG_X < a.x + ATTACK_SIZE && DOG_X + DOG_SIZE > a.x;
                         if (!overlapX) continue;
-                        if (dogYRef.current < OBSTACLE_CLEAR_Y) {
+                        const dangerous = a.aerial
+                            ? (dogYRef.current > AERIAL_MIN_Y && dogYRef.current < AERIAL_MAX_Y)
+                            : (dogYRef.current < OBSTACLE_CLEAR_Y);
+                        if (dangerous) {
                             a.hit = true;
                             lifeLost = true;
                             break;
@@ -1399,12 +1496,14 @@ export default function RunnerScreen({
             });
             attacksDataRef.current = atkList;
             if (atkDespawned || bossHit || lifeLost) {
-                setAttacks(atkList.map(a => ({ id: a.id, owner: a.owner, element: a.element })));
+                setAttacks(atkList.map(a => ({ id: a.id, owner: a.owner, element: a.element, aerial: a.aerial })));
             }
 
             if (bossHit) {
+                setBossHitFlash(true);
+                setTimeout(() => setBossHitFlash(false), 200);
                 setBossHp(prev => {
-                    const next = Math.max(0, prev - BOSS_POWER_DAMAGE);
+                    const next = Math.max(0, prev - PROJECTILE_DAMAGE);
                     bossHpRef.current = next;
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
@@ -1545,15 +1644,30 @@ export default function RunnerScreen({
                             className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}`}
                         />
 
-                        {stage === 'boss' && <img ref={bossElRef} src={bossImg} alt="Boss" className="runner-boss" />}
-
-                        {stage === 'boss' && attacks.map(a => (
-                            <div
-                                key={a.id}
-                                ref={el => setAttackEl(a.id, el)}
-                                className={`runner-attack runner-attack-${a.owner}`}
+                        {stage === 'boss' && (
+                            <img
+                                ref={bossElRef}
+                                src={bossImg}
+                                alt="Boss"
+                                className={`runner-boss${bossHitFlash ? ' runner-boss-hit' : ''}${bossWindingUp ? ' runner-boss-windup' : ''}`}
+                                style={bossWindingUp ? { filter: `drop-shadow(0 0 18px ${ELEMENT_ICON[CHAPTER_BOSS_ELEMENT[selectedBiomeId]]?.color})`, animationDuration: `${bossWindupDurationMs}ms` } : undefined}
                             />
-                        ))}
+                        )}
+
+                        {stage === 'boss' && attacks.map(a => {
+                            const attackImg = a.owner === 'player' ? ATTACK_PLAYER_ELEMENT_IMGS[a.element] : ATTACK_BOSS_BIOME_IMGS[selectedBiomeId];
+                            return (
+                                <div
+                                    key={a.id}
+                                    ref={el => setAttackEl(a.id, el)}
+                                    className={`runner-attack runner-attack-${a.owner}${a.aerial ? ' runner-attack-aerial' : ''}`}
+                                >
+                                    {attackImg && (
+                                        <img src={attackImg} alt="" className="runner-attack-img" />
+                                    )}
+                                </div>
+                            );
+                        })}
 
                         {obstacles.filter(o => o.lane !== 'cpu').map(o => {
                             const collectedClass = ((o.isHeart || o.isCoin || o.isChapa) && o.hit) ? ' runner-obstacle-collected' : '';
@@ -1702,11 +1816,11 @@ export default function RunnerScreen({
                             <ArrowUp size={28} color="#2ecc71" />
                         </button>
                         {runMode === 'historia' && (
-                            <button className="runner-power-btn" onPointerDown={usePower} disabled={powerCharges <= 0}>
+                            <button className="runner-power-btn" onPointerDown={usePower} disabled={(stage === 'boss' ? projectileCharges : powerCharges) <= 0 || (stage === 'boss' && projectileCoolingDown)}>
                                 {playerPowerObstacleImg && (
                                     <img src={playerPowerObstacleImg} alt="" className="runner-power-btn-img" />
                                 )}
-                                <span className="runner-power-btn-charges">{powerCharges}</span>
+                                <span className="runner-power-btn-charges">{stage === 'boss' ? projectileCharges : powerCharges}</span>
                             </button>
                         )}
                     </div>

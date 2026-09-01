@@ -365,6 +365,9 @@ import runnerPowerElectrico from "../assets/ui/icons-hud/hud-modals/game-run/pod
 import runnerPowerAgua from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-hielo2.webp"
 import runnerPowerTierra from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-tierra2.webp"
 import runnerPowerOscuro from "../assets/ui/icons-hud/hud-modals/game-run/poderes-obstaculos/Sprite-oscuro2.webp"
+import runnerAttackAgua from "../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/agua/atack-agua.webp"
+import runnerAttackElectrico from "../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/perros/electrico/ataque-electrico.webp"
+import runnerAttackBatsBoss from "../assets/ui/icons-hud/hud-modals/game-run/icons/ataques/enemigos/bats/atack-bats-1.webp"
 import runnerBatBoss from "../assets/ui/icons-enemy/enemy-animation/bats/bat001.webp"
 
 // ===== SPRITES DE CARRERA (ANIMACIÓN DE COMPRA DE SKINS) =====
@@ -578,7 +581,7 @@ const IMAGES = [
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,
-    runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerBatBoss,
+    runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerAttackAgua, runnerAttackElectrico, runnerAttackBatsBoss, runnerBatBoss,
     // sprites de carrera (animación de compra de skins)
     ladySkinRunP1, ladySkinRunP2, ladySkinRunP3, ladySkinRunP4, ladyGafasRunP, ladyCascosRunP, ladyCapuchaRunP, ladyMineraRunP, ladyPirataRunP, ladyUltimateRunP,
     munaCascosRunSkinP, munaMineraRunSkinP, munaPilotoRunSkinP, munaPirataRunSkinP, munaReinaRunSkinP, munaUltimateRunSkinP,
