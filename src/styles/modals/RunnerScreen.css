@@ -169,7 +169,6 @@
     object-fit: contain;
     z-index: 2;
     filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
-    transition: bottom 0.25s ease;
 }
 
 .runner-boss-hit {

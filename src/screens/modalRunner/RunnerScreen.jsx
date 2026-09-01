@@ -223,6 +223,7 @@ const BOSS_MAX_HP = 40;
 const BOSS_X_RATIO = 0.65; // posicion del boss como fraccion del ancho de pista, mas a la izquierda para que quepa su tamaño (135px) sin salirse por la derecha
 const BOSS_BOTTOM_PX = 20; // debe coincidir con el bottom base de .runner-boss en CSS
 const BOSS_ELEVATE_PX = 70; // cuanto sube por encima de su bottom base al esquivar
+const BOSS_ELEVATE_SPEED_PX_S = 280; // velocidad real de la subida/bajada (antes era una transition CSS de 0.25s, ahora animada a mano para que la colision use la misma altura que se ve)
 // Altura de tu disparo para que cuente como impacto: 2 condiciones independientes (no un margen
 // simetrico) para que cada una se pueda ajustar sin robarle rango a la otra. Contra el boss normal,
 // techo generoso (cubre de sobra un salto sencillo, ~96px); contra el elevado, suelo que excluye el
@@ -509,6 +510,7 @@ export default function RunnerScreen({
     const bossHpRef = useRef(BOSS_MAX_HP);
     const bossDodgeTimerRef = useRef(BOSS_DODGE_TOGGLE_MS);
     const bossElevatedRef = useRef(false);
+    const bossCurrentBottomRef = useRef(BOSS_BOTTOM_PX); // altura real animada, para que la colision use lo mismo que se ve en pantalla
     const bossWindupTimerRef = useRef(0);
     const bossAttackStreakRef = useRef(0);
     const bossLastAttackAtRef = useRef(0);
@@ -628,6 +630,7 @@ export default function RunnerScreen({
         bossHpRef.current = BOSS_MAX_HP;
         bossDodgeTimerRef.current = BOSS_DODGE_TOGGLE_MS;
         bossElevatedRef.current = false;
+        bossCurrentBottomRef.current = BOSS_BOTTOM_PX;
         bossWindupTimerRef.current = 0;
         bossAttackStreakRef.current = 0;
         bossLastAttackAtRef.current = 0;
@@ -691,6 +694,7 @@ export default function RunnerScreen({
             bossHpRef.current = BOSS_MAX_HP;
             bossDodgeTimerRef.current = BOSS_DODGE_TOGGLE_MS;
             bossElevatedRef.current = false;
+            bossCurrentBottomRef.current = BOSS_BOTTOM_PX;
             bossWindupTimerRef.current = 0;
             bossAttackStreakRef.current = 0;
             bossLastAttackAtRef.current = 0;
@@ -1473,16 +1477,28 @@ export default function RunnerScreen({
             let bossHit = false;
             if (stage === 'boss') {
                 const bossX = trackWidth * BOSS_X_RATIO;
-                const bossBottom = BOSS_BOTTOM_PX + (bossElevatedRef.current ? BOSS_ELEVATE_PX : 0);
+                const bossTargetBottom = BOSS_BOTTOM_PX + (bossElevatedRef.current ? BOSS_ELEVATE_PX : 0);
+                const bossBottomDiff = bossTargetBottom - bossCurrentBottomRef.current;
+                const bossBottomStep = BOSS_ELEVATE_SPEED_PX_S * dt;
+                if (Math.abs(bossBottomDiff) <= bossBottomStep) {
+                    bossCurrentBottomRef.current = bossTargetBottom;
+                } else {
+                    bossCurrentBottomRef.current += Math.sign(bossBottomDiff) * bossBottomStep;
+                }
+                const bossBottom = bossCurrentBottomRef.current;
                 if (bossElRef.current) {
                     bossElRef.current.style.left = `${bossX}px`;
                     bossElRef.current.style.bottom = `${bossBottom}px`;
                 }
+                // Que cuente como "elevado" o "normal" depende de donde esta AHORA mismo en pantalla
+                // (bossBottom, ya animado), no del flag de destino: asi a mitad de la subida/bajada la
+                // colision usa lo mismo que se ve, no adelanta el resultado final antes de tiempo.
+                const bossIsCloseToElevated = bossBottom > (BOSS_BOTTOM_PX + BOSS_ELEVATE_PX) / 2;
                 for (const a of atkList) {
                     if (a.owner !== 'player' || a.hit) continue;
                     if (a.x >= bossX) {
                         a.hit = true;
-                        const heightOk = bossElevatedRef.current ? a.y >= BOSS_HIT_ELEVATED_MIN_Y : a.y <= BOSS_HIT_GROUND_MAX_Y;
+                        const heightOk = bossIsCloseToElevated ? a.y >= BOSS_HIT_ELEVATED_MIN_Y : a.y <= BOSS_HIT_GROUND_MAX_Y;
                         if (heightOk) bossHit = true;
                     }
                 }
@@ -1579,7 +1595,9 @@ export default function RunnerScreen({
 
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
-    const playerPowerObstacleImg = ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
+    const playerPowerObstacleImg = stage === 'boss'
+        ? (ATTACK_PLAYER_ELEMENT_IMGS[DogsConfig[selectedDogId]?.element] ?? ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element])
+        : ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
     const biomeSceneClass = (arcadeSubMode === 'biome' || runMode === 'historia') && selectedBiomeId
         ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}`
         : arcadeSubMode === 'libre'
