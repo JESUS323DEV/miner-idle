@@ -223,6 +223,12 @@ const BOSS_MAX_HP = 40;
 const BOSS_X_RATIO = 0.65; // posicion del boss como fraccion del ancho de pista, mas a la izquierda para que quepa su tamaño (135px) sin salirse por la derecha
 const BOSS_BOTTOM_PX = 20; // debe coincidir con el bottom base de .runner-boss en CSS
 const BOSS_ELEVATE_PX = 70; // cuanto sube por encima de su bottom base al esquivar
+// Altura de tu disparo para que cuente como impacto: 2 condiciones independientes (no un margen
+// simetrico) para que cada una se pueda ajustar sin robarle rango a la otra. Contra el boss normal,
+// techo generoso (cubre de sobra un salto sencillo, ~96px); contra el elevado, suelo que excluye el
+// disparo a ras de suelo (0px) pero deja pasar la mayoria de saltos.
+const BOSS_HIT_GROUND_MAX_Y = 110;
+const BOSS_HIT_ELEVATED_MIN_Y = 40;
 
 // A partir de la mitad de vida, en Facil, el boss alterna elevado/normal para esquivar el proyectil
 // terrestre (a ras de suelo); el tuyo lanzado saltando si le sigue dando.
@@ -1460,20 +1466,24 @@ export default function RunnerScreen({
                 }
             }
 
-            // Colision con el boss: cualquier ataque tuyo que llegue a su posicion le resta vida,
-            // salvo que este elevado y el ataque sea a ras de suelo (ahi lo esquiva).
+            // Colision con el boss: cualquier ataque tuyo que llegue a su posicion le resta vida, pero
+            // solo si tu altura tiene sentido para donde esta ahora mismo (normal o elevado), con 2
+            // condiciones independientes en vez de un margen simetrico (ver BOSS_HIT_GROUND_MAX_Y /
+            // BOSS_HIT_ELEVATED_MIN_Y).
             let bossHit = false;
             if (stage === 'boss') {
                 const bossX = trackWidth * BOSS_X_RATIO;
+                const bossBottom = BOSS_BOTTOM_PX + (bossElevatedRef.current ? BOSS_ELEVATE_PX : 0);
                 if (bossElRef.current) {
                     bossElRef.current.style.left = `${bossX}px`;
-                    bossElRef.current.style.bottom = `${BOSS_BOTTOM_PX + (bossElevatedRef.current ? BOSS_ELEVATE_PX : 0)}px`;
+                    bossElRef.current.style.bottom = `${bossBottom}px`;
                 }
                 for (const a of atkList) {
                     if (a.owner !== 'player' || a.hit) continue;
                     if (a.x >= bossX) {
                         a.hit = true;
-                        if (!(bossElevatedRef.current && a.y <= 0)) bossHit = true;
+                        const heightOk = bossElevatedRef.current ? a.y >= BOSS_HIT_ELEVATED_MIN_Y : a.y <= BOSS_HIT_GROUND_MAX_Y;
+                        if (heightOk) bossHit = true;
                     }
                 }
             }
