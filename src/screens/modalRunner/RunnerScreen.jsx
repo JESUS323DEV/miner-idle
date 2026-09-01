@@ -1903,15 +1903,18 @@ export default function RunnerScreen({
 
                 {phase === 'ready' && runMode && !biomeSelectOpen && (
                     <div className="runner-difficulty-select">
-                        {DIFFICULTY_ORDER.map(id => (
-                            <button
-                                key={id}
-                                className={`runner-difficulty-btn${difficulty === id ? ' runner-difficulty-active' : ''}`}
-                                onClick={() => setDifficulty(id)}
-                            >
-                                {CPU_DIFFICULTY_PRESETS[id].label}
-                            </button>
-                        ))}
+                        {DIFFICULTY_ORDER.map(id => {
+                            const hasBonusLeft = runMode === 'arcade' && (fullLootRunsByDifficulty?.[id] ?? 0) < MAX_FULL_LOOT_RUNS_PER_DAY;
+                            return (
+                                <button
+                                    key={id}
+                                    className={`runner-difficulty-btn${difficulty === id ? ' runner-difficulty-active' : ''}${hasBonusLeft ? ' runner-difficulty-bonus-glow' : ''}`}
+                                    onClick={() => setDifficulty(id)}
+                                >
+                                    {CPU_DIFFICULTY_PRESETS[id].label}
+                                </button>
+                            );
+                        })}
                     </div>
                 )}
 
