@@ -1726,11 +1726,13 @@ export default function RunnerScreen({
                                     <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
-                                    <button className="runner-mode-btn" onClick={() => { setRunMode('historia'); setChapterSelectOpen(true); }}>
+                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                         <span className="runner-mode-btn-title">Historia</span>
+                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
-                                    <button className="runner-mode-btn" onClick={() => setShopOpen(true)}>
+                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                         <span className="runner-mode-btn-title">Tienda</span>
+                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
                                 </div>
                             )}
