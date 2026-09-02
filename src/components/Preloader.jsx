@@ -161,6 +161,8 @@ import rewardsBgPickaxeTiers from "../assets/ui/icons-hud/hud-modals/rewards/rew
 import rewardsBgRepairs from "../assets/ui/icons-hud/hud-modals/rewards/rewards-gold/repair-total.webp"
 import rewardsIconLock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp"
 import rewardsIconUnlock from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/unlock.webp"
+import runnerJumpBtnIcon1 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp"
+import runnerJumpBtnIcon2 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp"
 import rewardsIconReclamed from "../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/reclamed.webp"
 import rewardsCoinMinaBronze from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-bronze.webp"
 import rewardsCoinMinaIron from "../assets/ui/icons-hud/hud-modals/rewards/rewards-coin/mina-iron.webp"
@@ -339,11 +341,13 @@ import runnerFondoRunCiudad from "../assets/ui/icons-hud/hud-modals/game-run/esc
 import runnerFondoRunDesierto from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp"
 import runnerFondoRunMinas from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-minas.webp"
 import runnerFondoRunPradera from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp"
+import runnerFondoRunHielo from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-hielo.webp"
 import runnerLibreStaticBosque from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-bosque-estatica.webp"
 import runnerLibreStaticCiudad from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-ciudad-estatica.webp"
 import runnerLibreStaticDesierto from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp"
 import runnerLibreStaticMinas from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-minas-estatica.webp"
 import runnerLibreStaticPradera from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp"
+import runnerLibreStaticHielo from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-hielo-estatica.webp"
 import runnerEscenarioMina1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp"
 import runnerEscenarioMina2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp"
 import runnerEscenarioMina3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp"
@@ -583,8 +587,8 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
-    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon,
-    runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera,
+    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon, runnerJumpBtnIcon1, runnerJumpBtnIcon2,
+    runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera, runnerLibreStaticHielo,
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,

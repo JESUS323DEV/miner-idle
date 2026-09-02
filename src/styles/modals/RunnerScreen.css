@@ -96,6 +96,84 @@
     gap: 8px;
 }
 
+.runner-tracks-solo {
+    height: 448px;
+    justify-content: center;
+}
+
+.runner-progress-bar {
+    display: flex;
+    align-items: flex-start;
+    height: 70px;
+    padding-top: 22px;
+}
+
+.runner-progress-line {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+}
+
+.runner-progress-mark-group {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transform: translate(-50%, -50%);
+}
+
+.runner-progress-mark-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 1px;
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    margin-top: 6px;
+}
+
+.runner-progress-mark-reward-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.runner-progress-mark-reward-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.runner-progress-mark-reward-icon-huesin {
+    width: 30px;
+    height: 30px;
+}
+
+.runner-progress-mark-reward-claimed {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.runner-progress-mark-reward-claimed img {
+    filter: grayscale(100%) brightness(0.7);
+}
+
+.runner-progress-flag {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+
 .runner-roulette-overlay {
     position: absolute;
     inset: 0;
@@ -205,6 +283,10 @@
 
 .runner-track-scene-libre-pradera {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp');
+}
+
+.runner-track-scene-libre-hielo {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-hielo.webp');
 }
 
 .runner-track-scene-mina-1 {
@@ -507,6 +589,29 @@
     font-size: 0.95rem;
 }
 
+.runner-run-rewards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.runner-run-reward {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.runner-run-reward img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
 .runner-start-btn {
     position: relative;
     display: inline-flex;
@@ -658,12 +763,19 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    background: none;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+}
+
+.runner-jump-btn-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .runner-jump-btn:disabled {

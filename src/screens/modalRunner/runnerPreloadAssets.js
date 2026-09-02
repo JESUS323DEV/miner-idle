@@ -77,11 +77,13 @@ import runnerFondoRunCiudad from '../../assets/ui/icons-hud/hud-modals/game-run/
 import runnerFondoRunDesierto from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp';
 import runnerFondoRunMinas from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-minas.webp';
 import runnerFondoRunPradera from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp';
+import runnerFondoRunHielo from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-hielo.webp';
 import libreStaticBosque from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-bosque-estatica.webp';
 import libreStaticCiudad from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-ciudad-estatica.webp';
 import libreStaticDesierto from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp';
 import libreStaticMinas from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-minas-estatica.webp';
 import libreStaticPradera from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp';
+import libreStaticHielo from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-hielo-estatica.webp';
 import escenarioMina1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp';
 import escenarioMina2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp';
 import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp';
@@ -90,8 +92,11 @@ import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/esce
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
 
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
+import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
+import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 
 // Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
 // mismo, Historia/Tienda estan bloqueados). Esto es lo que bloquea la pantalla de carga inicial.
@@ -106,10 +111,10 @@ export const RUNNER_CORE_PRELOAD_IMAGES = [
     zeusRun1, zeusRun2, zeusRun3, zeusRun4,
     druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
-    lockIcon, tavernCoinIcon, chapaIcon,
+    lockIcon, tavernCoinIcon, chapaIcon, huesinIcon, jumpBtnIcon1, jumpBtnIcon2,
     obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo, obstaculoAereo3,
-    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera,
-    libreStaticBosque, libreStaticCiudad, libreStaticDesierto, libreStaticMinas, libreStaticPradera,
+    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo,
+    libreStaticBosque, libreStaticCiudad, libreStaticDesierto, libreStaticMinas, libreStaticPradera, libreStaticHielo,
 ];
 
 // Historia (capitulos, boss, sabotaje por elemento): bloqueado ahora mismo, no hace falta para

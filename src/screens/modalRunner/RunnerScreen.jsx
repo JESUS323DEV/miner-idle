@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowUp, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart } from 'lucide-react';
+import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart, Flag } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
+import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import LadyRunShopModal from './LadyRunShopModal.jsx';
 
@@ -91,6 +94,7 @@ import libreStaticCiudad from '../../assets/ui/icons-hud/hud-modals/game-run/esc
 import libreStaticDesierto from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp';
 import libreStaticMinas from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-minas-estatica.webp';
 import libreStaticPradera from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp';
+import libreStaticHielo from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-hielo-estatica.webp';
 
 import '../../styles/modals/RunnerScreen.css';
 
@@ -191,13 +195,34 @@ const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) apare
 const HEART_FIRST_AT_S = 25;  // modo libre: primer corazon extra al llegar al tramo 5 (25s, 5 tramos x 5s)
 const HEART_INTERVAL_S = 20;  // luego uno cada 4 tramos (20s)
 const TAVERN_COIN_TIER_INTERVAL = 4; // modo libre: 1 tavern coin cada 4 tramos, toda la partida
-const LIBRE_SCENES = ['bosque', 'ciudad', 'desierto', 'minas', 'pradera']; // fondos disponibles en escenarios-run-libre/, se sortea 1 al empezar
+const LIBRE_SCENES = ['bosque', 'ciudad', 'desierto', 'minas', 'pradera', 'hielo']; // fondos disponibles en escenarios-run-libre/, se sortea 1 al empezar
+
+// Modo Libre sin meta final: 3 tramos por fase, cada uno con su recompensa (misma tabla, se repite
+// cada fase). Al completar los 3, empieza otra fase con la duracion de sus tramos x1.5 (se sigue
+// alargando fase tras fase). Nunca hay pantalla de "victoria", solo se cobra todo lo acumulado al
+// perder.
+const RUN_BASE_INTERVALS_S = [20, 25, 30]; // duracion de cada tramo dentro de una fase, no acumulado
+const RUN_PHASE_TIME_MULTIPLIER = 1.5; // cada fase completa multiplica la duracion de la siguiente
+// Posicion de las 3 marcas en la barra, como % del total de la fase: el multiplicador de fase
+// afecta a los 3 tramos por igual, asi que la proporcion (y por tanto el % en la barra) no cambia.
+const RUN_PHASE_TOTAL_S = RUN_BASE_INTERVALS_S[0] + RUN_BASE_INTERVALS_S[1] + RUN_BASE_INTERVALS_S[2];
+const RUN_MARK_PERCENTS = [
+    (RUN_BASE_INTERVALS_S[0] / RUN_PHASE_TOTAL_S) * 100,
+    ((RUN_BASE_INTERVALS_S[0] + RUN_BASE_INTERVALS_S[1]) / RUN_PHASE_TOTAL_S) * 100,
+    100,
+];
+const RUN_MILESTONE_REWARDS = {
+    facil:   [{ tavernCoins: 2 }, { tavernCoins: 3 }, { huesin: 1 }],
+    medio:   [{ tavernCoins: 3 }, { tavernCoins: 4 }, { huesin: 2 }],
+    dificil: [{ tavernCoins: 4 }, { tavernCoins: 5 }, { huesin: 3 }],
+};
 const LIBRE_SCENE_LABELS = {
     bosque: 'Bosque',
     ciudad: 'Ciudad Guau guau',
     desierto: 'Desierto',
     minas: 'Minas',
     pradera: 'Pradera',
+    hielo: 'Hielo',
 };
 const LIBRE_SCENE_STATIC_IMGS = {
     bosque: libreStaticBosque,
@@ -205,6 +230,7 @@ const LIBRE_SCENE_STATIC_IMGS = {
     desierto: libreStaticDesierto,
     minas: libreStaticMinas,
     pradera: libreStaticPradera,
+    hielo: libreStaticHielo,
 };
 
 // Efecto ruleta al pulsar Empezar en Modo Libre: una tira de escenarios se desliza en horizontal
@@ -434,6 +460,7 @@ export default function RunnerScreen({
     belowHud = false,
     onEarnTavernCoins,
     onEarnChapas,
+    onEarnHuesin,
     chapas = 0,
     pendingHeartsBonus = 0,
     onBuyItem,
@@ -446,6 +473,8 @@ export default function RunnerScreen({
     onEarnTavernCoinsRef.current = onEarnTavernCoins;
     const onEarnChapasRef = useRef(onEarnChapas);
     onEarnChapasRef.current = onEarnChapas;
+    const onEarnHuesinRef = useRef(onEarnHuesin);
+    onEarnHuesinRef.current = onEarnHuesin;
 
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -476,6 +505,16 @@ export default function RunnerScreen({
     const [score, setScore] = useState(0);
     const [speedTierDisplay, setSpeedTierDisplay] = useState(1);
     const [airborne, setAirborne] = useState(false);
+    const [canDoubleJump, setCanDoubleJump] = useState(false); // true tras el 1er salto, hasta usar el 2o o aterrizar
+    const [runMilestoneIndex, setRunMilestoneIndex] = useState(-1); // -1 = ninguno, 0/1/2 = tramo alcanzado DENTRO de la fase actual (visual)
+    const [runCoinsEarned, setRunCoinsEarned] = useState(0); // totales de ESTA run, solo para mostrar en game over
+    const [runHuesinEarned, setRunHuesinEarned] = useState(0);
+    const [runChapasEarned, setRunChapasEarned] = useState(0);
+    const runTotalMilestonesRef = useRef(0); // total de tramos cruzados en toda la run (todas las fases), para la recompensa
+    const runPhaseStartAtRef = useRef(0); // matchTimeRef.current en el que empezo la fase actual
+    const runFlagElRef = useRef(null);
+    const runTrackCoinsCollectedRef = useRef(0); // coins cogidas en pista, se pagan al perder
+    const runChapasCollectedRef = useRef(0); // chapas cogidas en pista, se pagan al perder
     const [cpuAirborne, setCpuAirborne] = useState(false);
     const [obstacles, setObstacles] = useState([]); // solo {id, img}, la posicion real vive en refs
     const [attacks, setAttacks] = useState([]); // ataques de fase boss (jugador/boss), separados de los obstaculos de la carrera
@@ -583,9 +622,11 @@ export default function RunnerScreen({
             doubleJumpUsedRef.current = false;
             velocityRef.current = JUMP_VELOCITY_SINGLE;
             setAirborne(true);
+            setCanDoubleJump(true);
         } else if (!doubleJumpUsedRef.current) {
             doubleJumpUsedRef.current = true;
             velocityRef.current = JUMP_VELOCITY;
+            setCanDoubleJump(false);
         }
     }, [phase, paused]);
 
@@ -685,6 +726,16 @@ export default function RunnerScreen({
         setObstacles([]);
         setAttacks([]);
         setAirborne(false);
+        setCanDoubleJump(false);
+        runTotalMilestonesRef.current = 0;
+        runPhaseStartAtRef.current = 0;
+        runTrackCoinsCollectedRef.current = 0;
+        runChapasCollectedRef.current = 0;
+        setRunMilestoneIndex(-1);
+        setRunCoinsEarned(0);
+        setRunHuesinEarned(0);
+        setRunChapasEarned(0);
+        if (runFlagElRef.current) runFlagElRef.current.style.left = '0%';
         setCpuAirborne(false);
         setLives(MAX_LIVES + pendingHeartsBonus);
         setBonusLives(0);
@@ -700,6 +751,24 @@ export default function RunnerScreen({
         setWon(false);
         setPaused(false);
     }, [pendingHeartsBonus, difficulty]);
+
+    const claimRunMilestoneRewards = useCallback((totalCrossed) => {
+        const rewards = RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil;
+        let totalCoins = runTrackCoinsCollectedRef.current;
+        let totalHuesin = 0;
+        for (let i = 0; i < totalCrossed; i++) {
+            const r = rewards[i % 3]; // la tabla de 3 tramos se repite cada fase
+            totalCoins += r?.tavernCoins ?? 0;
+            totalHuesin += r?.huesin ?? 0;
+        }
+        const totalChapas = runChapasCollectedRef.current;
+        if (totalCoins > 0) onEarnTavernCoinsRef.current?.(totalCoins);
+        if (totalHuesin > 0) onEarnHuesinRef.current?.(totalHuesin);
+        if (totalChapas > 0) onEarnChapasRef.current?.(totalChapas);
+        setRunCoinsEarned(totalCoins);
+        setRunHuesinEarned(totalHuesin);
+        setRunChapasEarned(totalChapas);
+    }, [difficulty]);
 
     const resetGame = useCallback((forcedLibreSceneKey) => {
         resetStats();
@@ -954,6 +1023,39 @@ export default function RunnerScreen({
 
             matchTimeRef.current += dt;
 
+            // Modo Libre: barra de progreso de la fase actual (por tiempo jugado) + tramos de recompensa.
+            // Sin meta final: al completar los 3 tramos de una fase, empieza otra con tramos x1.5 mas
+            // largos, indefinidamente. Solo se cobra todo lo acumulado al perder (ver mas abajo).
+            if (arcadeSubMode === 'libre') {
+                const tramoInPhase = runTotalMilestonesRef.current % 3;
+                const phaseIndex = Math.floor(runTotalMilestonesRef.current / 3);
+                const phaseMult = RUN_PHASE_TIME_MULTIPLIER ** phaseIndex;
+                const phaseDurations = RUN_BASE_INTERVALS_S.map(s => s * phaseMult);
+                const phaseTotal = phaseDurations[0] + phaseDurations[1] + phaseDurations[2];
+
+                if (runFlagElRef.current) {
+                    const elapsedInPhase = matchTimeRef.current - runPhaseStartAtRef.current;
+                    const progress = Math.min(1, Math.max(0, elapsedInPhase / phaseTotal));
+                    runFlagElRef.current.style.left = `${progress * 100}%`;
+                }
+
+                let nextMilestoneAt = runPhaseStartAtRef.current;
+                for (let i = 0; i <= tramoInPhase; i++) nextMilestoneAt += phaseDurations[i];
+                if (matchTimeRef.current >= nextMilestoneAt) {
+                    runTotalMilestonesRef.current += 1;
+                    setRunMilestoneIndex(tramoInPhase);
+                    if (tramoInPhase === 2) {
+                        // Fase completa: el avance de fase es SINCRONO (si no, el siguiente tick calcula
+                        // con el tiempo de la fase vieja y el tramo de la nueva, y cruza varios de golpe).
+                        // Solo el reset VISUAL del marcador se retrasa, para que se vea el 3er tramo un instante.
+                        runPhaseStartAtRef.current += phaseTotal;
+                        setTimeout(() => {
+                            setRunMilestoneIndex(-1);
+                        }, 500);
+                    }
+                }
+            }
+
             if (arcadeSubMode === 'biome' && matchTimeRef.current >= nextCheckpointAtRef.current) {
                 setCheckpointOpen(true);
                 return;
@@ -1097,7 +1199,7 @@ export default function RunnerScreen({
             }
             dogYRef.current = newY;
             if (dogElRef.current) dogElRef.current.style.bottom = `${newY + GROUND_VISUAL_OFFSET}px`;
-            if (justLanded) setAirborne(false);
+            if (justLanded) { setAirborne(false); setCanDoubleJump(false); }
 
             // Fisica CPU (mismas reglas, ella misma dispara su salto mas abajo). Solo mientras siga en pie.
             if (stage === 'cpu') {
@@ -1468,7 +1570,10 @@ export default function RunnerScreen({
                     coinsCollected += 1;
                 }
             }
-            if (coinsCollected > 0) onEarnTavernCoinsRef.current?.(coinsCollected);
+            if (coinsCollected > 0) {
+                if (arcadeSubMode === 'libre') runTrackCoinsCollectedRef.current += coinsCollected;
+                else onEarnTavernCoinsRef.current?.(coinsCollected);
+            }
 
             // Recogida del regalo de chapas (1er terrestre/aereo de la partida).
             let chapasCollected = 0;
@@ -1485,7 +1590,10 @@ export default function RunnerScreen({
                     chapasCollected += 1;
                 }
             }
-            if (chapasCollected > 0) onEarnChapasRef.current?.(chapasCollected);
+            if (chapasCollected > 0) {
+                runChapasCollectedRef.current += chapasCollected;
+                setRunChapasEarned(c => c + chapasCollected);
+            }
 
             // Colision jugador
             const invuln = now < invulnUntilRef.current;
@@ -1643,6 +1751,7 @@ export default function RunnerScreen({
                     const next = prev - 1;
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
+                        if (arcadeSubMode === 'libre') claimRunMilestoneRewards(runTotalMilestonesRef.current);
                         setTimeout(() => { setWon(false); setPhase('gameover'); }, GAME_END_DELAY_MS);
                     }
                     return next;
@@ -1673,7 +1782,7 @@ export default function RunnerScreen({
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex, claimRunMilestoneRewards]);
 
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
@@ -1739,7 +1848,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                <div className="runner-tracks">
+                <div className={`runner-tracks${isLibre ? ' runner-tracks-solo' : ''}`}>
                     {phase !== 'ready' && !isLibre && (
                         <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
@@ -1771,7 +1880,11 @@ export default function RunnerScreen({
                         </div>
                     )}
 
-                    <div className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
+                    <div
+                        className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`}
+                        style={isLibre && phase === 'gameover' ? { backgroundImage: `url(${LIBRE_SCENE_STATIC_IMGS[libreSceneKey]})` } : undefined}
+                        ref={trackRef}
+                    >
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
@@ -1840,9 +1953,8 @@ export default function RunnerScreen({
                                 />
                             );
                         })}
-                    </div>
 
-                    {(phase === 'ready' || phase === 'gameover') && (
+                        {(phase === 'ready' || phase === 'gameover') && (
                         <div className="runner-overlay">
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
@@ -1910,15 +2022,23 @@ export default function RunnerScreen({
                             )}
                             {phase === 'gameover' && (
                                 <>
-                                    <p className="runner-overlay-title">{won ? '¡Has ganado!' : 'Game Over'}</p>
+                                    <p className="runner-overlay-title">{isLibre ? 'Perdiste' : (won ? '¡Has ganado!' : 'Game Over')}</p>
                                     <p className="runner-overlay-score">Puntos: {score}</p>
-                                    {runMode === 'arcade' && (
+                                    {runMode === 'arcade' && !isLibre && (
                                         <p className="runner-overlay-score">Rivales vencidos: {rivalsDefeated}</p>
+                                    )}
+                                    {isLibre && (
+                                        <div className="runner-run-rewards">
+                                            <span className="runner-run-reward"><img src={chapaIcon} alt="Chapas" />{runChapasEarned}</span>
+                                            <span className="runner-run-reward"><img src={tavernCoinIcon} alt="Monedas" />{runCoinsEarned}</span>
+                                            <span className="runner-run-reward"><img src={huesinIcon} alt="Huesin" />{runHuesinEarned}</span>
+                                        </div>
                                     )}
                                 </>
                             )}
                         </div>
-                    )}
+                        )}
+                    </div>
 
                     {checkpointOpen && (
                         <div className="runner-overlay">
@@ -1946,13 +2066,36 @@ export default function RunnerScreen({
                             </div>
                         </div>
                     )}
-                </div>
 
+                    {isLibre && (phase === 'playing' || phase === 'gameover') && (
+                        <div className="runner-progress-bar">
+                            <div className="runner-progress-line">
+                                {RUN_MARK_PERCENTS.map((pct, i) => {
+                                    const reward = (RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil)[i];
+                                    const rewardIcon = reward?.huesin ? huesinIcon : tavernCoinIcon;
+                                    const rewardAmount = reward?.huesin ?? reward?.tavernCoins ?? 0;
+                                    const reached = runMilestoneIndex >= i;
+                                    return (
+                                        <div key={i} className="runner-progress-mark-group" style={{ left: `${pct}%` }}>
+                                            <span className={`runner-progress-mark-reward${reached ? ' runner-progress-mark-reward-claimed' : ''}`}>
+                                                <span className={`runner-progress-mark-reward-icon${reward?.huesin ? ' runner-progress-mark-reward-icon-huesin' : ''}`}>
+                                                    <img src={rewardIcon} alt="" />
+                                                </span>
+                                                {rewardAmount}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                                <Flag ref={runFlagElRef} size={18} className="runner-progress-flag" fill="#ffd740" color="#3a2c18" />
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {phase === 'gameover' && (
                     <>
                         <div className="runner-action-row">
-                            <button className="runner-start-btn runner-start-btn-compact" onClick={resetGame}>Reintentar</button>
+                            <button className="runner-start-btn runner-start-btn-compact" onClick={() => (arcadeSubMode === 'libre' ? startLibreRoulette() : resetGame())}>Reintentar</button>
                             <button className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact" onClick={backToSelect}>Volver</button>
                         </div>
                         {arcadeSubMode === 'libre' && (
@@ -1966,7 +2109,7 @@ export default function RunnerScreen({
                 {phase === 'playing' && (
                     <div className="runner-action-row">
                         <button className="runner-jump-btn" onPointerDown={jump}>
-                            <ArrowUp size={28} color="#2ecc71" />
+                            <img src={canDoubleJump ? jumpBtnIcon2 : jumpBtnIcon1} alt="Saltar" className="runner-jump-btn-img" />
                         </button>
                         {runMode === 'historia' && (
                             <button className="runner-power-btn" onPointerDown={usePower} disabled={(stage === 'boss' ? projectileCharges : powerCharges) <= 0 || (stage === 'boss' && projectileCoolingDown)}>

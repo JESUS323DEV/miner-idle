@@ -60,6 +60,7 @@ const LadyRunStandalone = () => {
                 belowHud
                 onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
                 onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
+                onEarnHuesin={(amount) => setGameState(prev => ({ ...prev, huesin: (prev.huesin ?? 0) + amount }))}
                 chapas={gameState.chapas ?? 0}
                 pendingHeartsBonus={gameState.ladyRunPendingHearts ?? 0}
                 onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
