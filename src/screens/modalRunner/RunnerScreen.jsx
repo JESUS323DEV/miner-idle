@@ -779,18 +779,9 @@ export default function RunnerScreen({
         setRunChapasEarned(totalChapas);
     }, [difficulty, dailyTramosClaimedToday]);
 
-    const resetGame = useCallback((forcedLibreSceneKey) => {
-        resetStats();
-        const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
-        setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
-        setLibreSceneKey(forcedLibreSceneKey ?? LIBRE_SCENES[Math.floor(Math.random() * LIBRE_SCENES.length)]);
-        if (pendingHeartsBonus > 0) onConsumePendingHearts?.();
-        runIsReducedRef.current = fullLootRunsToday >= MAX_FULL_LOOT_RUNS_PER_DAY;
-        chapaSpawnCapRef.current = runIsReducedRef.current ? (1 + Math.floor(Math.random() * 2)) : Infinity;
-        setPhase('playing');
-        // La partida empieza en pausa (el bucle principal no arranca mientras paused===true) hasta
-        // que termina la cuenta atras, para que no se pueda perder una vida antes de estar listo.
-        setPaused(true);
+    // Cuenta atras 3-2-1-¡Ya! reutilizable: al terminar, quita la pausa. Se usa tanto al empezar una
+    // partida nueva como al reanudar una guardada (boton REANUDAR sobre la card).
+    const startCountdown = useCallback(() => {
         setCountdownValue(3);
         let step = 3;
         const countdownTick = () => {
@@ -803,7 +794,22 @@ export default function RunnerScreen({
             }
         };
         setTimeout(countdownTick, COUNTDOWN_STEP_MS);
-    }, [resetStats, selectedDogId, pendingHeartsBonus, onConsumePendingHearts, fullLootRunsToday]);
+    }, []);
+
+    const resetGame = useCallback((forcedLibreSceneKey) => {
+        resetStats();
+        const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
+        setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
+        setLibreSceneKey(forcedLibreSceneKey ?? LIBRE_SCENES[Math.floor(Math.random() * LIBRE_SCENES.length)]);
+        if (pendingHeartsBonus > 0) onConsumePendingHearts?.();
+        runIsReducedRef.current = fullLootRunsToday >= MAX_FULL_LOOT_RUNS_PER_DAY;
+        chapaSpawnCapRef.current = runIsReducedRef.current ? (1 + Math.floor(Math.random() * 2)) : Infinity;
+        setPhase('playing');
+        // La partida empieza en pausa (el bucle principal no arranca mientras paused===true) hasta
+        // que termina la cuenta atras, para que no se pueda perder una vida antes de estar listo.
+        setPaused(true);
+        startCountdown();
+    }, [resetStats, selectedDogId, pendingHeartsBonus, onConsumePendingHearts, fullLootRunsToday, startCountdown]);
 
     const startLibreRoulette = useCallback(() => {
         setArcadeSubMode('libre');
@@ -2055,6 +2061,12 @@ export default function RunnerScreen({
                                 </>
                             )}
                         </div>
+                        )}
+
+                        {phase === 'playing' && paused && resumedRunRef.current && countdownValue === null && (
+                            <div className="runner-overlay">
+                                <button className="runner-start-btn" onClick={startCountdown}>Reanudar</button>
+                            </div>
                         )}
                     </div>
 
