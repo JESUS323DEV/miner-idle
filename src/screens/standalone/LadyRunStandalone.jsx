@@ -1,12 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import { getHuntRotationKey } from '../../game/config/TablonHuntConfig.js';
 import SkinShopModal from '../modalRaid/SkinShopModal.jsx';
 import CurrencyHud from '../../components/CurrencyHud.jsx';
 import { loadSavedState } from '../../game/initialState/loadSavedState.js';
-import { usePreloadImages } from '../../game/hooks/usePreloadImages.js';
-import { RUNNER_PRELOAD_IMAGES } from '../modalRunner/runnerPreloadAssets.js';
+import { usePreloadImages, prefetchImages } from '../../game/hooks/usePreloadImages.js';
+import { RUNNER_CORE_PRELOAD_IMAGES, RUNNER_HISTORIA_PRELOAD_IMAGES } from '../modalRunner/runnerPreloadAssets.js';
 import { SKIN_SHOP_PRELOAD_IMAGES } from '../modalRaid/skinShopPreloadAssets.js';
 import '../../styles/standalone/LadyRunStandalone.css';
 
@@ -18,12 +18,18 @@ import '../../styles/standalone/LadyRunStandalone.css';
 const LadyRunStandalone = () => {
     const [gameState, setGameState] = useState(loadSavedState);
     const [view, setView] = useState('run'); // 'run' | 'skins'
-    const preloadList = useMemo(() => [...RUNNER_PRELOAD_IMAGES, ...SKIN_SHOP_PRELOAD_IMAGES], []);
-    const loaded = usePreloadImages(preloadList);
+    const loaded = usePreloadImages(RUNNER_CORE_PRELOAD_IMAGES);
 
     useEffect(() => {
         localStorage.setItem('ladyHungryGame', JSON.stringify({ ...gameState, savedAt: Date.now() }));
     }, [gameState]);
+
+    // Historia y la tienda de skins estan bloqueadas ahora mismo: no hace falta su contenido para
+    // jugar, asi que se precarga de fondo (sin bloquear la pantalla) por si se desbloquean despues.
+    useEffect(() => {
+        if (!loaded) return;
+        prefetchImages([...RUNNER_HISTORIA_PRELOAD_IMAGES, ...SKIN_SHOP_PRELOAD_IMAGES]);
+    }, [loaded]);
 
     if (!loaded) {
         return (

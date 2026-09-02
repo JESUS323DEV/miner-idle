@@ -28,3 +28,15 @@ export const usePreloadImages = (images) => {
 
     return loaded;
 };
+
+/**
+ * Precarga una lista de imagenes en segundo plano, sin bloquear nada ni devolver estado: solo
+ * dispara la descarga para que el navegador las tenga en cache si hacen falta mas tarde (ej.
+ * contenido bloqueado que podria desbloquearse durante la sesion).
+ */
+export const prefetchImages = (images) => {
+    images.forEach(src => {
+        const img = new Image();
+        img.src = src;
+    });
+};

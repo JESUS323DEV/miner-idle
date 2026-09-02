@@ -334,10 +334,11 @@ import zeusRunP2 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp"
 import zeusRunP3 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp"
 import zeusRunP4 from "../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.webp"
 import runnerFondo1 from "../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp"
-import runnerFondoRun from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp"
-import runnerFondoRun2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp"
-import runnerFondoRun3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp"
-import runnerFondoRun4 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp"
+import runnerFondoRunBosque from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-bosque.webp"
+import runnerFondoRunCiudad from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-ciudad.webp"
+import runnerFondoRunDesierto from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp"
+import runnerFondoRunMinas from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-minas.webp"
+import runnerFondoRunPradera from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp"
 import runnerEscenarioMina1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp"
 import runnerEscenarioMina2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp"
 import runnerEscenarioMina3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp"
@@ -577,7 +578,7 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
-    runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon,
+    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon,
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,

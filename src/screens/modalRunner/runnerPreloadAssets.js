@@ -72,10 +72,11 @@ import spider002 from '../../assets/ui/icons-enemy/enemy-animation/spider/spider
 import spiderBossFinal from '../../assets/ui/icons-enemy/enemy-animation/spider/spider-boss.webp';
 
 import runnerFondo1 from '../../assets/ui/icons-hud/hud-modals/game-run/fondo-1.webp';
-import runnerFondoRun from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-1.webp';
-import runnerFondoRun2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-2.webp';
-import runnerFondoRun3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp';
-import runnerFondoRun4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-4.webp';
+import runnerFondoRunBosque from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-bosque.webp';
+import runnerFondoRunCiudad from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-ciudad.webp';
+import runnerFondoRunDesierto from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp';
+import runnerFondoRunMinas from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-minas.webp';
+import runnerFondoRunPradera from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp';
 import escenarioMina1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp';
 import escenarioMina2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp';
 import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp';
@@ -87,7 +88,9 @@ import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 
-export const RUNNER_PRELOAD_IMAGES = [
+// Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
+// mismo, Historia/Tienda estan bloqueados). Esto es lo que bloquea la pantalla de carga inicial.
+export const RUNNER_CORE_PRELOAD_IMAGES = [
     ladyRun1, ladyRun2, ladyRun3, ladyRun4,
     gordoRun1, gordoJump,
     munaRun1, munaJump,
@@ -99,11 +102,16 @@ export const RUNNER_PRELOAD_IMAGES = [
     druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
     lockIcon, tavernCoinIcon, chapaIcon,
-    obstaculo2, obstaculo3, obstaculo4, obstaculo6, obstaculoRata, obstaculoTopo1,
-    obstaculoGato1, obstaculoArmadillo,
-    obstaculoAereo, obstaculoAereo2, obstaculoAereo3, obstaculoAereoCuevas, obstaculoAereoCuevas2,
+    obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo, obstaculoAereo3,
+    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera,
+];
+
+// Historia (capitulos, boss, sabotaje por elemento): bloqueado ahora mismo, no hace falta para
+// jugar. Se precarga en segundo plano sin bloquear la pantalla de carga, por si se desbloquea.
+export const RUNNER_HISTORIA_PRELOAD_IMAGES = [
+    obstaculo2, obstaculoRata, obstaculoTopo1, obstaculoGato1,
+    obstaculoAereo, obstaculoAereo2, obstaculoAereoCuevas, obstaculoAereoCuevas2,
     fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle, attackAgua, attackElectrico, attackBatsBoss,
     batBoss, minaBoss1, minaBoss2, spider001, spider002, spiderBossFinal,
-    runnerFondo1, runnerFondoRun, runnerFondoRun2, runnerFondoRun3, runnerFondoRun4,
     escenarioMina1, escenarioMina2, escenarioMina3, escenarioCiudad1, escenarioCiudad2, escenarioCiudad3,
 ];

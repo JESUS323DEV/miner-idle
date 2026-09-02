@@ -81,7 +81,7 @@ import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escena
 import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp';
 import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
-import escenarioCiudad4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-3.webp'; // tambien vale como escenario de Ciudad (skyline)
+import escenarioCiudad4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-ciudad.webp'; // tambien vale como escenario de Ciudad (skyline)
 
 import '../../styles/modals/RunnerScreen.css';
 
@@ -182,7 +182,22 @@ const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) apare
 const HEART_FIRST_AT_S = 25;  // modo libre: primer corazon extra al llegar al tramo 5 (25s, 5 tramos x 5s)
 const HEART_INTERVAL_S = 20;  // luego uno cada 4 tramos (20s)
 const TAVERN_COIN_TIER_INTERVAL = 4; // modo libre: 1 tavern coin cada 4 tramos, toda la partida
-const LIBRE_SCENE_COUNT = 4;  // fondos disponibles en escenarios-run-libre/ (libre-1, libre-2, libre-3...), se sortea 1 al empezar
+const LIBRE_SCENES = ['bosque', 'ciudad', 'desierto', 'minas', 'pradera']; // fondos disponibles en escenarios-run-libre/, se sortea 1 al empezar
+const LIBRE_SCENE_LABELS = {
+    bosque: 'Bosque',
+    ciudad: 'Ciudad Guau guau',
+    desierto: 'Desierto',
+    minas: 'Minas',
+    pradera: 'Pradera',
+};
+
+// Efecto ruleta al pulsar Empezar en Modo Libre: una tira de escenarios se desliza en horizontal
+// (frame a frame, uno sale por la izquierda mientras el siguiente entra por la derecha), frenando
+// hacia el final (ease-out) hasta pararse en el escenario real, que se mantiene ROULETTE_SETTLE_MS
+// antes de empezar a jugar.
+const ROULETTE_STRIP_LENGTH = 20; // frames en la tira (varias vueltas a los 5 escenarios + el final)
+const ROULETTE_SPIN_MS = 2600;
+const ROULETTE_SETTLE_MS = 1500;
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
@@ -213,6 +228,9 @@ const PICKUP_SIZE = 38; // corazon/tavern coin/chapa son un pelin mas pequeños 
 const PICKUP_COLLECT_ANIM_MS = 350; // se paran en el sitio y se encogen/desvanecen al recogerlos
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
+// En Dificil el patron complejo (con pareja) empieza mucho antes: desde el primer tramo, no el 3.
+const AERIAL_UNLOCK_TIER_DIFICIL = 1;
+const DOUBLE_SOLO_UNLOCK_TIER_DIFICIL = 5;
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
 const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, para que el aereo llegue justo al aterrizar
 const HIT_INVULN_MS = 900;
@@ -426,7 +444,11 @@ export default function RunnerScreen({
     const [rivalsDefeated, setRivalsDefeated] = useState(0);
     const [checkpointOpen, setCheckpointOpen] = useState(false);
     const [sceneIndex, setSceneIndex] = useState(0);
-    const [libreSceneIndex, setLibreSceneIndex] = useState(1); // 1 o 2: fondo de Modo Libre, se sortea cada partida
+    const [libreSceneKey, setLibreSceneKey] = useState(LIBRE_SCENES[0]); // fondo de Modo Libre, se sortea cada partida
+    const [rouletteOpen, setRouletteOpen] = useState(false);
+    const [rouletteSequence, setRouletteSequence] = useState([]);
+    const [rouletteSpinning, setRouletteSpinning] = useState(false);
+    const [rouletteSettled, setRouletteSettled] = useState(false);
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
     const [selectedBiomeId, setSelectedBiomeId] = useState(null); // key de BIOMES cuando arcadeSubMode === 'biome'
@@ -658,16 +680,38 @@ export default function RunnerScreen({
         setPaused(false);
     }, [pendingHeartsBonus, difficulty]);
 
-    const resetGame = useCallback(() => {
+    const resetGame = useCallback((forcedLibreSceneKey) => {
         resetStats();
         const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
         setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
-        setLibreSceneIndex(1 + Math.floor(Math.random() * LIBRE_SCENE_COUNT));
+        setLibreSceneKey(forcedLibreSceneKey ?? LIBRE_SCENES[Math.floor(Math.random() * LIBRE_SCENES.length)]);
         if (pendingHeartsBonus > 0) onConsumePendingHearts?.();
         runIsReducedRef.current = fullLootRunsToday >= MAX_FULL_LOOT_RUNS_PER_DAY;
         chapaSpawnCapRef.current = runIsReducedRef.current ? (1 + Math.floor(Math.random() * 2)) : Infinity;
         setPhase('playing');
     }, [resetStats, selectedDogId, pendingHeartsBonus, onConsumePendingHearts, fullLootRunsToday]);
+
+    const startLibreRoulette = useCallback(() => {
+        setArcadeSubMode('libre');
+        const finalScene = LIBRE_SCENES[Math.floor(Math.random() * LIBRE_SCENES.length)];
+        const sequence = Array.from({ length: ROULETTE_STRIP_LENGTH }, (_, i) =>
+            i === ROULETTE_STRIP_LENGTH - 1 ? finalScene : LIBRE_SCENES[i % LIBRE_SCENES.length]
+        );
+        setRouletteSequence(sequence);
+        setRouletteSpinning(false);
+        setRouletteSettled(false);
+        setRouletteOpen(true);
+        // Doble rAF: deja pintar la tira en su posicion inicial (sin transition) antes de activar
+        // el movimiento, si no el navegador puede saltarse la transicion entera.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => setRouletteSpinning(true));
+        });
+        setTimeout(() => setRouletteSettled(true), ROULETTE_SPIN_MS);
+        setTimeout(() => {
+            setRouletteOpen(false);
+            resetGame(finalScene);
+        }, ROULETTE_SPIN_MS + ROULETTE_SETTLE_MS);
+    }, [resetGame]);
 
     const backToSelect = useCallback(() => {
         resetStats();
@@ -1101,14 +1145,16 @@ export default function RunnerScreen({
             if (stage === 'cpu' && spawnTimerRef.current <= 0) {
                 spawnTimerRef.current = SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS);
                 const tierNow = speedTierShownRef.current;
+                const aerialUnlockTier = difficulty === 'dificil' ? AERIAL_UNLOCK_TIER_DIFICIL : AERIAL_UNLOCK_TIER;
+                const doubleSoloUnlockTier = difficulty === 'dificil' ? DOUBLE_SOLO_UNLOCK_TIER_DIFICIL : DOUBLE_SOLO_UNLOCK_TIER;
                 let aerial = false;
                 let isPair = false;
-                if (tierNow >= AERIAL_UNLOCK_TIER) {
-                    // Tramo 3+: pareja terrestre -> aereo -> terrestre suelto (repite)
-                    // Tramo 5+: el terrestre "suelto" tambien sale en pareja
+                if (tierNow >= aerialUnlockTier) {
+                    // Facil/Medio desde tramo 3, Dificil desde el tramo 1: pareja terrestre -> aereo -> terrestre suelto (repite)
+                    // Facil/Medio desde tramo 9, Dificil desde tramo 5: el terrestre "suelto" tambien sale en pareja
                     const pattern = spawnPatternIndexRef.current % 3;
                     aerial = pattern === 1;
-                    const wouldBePair = pattern === 0 || (pattern === 2 && tierNow >= DOUBLE_SOLO_UNLOCK_TIER);
+                    const wouldBePair = pattern === 0 || (pattern === 2 && tierNow >= doubleSoloUnlockTier);
                     // Dificultad del jugador: en Facil nunca hay pareja, en Medio sale rara vez,
                     // en Dificil es el comportamiento de siempre (fijo segun el patron). Limite natural:
                     // en Facil, a partir de FACIL_HARD_SWITCH_TIER se comporta como Dificil, para que no
@@ -1598,10 +1644,11 @@ export default function RunnerScreen({
     const playerPowerObstacleImg = stage === 'boss'
         ? (ATTACK_PLAYER_ELEMENT_IMGS[DogsConfig[selectedDogId]?.element] ?? ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element])
         : ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
+    const isLibre = runMode === 'arcade' && arcadeSubMode === 'libre';
     const biomeSceneClass = (arcadeSubMode === 'biome' || runMode === 'historia') && selectedBiomeId
         ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}`
         : arcadeSubMode === 'libre'
-            ? ` runner-track-scene-libre-${libreSceneIndex}`
+            ? ` runner-track-scene-libre-${libreSceneKey}`
             : '';
     const skyOverlayClass = `runner-sky-overlay${(arcadeSubMode === 'biome' || runMode === 'historia') && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
     const lootRunsLeftToday = Math.max(0, MAX_FULL_LOOT_RUNS_PER_DAY - fullLootRunsToday);
@@ -1616,8 +1663,34 @@ export default function RunnerScreen({
                     <button className="modal-close" onClick={onClose}><X /></button>
                 )}
 
+                {rouletteOpen && (
+                    <div className="runner-roulette-overlay">
+                        <p className={`runner-roulette-label${rouletteSettled ? ' runner-roulette-label-visible' : ''}`}>
+                            {LIBRE_SCENE_LABELS[rouletteSequence[rouletteSequence.length - 1]]}
+                        </p>
+                        <div className={`runner-roulette-viewport${rouletteSettled ? ' runner-roulette-viewport-settled' : ''}`}>
+                            <div
+                                className="runner-roulette-track"
+                                style={{
+                                    width: `${rouletteSequence.length * 100}%`,
+                                    transform: `translateX(-${rouletteSpinning ? (rouletteSequence.length - 1) / rouletteSequence.length * 100 : 0}%)`,
+                                    transition: rouletteSpinning ? `transform ${ROULETTE_SPIN_MS}ms cubic-bezier(0.25, 0.35, 0.1, 1)` : 'none',
+                                }}
+                            >
+                                {rouletteSequence.map((idx, i) => (
+                                    <div
+                                        key={i}
+                                        className={`runner-roulette-frame runner-track-scene-libre-${idx}`}
+                                        style={{ width: `${100 / rouletteSequence.length}%` }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="runner-tracks">
-                    {phase !== 'ready' && (
+                    {phase !== 'ready' && !isLibre && (
                         <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
                             {phase === 'playing' && stage === 'cpu' && <div className={skyOverlayClass} />}
@@ -1648,7 +1721,7 @@ export default function RunnerScreen({
                         </div>
                     )}
 
-                    <div className={`runner-track runner-track-player${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
+                    <div className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`} ref={trackRef}>
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
@@ -1755,7 +1828,7 @@ export default function RunnerScreen({
                                     <p className="runner-overlay-title">{runMode === 'historia' && selectedChapter ? `Capítulo ${selectedChapter}` : 'Corre y esquiva'}</p>
                                     <button
                                         className="runner-start-btn"
-                                        onClick={runMode === 'arcade' ? () => { setArcadeSubMode('libre'); resetGame(); } : resetGame}
+                                        onClick={runMode === 'arcade' ? startLibreRoulette : resetGame}
                                     >Empezar</button>
                                     {runMode === 'arcade' && (
                                         <p className="runner-loot-limit-text">

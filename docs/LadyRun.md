@@ -12,10 +12,10 @@ Minijuego "corre y esquiva" dentro de Lady Hungry. Componente aislado (`src/scre
 
 ## Modos
 
-Pantalla única de selección con 3 botones: **Modo Libre**, **Historia**, **Tienda**. (Historia estuvo bloqueada un tiempo mientras se pulía Modo Libre; ya está desbloqueada.)
+Pantalla única de selección con 3 botones: **Modo Libre**, **Historia**, **Tienda**. Historia y Tienda están bloqueados de nuevo (candado, `.runner-mode-btn-locked`) desde el 2026-09-02 — solo Modo Libre es jugable ahora mismo.
 
-- **Modo Libre**: carrera infinita 1v1 contra un rival CPU — al dejarlo sin sus 3 vidas no termina la partida, rota a otro perro rival al azar (`rivalsDefeated`, contador con icono `Skull`). Sin poderes, sin boss. Sus fondos (`libre-1` a `libre-4`) incluyen uno con temática desierto (`libre-1`) — eso es solo un fondo de Modo Libre, no tiene relación con los capítulos de Historia.
-- **Historia**: CPU 1v1 + poderes de sabotaje + fase boss al vencerla. **En curso: se va a organizar por capítulos**, cada uno con su propio escenario encadenado. Capítulo 1 = Mina, Capítulo 2 = Ciudad. El sistema de biomas (`BIOMES`, `BIOME_ORDER`, `checkpointOpen`, `biomeSelectOpen` en `RunnerScreen.jsx`) ya existía construido pero desconectado de la UI — solo tenía **Mina y Ciudad** como biomas reales (`desierto` nunca pasó de ser un comentario reservado en el código, sin escenarios propios ni obstáculos exclusivos — no confundir con el fondo "desierto" de Modo Libre, que es una cosa aparte). Diseño de la pantalla de capítulos: al entrar en Historia, se muestra una lista de capítulos pegada a la derecha (mismo estilo que la lista Modo Libre/Historia/Tienda de la pantalla anterior). Sin implementar todavía.
+- **Modo Libre**: carrera infinita en solitario, sin rival CPU visible (la card de arriba no se renderiza en este modo, `isLibre`) ni poderes ni boss. 5 fondos con nombre propio en `escenarios-run-libre/` (`libre-bosque`, `libre-ciudad`, `libre-desierto`, `libre-minas`, `libre-pradera`; el de `libre-ciudad` también se reutiliza como 4º escenario del capítulo Ciudad en Historia). Se sortea 1 al pulsar Empezar, revelado con un efecto de ruleta (tira de fondos deslizándose en horizontal, frenando hasta pararse en el elegido) antes de arrancar la partida.
+- **Historia** (bloqueada, ver arriba): CPU 1v1 + poderes de sabotaje → fase boss al vencerla, organizada en capítulos (Capítulo 1 = Mina, Capítulo 2 = Ciudad), cada uno con 3 escenarios encadenados y su propio checkpoint ("Continuar" entre escenarios, "Reclamar" solo en el último). Pendiente de un repaso a fondo de esta sección de la doc, desactualizada desde antes del trabajo de combate de boss de esta semana.
 
 ## Roster de perros
 
