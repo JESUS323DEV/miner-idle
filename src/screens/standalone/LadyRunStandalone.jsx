@@ -22,7 +22,7 @@ const LadyRunStandalone = () => {
     const loaded = usePreloadImages(RUNNER_CORE_PRELOAD_IMAGES);
     const musicVolume = (() => {
         const saved = localStorage.getItem('music_volume_ladyrun');
-        return saved === null ? 0.08 : parseFloat(saved);
+        return saved === null ? 0.06 : parseFloat(saved);
     })();
     useBackgroundMusic(musicVolume);
 
