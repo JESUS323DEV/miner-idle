@@ -262,15 +262,15 @@ const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
 const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
 const AERIAL_MAX_Y = 130;
-// Franja del corazon cuando toca cogerlo saltando (va emparejado con un obstaculo terrestre): mas arriba
-// que la franja normal de peligro aereo, cerca del pico del salto sencillo (~96px) donde el perro se
-// queda "flotando" un instante (velocidad vertical casi 0), asi da mas margen de timing para cogerlo.
-const HEART_AERIAL_MIN_Y = 90;
-const HEART_AERIAL_MAX_Y = 130;
-const CHAPA_AERIAL_MIN_Y = 95; // mismo espiritu que la franja del corazon, un poco mas arriba todavia
-const CHAPA_AERIAL_MAX_Y = 130;
 const CHAPA_LEAD_OFFSET_PX = 30; // la chapa del 1er terrestre nace un poco antes que el obstaculo (llega antes al jugador)
 const PICKUP_SIZE = 38; // corazon/tavern coin/chapa son un pelin mas pequeños que un obstaculo normal (46)
+// Altura real (bottom, en px) a la que se dibuja cada pickup aereo en pantalla -- coincide con el CSS
+// (.runner-obstacle-aerial / .runner-obstacle-heart.runner-obstacle-aerial / .runner-obstacle-chapa.runner-obstacle-aerial).
+// La colision se calcula contra esta posicion real, no una franja aparte, para que si el perro lo toca
+// visualmente siempre cuente (sea con salto simple o doble), igual que la colision del boss.
+const COIN_AERIAL_ICON_BOTTOM = 92;
+const HEART_AERIAL_ICON_BOTTOM = 110;
+const CHAPA_AERIAL_ICON_BOTTOM = 120;
 const PICKUP_COLLECT_ANIM_MS = 350; // se paran en el sitio y se encogen/desvanecen al recogerlos
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
@@ -467,6 +467,8 @@ export default function RunnerScreen({
     onConsumePendingHearts,
     fullLootRunsByDifficulty,
     onGameOverRun,
+    dailyTramosClaimedByDifficulty,
+    onClaimDailyTramos,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -475,6 +477,8 @@ export default function RunnerScreen({
     onEarnChapasRef.current = onEarnChapas;
     const onEarnHuesinRef = useRef(onEarnHuesin);
     onEarnHuesinRef.current = onEarnHuesin;
+    const onClaimDailyTramosRef = useRef(onClaimDailyTramos);
+    onClaimDailyTramosRef.current = onClaimDailyTramos;
 
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -487,6 +491,7 @@ export default function RunnerScreen({
     const [cpuDogId, setCpuDogId] = useState('gordo');
     const [difficulty, setDifficulty] = useState('facil');
     const fullLootRunsToday = fullLootRunsByDifficulty?.[difficulty] ?? 0;
+    const dailyTramosClaimedToday = dailyTramosClaimedByDifficulty?.[difficulty] ?? 0; // tramos de "meta" ya cobrados hoy en esta dificultad, no vuelven a pagar
     const [lives, setLives] = useState(MAX_LIVES);
     const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
@@ -754,9 +759,12 @@ export default function RunnerScreen({
 
     const claimRunMilestoneRewards = useCallback((totalCrossed) => {
         const rewards = RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil;
+        // Solo se pagan los tramos que hoy, en esta dificultad, todavia no se habian cobrado (evita
+        // farmear repitiendo runs): si esta run no llega mas lejos que lo ya cobrado hoy, no da nada
+        // nuevo, pero tampoco pierde el progreso ya guardado para el siguiente intento.
         let totalCoins = runTrackCoinsCollectedRef.current;
         let totalHuesin = 0;
-        for (let i = 0; i < totalCrossed; i++) {
+        for (let i = dailyTramosClaimedToday; i < totalCrossed; i++) {
             const r = rewards[i % 3]; // la tabla de 3 tramos se repite cada fase
             totalCoins += r?.tavernCoins ?? 0;
             totalHuesin += r?.huesin ?? 0;
@@ -765,10 +773,11 @@ export default function RunnerScreen({
         if (totalCoins > 0) onEarnTavernCoinsRef.current?.(totalCoins);
         if (totalHuesin > 0) onEarnHuesinRef.current?.(totalHuesin);
         if (totalChapas > 0) onEarnChapasRef.current?.(totalChapas);
+        if (totalCrossed > dailyTramosClaimedToday) onClaimDailyTramosRef.current?.(difficulty, totalCrossed);
         setRunCoinsEarned(totalCoins);
         setRunHuesinEarned(totalHuesin);
         setRunChapasEarned(totalChapas);
-    }, [difficulty]);
+    }, [difficulty, dailyTramosClaimedToday]);
 
     const resetGame = useCallback((forcedLibreSceneKey) => {
         resetStats();
@@ -1537,6 +1546,12 @@ export default function RunnerScreen({
                 }
             }
 
+            // Solape real perro-icono para pickups aereos: caja del perro (altura real en pantalla)
+            // contra la caja del icono (su bottom real en CSS + su tamaño), no una franja aparte.
+            const dogBottomReal = dogYRef.current + GROUND_VISUAL_OFFSET;
+            const dogTopReal = dogBottomReal + DOG_SIZE;
+            const touchesAerialIcon = (iconBottom) => dogTopReal > iconBottom && dogBottomReal < iconBottom + PICKUP_SIZE;
+
             // Recogida de corazones: independiente de la invulnerabilidad por golpe, se puede coger
             // aunque acabes de perder una vida.
             let heartCollected = false;
@@ -1545,7 +1560,7 @@ export default function RunnerScreen({
                 const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                 if (!overlapX) continue;
                 const inHeartZone = o.aerial
-                    ? (dogYRef.current > HEART_AERIAL_MIN_Y && dogYRef.current < HEART_AERIAL_MAX_Y)
+                    ? touchesAerialIcon(HEART_AERIAL_ICON_BOTTOM)
                     : (dogYRef.current < o.clearY);
                 if (inHeartZone) {
                     o.hit = true;
@@ -1562,7 +1577,7 @@ export default function RunnerScreen({
                 const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                 if (!overlapX) continue;
                 const inCoinZone = o.aerial
-                    ? (dogYRef.current > AERIAL_MIN_Y && dogYRef.current < AERIAL_MAX_Y)
+                    ? touchesAerialIcon(COIN_AERIAL_ICON_BOTTOM)
                     : (dogYRef.current < o.clearY);
                 if (inCoinZone) {
                     o.hit = true;
@@ -1582,7 +1597,7 @@ export default function RunnerScreen({
                 const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
                 if (!overlapX) continue;
                 const inChapaZone = o.aerial
-                    ? (dogYRef.current > CHAPA_AERIAL_MIN_Y && dogYRef.current < CHAPA_AERIAL_MAX_Y)
+                    ? touchesAerialIcon(CHAPA_AERIAL_ICON_BOTTOM)
                     : (dogYRef.current < o.clearY);
                 if (inChapaZone) {
                     o.hit = true;

@@ -664,6 +664,20 @@ const RaidScreen = ({
                             const current = byDiff[diff]?.rotationKey === key ? byDiff[diff].count : 0;
                             return { ...prev, ladyRunDailyRuns: { ...byDiff, [diff]: { rotationKey: key, count: current + 1 } } };
                         })}
+                        dailyTramosClaimedByDifficulty={(() => {
+                            const key = getHuntRotationKey(gameState.debugDayOffset ?? 0);
+                            const byDiff = gameState.ladyRunDailyTramos ?? {};
+                            return {
+                                facil: byDiff.facil?.rotationKey === key ? (byDiff.facil.count ?? 0) : 0,
+                                medio: byDiff.medio?.rotationKey === key ? (byDiff.medio.count ?? 0) : 0,
+                                dificil: byDiff.dificil?.rotationKey === key ? (byDiff.dificil.count ?? 0) : 0,
+                            };
+                        })()}
+                        onClaimDailyTramos={(diff, count) => setGameState(prev => {
+                            const key = getHuntRotationKey(prev.debugDayOffset ?? 0);
+                            const byDiff = prev.ladyRunDailyTramos ?? {};
+                            return { ...prev, ladyRunDailyTramos: { ...byDiff, [diff]: { rotationKey: key, count } } };
+                        })}
                     />
                 )}
 
