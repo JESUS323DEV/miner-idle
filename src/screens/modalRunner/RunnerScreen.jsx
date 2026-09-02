@@ -1766,8 +1766,11 @@ export default function RunnerScreen({
                     const next = prev - 1;
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
-                        if (arcadeSubMode === 'libre') claimRunMilestoneRewards(runTotalMilestonesRef.current);
-                        setTimeout(() => { setWon(false); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                        setTimeout(() => {
+                            if (arcadeSubMode === 'libre') claimRunMilestoneRewards(runTotalMilestonesRef.current);
+                            setWon(false);
+                            setPhase('gameover');
+                        }, GAME_END_DELAY_MS);
                     }
                     return next;
                 });
@@ -2089,7 +2092,9 @@ export default function RunnerScreen({
                                     const reward = (RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil)[i];
                                     const rewardIcon = reward?.huesin ? huesinIcon : tavernCoinIcon;
                                     const rewardAmount = reward?.huesin ?? reward?.tavernCoins ?? 0;
-                                    const reached = runMilestoneIndex >= i;
+                                    const currentPhaseIndex = Math.floor(runTotalMilestonesRef.current / 3);
+                                    const claimedToday = (currentPhaseIndex * 3 + i) < dailyTramosClaimedToday;
+                                    const reached = runMilestoneIndex >= i || claimedToday;
                                     return (
                                         <div key={i} className="runner-progress-mark-group" style={{ left: `${pct}%` }}>
                                             <span className={`runner-progress-mark-reward${reached ? ' runner-progress-mark-reward-claimed' : ''}`}>
@@ -2135,12 +2140,6 @@ export default function RunnerScreen({
                             </button>
                         )}
                     </div>
-                )}
-
-                {phase === 'playing' && (
-                    <button className="runner-pause-btn" onClick={() => setPaused(p => !p)}>
-                        {paused ? 'REANUDAR' : 'PAUSAR'}
-                    </button>
                 )}
 
                 {phase === 'playing' && (
