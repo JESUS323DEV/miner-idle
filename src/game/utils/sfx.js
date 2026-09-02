@@ -66,7 +66,7 @@ export const sfxReady = Promise.all(
 
 const loopingSources = {};
 
-export const playBuffer = (key) => {
+export const playBuffer = (key, volumeKey = 'sfx_volume') => {
     if (!audioCtx || !buffers[key]) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const { offset = 0, duration, gain: gainMult = 1.0, loop = false } = SFX_CONFIG[key] ?? {};
@@ -75,7 +75,7 @@ export const playBuffer = (key) => {
     source.buffer = buffers[key];
     source.loop = loop;
     const gain = audioCtx.createGain();
-    gain.gain.value = parseFloat(localStorage.getItem('sfx_volume') ?? '0.09') * gainMult;
+    gain.gain.value = parseFloat(localStorage.getItem(volumeKey) ?? '0.09') * gainMult;
     source.connect(gain);
     gain.connect(audioCtx.destination);
     source.start(0, offset);

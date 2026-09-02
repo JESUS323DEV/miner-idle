@@ -1595,7 +1595,7 @@ export default function RunnerScreen({
             if (coinsCollected > 0) {
                 if (arcadeSubMode === 'libre') runTrackCoinsCollectedRef.current += coinsCollected;
                 else onEarnTavernCoinsRef.current?.(coinsCollected);
-                playSfx('rewardShards');
+                playSfx('rewardShards', 'sfx_volume_ladyrun');
             }
 
             // Recogida del regalo de chapas (1er terrestre/aereo de la partida).
@@ -1616,7 +1616,7 @@ export default function RunnerScreen({
             if (chapasCollected > 0) {
                 runChapasCollectedRef.current += chapasCollected;
                 setRunChapasEarned(c => c + chapasCollected);
-                playSfx('rewardGold');
+                playSfx('rewardGold', 'sfx_volume_ladyrun');
             }
 
             // Colision jugador
