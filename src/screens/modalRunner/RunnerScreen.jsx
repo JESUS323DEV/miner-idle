@@ -7,6 +7,7 @@ import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hu
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
+import { playSfx } from '../../game/utils/sfx.js';
 import LadyRunShopModal from './LadyRunShopModal.jsx';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -1594,6 +1595,7 @@ export default function RunnerScreen({
             if (coinsCollected > 0) {
                 if (arcadeSubMode === 'libre') runTrackCoinsCollectedRef.current += coinsCollected;
                 else onEarnTavernCoinsRef.current?.(coinsCollected);
+                playSfx('rewardShards');
             }
 
             // Recogida del regalo de chapas (1er terrestre/aereo de la partida).
@@ -1614,6 +1616,7 @@ export default function RunnerScreen({
             if (chapasCollected > 0) {
                 runChapasCollectedRef.current += chapasCollected;
                 setRunChapasEarned(c => c + chapasCollected);
+                playSfx('rewardGold');
             }
 
             // Colision jugador
