@@ -83,6 +83,15 @@ import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/esce
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
 import escenarioCiudad4 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-ciudad.webp'; // tambien vale como escenario de Ciudad (skyline)
 
+// Versiones estaticas (ligeras, no animadas) de los fondos de Modo Libre, solo para los fotogramas
+// de relleno de la ruleta: los animados pesan 6-15MB cada uno, renderizar 20 copias a la vez del
+// animado iba fatal en movil. El fotograma final (el que se queda) SI usa el animado real.
+import libreStaticBosque from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-bosque-estatica.webp';
+import libreStaticCiudad from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-ciudad-estatica.webp';
+import libreStaticDesierto from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp';
+import libreStaticMinas from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-minas-estatica.webp';
+import libreStaticPradera from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp';
+
 import '../../styles/modals/RunnerScreen.css';
 
 // Misma paleta que ELEMENT_ICON de CombatScreen.jsx, replicada aqui a proposito (componente aislado, ver feedback_sistemas_aislados)
@@ -190,6 +199,13 @@ const LIBRE_SCENE_LABELS = {
     minas: 'Minas',
     pradera: 'Pradera',
 };
+const LIBRE_SCENE_STATIC_IMGS = {
+    bosque: libreStaticBosque,
+    ciudad: libreStaticCiudad,
+    desierto: libreStaticDesierto,
+    minas: libreStaticMinas,
+    pradera: libreStaticPradera,
+};
 
 // Efecto ruleta al pulsar Empezar en Modo Libre: una tira de escenarios se desliza en horizontal
 // (frame a frame, uno sale por la izquierda mientras el siguiente entra por la derecha), frenando
@@ -198,6 +214,10 @@ const LIBRE_SCENE_LABELS = {
 const ROULETTE_STRIP_LENGTH = 20; // frames en la tira (varias vueltas a los 5 escenarios + el final)
 const ROULETTE_SPIN_MS = 2600;
 const ROULETTE_SETTLE_MS = 1500;
+
+// Cuenta atras (3, 2, 1, ¡Ya!) antes de que arranque cualquier partida: la partida ya esta en
+// phase 'playing' pero en pausa hasta que termina, para que no se pueda perder nada antes de tiempo.
+const COUNTDOWN_STEP_MS = 700;
 const GRAVITY = 2200;
 const JUMP_VELOCITY = 780;          // impulso del salto completo / del 2o salto
 const JUMP_VELOCITY_SINGLE = 650;   // impulso del 1er salto (solo), mas margen que a media altura
@@ -449,6 +469,7 @@ export default function RunnerScreen({
     const [rouletteSequence, setRouletteSequence] = useState([]);
     const [rouletteSpinning, setRouletteSpinning] = useState(false);
     const [rouletteSettled, setRouletteSettled] = useState(false);
+    const [countdownValue, setCountdownValue] = useState(null); // 3,2,1,0 (0 = "¡Ya!"), null = sin cuenta atras
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
     const [selectedBiomeId, setSelectedBiomeId] = useState(null); // key de BIOMES cuando arcadeSubMode === 'biome'
@@ -689,6 +710,21 @@ export default function RunnerScreen({
         runIsReducedRef.current = fullLootRunsToday >= MAX_FULL_LOOT_RUNS_PER_DAY;
         chapaSpawnCapRef.current = runIsReducedRef.current ? (1 + Math.floor(Math.random() * 2)) : Infinity;
         setPhase('playing');
+        // La partida empieza en pausa (el bucle principal no arranca mientras paused===true) hasta
+        // que termina la cuenta atras, para que no se pueda perder una vida antes de estar listo.
+        setPaused(true);
+        setCountdownValue(3);
+        let step = 3;
+        const countdownTick = () => {
+            step -= 1;
+            setCountdownValue(step >= 0 ? step : null);
+            if (step > -1) {
+                setTimeout(countdownTick, COUNTDOWN_STEP_MS);
+            } else {
+                setPaused(false);
+            }
+        };
+        setTimeout(countdownTick, COUNTDOWN_STEP_MS);
     }, [resetStats, selectedDogId, pendingHeartsBonus, onConsumePendingHearts, fullLootRunsToday]);
 
     const startLibreRoulette = useCallback(() => {
@@ -1677,15 +1713,29 @@ export default function RunnerScreen({
                                     transition: rouletteSpinning ? `transform ${ROULETTE_SPIN_MS}ms cubic-bezier(0.25, 0.35, 0.1, 1)` : 'none',
                                 }}
                             >
-                                {rouletteSequence.map((idx, i) => (
-                                    <div
-                                        key={i}
-                                        className={`runner-roulette-frame runner-track-scene-libre-${idx}`}
-                                        style={{ width: `${100 / rouletteSequence.length}%` }}
-                                    />
-                                ))}
+                                {rouletteSequence.map((idx, i) => {
+                                    const isFinalFrame = i === rouletteSequence.length - 1;
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`runner-roulette-frame${isFinalFrame ? ` runner-track-scene-libre-${idx}` : ''}`}
+                                            style={{
+                                                width: `${100 / rouletteSequence.length}%`,
+                                                backgroundImage: isFinalFrame ? undefined : `url(${LIBRE_SCENE_STATIC_IMGS[idx]})`,
+                                            }}
+                                        />
+                                    );
+                                })}
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {countdownValue !== null && (
+                    <div className="runner-countdown-overlay">
+                        <span key={countdownValue} className="runner-countdown-value">
+                            {countdownValue > 0 ? countdownValue : '¡Ya!'}
+                        </span>
                     </div>
                 )}
 

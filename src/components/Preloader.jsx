@@ -339,6 +339,11 @@ import runnerFondoRunCiudad from "../assets/ui/icons-hud/hud-modals/game-run/esc
 import runnerFondoRunDesierto from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp"
 import runnerFondoRunMinas from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-minas.webp"
 import runnerFondoRunPradera from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-pradera.webp"
+import runnerLibreStaticBosque from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-bosque-estatica.webp"
+import runnerLibreStaticCiudad from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-ciudad-estatica.webp"
+import runnerLibreStaticDesierto from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp"
+import runnerLibreStaticMinas from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-minas-estatica.webp"
+import runnerLibreStaticPradera from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp"
 import runnerEscenarioMina1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-1.webp"
 import runnerEscenarioMina2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-2.webp"
 import runnerEscenarioMina3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-1/escenario-mina-3.webp"
@@ -579,6 +584,7 @@ const IMAGES = [
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
     runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon,
+    runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera,
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,
