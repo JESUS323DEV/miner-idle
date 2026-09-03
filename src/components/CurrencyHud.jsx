@@ -2,6 +2,7 @@ import { formatNumber, formatNumber2 } from '../game/utils/formatters.js';
 import chapaIcon from '../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import coinTavern from '../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import huesinCoin from '../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
+import LadyRunSoundSettings from './LadyRunSoundSettings.jsx';
 import '../styles/components/CurrencyHud.css';
 
 /**
@@ -22,6 +23,7 @@ const CurrencyHud = ({ chapas = 0, tavernCoins = 0, huesin = 0 }) => (
             <img src={huesinCoin} alt="Huesín" />
             <span>{formatNumber(huesin)}</span>
         </div>
+        <LadyRunSoundSettings />
     </div>
 );
 

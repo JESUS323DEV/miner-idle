@@ -8,6 +8,8 @@ import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/c
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
+import { useLadyRunMusic } from '../../game/hooks/useLadyRunMusic.js';
+import { LIBRE_SCENE_MUSIC, MINAS_MUSIC_TRACKS } from './runnerMusic.js';
 import LadyRunShopModal from './LadyRunShopModal.jsx';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
@@ -507,6 +509,23 @@ export default function RunnerScreen({
     const [countdownValue, setCountdownValue] = useState(null); // 3,2,1,0 (0 = "¡Ya!"), null = sin cuenta atras
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
+    const [libreMusicTrack, setLibreMusicTrack] = useState(null);
+    // Musica de Modo Libre: 1 pista fija por escenario exterior, minas (unico interior) sortea entre
+    // sus 2 pistas cada vez que se entra ahi. Fuera de Modo Libre, o mientras gira la ruleta (el
+    // escenario todavia no es el definitivo), sin musica de escenario -- solo el SFX de la ruleta.
+    useEffect(() => {
+        if (arcadeSubMode !== 'libre' || rouletteOpen) { setLibreMusicTrack(null); return; }
+        if (libreSceneKey === 'minas') {
+            setLibreMusicTrack(MINAS_MUSIC_TRACKS[Math.floor(Math.random() * MINAS_MUSIC_TRACKS.length)]);
+        } else {
+            setLibreMusicTrack(LIBRE_SCENE_MUSIC[libreSceneKey] ?? null);
+        }
+    }, [arcadeSubMode, libreSceneKey, rouletteOpen]);
+    const musicVolume = (() => {
+        const saved = localStorage.getItem('music_volume_ladyrun');
+        return saved === null ? 0.06 : parseFloat(saved);
+    })();
+    useLadyRunMusic(libreMusicTrack, musicVolume);
     const [selectedBiomeId, setSelectedBiomeId] = useState(null); // key de BIOMES cuando arcadeSubMode === 'biome'
     const [score, setScore] = useState(0);
     const [speedTierDisplay, setSpeedTierDisplay] = useState(1);
@@ -633,6 +652,7 @@ export default function RunnerScreen({
             doubleJumpUsedRef.current = true;
             velocityRef.current = JUMP_VELOCITY;
             setCanDoubleJump(false);
+            playSfx('sendRaid', 'sfx_volume_ladyrun');
         }
     }, [phase, paused]);
 
@@ -822,12 +842,16 @@ export default function RunnerScreen({
         setRouletteSpinning(false);
         setRouletteSettled(false);
         setRouletteOpen(true);
+        playSfx('roulette', 'sfx_volume_ladyrun');
         // Doble rAF: deja pintar la tira en su posicion inicial (sin transition) antes de activar
         // el movimiento, si no el navegador puede saltarse la transicion entera.
         requestAnimationFrame(() => {
             requestAnimationFrame(() => setRouletteSpinning(true));
         });
-        setTimeout(() => setRouletteSettled(true), ROULETTE_SPIN_MS);
+        setTimeout(() => {
+            setRouletteSettled(true);
+            playSfx('selectScene', 'sfx_volume_ladyrun');
+        }, ROULETTE_SPIN_MS);
         setTimeout(() => {
             setRouletteOpen(false);
             resetGame(finalScene);
@@ -1575,7 +1599,10 @@ export default function RunnerScreen({
                     heartCollected = true;
                 }
             }
-            if (heartCollected) setLives(l => l + 1);
+            if (heartCollected) {
+                setLives(l => l + 1);
+                playSfx('heal', 'sfx_volume_ladyrun');
+            }
 
             // Recogida de tavern coins: mismo criterio, independiente de la invulnerabilidad.
             let coinsCollected = 0;
@@ -1771,6 +1798,7 @@ export default function RunnerScreen({
                 invulnUntilRef.current = now + HIT_INVULN_MS;
                 setHitFlash(true);
                 setTimeout(() => setHitFlash(false), HIT_INVULN_MS);
+                playSfx('hitPlayer', 'sfx_volume_ladyrun');
                 setLives(prev => {
                     const next = prev - 1;
                     if (next <= 0 && !endingRef.current) {
