@@ -4,8 +4,6 @@
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
 import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
 import gordoJump from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
@@ -101,7 +99,7 @@ import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp
 // Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
 // mismo, Historia/Tienda estan bloqueados). Esto es lo que bloquea la pantalla de carga inicial.
 export const RUNNER_CORE_PRELOAD_IMAGES = [
-    ladyRun1, ladyRun2, ladyRun3, ladyRun4,
+    ladyRun1, ladyRun2,
     gordoRun1, gordoJump,
     munaRun1, munaJump,
     nupitoRun1, nupitoJump,

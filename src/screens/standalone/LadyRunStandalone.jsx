@@ -100,6 +100,11 @@ const LadyRunStandalone = () => {
                     const byDiff = prev.ladyRunDailyTramos ?? {};
                     return { ...prev, ladyRunDailyTramos: { ...byDiff, [diff]: { rotationKey: key, count } } };
                 })}
+                bestDistanceByDog={gameState.ladyRunBestDistance ?? {}}
+                onNewDistanceRecord={(dogId, meters) => setGameState(prev => ({
+                    ...prev,
+                    ladyRunBestDistance: { ...(prev.ladyRunBestDistance ?? {}), [dogId]: meters },
+                }))}
             />
         </>
     );

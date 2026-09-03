@@ -1,3 +1,4 @@
+import bgPrincipalTrack from '../../assets/audio/lady-run/bg-principal.mp3';
 import bosqueTrack from '../../assets/audio/lady-run/sound-exterior/bosque-1-exterior.mp3';
 import ciudadTrack from '../../assets/audio/lady-run/sound-exterior/run-exterior.mp3';
 import desiertoTrack from '../../assets/audio/lady-run/sound-exterior/run-exterior-2-trim.mp3';
@@ -18,3 +19,6 @@ export const LIBRE_SCENE_MUSIC = {
 };
 
 export const MINAS_MUSIC_TRACKS = [interiorTrack1, interiorTrack2];
+
+// Suena en las pantallas de seleccion (antes de darle a Empezar), en Modo Libre y las demas por ahora.
+export const BG_PRINCIPAL_TRACK = bgPrincipalTrack;

@@ -299,8 +299,6 @@ import tutorialForja from "../assets/tutorial/mascotas/forja.webp"
 // ===== RAIDS PASIVAS: SPRITES CORRIENDO =====
 import ladyRunP1 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp"
 import ladyRunP2 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp"
-import ladyRunP3 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp"
-import ladyRunP4 from "../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp"
 import ladyWaitP1 from "../assets/ui/lady-sprite/lady-wait/wait-2/lady300.webp"
 import ladyWaitP2 from "../assets/ui/lady-sprite/lady-wait/wait-2/lady-sitlady-sit.webp"
 import gordoRunP1 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp"
@@ -578,7 +576,7 @@ const IMAGES = [
     // tutorial
     tutorialPrincipal, tutorialMina, tutorialForja,
     // raids pasivas: sprites corriendo
-    ladyRunP1, ladyRunP2, ladyRunP3, ladyRunP4, ladyWaitP1, ladyWaitP2,
+    ladyRunP1, ladyRunP2, ladyWaitP1, ladyWaitP2,
     gordoRunP1, gordoRunP2, gordoRunP3, gordoRunP4,
     munaRunP1, munaRunP2, munaRunP3, munaRunP4,
     nupitoRunP1, nupitoRunP2, nupitoRunP3, nupitoRunP4,

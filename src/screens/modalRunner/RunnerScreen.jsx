@@ -1,25 +1,36 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Heart, Flag } from 'lucide-react';
+import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Flag } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import lifeDogIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/life-dog.webp';
+import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-0.webp';
+import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
+import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
+import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
+import lifeHeart3Broken1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1.webp';
+import lifeHeart3Broken2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1-2.webp';
+import lifeHeart3Broken3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1-3.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
 import { useLadyRunMusic } from '../../game/hooks/useLadyRunMusic.js';
-import { LIBRE_SCENE_MUSIC, MINAS_MUSIC_TRACKS } from './runnerMusic.js';
+import { LIBRE_SCENE_MUSIC, MINAS_MUSIC_TRACKS, BG_PRINCIPAL_TRACK } from './runnerMusic.js';
 import LadyRunShopModal from './LadyRunShopModal.jsx';
 
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
-import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
+import ladyJump from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
 import gordoJump from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
 import munaJump from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
+import munaGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-muna/muna-run-firme.webp';
+import druhGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-druh/druh-run-firme.webp';
+import gordoGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-gordo/gordo-run-firme.webp';
+import ladyGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-lady/lady-run-firme.webp';
+import nupitoGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-nupito/nupito-run-firme.webp';
 import nupitoRun1 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp';
 import nupitoJump from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
 import smokeRun1 from '../../assets/ui/lady-sprite/sprite-run/smoke-run/smoke-1.webp';
@@ -133,13 +144,13 @@ const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', '
 
 // Bloqueados temporalmente: su ciclo de correr todavia no esta animado (webp autoanimado como el resto),
 // se nota mucho mas tosco al lado de los que ya se pasaron. Se desbloquean cuando se animen.
-const LOCKED_DOG_IDS = ['lady', 'tuka', 'smoke', 'zeus', 'tokio', 'nupito'];
+const LOCKED_DOG_IDS = ['tuka', 'smoke', 'zeus', 'tokio'];
 const UNLOCKED_DOG_IDS = DOG_SELECT_ORDER.filter(id => !LOCKED_DOG_IDS.includes(id));
 // Desbloqueados primero (en su orden habitual), bloqueados al final.
 const DOG_SELECT_DISPLAY_ORDER = [...UNLOCKED_DOG_IDS, ...DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id))];
 
 const DOG_RUN_FRAMES = {
-    lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
+    lady:   [ladyRun1, ladyRun1, ladyRun1, ladyRun1],
     gordo:  [gordoRun1, gordoRun1, gordoRun1, gordoRun1],
     muna:   [munaRun1, munaRun1, munaRun1, munaRun1],
     nupito: [nupitoRun1, nupitoRun1, nupitoRun1, nupitoRun1],
@@ -157,7 +168,23 @@ const DOG_JUMP_FRAME = {
     druh: druhJump,
     muna: munaJump,
     nupito: nupitoJump,
+    lady: ladyJump,
 };
+
+// Pose especifica al perder (game over), por ahora solo Muna tiene este asset.
+const DOG_GAMEOVER_IMG = {
+    muna: munaGameOver,
+    druh: druhGameOver,
+    gordo: gordoGameOver,
+    lady: ladyGameOver,
+    nupito: nupitoGameOver,
+};
+
+const LIFE_HEART_STATES = { 0: lifeHeart0, 1: lifeHeart1, 2: lifeHeart2, 3: lifeHeart3 };
+// Secuencia de rotura al perder una vida partiendo del corazon dorado (3 vidas). Solo tier 3 tiene
+// esto por ahora; el resto de tiers se quedan con el cambio instantaneo hasta que haya assets propios.
+const HEART_BREAK_FRAMES = { 3: [lifeHeart3Broken1], 2: [lifeHeart3Broken2, lifeHeart3Broken3] };
+const HEART_BREAK_FRAME_MS = 130;
 
 const DOG_ICONS = {
     lady: ladyIcon, gordo: gordoIcon, muna: munaIcon, nupito: nupitoIcon,
@@ -257,10 +284,21 @@ const TRAMO2_DURATION_FACIL_MS = 10000; // en Facil, tramo2 dura 10s en vez de 5
 const SPEED_RAMP_STEP = 20;   // px/s que se suma cada SPEED_RAMP_MS tras agotar los tramos
 const SPEED_RAMP_MS = 10000;
 const SPEED_MAX = 700;
+const METERS_PER_PX = 25; // escala cosmetica px->metros para el resumen de distancia de Modo Libre, sin relacion fisica real
 const SPAWN_MIN_MS = 1100;
 const SPAWN_MAX_MS = 1900;
 const DOG_X = 10; // pegado a la izquierda (era 40), asi el proyectil recorre mas distancia visible en fase boss
 const DOG_SIZE = 64;
+// Solo en Modo Libre: tamaño real (visual + colision de peligro) segun el porte de cada perro.
+// El margen resta un poco de caja de colision extra sobre el tamaño visual (perdona algo de golpe),
+// mayor cuanto mas grande es el perro, para compensar tener mas caja que golpear.
+const DOG_SIZE_TIER = {
+    nupito: 'small', zeus: 'small',
+    lady: 'medium', druh: 'medium',
+    gordo: 'large', smoke: 'large', tokio: 'large', tuka: 'large', muna: 'large',
+};
+const DOG_TIER_VISUAL_SIZE = { small: 48, medium: 56, large: 64 };
+const DOG_TIER_HIT_MARGIN = { small: 0, medium: 3, large: 6 };
 const OBSTACLE_SIZE = 46;
 const OBSTACLE_CLEAR_Y = OBSTACLE_SIZE * 0.75;
 const AERIAL_MIN_Y = 85;   // franja de altura peligrosa de los obstaculos aereos
@@ -472,6 +510,8 @@ export default function RunnerScreen({
     onGameOverRun,
     dailyTramosClaimedByDifficulty,
     onClaimDailyTramos,
+    bestDistanceByDog,
+    onNewDistanceRecord,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -482,6 +522,8 @@ export default function RunnerScreen({
     onEarnHuesinRef.current = onEarnHuesin;
     const onClaimDailyTramosRef = useRef(onClaimDailyTramos);
     onClaimDailyTramosRef.current = onClaimDailyTramos;
+    const onNewDistanceRecordRef = useRef(onNewDistanceRecord);
+    onNewDistanceRecordRef.current = onNewDistanceRecord;
 
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -495,6 +537,7 @@ export default function RunnerScreen({
     const [difficulty, setDifficulty] = useState('facil');
     const fullLootRunsToday = fullLootRunsByDifficulty?.[difficulty] ?? 0;
     const dailyTramosClaimedToday = dailyTramosClaimedByDifficulty?.[difficulty] ?? 0; // tramos de "meta" ya cobrados hoy en esta dificultad, no vuelven a pagar
+    const bestMetersForDog = bestDistanceByDog?.[selectedDogId] ?? 0; // record de distancia guardado para el perro actual
     const [lives, setLives] = useState(MAX_LIVES);
     const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
@@ -510,17 +553,20 @@ export default function RunnerScreen({
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
     const [libreMusicTrack, setLibreMusicTrack] = useState(null);
-    // Musica de Modo Libre: 1 pista fija por escenario exterior, minas (unico interior) sortea entre
-    // sus 2 pistas cada vez que se entra ahi. Fuera de Modo Libre, o mientras gira la ruleta (el
-    // escenario todavia no es el definitivo), sin musica de escenario -- solo el SFX de la ruleta.
+    // Musica de Modo Libre: en las pantallas de seleccion (antes de darle a Empezar) suena
+    // bg-principal. Al darle a Empezar se corta (mientras gira la ruleta no suena musica, solo su
+    // SFX), y ya jugando suena 1 pista fija por escenario exterior, o minas (unico interior)
+    // sorteando entre sus 2 pistas cada vez que se entra ahi.
     useEffect(() => {
+        if (phase === 'gameover') { setLibreMusicTrack(null); return; }
+        if (phase === 'ready' && !rouletteOpen) { setLibreMusicTrack(BG_PRINCIPAL_TRACK); return; }
         if (arcadeSubMode !== 'libre' || rouletteOpen) { setLibreMusicTrack(null); return; }
         if (libreSceneKey === 'minas') {
             setLibreMusicTrack(MINAS_MUSIC_TRACKS[Math.floor(Math.random() * MINAS_MUSIC_TRACKS.length)]);
         } else {
             setLibreMusicTrack(LIBRE_SCENE_MUSIC[libreSceneKey] ?? null);
         }
-    }, [arcadeSubMode, libreSceneKey, rouletteOpen]);
+    }, [phase, arcadeSubMode, libreSceneKey, rouletteOpen]);
     const musicVolume = (() => {
         const saved = localStorage.getItem('music_volume_ladyrun');
         return saved === null ? 0.06 : parseFloat(saved);
@@ -540,11 +586,16 @@ export default function RunnerScreen({
     const runFlagElRef = useRef(null);
     const runTrackCoinsCollectedRef = useRef(0); // coins cogidas en pista, se pagan al perder
     const runChapasCollectedRef = useRef(0); // chapas cogidas en pista, se pagan al perder
+    const runDistanceRef = useRef(0); // distancia acumulada esta run (px), solo cosmetico para el resumen final
+    const [runMetersEarned, setRunMetersEarned] = useState(0);
+    const [runIsNewRecord, setRunIsNewRecord] = useState(false);
+    const [runBestMeters, setRunBestMeters] = useState(0);
     const [cpuAirborne, setCpuAirborne] = useState(false);
     const [obstacles, setObstacles] = useState([]); // solo {id, img}, la posicion real vive en refs
     const [attacks, setAttacks] = useState([]); // ataques de fase boss (jugador/boss), separados de los obstaculos de la carrera
     const [frameIdx, setFrameIdx] = useState(0);
     const [hitFlash, setHitFlash] = useState(false);
+    const [heartBreak, setHeartBreak] = useState(null); // {tier, frame} mientras se ve su animacion de romperse, null = normal
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [bossHitFlash, setBossHitFlash] = useState(false);
     const [bossWindingUp, setBossWindingUp] = useState(false);
@@ -757,10 +808,13 @@ export default function RunnerScreen({
         runPhaseStartAtRef.current = 0;
         runTrackCoinsCollectedRef.current = 0;
         runChapasCollectedRef.current = 0;
+        runDistanceRef.current = 0;
         setRunMilestoneIndex(-1);
         setRunCoinsEarned(0);
         setRunHuesinEarned(0);
         setRunChapasEarned(0);
+        setRunMetersEarned(0);
+        setRunIsNewRecord(false);
         if (runFlagElRef.current) runFlagElRef.current.style.left = '0%';
         setCpuAirborne(false);
         setLives(MAX_LIVES + pendingHeartsBonus);
@@ -1133,6 +1187,7 @@ export default function RunnerScreen({
                 speedTierShownRef.current = tierNumber;
                 setSpeedTierDisplay(tierNumber);
             }
+            runDistanceRef.current += currentSpeed * dt;
 
             // Modo Libre: 1 tavern coin cada TAVERN_COIN_TIER_INTERVAL tramos, toda la partida. Igual que
             // el corazon, no se genera suelto: se marca pendiente y se engancha al proximo obstaculo real.
@@ -1646,13 +1701,18 @@ export default function RunnerScreen({
                 playSfx('rewardGold', 'sfx_volume_ladyrun');
             }
 
-            // Colision jugador
+            // Colision jugador. Tamaño de la caja de golpe: en Modo Libre depende del porte del
+            // perro (pequeño/mediano/grande), con margen de tolerancia restado para medianos/grandes.
+            const dogHitTier = DOG_SIZE_TIER[selectedDogId] ?? 'medium';
+            const dogHitSize = arcadeSubMode === 'libre'
+                ? DOG_TIER_VISUAL_SIZE[dogHitTier] - DOG_TIER_HIT_MARGIN[dogHitTier]
+                : DOG_SIZE;
             const invuln = now < invulnUntilRef.current;
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
                     if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin || o.isChapa) continue;
-                    const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                    const overlapX = DOG_X < o.x + o.size && DOG_X + dogHitSize > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
                         ? (dogYRef.current > AERIAL_MIN_Y && dogYRef.current < AERIAL_MAX_Y)
@@ -1801,12 +1861,38 @@ export default function RunnerScreen({
                 playSfx('hitPlayer', 'sfx_volume_ladyrun');
                 setLives(prev => {
                     const next = prev - 1;
+                    if (next > 0 && HEART_BREAK_FRAMES[prev]) {
+                        setTimeout(() => {
+                            const frames = HEART_BREAK_FRAMES[prev];
+                            let i = 0;
+                            const stepFrame = () => {
+                                setHeartBreak({ tier: prev, frame: i });
+                                i += 1;
+                                setTimeout(i < frames.length ? stepFrame : () => setHeartBreak(null), HEART_BREAK_FRAME_MS);
+                            };
+                            stepFrame();
+                        }, 0);
+                    }
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
                         setTimeout(() => {
-                            if (arcadeSubMode === 'libre') claimRunMilestoneRewards(runTotalMilestonesRef.current);
+                            if (arcadeSubMode === 'libre') {
+                                claimRunMilestoneRewards(runTotalMilestonesRef.current);
+                                setObstacles([]);
+                                const meters = Math.floor(runDistanceRef.current / METERS_PER_PX);
+                                setRunMetersEarned(meters);
+                                if (meters > bestMetersForDog) {
+                                    setRunIsNewRecord(true);
+                                    setRunBestMeters(meters);
+                                    onNewDistanceRecordRef.current?.(selectedDogId, meters);
+                                } else {
+                                    setRunIsNewRecord(false);
+                                    setRunBestMeters(bestMetersForDog);
+                                }
+                            }
                             setWon(false);
                             setPhase('gameover');
+                            playSfx('loseGame', 'sfx_volume_ladyrun');
                         }, GAME_END_DELAY_MS);
                     }
                     return next;
@@ -1837,7 +1923,7 @@ export default function RunnerScreen({
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex, claimRunMilestoneRewards]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex, claimRunMilestoneRewards, bestMetersForDog]);
 
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
@@ -1943,7 +2029,14 @@ export default function RunnerScreen({
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
-                        <span className="runner-track-player-lives">{'❤'.repeat(lives)}{'♡'.repeat(Math.max(0, (MAX_LIVES + bonusLives) - lives))}</span>
+                        <span className={`runner-track-player-lives runner-life-tier-${lives > 0 ? Math.min(lives, 3) : 'lost'}`}>
+                            <img
+                                src={heartBreak ? HEART_BREAK_FRAMES[heartBreak.tier][heartBreak.frame] : LIFE_HEART_STATES[Math.max(0, Math.min(lives, 3))]}
+                                alt=""
+                                className="runner-life-heart-img"
+                            />
+                            <span className="runner-life-count">{lives}</span>
+                        </span>
 
                         {stage === 'boss' && (
                             <div className="runner-boss-label">
@@ -1952,15 +2045,12 @@ export default function RunnerScreen({
                             </div>
                         )}
 
-                        {phase === 'ready' && (
-                            <button className="runner-track-scores-btn" onClick={() => setScoresOpen(true)}><Trophy size={18} /></button>
-                        )}
 
                         <img
                             ref={dogElRef}
                             src={dogImg}
                             alt={DogsConfig[selectedDogId]?.name ?? selectedDogId}
-                            className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}`}
+                            className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}${phase === 'gameover' && DOG_GAMEOVER_IMG[selectedDogId] ? ' runner-dog-hidden' : ''}${isLibre ? ` runner-dog-size-${DOG_SIZE_TIER[selectedDogId] ?? 'medium'}` : ''}`}
                         />
 
                         {stage === 'boss' && (
@@ -1991,12 +2081,12 @@ export default function RunnerScreen({
                         {obstacles.filter(o => o.lane !== 'cpu').map(o => {
                             const collectedClass = ((o.isHeart || o.isCoin || o.isChapa) && o.hit) ? ' runner-obstacle-collected' : '';
                             return o.isHeart ? (
-                                <Heart
+                                <img
                                     key={o.id}
                                     ref={el => setObstacleEl(o.id, el)}
+                                    src={lifeDogIcon}
+                                    alt=""
                                     className={`runner-obstacle runner-obstacle-heart${o.aerial ? ' runner-obstacle-aerial' : ''}${collectedClass}`}
-                                    fill="#ff4d6d"
-                                    color="#ff4d6d"
                                 />
                             ) : (
                                 <img
@@ -2004,13 +2094,13 @@ export default function RunnerScreen({
                                     ref={el => setObstacleEl(o.id, el)}
                                     src={o.img}
                                     alt=""
-                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}${o.isChapa ? ' runner-obstacle-chapa' : ''}${collectedClass}`}
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}${o.isChapa ? ' runner-obstacle-chapa' : ''}${collectedClass}${isLibre && !o.aerial && !o.isCoin && !o.isChapa ? ' runner-obstacle-warn-blink' : ''}`}
                                 />
                             );
                         })}
 
                         {(phase === 'ready' || phase === 'gameover') && (
-                        <div className="runner-overlay">
+                        <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}`}>
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
                                     <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
@@ -2077,8 +2167,20 @@ export default function RunnerScreen({
                             )}
                             {phase === 'gameover' && (
                                 <>
-                                    <p className="runner-overlay-title">{isLibre ? 'Perdiste' : (won ? '¡Has ganado!' : 'Game Over')}</p>
+                                    {DOG_GAMEOVER_IMG[selectedDogId] ? (
+                                        <img src={DOG_GAMEOVER_IMG[selectedDogId]} alt="" className="runner-overlay-dog-img runner-overlay-dog-img-solo" />
+                                    ) : (
+                                        <p className="runner-overlay-title">{isLibre ? 'Perdiste' : (won ? '¡Has ganado!' : 'Game Over')}</p>
+                                    )}
+                                    {isLibre && (
+                                        <p className="runner-run-dog-summary-name">{DogsConfig[selectedDogId]?.name ?? selectedDogId}</p>
+                                    )}
                                     <p className="runner-overlay-score">Puntos: {score}</p>
+                                    {isLibre && (
+                                        <p className="runner-overlay-score">
+                                            {runMetersEarned}m {runIsNewRecord ? '¡Nuevo récord!' : `(Récord: ${runBestMeters}m)`}
+                                        </p>
+                                    )}
                                     {runMode === 'arcade' && !isLibre && (
                                         <p className="runner-overlay-score">Rivales vencidos: {rivalsDefeated}</p>
                                     )}

@@ -14,6 +14,7 @@ import sfxHealUrl         from '../../assets/audio/lady-run/sfx/heal-sfx.mp3';
 import sfxRouletteUrl     from '../../assets/audio/lady-run/sfx/ruleta-esenario-trim.mp3';
 import sfxSelectSceneUrl  from '../../assets/audio/lady-run/sfx/select-esenario-trim.mp3';
 import sfxHitPlayerUrl    from '../../assets/audio/lady-run/sfx/hit-pj-1-sfx-trim.mp3';
+import sfxLoseGameUrl     from '../../assets/audio/lady-run/sfx/lose-game.mp3';
 
 let audioCtx = null;
 const buffers = {};
@@ -36,6 +37,7 @@ const SFX_CONFIG = {
     roulette:     { offset: 0.0, gain: 1.0 },
     selectScene:  { offset: 0.0, gain: 1.0 },
     hitPlayer:    { offset: 0.0, gain: 1.0 },
+    loseGame:     { offset: 0.0, gain: 1.0 },
 };
 
 const SFX_SOURCES = {
@@ -55,6 +57,7 @@ const SFX_SOURCES = {
     roulette:     sfxRouletteUrl,
     selectScene:  sfxSelectSceneUrl,
     hitPlayer:    sfxHitPlayerUrl,
+    loseGame:     sfxLoseGameUrl,
 };
 
 const ensureCtx = () => {
