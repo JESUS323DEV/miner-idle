@@ -62,6 +62,20 @@ const LadyRunStandalone = () => {
                 onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
                 onEarnHuesin={(amount) => setGameState(prev => ({ ...prev, huesin: (prev.huesin ?? 0) + amount }))}
                 chapas={gameState.chapas ?? 0}
+                tavernCoins={gameState.tavernCoins ?? 0}
+                huesin={gameState.huesin ?? 0}
+                unlockedDogIds={gameState.ladyRunUnlockedDogs ?? []}
+                onUnlockDog={(dogId) => setGameState(prev => {
+                    if ((prev.huesin ?? 0) < 10 || (prev.tavernCoins ?? 0) < 5) return prev;
+                    const current = prev.ladyRunUnlockedDogs ?? [];
+                    if (current.includes(dogId)) return prev;
+                    return {
+                        ...prev,
+                        huesin: prev.huesin - 10,
+                        tavernCoins: prev.tavernCoins - 5,
+                        ladyRunUnlockedDogs: [...current, dogId],
+                    };
+                })}
                 pendingHeartsBonus={gameState.ladyRunPendingHearts ?? 0}
                 onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
                 onBuyItem={(itemId, price) => setGameState(prev => {

@@ -26,6 +26,7 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: 12px;
+    overflow-y: auto;
 }
 
 .runner-screen-centered {
@@ -371,6 +372,14 @@
 
 .runner-mode-card-static-pradera {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp');
+}
+
+.runner-mode-card-static-hielo {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-hielo-estatica.webp');
+}
+
+.runner-mode-card-half {
+    flex: 0 1 calc(50% - 4px);
 }
 
 .runner-track-scene-libre-minas {
@@ -745,6 +754,28 @@
     object-fit: contain;
 }
 
+.runner-run-reward-paw {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.runner-run-reward-paw img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.runner-run-reward-paw-mult {
+    position: absolute;
+    bottom: -3px;
+    left: -3px;
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 0.62rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.95);
+}
+
 .runner-start-btn {
     position: relative;
     display: inline-flex;
@@ -1078,6 +1109,32 @@
     font-weight: 700;
     color: rgba(255, 255, 255, 0.75);
     text-align: center;
+}
+
+.runner-dog-select-price {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #ffd740;
+    font-weight: 700;
+    font-size: 0.6rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.9);
+    z-index: 1;
+}
+
+.runner-dog-select-price img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+.runner-dog-select-price-short {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .runner-difficulty-select {

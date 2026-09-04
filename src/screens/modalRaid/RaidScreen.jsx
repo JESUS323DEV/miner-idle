@@ -64,6 +64,7 @@ const RUN_SPRITES = {
 };
 const RUN_SPRITE_KEYS = Object.keys(RUN_SPRITES);
 
+
 // Mientras no todos los perros tengan sprite propio: usa el del primer perro
 // del equipo que sí tenga uno, y si ninguno tiene, uno random pero estable
 // para esa raid/pedido en concreto (no debe cambiar en cada repintado).
@@ -625,6 +626,20 @@ const RaidScreen = ({
                         onEarnChapas={(amount) => setGameState(prev => ({ ...prev, chapas: (prev.chapas ?? 0) + amount }))}
                         onEarnHuesin={(amount) => setGameState(prev => ({ ...prev, huesin: (prev.huesin ?? 0) + amount }))}
                         chapas={gameState.chapas ?? 0}
+                        tavernCoins={gameState.tavernCoins ?? 0}
+                        huesin={gameState.huesin ?? 0}
+                        unlockedDogIds={gameState.ladyRunUnlockedDogs ?? []}
+                        onUnlockDog={(dogId) => setGameState(prev => {
+                            if ((prev.huesin ?? 0) < 10 || (prev.tavernCoins ?? 0) < 5) return prev;
+                            const current = prev.ladyRunUnlockedDogs ?? [];
+                            if (current.includes(dogId)) return prev;
+                            return {
+                                ...prev,
+                                huesin: prev.huesin - 10,
+                                tavernCoins: prev.tavernCoins - 5,
+                                ladyRunUnlockedDogs: [...current, dogId],
+                            };
+                        })}
                         pendingHeartsBonus={gameState.ladyRunPendingHearts ?? 0}
                         onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
                         onBuyItem={(itemId, price) => setGameState(prev => {

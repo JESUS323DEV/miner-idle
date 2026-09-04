@@ -150,6 +150,11 @@ const UNLOCKED_DOG_IDS = DOG_SELECT_ORDER.filter(id => !LOCKED_DOG_IDS.includes(
 // Desbloqueados primero (en su orden habitual), bloqueados al final.
 const DOG_SELECT_DISPLAY_ORDER = [...UNLOCKED_DOG_IDS, ...DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id))];
 
+// De los ya animados (UNLOCKED_DOG_IDS), solo Gordo y Druh son gratis. El resto hay que comprarlo
+// con la moneda del juego (ver unlockedDogIds/onUnlockDog, guardado en gameState.ladyRunUnlockedDogs).
+const PAID_DOG_IDS = ['lady', 'muna', 'nupito', 'tuka'];
+const DOG_UNLOCK_PRICE = { huesin: 10, tavernCoins: 5 };
+
 const DOG_RUN_FRAMES = {
     lady:   [ladyRun1, ladyRun1, ladyRun1, ladyRun1],
     gordo:  [gordoRun1, gordoRun1, gordoRun1, gordoRun1],
@@ -516,6 +521,8 @@ export default function RunnerScreen({
     onEarnChapas,
     onEarnHuesin,
     chapas = 0,
+    tavernCoins = 0,
+    huesin = 0,
     pendingHeartsBonus = 0,
     onBuyItem,
     onConsumePendingHearts,
@@ -525,6 +532,8 @@ export default function RunnerScreen({
     onClaimDailyTramos,
     bestDistanceByDog,
     onNewDistanceRecord,
+    unlockedDogIds = [],
+    onUnlockDog,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -543,9 +552,10 @@ export default function RunnerScreen({
     const [bossHp, setBossHp] = useState(BOSS_MAX_HP);
     const [paused, setPaused] = useState(false);
     const [won, setWon] = useState(false);
-    const [selectedDogId, setSelectedDogId] = useState(
-        () => UNLOCKED_DOG_IDS[Math.floor(Math.random() * UNLOCKED_DOG_IDS.length)]
-    );
+    const [selectedDogId, setSelectedDogId] = useState(() => {
+        const owned = UNLOCKED_DOG_IDS.filter(id => !PAID_DOG_IDS.includes(id) || unlockedDogIds.includes(id));
+        return owned[Math.floor(Math.random() * owned.length)];
+    });
     const [cpuDogId, setCpuDogId] = useState('gordo');
     const [difficulty, setDifficulty] = useState('facil');
     const fullLootRunsToday = fullLootRunsByDifficulty?.[difficulty] ?? 0;
@@ -592,6 +602,7 @@ export default function RunnerScreen({
     const [canDoubleJump, setCanDoubleJump] = useState(false); // true tras el 1er salto, hasta usar el 2o o aterrizar
     const [runMilestoneIndex, setRunMilestoneIndex] = useState(-1); // -1 = ninguno, 0/1/2 = tramo alcanzado DENTRO de la fase actual (visual)
     const [pawFill, setPawFill] = useState(0); // 0-5, sube una vez por cada recompensa cruzada en Modo Libre
+    const pawFillRef = useRef(0); // espejo de pawFill para leerlo al instante desde el tick loop (evita closure viejo)
     const [runCoinsEarned, setRunCoinsEarned] = useState(0); // totales de ESTA run, solo para mostrar en game over
     const [runHuesinEarned, setRunHuesinEarned] = useState(0);
     const [runChapasEarned, setRunChapasEarned] = useState(0);
@@ -818,6 +829,7 @@ export default function RunnerScreen({
         setAirborne(false);
         setCanDoubleJump(false);
         runTotalMilestonesRef.current = 0;
+        pawFillRef.current = 0;
         setPawFill(0);
         runPhaseStartAtRef.current = 0;
         runTrackCoinsCollectedRef.current = 0;
@@ -858,7 +870,13 @@ export default function RunnerScreen({
             totalCoins += r?.tavernCoins ?? 0;
             totalHuesin += r?.huesin ?? 0;
         }
-        const totalChapas = runChapasCollectedRef.current;
+        let totalChapas = runChapasCollectedRef.current;
+        const pawMultiplier = pawFillRef.current >= 2 ? pawFillRef.current : 1;
+        if (pawMultiplier > 1) {
+            totalCoins *= pawMultiplier;
+            totalHuesin *= pawMultiplier;
+            totalChapas *= pawMultiplier;
+        }
         if (totalCoins > 0) onEarnTavernCoinsRef.current?.(totalCoins);
         if (totalHuesin > 0) onEarnHuesinRef.current?.(totalHuesin);
         if (totalChapas > 0) onEarnChapasRef.current?.(totalChapas);
@@ -1151,7 +1169,8 @@ export default function RunnerScreen({
                 for (let i = 0; i <= tramoInPhase; i++) nextMilestoneAt += phaseDurations[i];
                 if (matchTimeRef.current >= nextMilestoneAt) {
                     if (runTotalMilestonesRef.current >= dailyTramosClaimedToday) {
-                        setPawFill(f => Math.min(PAW_FILL_MAX, f + 1));
+                        pawFillRef.current = Math.min(PAW_FILL_MAX, pawFillRef.current + 1);
+                        setPawFill(pawFillRef.current);
                     }
                     runTotalMilestonesRef.current += 1;
                     setRunMilestoneIndex(tramoInPhase);
@@ -2192,6 +2211,12 @@ export default function RunnerScreen({
                                             <span className="runner-run-reward"><img src={chapaIcon} alt="Chapas" />{runChapasEarned}</span>
                                             <span className="runner-run-reward"><img src={tavernCoinIcon} alt="Monedas" />{runCoinsEarned}</span>
                                             <span className="runner-run-reward"><img src={huesinIcon} alt="Huesin" />{runHuesinEarned}</span>
+                                            {pawFill >= 2 && (
+                                                <span className="runner-run-reward-paw">
+                                                    <img src={PAW_FILL_IMAGES[pawFill]} alt="" />
+                                                    <span className="runner-run-reward-paw-mult">x{pawFill}</span>
+                                                </span>
+                                            )}
                                         </div>
                                     )}
                                 </>
@@ -2262,9 +2287,8 @@ export default function RunnerScreen({
 
                 {phase === 'ready' && !runMode && (
                     <div className="runner-mode-card-shop runner-mode-card-static-pradera">
-                        <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                        <button className="runner-mode-btn" onClick={() => setShopOpen(true)}>
                             <span className="runner-mode-btn-title">Tienda</span>
-                            <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                         </button>
                     </div>
                 )}
@@ -2281,6 +2305,18 @@ export default function RunnerScreen({
                         <div className="runner-mode-card-locked runner-mode-card-static-desierto">
                             <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                 <span className="runner-mode-btn-title">Torneo</span>
+                                <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
+                            </button>
+                            <span className="runner-mode-card-tag">Próximamente</span>
+                        </div>
+                    </div>
+                )}
+
+                {phase === 'ready' && !runMode && (
+                    <div className="runner-mode-cards-extra">
+                        <div className="runner-mode-card-locked runner-mode-card-static-hielo runner-mode-card-half">
+                            <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                <span className="runner-mode-btn-title">Skins</span>
                                 <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                             </button>
                             <span className="runner-mode-card-tag">Próximamente</span>
@@ -2331,16 +2367,35 @@ export default function RunnerScreen({
 
                 {phase === 'ready' && runMode && (
                     <div className="runner-dog-select">
-                        {UNLOCKED_DOG_IDS.map(id => {
+                        {[...UNLOCKED_DOG_IDS]
+                            .sort((a, b) => {
+                                const aLocked = PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a);
+                                const bLocked = PAID_DOG_IDS.includes(b) && !unlockedDogIds.includes(b);
+                                return aLocked - bLocked;
+                            })
+                            .map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
+                            const needsUnlock = PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id);
+                            const canAfford = huesin >= DOG_UNLOCK_PRICE.huesin && tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins;
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
-                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
-                                        onClick={() => setSelectedDogId(id)}
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
+                                        onClick={() => needsUnlock ? (canAfford && onUnlockDog?.(id)) : setSelectedDogId(id)}
+                                        disabled={needsUnlock && !canAfford}
                                     >
                                         <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                                        {elementInfo && (
+                                        {needsUnlock && (
+                                            <span className="runner-dog-select-price">
+                                                <img src={huesinIcon} alt="" />
+                                                <span className={huesin >= DOG_UNLOCK_PRICE.huesin ? '' : 'runner-dog-select-price-short'}>{DOG_UNLOCK_PRICE.huesin}</span>
+                                                <img src={tavernCoinIcon} alt="" />
+                                                <span className={tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins ? '' : 'runner-dog-select-price-short'}>{DOG_UNLOCK_PRICE.tavernCoins}</span>
+                                            </span>
+                                        )}
+                                        {needsUnlock ? (
+                                            <img src={lockIcon} alt="Bloqueado" className="runner-dog-select-lock" />
+                                        ) : elementInfo && (
                                             <span className={`runner-dog-select-element runner-dog-select-element-${DogsConfig[id]?.element}`}>
                                                 <elementInfo.Icon size={11} color="#14100c" />
                                             </span>
