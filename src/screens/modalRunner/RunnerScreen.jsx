@@ -10,9 +10,6 @@ import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/
 import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
 import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
-import lifeHeart3Broken1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1.webp';
-import lifeHeart3Broken2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1-2.webp';
-import lifeHeart3Broken3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/roto-animations/vida-base-3-roto-1-3.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
@@ -171,6 +168,18 @@ const DOG_JUMP_FRAME = {
     lady: ladyJump,
 };
 
+// Fila de 3 huecos de vida fijos. Cada tramo de 3 vidas suma una capa nueva encima de los 3 huecos
+// (tier 0 = vidas 1-3, tier 1 = vidas 4-6, tier 2 = vidas 7-9...). Anadir mas assets aqui para seguir subiendo.
+const LIFE_TIER_ASSETS = [lifeHeart1, lifeHeart2, lifeHeart3];
+function getLifeSlotAsset(lives, slotIndex) {
+    if (lives <= 0) return lifeHeart0;
+    const tier = Math.floor((lives - 1) / 3);
+    const filledInTier = lives - tier * 3;
+    if (slotIndex < filledInTier) return LIFE_TIER_ASSETS[Math.min(tier, LIFE_TIER_ASSETS.length - 1)];
+    if (tier > 0) return LIFE_TIER_ASSETS[Math.min(tier - 1, LIFE_TIER_ASSETS.length - 1)];
+    return lifeHeart0;
+}
+
 // Pose especifica al perder (game over), por ahora solo Muna tiene este asset.
 const DOG_GAMEOVER_IMG = {
     muna: munaGameOver,
@@ -179,12 +188,6 @@ const DOG_GAMEOVER_IMG = {
     lady: ladyGameOver,
     nupito: nupitoGameOver,
 };
-
-const LIFE_HEART_STATES = { 0: lifeHeart0, 1: lifeHeart1, 2: lifeHeart2, 3: lifeHeart3 };
-// Secuencia de rotura al perder una vida partiendo del corazon dorado (3 vidas). Solo tier 3 tiene
-// esto por ahora; el resto de tiers se quedan con el cambio instantaneo hasta que haya assets propios.
-const HEART_BREAK_FRAMES = { 3: [lifeHeart3Broken1], 2: [lifeHeart3Broken2, lifeHeart3Broken3] };
-const HEART_BREAK_FRAME_MS = 130;
 
 const DOG_ICONS = {
     lady: ladyIcon, gordo: gordoIcon, muna: munaIcon, nupito: nupitoIcon,
@@ -595,7 +598,6 @@ export default function RunnerScreen({
     const [attacks, setAttacks] = useState([]); // ataques de fase boss (jugador/boss), separados de los obstaculos de la carrera
     const [frameIdx, setFrameIdx] = useState(0);
     const [hitFlash, setHitFlash] = useState(false);
-    const [heartBreak, setHeartBreak] = useState(null); // {tier, frame} mientras se ve su animacion de romperse, null = normal
     const [cpuHitFlash, setCpuHitFlash] = useState(false);
     const [bossHitFlash, setBossHitFlash] = useState(false);
     const [bossWindingUp, setBossWindingUp] = useState(false);
@@ -1861,18 +1863,6 @@ export default function RunnerScreen({
                 playSfx('hitPlayer', 'sfx_volume_ladyrun');
                 setLives(prev => {
                     const next = prev - 1;
-                    if (next > 0 && HEART_BREAK_FRAMES[prev]) {
-                        setTimeout(() => {
-                            const frames = HEART_BREAK_FRAMES[prev];
-                            let i = 0;
-                            const stepFrame = () => {
-                                setHeartBreak({ tier: prev, frame: i });
-                                i += 1;
-                                setTimeout(i < frames.length ? stepFrame : () => setHeartBreak(null), HEART_BREAK_FRAME_MS);
-                            };
-                            stepFrame();
-                        }, 0);
-                    }
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
                         setTimeout(() => {
@@ -2029,13 +2019,15 @@ export default function RunnerScreen({
                         <div className="runner-ground" />
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
-                        <span className={`runner-track-player-lives runner-life-tier-${lives > 0 ? Math.min(lives, 3) : 'lost'}`}>
-                            <img
-                                src={heartBreak ? HEART_BREAK_FRAMES[heartBreak.tier][heartBreak.frame] : LIFE_HEART_STATES[Math.max(0, Math.min(lives, 3))]}
-                                alt=""
-                                className="runner-life-heart-img"
-                            />
-                            <span className="runner-life-count">{lives}</span>
+                        <span className="runner-track-player-lives">
+                            {[0, 1, 2].map(i => (
+                                <img
+                                    key={i}
+                                    src={getLifeSlotAsset(lives, i)}
+                                    alt=""
+                                    className="runner-life-heart-img"
+                                />
+                            ))}
                         </span>
 
                         {stage === 'boss' && (
@@ -2050,7 +2042,7 @@ export default function RunnerScreen({
                             ref={dogElRef}
                             src={dogImg}
                             alt={DogsConfig[selectedDogId]?.name ?? selectedDogId}
-                            className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}${phase === 'gameover' && DOG_GAMEOVER_IMG[selectedDogId] ? ' runner-dog-hidden' : ''}${isLibre ? ` runner-dog-size-${DOG_SIZE_TIER[selectedDogId] ?? 'medium'}` : ''}`}
+                            className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}${phase === 'gameover' && DOG_GAMEOVER_IMG[selectedDogId] ? ' runner-dog-hidden' : ''}`}
                         />
 
                         {stage === 'boss' && (
