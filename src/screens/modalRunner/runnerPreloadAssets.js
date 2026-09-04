@@ -20,8 +20,6 @@ import tokyoRun3 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.
 import tokyoRun4 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-4.webp';
 import tukaRun1 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp';
 import tukaRun2 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp';
-import tukaRun3 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp';
-import tukaRun4 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp';
 import zeusRun1 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-1.webp';
 import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp';
 import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
@@ -89,6 +87,16 @@ import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/esce
 import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
 
+import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
+import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
+import pawFill2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-2.webp';
+import pawFill3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-3.webp';
+import pawFill4 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-4.webp';
+import pawFill5 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-5.webp';
+import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-0.webp';
+import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
+import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
+import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
@@ -105,11 +113,13 @@ export const RUNNER_CORE_PRELOAD_IMAGES = [
     nupitoRun1, nupitoJump,
     smokeRun1, smokeRun2, smokeRun3, smokeRun4,
     tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4,
-    tukaRun1, tukaRun2, tukaRun3, tukaRun4,
+    tukaRun1, tukaRun2,
     zeusRun1, zeusRun2, zeusRun3, zeusRun4,
     druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
     lockIcon, tavernCoinIcon, chapaIcon, huesinIcon, jumpBtnIcon1, jumpBtnIcon2,
+    pawFill0, pawFill1, pawFill2, pawFill3, pawFill4, pawFill5,
+    lifeHeart0, lifeHeart1, lifeHeart2, lifeHeart3,
     obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo, obstaculoAereo3,
     runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo,
     libreStaticBosque, libreStaticCiudad, libreStaticDesierto, libreStaticMinas, libreStaticPradera, libreStaticHielo,

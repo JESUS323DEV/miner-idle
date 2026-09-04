@@ -25,31 +25,16 @@ const HUNT_BOSS_CARD_CLASS = {
     'scorpion-boss': 'raid-hunt-card-scorpion',
 };
 import ladyRun1 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-1.webp';
-import ladyRun2 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-2.webp';
-import ladyRun3 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-3.webp';
-import ladyRun4 from '../../assets/ui/lady-sprite/sprite-run/lady-run/lady-4.webp';
 import ladyWait1 from '../../assets/ui/lady-sprite/lady-wait/wait-2/lady300.webp';
 import ladyWaitSit from '../../assets/ui/lady-sprite/lady-wait/wait-2/lady-sitlady-sit.webp';
 import gordoRun1 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp';
-import gordoRun2 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp';
-import gordoRun3 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp';
-import gordoRun4 from '../../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp';
 import munaRun1 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp';
-import munaRun2 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp';
-import munaRun3 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp';
-import munaRun4 from '../../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp';
 import nupitoRun1 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp';
-import nupitoRun2 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp';
-import nupitoRun3 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp';
-import nupitoRun4 from '../../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp';
 import tukaRun1 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp';
 import tukaRun2 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp';
 import tukaRun3 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp';
 import tukaRun4 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp';
 import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp';
-import druhRun2 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
-import druhRun3 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp';
-import druhRun4 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp';
 import tokyoRun1 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-1.webp';
 import tokyoRun2 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-2.webp';
 import tokyoRun3 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.webp';
@@ -67,12 +52,12 @@ const LADY_WAIT_VARIANTS = [ladyWait1, ladyWaitSit];
 // Elige una variante fija por raid/pedido (según cuándo empezó), no cambia mientras esté activo
 const getLadyWaitSrc = (seed) => LADY_WAIT_VARIANTS[Math.abs(seed ?? 0) % LADY_WAIT_VARIANTS.length];
 const RUN_SPRITES = {
-    lady:   [ladyRun1, ladyRun2, ladyRun3, ladyRun4],
-    gordo:  [gordoRun1, gordoRun2, gordoRun3, gordoRun4],
-    muna:   [munaRun1, munaRun2, munaRun3, munaRun4],
-    nupito: [nupitoRun1, nupitoRun2, nupitoRun3, nupitoRun4],
+    lady:   [ladyRun1, ladyRun1, ladyRun1, ladyRun1],
+    gordo:  [gordoRun1, gordoRun1, gordoRun1, gordoRun1],
+    muna:   [munaRun1, munaRun1, munaRun1, munaRun1],
+    nupito: [nupitoRun1, nupitoRun1, nupitoRun1, nupitoRun1],
     tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
-    druh:   [druhRun1, druhRun2, druhRun3, druhRun4],
+    druh:   [druhRun1, druhRun1, druhRun1, druhRun1],
     tokio:  [tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4],
     smoke:  [smokeRun1, smokeRun2, smokeRun3, smokeRun4],
     zeus:   [zeusRun1, zeusRun2, zeusRun3, zeusRun4],

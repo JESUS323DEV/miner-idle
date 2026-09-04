@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull, Flag } from 'lucide-react';
+import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
@@ -10,6 +10,12 @@ import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/
 import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
 import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
+import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
+import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
+import pawFill2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-2.webp';
+import pawFill3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-3.webp';
+import pawFill4 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-4.webp';
+import pawFill5 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-5.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
 import { playSfx } from '../../game/utils/sfx.js';
@@ -40,8 +46,6 @@ import tokyoRun3 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.
 import tokyoRun4 from '../../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-4.webp';
 import tukaRun1 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp';
 import tukaRun2 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp';
-import tukaRun3 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp';
-import tukaRun4 from '../../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp';
 import zeusRun1 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-1.webp';
 import zeusRun2 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-2.webp';
 import zeusRun3 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-3.webp';
@@ -141,7 +145,7 @@ const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', '
 
 // Bloqueados temporalmente: su ciclo de correr todavia no esta animado (webp autoanimado como el resto),
 // se nota mucho mas tosco al lado de los que ya se pasaron. Se desbloquean cuando se animen.
-const LOCKED_DOG_IDS = ['tuka', 'smoke', 'zeus', 'tokio'];
+const LOCKED_DOG_IDS = ['smoke', 'zeus', 'tokio'];
 const UNLOCKED_DOG_IDS = DOG_SELECT_ORDER.filter(id => !LOCKED_DOG_IDS.includes(id));
 // Desbloqueados primero (en su orden habitual), bloqueados al final.
 const DOG_SELECT_DISPLAY_ORDER = [...UNLOCKED_DOG_IDS, ...DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id))];
@@ -153,7 +157,7 @@ const DOG_RUN_FRAMES = {
     nupito: [nupitoRun1, nupitoRun1, nupitoRun1, nupitoRun1],
     smoke:  [smokeRun1, smokeRun2, smokeRun3, smokeRun4],
     tokio:  [tokyoRun1, tokyoRun2, tokyoRun3, tokyoRun4],
-    tuka:   [tukaRun1, tukaRun2, tukaRun3, tukaRun4],
+    tuka:   [tukaRun1, tukaRun1, tukaRun1, tukaRun1],
     zeus:   [zeusRun1, zeusRun2, zeusRun3, zeusRun4],
     druh:   [druhRun1, druhRun1, druhRun1, druhRun1],
 };
@@ -166,6 +170,7 @@ const DOG_JUMP_FRAME = {
     muna: munaJump,
     nupito: nupitoJump,
     lady: ladyJump,
+    tuka: tukaRun2,
 };
 
 // Fila de 3 huecos de vida fijos. Cada tramo de 3 vidas suma una capa nueva encima de los 3 huecos
@@ -179,6 +184,11 @@ function getLifeSlotAsset(lives, slotIndex) {
     if (tier > 0) return LIFE_TIER_ASSETS[Math.min(tier - 1, LIFE_TIER_ASSETS.length - 1)];
     return lifeHeart0;
 }
+
+// Marcador de progreso de Modo Libre: una pata que se va llenando (0 a 5) cada vez que se cruza
+// una recompensa, tope en 5. Al perder, esto luego alimenta una recompensa extra (logica pendiente).
+const PAW_FILL_IMAGES = [pawFill0, pawFill1, pawFill2, pawFill3, pawFill4, pawFill5];
+const PAW_FILL_MAX = 5;
 
 // Pose especifica al perder (game over), por ahora solo Muna tiene este asset.
 const DOG_GAMEOVER_IMG = {
@@ -581,6 +591,7 @@ export default function RunnerScreen({
     const [airborne, setAirborne] = useState(false);
     const [canDoubleJump, setCanDoubleJump] = useState(false); // true tras el 1er salto, hasta usar el 2o o aterrizar
     const [runMilestoneIndex, setRunMilestoneIndex] = useState(-1); // -1 = ninguno, 0/1/2 = tramo alcanzado DENTRO de la fase actual (visual)
+    const [pawFill, setPawFill] = useState(0); // 0-5, sube una vez por cada recompensa cruzada en Modo Libre
     const [runCoinsEarned, setRunCoinsEarned] = useState(0); // totales de ESTA run, solo para mostrar en game over
     const [runHuesinEarned, setRunHuesinEarned] = useState(0);
     const [runChapasEarned, setRunChapasEarned] = useState(0);
@@ -807,6 +818,7 @@ export default function RunnerScreen({
         setAirborne(false);
         setCanDoubleJump(false);
         runTotalMilestonesRef.current = 0;
+        setPawFill(0);
         runPhaseStartAtRef.current = 0;
         runTrackCoinsCollectedRef.current = 0;
         runChapasCollectedRef.current = 0;
@@ -1138,6 +1150,9 @@ export default function RunnerScreen({
                 let nextMilestoneAt = runPhaseStartAtRef.current;
                 for (let i = 0; i <= tramoInPhase; i++) nextMilestoneAt += phaseDurations[i];
                 if (matchTimeRef.current >= nextMilestoneAt) {
+                    if (runTotalMilestonesRef.current >= dailyTramosClaimedToday) {
+                        setPawFill(f => Math.min(PAW_FILL_MAX, f + 1));
+                    }
                     runTotalMilestonesRef.current += 1;
                     setRunMilestoneIndex(tramoInPhase);
                     if (tramoInPhase === 2) {
@@ -1934,7 +1949,7 @@ export default function RunnerScreen({
 
     return (
         <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
-            <div className="runner-screen" onClick={e => e.stopPropagation()}>
+            <div className={`runner-screen${phase === 'playing' || phase === 'gameover' ? ' runner-screen-centered' : ''}`} onClick={e => e.stopPropagation()}>
                 {phase !== 'playing' && onClose && (
                     <button className="modal-close" onClick={onClose}><X /></button>
                 )}
@@ -2243,11 +2258,26 @@ export default function RunnerScreen({
                                         </div>
                                     );
                                 })}
-                                <Flag ref={runFlagElRef} size={18} className="runner-progress-flag" fill="#ffd740" color="#3a2c18" />
+                                <img ref={runFlagElRef} src={PAW_FILL_IMAGES[pawFill]} alt="" className="runner-progress-flag" />
                             </div>
                         </div>
                     )}
                 </div>
+
+                {phase === 'ready' && !runMode && (
+                    <div className="runner-mode-cards-extra">
+                        <div className="runner-mode-card-locked runner-track-scene-libre-ciudad">
+                            <img src={lockIcon} alt="" className="runner-mode-card-lock" />
+                            <span className="runner-mode-card-title">Eventos</span>
+                            <span className="runner-mode-card-tag">Próximamente</span>
+                        </div>
+                        <div className="runner-mode-card-locked runner-track-scene-libre-desierto">
+                            <img src={lockIcon} alt="" className="runner-mode-card-lock" />
+                            <span className="runner-mode-card-title">Torneo</span>
+                            <span className="runner-mode-card-tag">Próximamente</span>
+                        </div>
+                    </div>
+                )}
 
                 {phase === 'gameover' && (
                     <>
@@ -2290,22 +2320,18 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                {phase === 'ready' && (
+                {phase === 'ready' && runMode && (
                     <div className="runner-dog-select">
-                        {DOG_SELECT_DISPLAY_ORDER.map(id => {
+                        {UNLOCKED_DOG_IDS.map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
-                            const locked = LOCKED_DOG_IDS.includes(id);
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
-                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}${locked ? ' runner-dog-select-locked' : ''}`}
-                                        onClick={() => !locked && setSelectedDogId(id)}
-                                        disabled={locked}
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}`}
+                                        onClick={() => setSelectedDogId(id)}
                                     >
                                         <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                                        {locked ? (
-                                            <img src={lockIcon} alt="Bloqueado" className="runner-dog-select-lock" />
-                                        ) : elementInfo && (
+                                        {elementInfo && (
                                             <span className={`runner-dog-select-element runner-dog-select-element-${DogsConfig[id]?.element}`}>
                                                 <elementInfo.Icon size={11} color="#14100c" />
                                             </span>
@@ -2332,6 +2358,21 @@ export default function RunnerScreen({
                                 </button>
                             );
                         })}
+                    </div>
+                )}
+
+                {phase === 'ready' && runMode && (
+                    <div className="runner-dog-select">
+                        <span className="runner-dog-select-locked-label">Próximamente</span>
+                        {DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id)).map(id => (
+                            <div key={id} className="runner-dog-select-col">
+                                <button className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity} runner-dog-select-locked`} disabled>
+                                    <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
+                                    <img src={lockIcon} alt="Bloqueado" className="runner-dog-select-lock" />
+                                </button>
+                                <span className="runner-dog-select-name">{DogsConfig[id]?.name ?? id}</span>
+                            </div>
+                        ))}
                     </div>
                 )}
 

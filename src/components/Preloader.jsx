@@ -303,24 +303,16 @@ import ladyWaitP1 from "../assets/ui/lady-sprite/lady-wait/wait-2/lady300.webp"
 import ladyWaitP2 from "../assets/ui/lady-sprite/lady-wait/wait-2/lady-sitlady-sit.webp"
 import gordoRunP1 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-1.webp"
 import gordoRunP2 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-2.webp"
-import gordoRunP3 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-3.webp"
-import gordoRunP4 from "../assets/ui/lady-sprite/sprite-run/gordo-run/gordo-4.webp"
 import munaRunP1 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-1.webp"
 import munaRunP2 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-2.webp"
-import munaRunP3 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-3.webp"
-import munaRunP4 from "../assets/ui/lady-sprite/sprite-run/muna-run/muna-4.webp"
 import nupitoRunP1 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-1.webp"
 import nupitoRunP2 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-2.webp"
-import nupitoRunP3 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-3.webp"
-import nupitoRunP4 from "../assets/ui/lady-sprite/sprite-run/nupito-run/nupito-4.webp"
 import tukaRunP1 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-1.webp"
 import tukaRunP2 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-2.webp"
 import tukaRunP3 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-3.webp"
 import tukaRunP4 from "../assets/ui/lady-sprite/sprite-run/tuka-run/tuka-4.webp"
 import druhRunP1 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp"
 import druhRunP2 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp"
-import druhRunP3 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-3.webp"
-import druhRunP4 from "../assets/ui/lady-sprite/sprite-run/druh-run/druh-4.webp"
 import tokyoRunP1 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-1.webp"
 import tokyoRunP2 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-2.webp"
 import tokyoRunP3 from "../assets/ui/lady-sprite/sprite-run/tokyo-run/tokyo-3.webp"
@@ -358,6 +350,16 @@ import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstacu
 import runnerObstaculoRata from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-rata.webp"
 import runnerObstaculoTopo1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp"
 import runnerChapaIcon from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp"
+import runnerPawFill0 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp"
+import runnerPawFill1 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp"
+import runnerPawFill2 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-2.webp"
+import runnerPawFill3 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-3.webp"
+import runnerPawFill4 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-4.webp"
+import runnerPawFill5 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-5.webp"
+import runnerLifeHeart0 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-0.webp"
+import runnerLifeHeart1 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp"
+import runnerLifeHeart2 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp"
+import runnerLifeHeart3 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp"
 import runnerObstaculo3 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp"
 import runnerObstaculo4 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp"
 import runnerObstaculo6 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp"
@@ -577,15 +579,17 @@ const IMAGES = [
     tutorialPrincipal, tutorialMina, tutorialForja,
     // raids pasivas: sprites corriendo
     ladyRunP1, ladyRunP2, ladyWaitP1, ladyWaitP2,
-    gordoRunP1, gordoRunP2, gordoRunP3, gordoRunP4,
-    munaRunP1, munaRunP2, munaRunP3, munaRunP4,
-    nupitoRunP1, nupitoRunP2, nupitoRunP3, nupitoRunP4,
+    gordoRunP1, gordoRunP2,
+    munaRunP1, munaRunP2,
+    nupitoRunP1, nupitoRunP2,
     tukaRunP1, tukaRunP2, tukaRunP3, tukaRunP4,
-    druhRunP1, druhRunP2, druhRunP3, druhRunP4,
+    druhRunP1, druhRunP2,
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
     runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon, runnerJumpBtnIcon1, runnerJumpBtnIcon2,
+    runnerPawFill0, runnerPawFill1, runnerPawFill2, runnerPawFill3, runnerPawFill4, runnerPawFill5,
+    runnerLifeHeart0, runnerLifeHeart1, runnerLifeHeart2, runnerLifeHeart3,
     runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera, runnerLibreStaticHielo,
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,

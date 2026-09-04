@@ -12,6 +12,7 @@
 
 .runner-backdrop-below-hud {
     top: 40px;
+    z-index: 650;
 }
 
 .runner-screen {
@@ -25,6 +26,10 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: 12px;
+}
+
+.runner-screen-centered {
+    justify-content: center;
 }
 
 .runner-hud {
@@ -104,8 +109,58 @@
 }
 
 .runner-tracks-solo {
-    height: 448px;
+    height: auto;
+}
+
+.runner-mode-cards-extra {
+    display: flex;
+    gap: 8px;
+}
+
+.runner-mode-card-locked {
+    position: relative;
+    flex: 1;
+    height: 90px;
+    border-radius: 10px;
+    border: 1px solid #3a2c18;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 2px;
+}
+
+.runner-mode-card-locked::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.runner-mode-card-lock {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+}
+
+.runner-mode-card-title {
+    position: relative;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 800;
+    font-size: 0.8rem;
+}
+
+.runner-mode-card-tag {
+    position: relative;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .runner-progress-bar {
@@ -177,6 +232,9 @@
     position: absolute;
     top: 50%;
     left: 0%;
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
 }
@@ -775,18 +833,21 @@
 }
 
 .runner-mode-back-btn {
-    position: absolute;
-    top: 10px;
+    position: fixed;
+    top: 20px;
     left: 10px;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
     color: #ffd740;
     cursor: pointer;
+    z-index: 601;
 }
 
 .runner-action-row {
@@ -804,8 +865,8 @@
 }
 
 .runner-jump-btn {
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     border: none;
     background: none;
@@ -881,6 +942,18 @@
     justify-content: flex-start;
     gap: 8px;
     padding-top: 4px;
+}
+
+.runner-dog-select-locked-label {
+    flex-basis: 100%;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .runner-dog-select-col {
@@ -980,7 +1053,6 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: auto;
 }
 
 .runner-difficulty-btn {
