@@ -5,6 +5,11 @@
     z-index: 20;
 }
 
+.lady-run-shop-panel .lady-run-back-btn {
+    right: 10px;
+    left: auto;
+}
+
 .lady-run-shop-panel {
     position: absolute;
     inset: 0;

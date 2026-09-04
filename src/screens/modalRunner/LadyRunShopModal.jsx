@@ -1,4 +1,4 @@
-import { Heart, Shield } from 'lucide-react';
+import { Heart, Shield, ArrowLeft } from 'lucide-react';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import '../../styles/modals/LadyRunShopModal.css';
 
@@ -13,6 +13,7 @@ export default function LadyRunShopModal({ onClose, chapas = 0, onBuyItem }) {
     return (
         <div className="lady-run-shop-backdrop" onClick={onClose}>
             <div className="lady-run-shop-panel" onClick={e => e.stopPropagation()}>
+                <button className="lady-run-back-btn" onClick={onClose}><ArrowLeft size={16} /></button>
                 <p className="runner-overlay-title">Tienda</p>
 
                 <div className="lady-run-shop-content">

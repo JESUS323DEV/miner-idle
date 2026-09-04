@@ -2140,7 +2140,7 @@ export default function RunnerScreen({
                             )}
                             {phase === 'ready' && runMode === 'historia' && chapterSelectOpen && (
                                 <>
-                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
+                                    <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
                                     <div className="runner-mode-select">
                                         <button className="runner-mode-btn" onClick={() => { setSelectedChapter(1); setSelectedBiomeId('mina'); setSceneIndex(0); setChapterSelectOpen(false); }}>
                                             <span className="runner-mode-btn-title">Capítulo 1</span>
@@ -2153,7 +2153,7 @@ export default function RunnerScreen({
                             )}
                             {phase === 'ready' && runMode && !biomeSelectOpen && !chapterSelectOpen && (
                                 <>
-                                    <button className="runner-mode-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
+                                    <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
                                     <p className="runner-overlay-title">{runMode === 'historia' && selectedChapter ? `Capítulo ${selectedChapter}` : 'Corre y esquiva'}</p>
                                     <button
                                         className="runner-start-btn"
@@ -2168,7 +2168,7 @@ export default function RunnerScreen({
                             )}
                             {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
                                 <>
-                                    <button className="runner-mode-back-btn" onClick={() => setBiomeSelectOpen(false)}><ArrowLeft size={16} /></button>
+                                    <button className="lady-run-back-btn" onClick={() => setBiomeSelectOpen(false)}><ArrowLeft size={16} /></button>
                                     <div className="runner-mode-select">
                                         <button className="runner-mode-btn" onClick={() => { setArcadeSubMode('libre'); setBiomeSelectOpen(false); resetGame(); }}>
                                             <span className="runner-mode-btn-title">Modo Libre</span>
