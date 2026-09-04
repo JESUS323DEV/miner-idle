@@ -2117,10 +2117,6 @@ export default function RunnerScreen({
                                         <span className="runner-mode-btn-title">Historia</span>
                                         <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
-                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
-                                        <span className="runner-mode-btn-title">Tienda</span>
-                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
-                                    </button>
                                 </div>
                             )}
                             {phase === 'ready' && runMode === 'historia' && chapterSelectOpen && (
@@ -2265,15 +2261,28 @@ export default function RunnerScreen({
                 </div>
 
                 {phase === 'ready' && !runMode && (
+                    <div className="runner-mode-card-shop runner-mode-card-static-pradera">
+                        <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                            <span className="runner-mode-btn-title">Tienda</span>
+                            <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
+                        </button>
+                    </div>
+                )}
+
+                {phase === 'ready' && !runMode && (
                     <div className="runner-mode-cards-extra">
-                        <div className="runner-mode-card-locked runner-track-scene-libre-ciudad">
-                            <img src={lockIcon} alt="" className="runner-mode-card-lock" />
-                            <span className="runner-mode-card-title">Eventos</span>
+                        <div className="runner-mode-card-locked runner-mode-card-static-ciudad">
+                            <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                <span className="runner-mode-btn-title">Eventos</span>
+                                <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
+                            </button>
                             <span className="runner-mode-card-tag">Próximamente</span>
                         </div>
-                        <div className="runner-mode-card-locked runner-track-scene-libre-desierto">
-                            <img src={lockIcon} alt="" className="runner-mode-card-lock" />
-                            <span className="runner-mode-card-title">Torneo</span>
+                        <div className="runner-mode-card-locked runner-mode-card-static-desierto">
+                            <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                <span className="runner-mode-btn-title">Torneo</span>
+                                <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
+                            </button>
                             <span className="runner-mode-card-tag">Próximamente</span>
                         </div>
                     </div>

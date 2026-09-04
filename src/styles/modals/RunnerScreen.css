@@ -140,19 +140,12 @@
     background: rgba(0, 0, 0, 0.6);
 }
 
-.runner-mode-card-lock {
-    position: relative;
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+.runner-mode-card-locked .runner-mode-btn {
+    padding: 6px 10px;
 }
 
-.runner-mode-card-title {
-    position: relative;
-    color: rgba(255, 255, 255, 0.75);
-    font-weight: 800;
-    font-size: 0.8rem;
+.runner-mode-card-locked .runner-mode-btn-title {
+    font-size: 0.75rem;
 }
 
 .runner-mode-card-tag {
@@ -161,6 +154,32 @@
     font-size: 0.62rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.runner-mode-card-shop {
+    position: relative;
+    width: 99%;
+    height: 90px;
+    border-radius: 10px;
+    border: 1px solid #3a2c18;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.runner-mode-card-shop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.runner-mode-card-shop .runner-mode-btn {
+    position: relative;
+    z-index: 1;
 }
 
 .runner-progress-bar {
@@ -340,6 +359,18 @@
 
 .runner-track-scene-libre-desierto {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-desierto.webp');
+}
+
+.runner-mode-card-static-ciudad {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-ciudad-estatica.webp');
+}
+
+.runner-mode-card-static-desierto {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-desierto-estatica.webp');
+}
+
+.runner-mode-card-static-pradera {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-pradera-estatica.webp');
 }
 
 .runner-track-scene-libre-minas {
