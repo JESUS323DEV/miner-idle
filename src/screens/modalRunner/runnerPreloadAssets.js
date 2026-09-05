@@ -104,6 +104,7 @@ import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hu
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import boneIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/hueso.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 
 // Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
@@ -119,7 +120,7 @@ export const RUNNER_CORE_PRELOAD_IMAGES = [
     zeusRun1, zeusRun2, zeusRun3, zeusRun4,
     druhRun1, druhJump,
     ladyIcon, gordoIcon, munaIcon, nupitoIcon, smokeIcon, tokyoIcon, tukaIcon, zeusIcon, druhIcon,
-    lockIcon, tavernCoinIcon, chapaIcon, huesinIcon, jumpBtnIcon1, jumpBtnIcon2,
+    lockIcon, tavernCoinIcon, chapaIcon, huesinIcon, jumpBtnIcon1, jumpBtnIcon2, boneIcon,
     pawFill0, pawFill1, pawFill2, pawFill3, pawFill4, pawFill5,
     lifeHeart0, lifeHeart1, lifeHeart2, lifeHeart3, lifeHeart4, magicHeartIcon,
     obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo, obstaculoAereo3,

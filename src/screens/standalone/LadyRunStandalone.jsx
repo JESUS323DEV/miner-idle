@@ -33,8 +33,8 @@ const LadyRunStandalone = () => {
 
     if (!loaded) {
         return (
-            <div className="loading-screen">
-                <div className="loading-spinner" />
+            <div className="lady-run-loading-screen">
+                <div className="lady-run-loading-spinner" />
             </div>
         );
     }

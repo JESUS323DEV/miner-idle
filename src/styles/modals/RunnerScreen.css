@@ -15,6 +15,23 @@
     z-index: 650;
 }
 
+.lady-run-close-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    z-index: 6;
+}
+
+.lady-run-close-btn:hover {
+    color: white;
+}
+
 .runner-screen {
     position: relative;
     width: 100%;
@@ -53,6 +70,27 @@
     z-index: 5;
     display: flex;
     gap: 3px;
+}
+
+.runner-track-bone-counter {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #ffd740;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.9);
+}
+
+.runner-track-bone-counter img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
 }
 
 .runner-life-heart-img {
@@ -621,9 +659,16 @@
 
 .runner-obstacle-heart,
 .runner-obstacle-coin,
-.runner-obstacle-chapa {
+.runner-obstacle-chapa,
+.runner-obstacle-bone,
+.runner-obstacle-magic-heart {
     width: 38px;
     height: 38px;
+}
+
+.runner-obstacle-bone {
+    width: 28px;
+    height: 28px;
 }
 
 .runner-obstacle-heart {
@@ -634,13 +679,19 @@
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
 }
 
+.runner-obstacle-magic-heart {
+    animation: runner-heart-pulse 0.7s ease-in-out infinite;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(180, 120, 255, 0.8));
+}
+
 @keyframes runner-heart-pulse {
     0%, 100% { transform: scale(1); }
     50%      { transform: scale(1.18); }
 }
 
 .runner-obstacle-coin,
-.runner-obstacle-chapa {
+.runner-obstacle-chapa,
+.runner-obstacle-bone {
     animation: runner-coin-pulse 0.7s ease-in-out infinite;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(255, 215, 64, 0.7));
 }
@@ -667,6 +718,16 @@
 .runner-obstacle-chapa.runner-obstacle-aerial {
     animation: runner-coin-pulse 0.7s ease-in-out infinite;
     bottom: 120px;
+}
+
+.runner-obstacle-bone.runner-obstacle-aerial {
+    animation: runner-coin-pulse 0.7s ease-in-out infinite;
+    bottom: 100px;
+}
+
+.runner-obstacle-magic-heart.runner-obstacle-aerial {
+    animation: runner-heart-pulse 0.7s ease-in-out infinite;
+    bottom: 110px;
 }
 
 .runner-obstacle-collected {
@@ -748,30 +809,75 @@
     color: #ffd740;
     font-weight: 800;
     font-size: 0.9rem;
+    transition: transform 0.2s ease;
+    animation: runner-reward-pop-in 0.25s ease;
 }
 
 .runner-run-reward img {
     width: 22px;
     height: 22px;
     object-fit: contain;
+    transition: width 0.2s ease, height 0.2s ease;
+}
+
+/* Tamano del hueso en game over segun el total cruza cada centena (+5px cada una, tope +15px).
+   Selector con las 2 clases del padre+tier para ganar siempre a ".runner-run-reward img" (mas
+   especifico por el descendiente), mismo criterio que los pasos de relleno de la pata. */
+.runner-run-reward .runner-run-reward-bone-tier-0 { width: 22px; height: 22px; }
+.runner-run-reward .runner-run-reward-bone-tier-1 { width: 27px; height: 27px; }
+.runner-run-reward .runner-run-reward-bone-tier-2 { width: 32px; height: 32px; }
+.runner-run-reward .runner-run-reward-bone-tier-3 { width: 37px; height: 37px; }
+
+@keyframes runner-reward-pop-in {
+    from { opacity: 0; transform: scale(0.4); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.runner-run-reward-grow {
+    transform: scale(1.35);
+}
+
+.runner-run-reward-spin {
+    transform: scale(1.15);
+}
+
+.runner-run-reward-spin img {
+    animation: runner-reward-spin 0.5s linear infinite;
+}
+
+@keyframes runner-reward-spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
 }
 
 .runner-run-reward-paw {
     position: relative;
     display: flex;
     align-items: center;
+    transition: transform 0.2s ease;
+    animation: runner-reward-pop-in 0.25s ease;
 }
 
 .runner-run-reward-paw img {
     width: 24px;
     height: 24px;
     object-fit: contain;
+    transition: width 0.2s ease, height 0.2s ease;
 }
+
+/* Pasos de relleno de la pata: +2px por paso. Selector con las 2 clases del padre+paso para ganar
+   siempre a ".runner-run-reward-paw img" (mas especifico por el descendiente), sin usar !important. */
+.runner-run-reward-paw .runner-run-reward-paw-step-0 { width: 24px; height: 24px; }
+.runner-run-reward-paw .runner-run-reward-paw-step-1 { width: 26px; height: 26px; }
+.runner-run-reward-paw .runner-run-reward-paw-step-2 { width: 28px; height: 28px; }
+.runner-run-reward-paw .runner-run-reward-paw-step-3 { width: 30px; height: 30px; }
+.runner-run-reward-paw .runner-run-reward-paw-step-4 { width: 32px; height: 32px; }
+.runner-run-reward-paw .runner-run-reward-paw-step-5 { width: 34px; height: 34px; }
 
 .runner-run-reward-paw-mult {
     position: absolute;
     bottom: -3px;
-    left: -3px;
+    right: -3px;
     color: #ffd740;
     font-weight: 800;
     font-size: 0.62rem;
@@ -934,17 +1040,17 @@
 
 .runner-jump-hub .runner-magic-heart-sat {
     position: absolute;
-    top: -10px;
-    right: -16px;
-    width: 34px;
-    height: 34px;
+    top: -14px;
+    right: -22px;
+    width: 46px;
+    height: 46px;
     border: none;
     background: none;
 }
 
 .runner-jump-hub .runner-magic-heart-sat .runner-power-btn-img {
-    width: 22px;
-    height: 22px;
+    width: 32px;
+    height: 32px;
 }
 
 .runner-jump-hub .runner-magic-heart-sat .runner-power-btn-charges {
@@ -957,8 +1063,8 @@
 }
 
 .runner-jump-btn {
-    width: 88px;
-    height: 88px;
+    width: 108px;
+    height: 108px;
     border-radius: 50%;
     border: none;
     background: none;

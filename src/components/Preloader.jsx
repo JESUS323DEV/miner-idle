@@ -350,6 +350,7 @@ import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstacu
 import runnerObstaculoRata from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-rata.webp"
 import runnerObstaculoTopo1 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo-topo1.webp"
 import runnerChapaIcon from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp"
+import runnerBoneIcon from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/hueso.webp"
 import runnerPawFill0 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp"
 import runnerPawFill1 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp"
 import runnerPawFill2 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-2.webp"
@@ -589,7 +590,7 @@ const IMAGES = [
     tokyoRunP1, tokyoRunP2, tokyoRunP3, tokyoRunP4,
     smokeRunP1, smokeRunP2, smokeRunP3, smokeRunP4,
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
-    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon, runnerJumpBtnIcon1, runnerJumpBtnIcon2,
+    runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon, runnerBoneIcon, runnerJumpBtnIcon1, runnerJumpBtnIcon2,
     runnerPawFill0, runnerPawFill1, runnerPawFill2, runnerPawFill3, runnerPawFill4, runnerPawFill5,
     runnerLifeHeart0, runnerLifeHeart1, runnerLifeHeart2, runnerLifeHeart3, runnerLifeHeart4, runnerMagicHeart,
     runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera, runnerLibreStaticHielo,

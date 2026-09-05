@@ -10,11 +10,6 @@ import sfxFinalMinaUrl    from '../../assets/audio/sfx/only-final-mina.mp3';
 import sfxSendRaidUrl     from '../../assets/audio/sfx/only-send-raid.mp3';
 import sfxFreeInvocUrl    from '../../assets/audio/sfx/rewards-raids-invocaciones-free.mp3';
 import sfxFurnaceUrl      from '../../assets/audio/sfx/furnace.mp3';
-import sfxHealUrl         from '../../assets/audio/lady-run/sfx/heal-sfx.mp3';
-import sfxRouletteUrl     from '../../assets/audio/lady-run/sfx/ruleta-esenario-trim.mp3';
-import sfxSelectSceneUrl  from '../../assets/audio/lady-run/sfx/select-esenario-trim.mp3';
-import sfxHitPlayerUrl    from '../../assets/audio/lady-run/sfx/hit-pj-1-sfx-trim.mp3';
-import sfxLoseGameUrl     from '../../assets/audio/lady-run/sfx/lose-game.mp3';
 
 let audioCtx = null;
 const buffers = {};
@@ -33,11 +28,6 @@ const SFX_CONFIG = {
     sendRaid:     { offset: 0.0, gain: 1.0 },
     freeInvoc:    { offset: 0.0, gain: 1.0 },
     furnace:      { offset: 0.0, gain: 0.15, loop: true },
-    heal:         { offset: 0.0, gain: 1.0 },
-    roulette:     { offset: 0.0, gain: 1.0 },
-    selectScene:  { offset: 0.0, gain: 1.0 },
-    hitPlayer:    { offset: 0.0, gain: 1.0 },
-    loseGame:     { offset: 0.0, gain: 1.0 },
 };
 
 const SFX_SOURCES = {
@@ -53,11 +43,6 @@ const SFX_SOURCES = {
     sendRaid:     sfxSendRaidUrl,
     freeInvoc:    sfxFreeInvocUrl,
     furnace:      sfxFurnaceUrl,
-    heal:         sfxHealUrl,
-    roulette:     sfxRouletteUrl,
-    selectScene:  sfxSelectSceneUrl,
-    hitPlayer:    sfxHitPlayerUrl,
-    loseGame:     sfxLoseGameUrl,
 };
 
 const ensureCtx = () => {

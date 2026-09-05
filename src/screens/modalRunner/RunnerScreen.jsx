@@ -5,6 +5,7 @@ import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import boneIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/hueso.webp';
 import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-0.webp';
 import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
@@ -19,7 +20,7 @@ import pawFill4 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/ic
 import pawFill5 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-5.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
 import { DogsConfig } from '../../game/config/DogsConfig.js';
-import { playSfx } from '../../game/utils/sfx.js';
+import { playLadyRunSfx } from '../../game/utils/ladyRunSfx.js';
 import { useLadyRunMusic } from '../../game/hooks/useLadyRunMusic.js';
 import { LIBRE_SCENE_MUSIC, MINAS_MUSIC_TRACKS, BG_PRINCIPAL_TRACK } from './runnerMusic.js';
 import LadyRunShopModal from './LadyRunShopModal.jsx';
@@ -244,6 +245,7 @@ const CHECKPOINT_INTERVAL_S = 45; // arcade: cada cuanto tiempo (segundos) apare
 const HEART_FIRST_AT_S = 25;  // modo libre: primer corazon extra al llegar al tramo 5 (25s, 5 tramos x 5s)
 const HEART_INTERVAL_S = 20;  // luego uno cada 4 tramos (20s)
 const TAVERN_COIN_TIER_INTERVAL = 4; // modo libre: 1 tavern coin cada 4 tramos, toda la partida
+const MAGIC_HEART_TIER_INTERVAL = 10; // modo libre, todas las dificultades: 1 corazon magico de pista cada 10 tramos, se activa al instante (no se guarda en el inventario)
 const LIBRE_SCENES = ['bosque', 'ciudad', 'desierto', 'minas', 'pradera', 'hielo']; // fondos disponibles en escenarios-run-libre/, se sortea 1 al empezar
 
 // Modo Libre sin meta final: 3 tramos por fase, cada uno con su recompensa (misma tabla, se repite
@@ -306,6 +308,11 @@ const SPEED_MAX = 700;
 const METERS_PER_PX = 25; // escala cosmetica px->metros para el resumen de distancia de Modo Libre, sin relacion fisica real
 const SPAWN_MIN_MS = 1100;
 const SPAWN_MAX_MS = 1900;
+// Distancia real (px) entre spawns a la velocidad del tramo 1, para que el intervalo se escale con la
+// velocidad actual en vez de quedarse fijo en ms: si no, al ir mas rapido cada obstaculo cruza la pista
+// antes pero el siguiente tarda igual en aparecer, y se nota un hueco vacio cada vez mayor en tramos altos.
+const SPAWN_GAP_PX_MIN = SPAWN_MIN_MS / 1000 * SPEED_TIERS[0];
+const SPAWN_GAP_PX_MAX = SPAWN_MAX_MS / 1000 * SPEED_TIERS[0];
 const DOG_X = 10; // pegado a la izquierda (era 40), asi el proyectil recorre mas distancia visible en fase boss
 const DOG_SIZE = 64;
 // Solo en Modo Libre: tamaño real (visual + colision de peligro) segun el porte de cada perro.
@@ -331,6 +338,7 @@ const PICKUP_SIZE = 38; // corazon/tavern coin/chapa son un pelin mas pequeños 
 const COIN_AERIAL_ICON_BOTTOM = 92;
 const HEART_AERIAL_ICON_BOTTOM = 110;
 const CHAPA_AERIAL_ICON_BOTTOM = 120;
+const BONE_AERIAL_ICON_BOTTOM = 100;
 const PICKUP_COLLECT_ANIM_MS = 350; // se paran en el sitio y se encogen/desvanecen al recogerlos
 const AERIAL_UNLOCK_TIER = 3; // a partir de este tramo empieza el patron complejo (pareja+aereo+suelto); antes ya hay aereos, pero alternando 1 a 1
 const DOUBLE_SOLO_UNLOCK_TIER = 9; // a partir de este tramo, el terrestre "suelto" del patron tambien sale en pareja
@@ -343,6 +351,16 @@ const HIT_INVULN_MS = 900;
 const MAGIC_HEART_INVULN_MS = 5000;
 const MAX_LIVES = 3;
 const GAME_END_DELAY_MS = 600; // pausa antes de mostrar la pantalla de resultado, para que clicks de mas no toquen el boton nuevo que aparece ahi
+
+// Revelado escalonado de la pantalla de Game Over (Modo Libre): corazones+perro+nombre salen ya de
+// entrada, luego puntos, luego record, luego las recompensas (cada una crece, comprueba si hay algo,
+// y si tiene gira+cuenta hasta el total antes de pasar a la siguiente).
+const GO_POINTS_DELAY_MS = 500;
+const GO_RECORD_DELAY_MS = 450;
+const GO_REWARDS_DELAY_MS = 450;
+const GO_REWARD_GROW_MS = 260;   // la moneda crece mientras "comprueba" si tiene algo
+const GO_REWARD_TICK_MS = 130;   // intervalo entre cada +1 del contador
+const GO_REWARD_HOLD_MS = 350;   // pausa tras terminar de contar antes de pasar a la siguiente
 
 const BOSS_MAX_HP = 40;
 const BOSS_X_RATIO = 0.65; // posicion del boss como fraccion del ancho de pista, mas a la izquierda para que quepa su tamaño (135px) sin salirse por la derecha
@@ -608,6 +626,14 @@ export default function RunnerScreen({
     const [runCoinsEarned, setRunCoinsEarned] = useState(0); // totales de ESTA run, solo para mostrar en game over
     const [runHuesinEarned, setRunHuesinEarned] = useState(0);
     const [runChapasEarned, setRunChapasEarned] = useState(0);
+    const [goStage, setGoStage] = useState(0); // revelado escalonado de game over: 0=intro, 1=puntos, 2=record, 3=recompensas
+    const [rewardStep, setRewardStep] = useState(0); // 0=nada visible, 1=pata, 2=+chapa, 3=+coin, 4=+huesin
+    const [rewardEffect, setRewardEffect] = useState({ key: null, mode: null }); // mode: 'grow' | 'spin' | 'fill', mientras esa recompensa hace su efecto
+    const [chapaCountShown, setChapaCountShown] = useState(0);
+    const [coinCountShown, setCoinCountShown] = useState(0);
+    const [huesinCountShown, setHuesinCountShown] = useState(0);
+    const [pawStepShown, setPawStepShown] = useState(0); // paso de relleno de la pata mostrado (0..pawFill), crece de tamaño en cada paso
+    const [boneCountShown, setBoneCountShown] = useState(0); // contador de huesos en game over, sube a saltos (no de 1 en 1, puede ser un numero grande)
     const runTotalMilestonesRef = useRef(0); // total de tramos cruzados en toda la run (todas las fases), para la recompensa
     const runPhaseStartAtRef = useRef(0); // matchTimeRef.current en el que empezo la fase actual
     const runFlagElRef = useRef(null);
@@ -668,6 +694,8 @@ export default function RunnerScreen({
     const pendingHeartRef = useRef(false);
     const nextTavernCoinAtTierRef = useRef(TAVERN_COIN_TIER_INTERVAL);
     const pendingTavernCoinRef = useRef(false);
+    const nextMagicHeartAtTierRef = useRef(MAGIC_HEART_TIER_INTERVAL);
+    const pendingMagicHeartRef = useRef(false);
     const firstGroundBonusGivenRef = useRef(false); // regalo de chapa en el 1er terrestre/aereo de la partida
     const firstAerialBonusGivenRef = useRef(false);
     const thirdBonusGivenRef = useRef(false); // 3a chapa, un poco mas atras: en el siguiente obstaculo tras las 2 primeras
@@ -675,6 +703,10 @@ export default function RunnerScreen({
     const fifthBonusGivenRef = useRef(false); // 5a chapa, solo Dificil, un obstaculo mas atras que la 4a
     const chapaExtraSpawnsRef = useRef(0); // cuenta spawns desde que la ground+aerial ya se dieron, para espaciar 3a/4a/5a
     const nextChapaBonusTierRef = useRef(CHAPA_BONUS_INTERVAL_TIER); // proximo tramo en que se re-arma el regalo
+    const boneCycleRef = useRef(0); // 0-3: en 0,1,2 sale hueso emparejado con el spawn, en 3 se salta (hueco)
+    const groundObstacleCountRef = useRef(0); // cuenta obstaculos reales de la run; huesos no salen en el 1ero (coincide con el regalo de chapa inicial)
+    const runBonesCollectedRef = useRef(0); // total de huesos cogidos en esta run, para mostrar en game over
+    const [runBonesEarned, setRunBonesEarned] = useState(0); // copia en state solo para pintar en game over
     const runIsReducedRef = useRef(false); // se fija al empezar la partida (4a+ game over del dia = loot reducido toda la run)
     const resumedRunRef = useRef(false); // true si esta partida viene de restaurar un guardado de partida en curso
     const chapaSpawnCapRef = useRef(Infinity); // en partida reducida, tope de chapas que pueden llegar a aparecer en toda la run (1 o 2 al azar)
@@ -729,7 +761,7 @@ export default function RunnerScreen({
             doubleJumpUsedRef.current = true;
             velocityRef.current = JUMP_VELOCITY;
             setCanDoubleJump(false);
-            playSfx('sendRaid', 'sfx_volume_ladyrun');
+            playLadyRunSfx('doubleJump');
         }
     }, [phase, paused]);
 
@@ -800,6 +832,8 @@ export default function RunnerScreen({
         pendingHeartRef.current = false;
         nextTavernCoinAtTierRef.current = TAVERN_COIN_TIER_INTERVAL;
         pendingTavernCoinRef.current = false;
+        nextMagicHeartAtTierRef.current = MAGIC_HEART_TIER_INTERVAL;
+        pendingMagicHeartRef.current = false;
         firstGroundBonusGivenRef.current = false;
         firstAerialBonusGivenRef.current = false;
         thirdBonusGivenRef.current = false;
@@ -808,6 +842,10 @@ export default function RunnerScreen({
         chapaExtraSpawnsRef.current = 0;
         chapasSpawnedCountRef.current = 0;
         nextChapaBonusTierRef.current = getChapaBonusIntervalTier(difficulty);
+        boneCycleRef.current = 0;
+        groundObstacleCountRef.current = 0;
+        runBonesCollectedRef.current = 0;
+        setRunBonesEarned(0);
         powerChargesRef.current = SABOTAGE_MAX_CHARGES;
         cpuPowerChargesRef.current = SABOTAGE_MAX_CHARGES;
         powerRechargeTimerRef.current = SABOTAGE_RECHARGE_MS;
@@ -886,6 +924,11 @@ export default function RunnerScreen({
             totalHuesin *= pawMultiplier;
             totalChapas *= pawMultiplier;
         }
+        // Bono de huesos: aparte del multiplicador de la pata, siempre suma tal cual (nunca se multiplica).
+        // Cada 20 huesos = 1 chapa, cada 100 huesos = 2 chapas + 1 coin extra, sin tope.
+        const bonesThisRun = runBonesCollectedRef.current;
+        totalChapas += Math.floor(bonesThisRun / 20) + Math.floor(bonesThisRun / 100) * 2;
+        totalCoins += Math.floor(bonesThisRun / 100);
         if (totalCoins > 0) onEarnTavernCoinsRef.current?.(totalCoins);
         if (totalHuesin > 0) onEarnHuesinRef.current?.(totalHuesin);
         if (totalChapas > 0) onEarnChapasRef.current?.(totalChapas);
@@ -937,7 +980,7 @@ export default function RunnerScreen({
         setRouletteSpinning(false);
         setRouletteSettled(false);
         setRouletteOpen(true);
-        playSfx('roulette', 'sfx_volume_ladyrun');
+        playLadyRunSfx('roulette');
         // Doble rAF: deja pintar la tira en su posicion inicial (sin transition) antes de activar
         // el movimiento, si no el navegador puede saltarse la transicion entera.
         requestAnimationFrame(() => {
@@ -945,7 +988,7 @@ export default function RunnerScreen({
         });
         setTimeout(() => {
             setRouletteSettled(true);
-            playSfx('selectScene', 'sfx_volume_ladyrun');
+            playLadyRunSfx('selectScene');
         }, ROULETTE_SPIN_MS);
         setTimeout(() => {
             setRouletteOpen(false);
@@ -1241,6 +1284,13 @@ export default function RunnerScreen({
                 pendingTavernCoinRef.current = true;
             }
 
+            // Corazon magico de pista: cada 10 tramos, en las 3 dificultades, toda la partida. No se
+            // guarda en el inventario de la Tienda: al cogerlo en la pista se activa al instante.
+            if (arcadeSubMode === 'libre' && tierNumber >= nextMagicHeartAtTierRef.current) {
+                nextMagicHeartAtTierRef.current += MAGIC_HEART_TIER_INTERVAL;
+                pendingMagicHeartRef.current = true;
+            }
+
             // El regalo de chapas se repite en las 3 dificultades: cada 10 tramos en Facil, cada 5 en
             // Medio/Dificil, durante toda la partida (no solo al principio).
             if (arcadeSubMode === 'libre' && tierNumber >= nextChapaBonusTierRef.current) {
@@ -1251,6 +1301,7 @@ export default function RunnerScreen({
                 fourthBonusGivenRef.current = false;
                 fifthBonusGivenRef.current = false;
                 chapaExtraSpawnsRef.current = 0;
+                groundObstacleCountRef.current = 0;
             }
 
             // Recarga de cargas de poder (jugador y CPU, independiente cada una)
@@ -1421,7 +1472,7 @@ export default function RunnerScreen({
 
             spawnTimerRef.current -= dt * 1000;
             if (stage === 'cpu' && spawnTimerRef.current <= 0) {
-                spawnTimerRef.current = SPAWN_MIN_MS + Math.random() * (SPAWN_MAX_MS - SPAWN_MIN_MS);
+                spawnTimerRef.current = (SPAWN_GAP_PX_MIN + Math.random() * (SPAWN_GAP_PX_MAX - SPAWN_GAP_PX_MIN)) / currentSpeed * 1000;
                 const tierNow = speedTierShownRef.current;
                 const aerialUnlockTier = difficulty === 'dificil' ? AERIAL_UNLOCK_TIER_DIFICIL : AERIAL_UNLOCK_TIER;
                 const doubleSoloUnlockTier = difficulty === 'dificil' ? DOUBLE_SOLO_UNLOCK_TIER_DIFICIL : DOUBLE_SOLO_UNLOCK_TIER;
@@ -1479,6 +1530,7 @@ export default function RunnerScreen({
                 };
                 let groupCount = 1;
                 list = [...list, makeObstacle(trackWidth)];
+                groundObstacleCountRef.current += 1;
                 if (arcadeSubMode === 'libre' && !aerial && !firstGroundBonusGivenRef.current && chapasSpawnedCountRef.current < chapaSpawnCapRef.current) {
                     firstGroundBonusGivenRef.current = true;
                     chapasSpawnedCountRef.current += 1;
@@ -1584,6 +1636,71 @@ export default function RunnerScreen({
                     });
                     groupCount += 1;
                 }
+                if (arcadeSubMode === 'libre' && pendingMagicHeartRef.current) {
+                    pendingMagicHeartRef.current = false;
+                    // Mismo emparejamiento de accion contraria que el corazon normal, pero este no se
+                    // guarda en el inventario: al cogerlo se activa la invulnerabilidad al instante.
+                    list.push({
+                        id: obstacleIdSeq++,
+                        x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
+                        img: magicHeartIcon,
+                        isMagicHeart: true,
+                        aerial: !aerial,
+                        lane: 'player',
+                        size: PICKUP_SIZE,
+                        clearY: PICKUP_SIZE * 0.75,
+                        hit: false,
+                        cpuHit: false,
+                        el: null,
+                        cpuEl: null,
+                    });
+                    groupCount += 1;
+                }
+                // Hueso: mismo emparejamiento de accion contraria que el corazon, pero constante toda la
+                // run en vez de por tramos. Ciclo de 4: 3 spawns seguidos con hueso, el 4o sin (hueco).
+                // No empieza hasta el 3er obstaculo (groundObstacleCountRef>=3): los 2 primeros coinciden
+                // con el regalo de chapa inicial (ground+aerial), y el hueso "de antes" chocaba con el.
+                if (arcadeSubMode === 'libre' && groundObstacleCountRef.current >= 3) {
+                    if (boneCycleRef.current < 3) {
+                        // Bocadillo: un hueso ANTES del obstaculo real (llega antes al jugador) y otro
+                        // DESPUES, dejandolo en medio, en vez de los 2 seguidos uno detras de otro.
+                        // El "antes" solo se coloca si nadie mas ha pedido turno todavia en este spawn
+                        // (groupCount===1): si ya hay chapa/corazon ocupando ese hueco, se salta y solo
+                        // sale el "despues" (que ya usa la cola compartida, nunca coincide con nada).
+                        if (groupCount === 1) {
+                            list.push({
+                                id: obstacleIdSeq++,
+                                x: trackWidth - CHAPA_LEAD_OFFSET_PX,
+                                img: boneIcon,
+                                isBone: true,
+                                aerial: !aerial,
+                                lane: 'player',
+                                size: PICKUP_SIZE,
+                                clearY: PICKUP_SIZE * 0.75,
+                                hit: false,
+                                cpuHit: false,
+                                el: null,
+                                cpuEl: null,
+                            });
+                        }
+                        list.push({
+                            id: obstacleIdSeq++,
+                            x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
+                            img: boneIcon,
+                            isBone: true,
+                            aerial: !aerial,
+                            lane: 'player',
+                            size: PICKUP_SIZE,
+                            clearY: PICKUP_SIZE * 0.75,
+                            hit: false,
+                            cpuHit: false,
+                            el: null,
+                            cpuEl: null,
+                        });
+                        groupCount += 1;
+                    }
+                    boneCycleRef.current = (boneCycleRef.current + 1) % 4;
+                }
                 if (isPair) {
                     list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX));
                     groupCount += 1;
@@ -1639,7 +1756,7 @@ export default function RunnerScreen({
             }
 
             const beforeLen = list.length;
-            const isPickup = o => o.isHeart || o.isCoin || o.isChapa;
+            const isPickup = o => o.isHeart || o.isCoin || o.isChapa || o.isBone || o.isMagicHeart;
             list.forEach(o => {
                 // Un recogible ya cogido se para en el sitio (deja de moverse con el scroll) mientras
                 // dura su animacion de encogerse/desvanecerse.
@@ -1709,7 +1826,27 @@ export default function RunnerScreen({
             }
             if (heartCollected) {
                 setLives(l => l + 1);
-                playSfx('heal', 'sfx_volume_ladyrun');
+                playLadyRunSfx('heal');
+            }
+
+            // Recogida de corazon magico de pista: no se guarda en el inventario, se activa al instante.
+            let magicHeartCollected = false;
+            for (const o of list) {
+                if (!o.isMagicHeart || o.hit) continue;
+                const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                if (!overlapX) continue;
+                const inMagicHeartZone = o.aerial
+                    ? touchesAerialIcon(HEART_AERIAL_ICON_BOTTOM)
+                    : (dogYRef.current < o.clearY);
+                if (inMagicHeartZone) {
+                    o.hit = true;
+                    o.collectedAt = now;
+                    magicHeartCollected = true;
+                }
+            }
+            if (magicHeartCollected) {
+                invulnUntilRef.current = now + MAGIC_HEART_INVULN_MS;
+                playLadyRunSfx('heal');
             }
 
             // Recogida de tavern coins: mismo criterio, independiente de la invulnerabilidad.
@@ -1730,7 +1867,28 @@ export default function RunnerScreen({
             if (coinsCollected > 0) {
                 if (arcadeSubMode === 'libre') runTrackCoinsCollectedRef.current += coinsCollected;
                 else onEarnTavernCoinsRef.current?.(coinsCollected);
-                playSfx('rewardShards', 'sfx_volume_ladyrun');
+                playLadyRunSfx('rewardCoin');
+            }
+
+            // Recogida de huesos: solo se acumulan para esta run, se pagan al final (ver game over).
+            let bonesCollected = 0;
+            for (const o of list) {
+                if (!o.isBone || o.hit) continue;
+                const overlapX = DOG_X < o.x + o.size && DOG_X + DOG_SIZE > o.x;
+                if (!overlapX) continue;
+                const inBoneZone = o.aerial
+                    ? touchesAerialIcon(BONE_AERIAL_ICON_BOTTOM)
+                    : (dogYRef.current < o.clearY);
+                if (inBoneZone) {
+                    o.hit = true;
+                    o.collectedAt = now;
+                    bonesCollected += 1;
+                }
+            }
+            if (bonesCollected > 0) {
+                runBonesCollectedRef.current += bonesCollected;
+                setRunBonesEarned(runBonesCollectedRef.current);
+                playLadyRunSfx('boneReward');
             }
 
             // Recogida del regalo de chapas (1er terrestre/aereo de la partida).
@@ -1751,7 +1909,7 @@ export default function RunnerScreen({
             if (chapasCollected > 0) {
                 runChapasCollectedRef.current += chapasCollected;
                 setRunChapasEarned(c => c + chapasCollected);
-                playSfx('rewardGold', 'sfx_volume_ladyrun');
+                playLadyRunSfx('rewardGold');
             }
 
             // Colision jugador. Tamaño de la caja de golpe: en Modo Libre depende del porte del
@@ -1764,7 +1922,7 @@ export default function RunnerScreen({
             let lifeLost = false;
             if (!invuln) {
                 for (const o of list) {
-                    if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin || o.isChapa) continue;
+                    if (o.hit || o.lane === 'cpu' || o.isHeart || o.isCoin || o.isChapa || o.isBone || o.isMagicHeart) continue;
                     const overlapX = DOG_X < o.x + o.size && DOG_X + dogHitSize > o.x;
                     if (!overlapX) continue;
                     const dangerous = o.aerial
@@ -1863,8 +2021,8 @@ export default function RunnerScreen({
                 if (o.cpuEl) o.cpuEl.style.left = `${o.x}px`;
             });
             obstaclesDataRef.current = list;
-            if (spawned || despawned || heartCollected || coinsCollected > 0 || chapasCollected > 0) {
-                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isHeart: o.isHeart, isCoin: o.isCoin, isChapa: o.isChapa, hit: o.hit })));
+            if (spawned || despawned || heartCollected || magicHeartCollected || coinsCollected > 0 || chapasCollected > 0 || bonesCollected > 0) {
+                setObstacles(list.map(o => ({ id: o.id, img: o.img, aerial: o.aerial, lane: o.lane, isHeart: o.isHeart, isCoin: o.isCoin, isChapa: o.isChapa, isBone: o.isBone, isMagicHeart: o.isMagicHeart, hit: o.hit })));
             }
 
             atkList.forEach(a => {
@@ -1911,7 +2069,7 @@ export default function RunnerScreen({
                 invulnUntilRef.current = now + HIT_INVULN_MS;
                 setHitFlash(true);
                 setTimeout(() => setHitFlash(false), HIT_INVULN_MS);
-                playSfx('hitPlayer', 'sfx_volume_ladyrun');
+                playLadyRunSfx('hitPlayer');
                 setLives(prev => {
                     const next = prev - 1;
                     if (next <= 0 && !endingRef.current) {
@@ -1933,7 +2091,7 @@ export default function RunnerScreen({
                             }
                             setWon(false);
                             setPhase('gameover');
-                            playSfx('loseGame', 'sfx_volume_ladyrun');
+                            playLadyRunSfx('loseGame');
                         }, GAME_END_DELAY_MS);
                     }
                     return next;
@@ -1983,11 +2141,117 @@ export default function RunnerScreen({
     const checkpointTotalScenes = BIOMES[selectedBiomeId]?.scenes.length ?? 1;
     const checkpointIsFinalScene = sceneIndex >= checkpointTotalScenes - 1;
 
+    // Revelado escalonado de Game Over (Modo Libre): corazones+perro+nombre ya salen de entrada (goStage
+    // 0 no oculta nada), luego puntos, luego record, luego arranca la cadena de recompensas.
+    useEffect(() => {
+        if (phase !== 'gameover' || !isLibre) {
+            setGoStage(phase === 'gameover' ? 3 : 0);
+            return;
+        }
+        setGoStage(0);
+        setRewardStep(0);
+        setRewardEffect({ key: null, mode: null });
+        setChapaCountShown(0);
+        setCoinCountShown(0);
+        setHuesinCountShown(0);
+        setPawStepShown(0);
+        setBoneCountShown(0);
+        const t1 = setTimeout(() => setGoStage(1), GO_POINTS_DELAY_MS);
+        const t2 = setTimeout(() => setGoStage(2), GO_POINTS_DELAY_MS + GO_RECORD_DELAY_MS);
+        const t3 = setTimeout(() => setGoStage(3), GO_POINTS_DELAY_MS + GO_RECORD_DELAY_MS + GO_REWARDS_DELAY_MS);
+        return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }, [phase, isLibre]);
+
+    // Cadena de recompensas: pata -> chapa -> coin -> huesin. La pata va primero porque es el multiplicador
+    // que ya se aplico a las demas, asi que enseñarla antes da contexto a los numeros que siguen. Cada una
+    // crece (comprueba si hay algo), y si tiene hace su efecto (girar+contar en monedas, rellenarse paso a
+    // paso en la pata) antes de pasar a la siguiente; si es 0, vuelve a su estado normal y pasa ya.
+    useEffect(() => {
+        if (goStage !== 3 || !isLibre) return;
+        let cancelled = false;
+        const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const revealCurrency = async (key, target, setCount) => {
+            setRewardEffect({ key, mode: 'grow' });
+            await wait(GO_REWARD_GROW_MS);
+            if (cancelled) return;
+            if (target > 0) {
+                setRewardEffect({ key, mode: 'spin' });
+                let n = 0;
+                while (n < target) {
+                    if (cancelled) return;
+                    n += 1;
+                    setCount(n);
+                    await wait(GO_REWARD_TICK_MS);
+                }
+                await wait(GO_REWARD_HOLD_MS);
+            }
+            if (cancelled) return;
+            setRewardEffect({ key: null, mode: null });
+        };
+        const revealPaw = async () => {
+            setRewardEffect({ key: 'paw', mode: 'grow' });
+            await wait(GO_REWARD_GROW_MS);
+            if (cancelled) return;
+            if (pawFill > 0) {
+                setRewardEffect({ key: 'paw', mode: 'fill' });
+                let n = 0;
+                while (n < pawFill) {
+                    if (cancelled) return;
+                    n += 1;
+                    setPawStepShown(n);
+                    await wait(GO_REWARD_TICK_MS);
+                }
+                await wait(GO_REWARD_HOLD_MS);
+            }
+            if (cancelled) return;
+            setRewardEffect({ key: null, mode: null });
+        };
+        // Huesos: no gira, solo cuenta (a saltos, no de 1 en 1, porque el total puede ser un numero
+        // grande). El icono va subiendo de tamaño segun el total cruza cada centena (ver clases CSS
+        // runner-run-reward-bone-tier-N), calculado en cada paso del conteo con el valor ya mostrado.
+        const revealBone = async () => {
+            setRewardEffect({ key: 'bone', mode: 'grow' });
+            await wait(GO_REWARD_GROW_MS);
+            if (cancelled) return;
+            if (runBonesEarned > 0) {
+                setRewardEffect({ key: 'bone', mode: 'count' });
+                const step = Math.max(1, Math.round(runBonesEarned / 12));
+                let n = 0;
+                while (n < runBonesEarned) {
+                    if (cancelled) return;
+                    n = Math.min(runBonesEarned, n + step);
+                    setBoneCountShown(n);
+                    await wait(GO_REWARD_TICK_MS);
+                }
+                await wait(GO_REWARD_HOLD_MS);
+            }
+            if (cancelled) return;
+            setRewardEffect({ key: null, mode: null });
+        };
+        (async () => {
+            setRewardStep(1);
+            await revealPaw();
+            if (cancelled) return;
+            setRewardStep(2);
+            await revealBone();
+            if (cancelled) return;
+            setRewardStep(3);
+            await revealCurrency('chapa', runChapasEarned, setChapaCountShown);
+            if (cancelled) return;
+            setRewardStep(4);
+            await revealCurrency('coin', runCoinsEarned, setCoinCountShown);
+            if (cancelled) return;
+            setRewardStep(5);
+            await revealCurrency('huesin', runHuesinEarned, setHuesinCountShown);
+        })();
+        return () => { cancelled = true; };
+    }, [goStage, isLibre, runChapasEarned, runCoinsEarned, runHuesinEarned, runBonesEarned, pawFill]);
+
     return (
         <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
             <div className={`runner-screen${phase === 'playing' || phase === 'gameover' ? ' runner-screen-centered' : ''}`} onClick={e => e.stopPropagation()}>
                 {phase !== 'playing' && onClose && (
-                    <button className="modal-close" onClick={onClose}><X /></button>
+                    <button className="lady-run-close-btn" onClick={onClose}><X /></button>
                 )}
 
                 {rouletteOpen && (
@@ -2081,6 +2345,13 @@ export default function RunnerScreen({
                             ))}
                         </span>
 
+                        {isLibre && (
+                            <span className="runner-track-bone-counter">
+                                <img src={boneIcon} alt="" />
+                                x{phase === 'gameover' ? Math.max(0, runBonesEarned - boneCountShown) : runBonesEarned}
+                            </span>
+                        )}
+
                         {stage === 'boss' && (
                             <div className="runner-boss-label">
                                 <span>BOSS</span>
@@ -2122,7 +2393,7 @@ export default function RunnerScreen({
                         })}
 
                         {obstacles.filter(o => o.lane !== 'cpu').map(o => {
-                            const collectedClass = ((o.isHeart || o.isCoin || o.isChapa) && o.hit) ? ' runner-obstacle-collected' : '';
+                            const collectedClass = ((o.isHeart || o.isCoin || o.isChapa || o.isBone || o.isMagicHeart) && o.hit) ? ' runner-obstacle-collected' : '';
                             return o.isHeart ? (
                                 <img
                                     key={o.id}
@@ -2137,7 +2408,7 @@ export default function RunnerScreen({
                                     ref={el => setObstacleEl(o.id, el)}
                                     src={o.img}
                                     alt=""
-                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}${o.isChapa ? ' runner-obstacle-chapa' : ''}${collectedClass}${isLibre && !o.aerial && !o.isCoin && !o.isChapa ? ' runner-obstacle-warn-blink' : ''}`}
+                                    className={`runner-obstacle${o.aerial ? ' runner-obstacle-aerial' : ''}${o.isCoin ? ' runner-obstacle-coin' : ''}${o.isChapa ? ' runner-obstacle-chapa' : ''}${o.isBone ? ' runner-obstacle-bone' : ''}${o.isMagicHeart ? ' runner-obstacle-magic-heart' : ''}${collectedClass}${isLibre && !o.aerial && !o.isCoin && !o.isChapa && !o.isBone && !o.isMagicHeart ? ' runner-obstacle-warn-blink' : ''}`}
                                 />
                             );
                         })}
@@ -2214,8 +2485,10 @@ export default function RunnerScreen({
                                     {isLibre && (
                                         <p className="runner-run-dog-summary-name">{DogsConfig[selectedDogId]?.name ?? selectedDogId}</p>
                                     )}
-                                    <p className="runner-overlay-score">Puntos: {score}</p>
-                                    {isLibre && (
+                                    {(!isLibre || goStage >= 1) && (
+                                        <p className="runner-overlay-score">Puntos: {score}</p>
+                                    )}
+                                    {isLibre && goStage >= 2 && (
                                         <p className="runner-overlay-score">
                                             {runMetersEarned}m {runIsNewRecord ? '¡Nuevo récord!' : `(Récord: ${runBestMeters}m)`}
                                         </p>
@@ -2223,15 +2496,32 @@ export default function RunnerScreen({
                                     {runMode === 'arcade' && !isLibre && (
                                         <p className="runner-overlay-score">Rivales vencidos: {rivalsDefeated}</p>
                                     )}
-                                    {isLibre && (
+                                    {isLibre && goStage >= 3 && (
                                         <div className="runner-run-rewards">
-                                            <span className="runner-run-reward"><img src={chapaIcon} alt="Chapas" />{runChapasEarned}</span>
-                                            <span className="runner-run-reward"><img src={tavernCoinIcon} alt="Monedas" />{runCoinsEarned}</span>
-                                            <span className="runner-run-reward"><img src={huesinIcon} alt="Huesin" />{runHuesinEarned}</span>
-                                            {pawFill >= 2 && (
-                                                <span className="runner-run-reward-paw">
-                                                    <img src={PAW_FILL_IMAGES[pawFill]} alt="" />
-                                                    <span className="runner-run-reward-paw-mult">x{pawFill}</span>
+                                            {rewardStep >= 1 && (
+                                                <span className={`runner-run-reward-paw${rewardEffect.key === 'paw' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
+                                                    <img src={PAW_FILL_IMAGES[pawStepShown]} alt="" className={`runner-run-reward-paw-step-${pawStepShown}`} />
+                                                    <span className="runner-run-reward-paw-mult">x{pawStepShown}</span>
+                                                </span>
+                                            )}
+                                            {rewardStep >= 2 && (
+                                                <span className={`runner-run-reward${rewardEffect.key === 'bone' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
+                                                    <img src={boneIcon} alt="Huesos" className={`runner-run-reward-bone-tier-${Math.min(3, Math.max(0, Math.floor(boneCountShown / 100) - 1))}`} />x{boneCountShown}
+                                                </span>
+                                            )}
+                                            {rewardStep >= 3 && (
+                                                <span className={`runner-run-reward${rewardEffect.key === 'chapa' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
+                                                    <img src={chapaIcon} alt="Chapas" />{chapaCountShown}
+                                                </span>
+                                            )}
+                                            {rewardStep >= 4 && (
+                                                <span className={`runner-run-reward${rewardEffect.key === 'coin' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
+                                                    <img src={tavernCoinIcon} alt="Monedas" />{coinCountShown}
+                                                </span>
+                                            )}
+                                            {rewardStep >= 5 && (
+                                                <span className={`runner-run-reward${rewardEffect.key === 'huesin' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
+                                                    <img src={huesinIcon} alt="Huesin" />{huesinCountShown}
                                                 </span>
                                             )}
                                         </div>
