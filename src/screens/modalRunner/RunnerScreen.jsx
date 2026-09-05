@@ -5,7 +5,6 @@ import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
-import lifeDogIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/life-dog.webp';
 import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-0.webp';
 import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
@@ -406,11 +405,9 @@ const CPU_DIFFICULTY_PRESETS = {
 const DIFFICULTY_ORDER = ['facil', 'medio', 'dificil'];
 const MEDIUM_PAIR_CHANCE = 0.35; // en Medio, la pareja de obstaculos solo sale esta fraccion de las veces que tocaria en Dificil
 const FACIL_HARD_SWITCH_TIER = 10; // en Facil, a partir de este tramo las parejas se comportan como en Dificil (limite natural)
-// El regalo de chapas se repite en las 3 dificultades: cada 10 tramos en Facil (10, 20, 30...),
-// cada 5 tramos en Medio/Dificil (5, 10, 15...).
-const CHAPA_BONUS_INTERVAL_TIER_FACIL = 10;
-const CHAPA_BONUS_INTERVAL_TIER_OTHER = 5;
-const getChapaBonusIntervalTier = (diff) => diff === 'facil' ? CHAPA_BONUS_INTERVAL_TIER_FACIL : CHAPA_BONUS_INTERVAL_TIER_OTHER;
+// El regalo de chapas se repite igual en las 3 dificultades: cada 5 tramos (5, 10, 15...).
+const CHAPA_BONUS_INTERVAL_TIER = 5;
+const getChapaBonusIntervalTier = () => CHAPA_BONUS_INTERVAL_TIER;
 
 // Limite anti-farmeo: solo las 3 primeras partidas (game overs) del dia dan loot normal por dificultad.
 // De la 4a en adelante, en vez de reducir el valor de cada chapa/tavern coin (eso se probo y se sentia
@@ -677,7 +674,7 @@ export default function RunnerScreen({
     const fourthBonusGivenRef = useRef(false); // 4a chapa, Medio y Dificil, un obstaculo mas atras que la 3a
     const fifthBonusGivenRef = useRef(false); // 5a chapa, solo Dificil, un obstaculo mas atras que la 4a
     const chapaExtraSpawnsRef = useRef(0); // cuenta spawns desde que la ground+aerial ya se dieron, para espaciar 3a/4a/5a
-    const nextChapaBonusTierRef = useRef(CHAPA_BONUS_INTERVAL_TIER_FACIL); // proximo tramo en que se re-arma el regalo
+    const nextChapaBonusTierRef = useRef(CHAPA_BONUS_INTERVAL_TIER); // proximo tramo en que se re-arma el regalo
     const runIsReducedRef = useRef(false); // se fija al empezar la partida (4a+ game over del dia = loot reducido toda la run)
     const resumedRunRef = useRef(false); // true si esta partida viene de restaurar un guardado de partida en curso
     const chapaSpawnCapRef = useRef(Infinity); // en partida reducida, tope de chapas que pueden llegar a aparecer en toda la run (1 o 2 al azar)
@@ -1487,9 +1484,11 @@ export default function RunnerScreen({
                     chapasSpawnedCountRef.current += 1;
                     // Regalo unico de chapas en el 1er terrestre de la partida: nace un poco antes que el
                     // obstaculo (a su izquierda, llega antes al jugador) y arriba, como enseñando a saltar.
+                    // + GROUND_PAIR_GAP_PX * (groupCount - 1): mismo hueco que coin/heart/poderes, para
+                    // no coincidir si algo mas se dispara en este mismo spawn (por defecto no mueve nada).
                     list.push({
                         id: obstacleIdSeq++,
-                        x: trackWidth - CHAPA_LEAD_OFFSET_PX,
+                        x: trackWidth - CHAPA_LEAD_OFFSET_PX + GROUND_PAIR_GAP_PX * (groupCount - 1),
                         img: chapaIcon,
                         isChapa: true,
                         aerial: true,
@@ -1501,6 +1500,7 @@ export default function RunnerScreen({
                         el: null,
                         cpuEl: null,
                     });
+                    groupCount += 1;
                 }
                 if (arcadeSubMode === 'libre' && aerial && !firstAerialBonusGivenRef.current && chapasSpawnedCountRef.current < chapaSpawnCapRef.current) {
                     firstAerialBonusGivenRef.current = true;
@@ -1508,7 +1508,7 @@ export default function RunnerScreen({
                     // Regalo unico de chapas en el 1er aereo de la partida, abajo (se coge sin saltar).
                     list.push({
                         id: obstacleIdSeq++,
-                        x: trackWidth,
+                        x: trackWidth + GROUND_PAIR_GAP_PX * (groupCount - 1),
                         img: chapaIcon,
                         isChapa: true,
                         aerial: false,
@@ -1520,6 +1520,7 @@ export default function RunnerScreen({
                         el: null,
                         cpuEl: null,
                     });
+                    groupCount += 1;
                 }
                 // 3a chapa (Facil/Medio/Dificil), 4a (Medio y Dificil) y 5a (solo Dificil): se cuentan los
                 // spawns que pasan DESPUES de tener ya la de terrestre y la de aereo, para separarlas bien
@@ -1528,7 +1529,7 @@ export default function RunnerScreen({
                     chapasSpawnedCountRef.current += 1;
                     list.push({
                         id: obstacleIdSeq++,
-                        x: trackWidth + CHAPA_LEAD_OFFSET_PX,
+                        x: trackWidth + CHAPA_LEAD_OFFSET_PX + GROUND_PAIR_GAP_PX * (groupCount - 1),
                         img: chapaIcon,
                         isChapa: true,
                         aerial: !aerial,
@@ -1540,6 +1541,7 @@ export default function RunnerScreen({
                         el: null,
                         cpuEl: null,
                     });
+                    groupCount += 1;
                 };
                 const chapaBonusPending =
                     (!thirdBonusGivenRef.current
@@ -1564,9 +1566,11 @@ export default function RunnerScreen({
                     // Exige la accion CONTRARIA a la que hace falta para esquivar el obstaculo real que
                     // acompaña: si el obstaculo es terrestre, el corazon solo se coge saltando (arriba);
                     // si es aereo, se coge quedandose abajo. Asi solo se recoge esquivando bien, no aparte.
+                    // x separado con el mismo hueco (GROUND_PAIR_GAP_PX * groupCount) que usan monedas/poderes,
+                    // para que nunca coincida con otro regalo que se dispare en el mismo spawn.
                     list.push({
                         id: obstacleIdSeq++,
-                        x: trackWidth,
+                        x: trackWidth + GROUND_PAIR_GAP_PX * groupCount,
                         img: null,
                         isHeart: true,
                         aerial: !aerial,
@@ -1578,6 +1582,7 @@ export default function RunnerScreen({
                         el: null,
                         cpuEl: null,
                     });
+                    groupCount += 1;
                 }
                 if (isPair) {
                     list.push(makeObstacle(trackWidth + GROUND_PAIR_GAP_PX));
@@ -2122,7 +2127,7 @@ export default function RunnerScreen({
                                 <img
                                     key={o.id}
                                     ref={el => setObstacleEl(o.id, el)}
-                                    src={lifeDogIcon}
+                                    src={LIFE_TIER_ASSETS[Math.min(Math.floor(lives / 3), LIFE_TIER_ASSETS.length - 1)]}
                                     alt=""
                                     className={`runner-obstacle runner-obstacle-heart${o.aerial ? ' runner-obstacle-aerial' : ''}${collectedClass}`}
                                 />
@@ -2352,21 +2357,23 @@ export default function RunnerScreen({
 
                 {phase === 'playing' && (
                     <div className="runner-action-row">
-                        <button className="runner-jump-btn" onPointerDown={jump}>
-                            <img src={canDoubleJump ? jumpBtnIcon2 : jumpBtnIcon1} alt="Saltar" className="runner-jump-btn-img" />
-                        </button>
+                        <div className="runner-jump-hub">
+                            <button className="runner-jump-btn" onPointerDown={jump}>
+                                <img src={canDoubleJump ? jumpBtnIcon2 : jumpBtnIcon1} alt="Saltar" className="runner-jump-btn-img" />
+                            </button>
+                            {isLibre && (
+                                <button className="runner-power-btn runner-magic-heart-sat" onPointerDown={useMagicHeart} disabled={magicHearts <= 0}>
+                                    <img src={magicHeartIcon} alt="" className="runner-power-btn-img" />
+                                    <span className="runner-power-btn-charges">x{magicHearts}</span>
+                                </button>
+                            )}
+                        </div>
                         {runMode === 'historia' && (
                             <button className="runner-power-btn" onPointerDown={usePower} disabled={(stage === 'boss' ? projectileCharges : powerCharges) <= 0 || (stage === 'boss' && projectileCoolingDown)}>
                                 {playerPowerObstacleImg && (
                                     <img src={playerPowerObstacleImg} alt="" className="runner-power-btn-img" />
                                 )}
                                 <span className="runner-power-btn-charges">{stage === 'boss' ? projectileCharges : powerCharges}</span>
-                            </button>
-                        )}
-                        {isLibre && (
-                            <button className="runner-power-btn" onPointerDown={useMagicHeart} disabled={magicHearts <= 0}>
-                                <img src={magicHeartIcon} alt="" className="runner-power-btn-img" />
-                                <span className="runner-power-btn-charges">{magicHearts}</span>
                             </button>
                         )}
                     </div>
