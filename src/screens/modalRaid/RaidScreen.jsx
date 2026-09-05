@@ -642,10 +642,16 @@ const RaidScreen = ({
                         })}
                         pendingHeartsBonus={gameState.ladyRunPendingHearts ?? 0}
                         onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
+                        magicHearts={gameState.ladyRunMagicHearts ?? 0}
+                        onUseMagicHeart={() => setGameState(prev => ({ ...prev, ladyRunMagicHearts: Math.max(0, (prev.ladyRunMagicHearts ?? 0) - 1) }))}
                         onBuyItem={(itemId, price) => setGameState(prev => {
-                            if ((prev.chapas ?? 0) < price) return prev;
                             if (itemId === 'corazon_extra') {
+                                if ((prev.chapas ?? 0) < price) return prev;
                                 return { ...prev, chapas: prev.chapas - price, ladyRunPendingHearts: (prev.ladyRunPendingHearts ?? 0) + 1 };
+                            }
+                            if (itemId === 'corazon_magico') {
+                                if ((prev.ladyRunMagicHearts ?? 0) >= 2 || (prev.tavernCoins ?? 0) < price) return prev;
+                                return { ...prev, tavernCoins: prev.tavernCoins - price, ladyRunMagicHearts: (prev.ladyRunMagicHearts ?? 0) + 1 };
                             }
                             return prev;
                         })}

@@ -10,6 +10,8 @@ import lifeHeart0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/
 import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp';
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
 import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
+import lifeHeart4 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-4.webp';
+import magicHeartIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/corazon-magico.webp';
 import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
 import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
 import pawFill2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-2.webp';
@@ -180,7 +182,7 @@ const DOG_JUMP_FRAME = {
 
 // Fila de 3 huecos de vida fijos. Cada tramo de 3 vidas suma una capa nueva encima de los 3 huecos
 // (tier 0 = vidas 1-3, tier 1 = vidas 4-6, tier 2 = vidas 7-9...). Anadir mas assets aqui para seguir subiendo.
-const LIFE_TIER_ASSETS = [lifeHeart1, lifeHeart2, lifeHeart3];
+const LIFE_TIER_ASSETS = [lifeHeart1, lifeHeart2, lifeHeart3, lifeHeart4];
 function getLifeSlotAsset(lives, slotIndex) {
     if (lives <= 0) return lifeHeart0;
     const tier = Math.floor((lives - 1) / 3);
@@ -339,6 +341,7 @@ const DOUBLE_SOLO_UNLOCK_TIER_DIFICIL = 5;
 const GROUND_PAIR_GAP_PX = 90; // separacion entre los 2 terrestres cuando salen en pareja
 const LANDING_SYNC_DELAY_MS = 800; // tiempo aprox. de un doble salto completo, para que el aereo llegue justo al aterrizar
 const HIT_INVULN_MS = 900;
+const MAGIC_HEART_INVULN_MS = 5000;
 const MAX_LIVES = 3;
 const GAME_END_DELAY_MS = 600; // pausa antes de mostrar la pantalla de resultado, para que clicks de mas no toquen el boton nuevo que aparece ahi
 
@@ -534,6 +537,8 @@ export default function RunnerScreen({
     onNewDistanceRecord,
     unlockedDogIds = [],
     onUnlockDog,
+    magicHearts = 0,
+    onUseMagicHeart,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -760,6 +765,13 @@ export default function RunnerScreen({
             setCpuPowerPending(true);
         }
     }, [phase, paused, stage, selectedDogId]);
+
+    const useMagicHeart = useCallback(() => {
+        if (phase !== 'playing' || paused) return;
+        if (magicHearts <= 0) return;
+        invulnUntilRef.current = performance.now() + MAGIC_HEART_INVULN_MS;
+        onUseMagicHeart?.();
+    }, [phase, paused, magicHearts, onUseMagicHeart]);
 
     const resetStats = useCallback(() => {
         dogYRef.current = 0;
@@ -2351,6 +2363,12 @@ export default function RunnerScreen({
                                 <span className="runner-power-btn-charges">{stage === 'boss' ? projectileCharges : powerCharges}</span>
                             </button>
                         )}
+                        {isLibre && (
+                            <button className="runner-power-btn" onPointerDown={useMagicHeart} disabled={magicHearts <= 0}>
+                                <img src={magicHeartIcon} alt="" className="runner-power-btn-img" />
+                                <span className="runner-power-btn-charges">{magicHearts}</span>
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -2463,6 +2481,8 @@ export default function RunnerScreen({
                     <LadyRunShopModal
                         onClose={() => setShopOpen(false)}
                         chapas={chapas}
+                        tavernCoins={tavernCoins}
+                        magicHearts={magicHearts}
                         onBuyItem={onBuyItem}
                     />
                 )}

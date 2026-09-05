@@ -360,6 +360,8 @@ import runnerLifeHeart0 from "../assets/ui/icons-hud/hud-modals/game-run/icons/h
 import runnerLifeHeart1 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-1.webp"
 import runnerLifeHeart2 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp"
 import runnerLifeHeart3 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp"
+import runnerLifeHeart4 from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-4.webp"
+import runnerMagicHeart from "../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/corazon-magico.webp"
 import runnerObstaculo3 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo3.webp"
 import runnerObstaculo4 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/libre/obstaculo4.webp"
 import runnerObstaculo6 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/desierto/obstaculo6.webp"
@@ -589,7 +591,7 @@ const IMAGES = [
     zeusRunP1, zeusRunP2, zeusRunP3, zeusRunP4,
     runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo, runnerObstaculo2, runnerObstaculo3, runnerObstaculo4, runnerObstaculo6, runnerObstaculoRata, runnerObstaculoTopo1, runnerChapaIcon, runnerJumpBtnIcon1, runnerJumpBtnIcon2,
     runnerPawFill0, runnerPawFill1, runnerPawFill2, runnerPawFill3, runnerPawFill4, runnerPawFill5,
-    runnerLifeHeart0, runnerLifeHeart1, runnerLifeHeart2, runnerLifeHeart3,
+    runnerLifeHeart0, runnerLifeHeart1, runnerLifeHeart2, runnerLifeHeart3, runnerLifeHeart4, runnerMagicHeart,
     runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera, runnerLibreStaticHielo,
     runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
     runnerObstaculoGato1, runnerObstaculoArmadillo,

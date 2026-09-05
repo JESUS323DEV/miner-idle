@@ -1,15 +1,24 @@
-import { Heart, Shield, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
+import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
+import redHeartIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
+import magicHeartIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/corazon-magico.webp';
 import '../../styles/modals/LadyRunShopModal.css';
 
 // Tienda propia de Lady Run, separada de la de Pata y Pico para no tocar sus precios/economia.
-// "Tienda" es nombre momentaneo. Objetos: solo etiquetas de momento, sin logica de compra/uso todavia.
-const SHOP_ITEMS = [
-    { id: 'corazon_extra', name: 'Corazón extra', desc: 'Una vida más al empezar', Icon: Heart, price: 50, buyable: true },
-    { id: 'escudo', name: 'Escudo', desc: 'Protege de hasta 2 fallos', Icon: Shield, price: 80, buyable: false },
-];
+// "Tienda" es nombre momentaneo.
+// - corazon_extra: se gasta al momento, suma una vida inicial a la siguiente run (ladyRunPendingHearts).
+// - corazon_magico: se guarda en inventario (tope 2, ladyRunMagicHearts), da 5s de invulnerabilidad
+//   al usarlo en Modo Libre, se mantiene entre partidas si no se usa.
+const HEART_ITEM = { id: 'corazon_extra', name: 'Corazón extra', desc: 'Una vida más al empezar', price: 50 };
+const MAGIC_HEART_ITEM = { id: 'corazon_magico', name: 'Corazón mágico', desc: '5s de invulnerabilidad', price: 100 };
+const MAGIC_HEART_MAX = 2;
 
-export default function LadyRunShopModal({ onClose, chapas = 0, onBuyItem }) {
+export default function LadyRunShopModal({ onClose, chapas = 0, tavernCoins = 0, magicHearts = 0, onBuyItem }) {
+    const canAffordHeart = chapas >= HEART_ITEM.price;
+    const magicHeartAtMax = magicHearts >= MAGIC_HEART_MAX;
+    const canAffordMagicHeart = !magicHeartAtMax && tavernCoins >= MAGIC_HEART_ITEM.price;
+
     return (
         <div className="lady-run-shop-backdrop" onClick={onClose}>
             <div className="lady-run-shop-panel" onClick={e => e.stopPropagation()}>
@@ -17,38 +26,38 @@ export default function LadyRunShopModal({ onClose, chapas = 0, onBuyItem }) {
                 <p className="runner-overlay-title">Tienda</p>
 
                 <div className="lady-run-shop-content">
-                    <div className="lady-run-shop-items">
-                        {SHOP_ITEMS.map(item => {
-                            const canAfford = chapas >= item.price;
-                            return (
-                                <div key={item.id} className="lady-run-shop-item">
-                                    <item.Icon size={22} className="lady-run-shop-item-icon" />
-                                    <div className="lady-run-shop-item-info">
-                                        <span className="lady-run-shop-item-name">{item.name}</span>
-                                        <span className="lady-run-shop-item-desc">{item.desc}</span>
-                                    </div>
-                                    {item.buyable ? (
-                                        <button
-                                            className="lady-run-shop-buy-btn"
-                                            disabled={!canAfford}
-                                            onClick={() => onBuyItem?.(item.id, item.price)}
-                                        >
-                                            <img src={chapaIcon} alt="Chapas" />
-                                            <span>{item.price}</span>
-                                        </button>
-                                    ) : (
-                                        <div className="lady-run-shop-item-price">
-                                            <img src={chapaIcon} alt="Chapas" />
-                                            <span>{item.price}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                    <div className="lady-run-shop-heart-card">
+                        <img src={redHeartIcon} alt="" className="lady-run-shop-heart-card-icon" />
+                        <span className="lady-run-shop-heart-card-name">{HEART_ITEM.name}</span>
+                        <span className="lady-run-shop-heart-card-desc">{HEART_ITEM.desc}</span>
+                        <button
+                            className="runner-start-btn runner-start-btn-compact"
+                            disabled={!canAffordHeart}
+                            onClick={() => onBuyItem?.(HEART_ITEM.id, HEART_ITEM.price)}
+                        >
+                            <img src={chapaIcon} alt="Chapas" className="lady-run-shop-heart-card-buy-icon" />
+                            {HEART_ITEM.price}
+                        </button>
+                    </div>
+
+                    <div className="lady-run-shop-heart-card">
+                        <img src={magicHeartIcon} alt="" className="lady-run-shop-heart-card-icon" />
+                        <span className="lady-run-shop-heart-card-name">{MAGIC_HEART_ITEM.name}</span>
+                        <span className="lady-run-shop-heart-card-desc">{MAGIC_HEART_ITEM.desc}</span>
+                        <button
+                            className="runner-start-btn runner-start-btn-compact"
+                            disabled={!canAffordMagicHeart}
+                            onClick={() => onBuyItem?.(MAGIC_HEART_ITEM.id, MAGIC_HEART_ITEM.price)}
+                        >
+                            {magicHeartAtMax ? 'Máx. 2' : (
+                                <>
+                                    <img src={tavernCoinIcon} alt="Monedas" className="lady-run-shop-heart-card-buy-icon" />
+                                    {MAGIC_HEART_ITEM.price}
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
-
-                <button className="runner-start-btn runner-start-btn-compact" onClick={onClose}>Cerrar</button>
             </div>
         </div>
     );

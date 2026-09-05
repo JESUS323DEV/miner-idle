@@ -627,6 +627,8 @@
 }
 
 .runner-obstacle-heart {
+    width: 42px;
+    height: 42px;
     padding: 6px;
     animation: runner-heart-pulse 0.7s ease-in-out infinite;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));

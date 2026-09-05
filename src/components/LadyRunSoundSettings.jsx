@@ -1,14 +1,12 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Settings, X, Volume2 } from 'lucide-react';
-import '../styles/modals/ModalsMenu.css';
 import '../styles/components/LadyRunSoundSettings.css';
 
 /**
  * Boton de ajustes de sonido de Lady Run (independiente de Pata y Pico, ver
- * feedback_limites_diarios_por_dificultad / sistemas aislados). Reutiliza el estilo visual del
- * panel de Ajustes de Pata y Pico (ModalsMenu.css) pero solo con musica/efectos, sin el resto del
- * menu (nuevo juego, sobre el juego...), y conectado a las claves propias music_volume_ladyrun /
- * sfx_volume_ladyrun.
+ * feedback_sistemas_aislados). CSS totalmente propio, sin depender de ModalsMenu.css.
+ * Solo musica/efectos, conectado a las claves propias music_volume_ladyrun / sfx_volume_ladyrun.
  */
 const LadyRunSoundSettings = () => {
     const [open, setOpen] = useState(false);
@@ -37,19 +35,19 @@ const LadyRunSoundSettings = () => {
             <button className="ladyrun-sound-btn" onClick={() => setOpen(true)}>
                 <Settings size={18} />
             </button>
-            {open && (
-                <div className="settings-overlay ladyrun-settings-overlay" onClick={() => setOpen(false)}>
-                    <div className="settings-panel ladyrun-settings-panel" onClick={e => e.stopPropagation()}>
-                        <div className="settings-header">
-                            <span className="settings-title"><Volume2 size={16} /> Sonido</span>
-                            <button className="settings-close" onClick={() => setOpen(false)}><X size={18} /></button>
+            {open && createPortal(
+                <div className="ladyrun-settings-overlay" onClick={() => setOpen(false)}>
+                    <div className="ladyrun-settings-panel" onClick={e => e.stopPropagation()}>
+                        <div className="ladyrun-settings-header">
+                            <span className="ladyrun-settings-title"><Volume2 size={16} /> Sonido</span>
+                            <button className="ladyrun-settings-close" onClick={() => setOpen(false)}><X size={18} /></button>
                         </div>
-                        <div className="settings-list">
-                            <div className="settings-item settings-item-music">
-                                <span className="settings-item-icon"><Volume2 size={18} /></span>
-                                <span className="settings-item-label">Música</span>
+                        <div className="ladyrun-settings-list">
+                            <div className="ladyrun-settings-item">
+                                <span className="ladyrun-settings-item-icon"><Volume2 size={18} /></span>
+                                <span className="ladyrun-settings-item-label">Música</span>
                             </div>
-                            <div className="settings-item settings-item-volume">
+                            <div className="ladyrun-settings-volume-row">
                                 <input
                                     type="range"
                                     min={0}
@@ -57,14 +55,14 @@ const LadyRunSoundSettings = () => {
                                     step={0.01}
                                     value={musicVolume}
                                     onChange={e => handleMusicVolume(parseFloat(e.target.value))}
-                                    className="volume-slider"
+                                    className="ladyrun-volume-slider"
                                 />
                             </div>
-                            <div className="settings-item settings-item-music">
-                                <span className="settings-item-icon"><Volume2 size={18} /></span>
-                                <span className="settings-item-label">Efectos</span>
+                            <div className="ladyrun-settings-item">
+                                <span className="ladyrun-settings-item-icon"><Volume2 size={18} /></span>
+                                <span className="ladyrun-settings-item-label">Efectos</span>
                             </div>
-                            <div className="settings-item settings-item-volume">
+                            <div className="ladyrun-settings-volume-row">
                                 <input
                                     type="range"
                                     min={0}
@@ -72,12 +70,13 @@ const LadyRunSoundSettings = () => {
                                     step={0.01}
                                     value={sfxVolume}
                                     onChange={e => handleSfxVolume(parseFloat(e.target.value))}
-                                    className="volume-slider"
+                                    className="ladyrun-volume-slider"
                                 />
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     );
