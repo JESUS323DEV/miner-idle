@@ -11,6 +11,7 @@ import sfxRouletteUrl     from '../../assets/audio/lady-run/sfx/ruleta-esenario-
 import sfxSelectSceneUrl  from '../../assets/audio/lady-run/sfx/select-esenario-trim.mp3';
 import sfxHitPlayerUrl    from '../../assets/audio/lady-run/sfx/hit-pj-1-sfx-trim.mp3';
 import sfxLoseGameUrl     from '../../assets/audio/lady-run/sfx/lose-game.mp3';
+import sfxMagicHeartUrl   from '../../assets/audio/lady-run/sfx/corazon-magic.mp3';
 
 let audioCtx = null;
 const buffers = {};
@@ -25,6 +26,10 @@ const SFX_CONFIG = {
     selectScene: { offset: 0.0, gain: 1.0 },
     hitPlayer:   { offset: 0.0, gain: 1.0 },
     loseGame:    { offset: 0.0, gain: 1.0 },
+    // El clip solo tiene la parte buena en los primeros 1.3s (de 3s totales): se repite en bucle
+    // durante los 5s que dura la invulnerabilidad (MAGIC_HEART_INVULN_MS en RunnerScreen.jsx),
+    // luego se corta en seco. Si esa duracion cambia alli, actualizar stopAfter aqui tambien.
+    magicHeart:  { offset: 0.0, gain: 1.0, loop: true, loopStart: 0.0, loopEnd: 1.3, stopAfter: 5.0 },
 };
 
 const SFX_SOURCES = {
@@ -37,6 +42,7 @@ const SFX_SOURCES = {
     selectScene: sfxSelectSceneUrl,
     hitPlayer:   sfxHitPlayerUrl,
     loseGame:    sfxLoseGameUrl,
+    magicHeart:  sfxMagicHeartUrl,
 };
 
 const ensureCtx = () => {
@@ -61,13 +67,19 @@ export const ladyRunSfxReady = Promise.all(
 export const playLadyRunSfx = (key) => {
     if (!audioCtx || !buffers[key]) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const { offset = 0, duration, gain: gainMult = 1.0 } = SFX_CONFIG[key] ?? {};
+    const { offset = 0, duration, gain: gainMult = 1.0, loop = false, loopStart, loopEnd, stopAfter } = SFX_CONFIG[key] ?? {};
     const source = audioCtx.createBufferSource();
     source.buffer = buffers[key];
+    if (loop) {
+        source.loop = true;
+        if (loopStart != null) source.loopStart = loopStart;
+        if (loopEnd != null) source.loopEnd = loopEnd;
+    }
     const gain = audioCtx.createGain();
     gain.gain.value = parseFloat(localStorage.getItem('sfx_volume_ladyrun') ?? '0.09') * gainMult;
     source.connect(gain);
     gain.connect(audioCtx.destination);
     source.start(0, offset);
     if (duration != null) source.stop(audioCtx.currentTime + duration);
+    if (stopAfter != null) source.stop(audioCtx.currentTime + stopAfter);
 };

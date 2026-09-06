@@ -799,6 +799,7 @@ export default function RunnerScreen({
         if (phase !== 'playing' || paused) return;
         if (magicHearts <= 0) return;
         invulnUntilRef.current = performance.now() + MAGIC_HEART_INVULN_MS;
+        playLadyRunSfx('magicHeart');
         onUseMagicHeart?.();
     }, [phase, paused, magicHearts, onUseMagicHeart]);
 
@@ -1846,7 +1847,7 @@ export default function RunnerScreen({
             }
             if (magicHeartCollected) {
                 invulnUntilRef.current = now + MAGIC_HEART_INVULN_MS;
-                playLadyRunSfx('heal');
+                playLadyRunSfx('magicHeart');
             }
 
             // Recogida de tavern coins: mismo criterio, independiente de la invulnerabilidad.
@@ -2684,13 +2685,17 @@ export default function RunnerScreen({
                     <div className="runner-dog-select">
                         {[...UNLOCKED_DOG_IDS]
                             .sort((a, b) => {
-                                const aLocked = PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a);
-                                const bLocked = PAID_DOG_IDS.includes(b) && !unlockedDogIds.includes(b);
+                                const aLocked = runMode !== 'arcade' && PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a);
+                                const bLocked = runMode !== 'arcade' && PAID_DOG_IDS.includes(b) && !unlockedDogIds.includes(b);
                                 return aLocked - bLocked;
                             })
                             .map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
-                            const needsUnlock = PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id);
+                            // En Modo Libre todos los perros son gratis (se quiere que se prueben todos sin
+                            // friccion); el desbloqueo de pago solo sigue activo en Historia. Ver [[feedback_lady_run_modos_independientes]].
+                            // Nota: arcadeSubMode todavia es null aqui (solo se pone 'libre' al pulsar Empezar,
+                            // despues de elegir perro), por eso se mira runMode==='arcade' y no arcadeSubMode.
+                            const needsUnlock = runMode !== 'arcade' && PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id);
                             const canAfford = huesin >= DOG_UNLOCK_PRICE.huesin && tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins;
                             return (
                                 <div key={id} className="runner-dog-select-col">

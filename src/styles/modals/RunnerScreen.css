@@ -916,6 +916,19 @@
     filter: brightness(1.15);
 }
 
+.runner-start-btn:disabled {
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+.runner-start-btn:disabled::before {
+    filter: grayscale(60%) brightness(0.5);
+}
+
+.runner-start-btn:disabled:hover {
+    filter: none;
+}
+
 .runner-start-btn-secondary {
     color: rgba(255, 255, 255, 0.85);
 }
