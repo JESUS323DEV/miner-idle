@@ -2447,7 +2447,7 @@ export default function RunnerScreen({
                         <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}`}>
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
-                                    <button className="runner-mode-btn" onClick={() => setRunMode('arcade')}>
+                                    <button className="runner-mode-btn runner-mode-btn-pulse" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
                                     <button className="runner-mode-btn runner-mode-btn-locked" disabled>
