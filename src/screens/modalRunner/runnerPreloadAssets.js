@@ -107,6 +107,11 @@ import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1
 import chapaIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/chapas.webp';
 import boneIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/hueso.webp';
 import huesinIcon from '../../assets/ui/icons-hud/hud-principal/huesin-coin.webp';
+import munaGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-muna/muna-run-firme.webp';
+import druhGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-druh/druh-run-firme.webp';
+import gordoGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-gordo/gordo-run-firme.webp';
+import ladyGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-lady/lady-run-firme.webp';
+import nupitoGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets-perros/animations-nupito/nupito-run-firme.webp';
 
 // Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
 // mismo, Historia/Tienda estan bloqueados). Esto es lo que bloquea la pantalla de carga inicial.
@@ -124,6 +129,7 @@ export const RUNNER_CORE_PRELOAD_IMAGES = [
     lockIcon, tavernCoinIcon, chapaIcon, huesinIcon, jumpBtnIcon1, jumpBtnIcon2, boneIcon,
     pawFill0, pawFill1, pawFill2, pawFill3, pawFill4, pawFill5,
     lifeHeart0, lifeHeart1, lifeHeart2, lifeHeart3, lifeHeart4, magicHeartIcon, greenHeartIcon,
+    munaGameOver, druhGameOver, gordoGameOver, ladyGameOver, nupitoGameOver,
     obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo, obstaculoAereo3,
     runnerFondo1, runnerFondoRunBosque, runnerFondoRunCiudad, runnerFondoRunDesierto, runnerFondoRunMinas, runnerFondoRunPradera, runnerFondoRunHielo,
     libreStaticBosque, libreStaticCiudad, libreStaticDesierto, libreStaticMinas, libreStaticPradera, libreStaticHielo,
