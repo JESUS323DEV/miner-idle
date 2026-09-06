@@ -2651,9 +2651,16 @@ export default function RunnerScreen({
 
                 {phase === 'ready' && !runMode && (
                     <div className="runner-mode-cards-extra">
-                        <div className="runner-mode-card-locked runner-mode-card-static-hielo runner-mode-card-half">
+                        <div className="runner-mode-card-locked runner-mode-card-static-hielo">
                             <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                 <span className="runner-mode-btn-title">Skins</span>
+                                <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
+                            </button>
+                            <span className="runner-mode-card-tag">Próximamente</span>
+                        </div>
+                        <div className="runner-mode-card-locked runner-mode-card-static-bosque">
+                            <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                <span className="runner-mode-btn-title">Online</span>
                                 <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                             </button>
                             <span className="runner-mode-card-tag">Próximamente</span>

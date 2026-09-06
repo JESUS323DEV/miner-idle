@@ -12,20 +12,32 @@ Minijuego "corre y esquiva" dentro de Lady Hungry. Componente aislado (`src/scre
 
 ## Modos
 
-Pantalla única de selección con 3 botones: **Modo Libre**, **Historia**, **Tienda**. Historia y Tienda están bloqueados de nuevo (candado, `.runner-mode-btn-locked`) desde el 2026-09-02 — solo Modo Libre es jugable ahora mismo.
+Pantalla inicial de varias cards independientes (no un único bloque de botones): **Modo Libre** (jugable) + **Historia** (bloqueada, candado) en `.runner-mode-select`; **Tienda** en su propia card aparte (`.runner-mode-card-shop`) — **jugable/accesible, NO bloqueada** (esto quedó desactualizado en una versión anterior de esta doc); y 3 cards más bloqueadas con etiqueta "Próximamente": **Eventos**, **Torneo** y **Skins** (media card).
 
 - **Modo Libre**: carrera infinita en solitario, sin rival CPU visible (la card de arriba no se renderiza en este modo, `isLibre`) ni poderes ni boss. 5 fondos con nombre propio en `escenarios-run-libre/` (`libre-bosque`, `libre-ciudad`, `libre-desierto`, `libre-minas`, `libre-pradera`; el de `libre-ciudad` también se reutiliza como 4º escenario del capítulo Ciudad en Historia). Se sortea 1 al pulsar Empezar, revelado con un efecto de ruleta (tira de fondos deslizándose en horizontal, frenando hasta pararse en el elegido) antes de arrancar la partida.
 - **Historia** (bloqueada, ver arriba): CPU 1v1 + poderes de sabotaje → fase boss al vencerla, organizada en capítulos (Capítulo 1 = Mina, Capítulo 2 = Ciudad), cada uno con 3 escenarios encadenados y su propio checkpoint ("Continuar" entre escenarios, "Reclamar" solo en el último). Pendiente de un repaso a fondo de esta sección de la doc, desactualizada desde antes del trabajo de combate de boss de esta semana.
 
 ## Roster de perros
 
-9 perros seleccionables. Bloqueados (candado, `icon-rewards/lock.webp`, esquina superior derecha de la tarjeta): **Lady, Tuka, Smoke, Zeus, Tokio, Nupito**. Libres: **Gordo, Muna, Druh**.
+9 perros seleccionables, con 2 sistemas de bloqueo INDEPENDIENTES entre sí (uno por animación pendiente, otro por precio):
 
-Motivo del bloqueo: el resto de perros (los bloqueados) todavía usan el sistema viejo de 4 imágenes sueltas (`gordo-1.webp`, `gordo-2.webp`, `gordo-3.webp`, `gordo-4.webp`...) que el código va alternando rápido para simular que corre — se ve un poco a saltos. Gordo, Muna y Druh en cambio usan un ÚNICO archivo webp que YA trae la animación de correr grabada dentro de él (se exportó así desde Aseprite), así que se ve fluido de verdad sin que el código tenga que alternar nada. Por eso estos 3 se desbloquearon primero: ya tienen el asset bueno.
+### Bloqueo por animación pendiente (`LOCKED_DOG_IDS`)
+
+Bloqueados con candado + "Próximamente": **Smoke, Zeus, Tokio, Tuka**. Libres de este bloqueo (ya animados): **Lady, Gordo, Muna, Nupito, Druh**.
+
+Motivo: los bloqueados todavía usan el sistema viejo de 4 imágenes sueltas (`gordo-1.webp`, `gordo-2.webp`, `gordo-3.webp`, `gordo-4.webp`...) que el código va alternando rápido para simular que corre — se ve un poco a saltos. Los ya animados usan un ÚNICO archivo webp que YA trae la animación de correr grabada dentro de él (se exportó así desde Aseprite), así que se ve fluido de verdad sin que el código tenga que alternar nada.
 
 Ejemplo concreto con Gordo: `gordo-1.webp` es el único archivo que se usa para TODO el ciclo de correr (se anima solo). `gordo-2.webp` (uno de los 4 antiguos) se reutiliza aparte, fijo, SOLO para la pose de salto (`DOG_JUMP_FRAME`) — si no se hiciera así, al saltar se vería corriendo en el aire en vez de con una pose de salto.
 
-Cuando el usuario anime el resto de perros (exportando su ciclo de correr como un único webp animado, igual que Gordo), se desbloquean siguiendo el mismo patrón.
+Tuka tuvo su propio ciclo animado en algún momento y se desbloqueó, pero se volvió a bloquear (2026-09-06, pendiente de pulir) — no asumir que "ya animado" es un estado permanente para ningún perro hasta confirmarlo en `LOCKED_DOG_IDS` directamente en el código.
+
+Cuando se anime el resto (exportando su ciclo de correr como un único webp animado, igual que Gordo), se desbloquean siguiendo el mismo patrón.
+
+### Bloqueo por precio (`PAID_DOG_IDS`) — SOLO afecta a Historia
+
+De los ya animados, **Lady, Muna, Nupito** tienen precio (10 huesín + 5 tavern coin, pago único, permanente, `gameState.ladyRunUnlockedDogs`) — el precio y el candado se muestran superpuestos sobre el propio icono del perro en el selector. **Gordo y Druh** son gratis siempre.
+
+**Importante (2026-09-06):** este precio SOLO aplica en **Historia**. En **Modo Libre todos los perros ya animados son gratis**, sin excepción — se quiere que se prueben todos sin fricción ahí. Esto es un caso concreto de la regla general "los modos de Lady Run son independientes entre sí" (ver `feedback_lady_run_modos_independientes` en memoria): un sistema de un modo no se asume aplicado a otro sin pedirlo explícitamente.
 
 ## Dificultad — Fácil / Medio / Difícil
 
@@ -60,7 +72,38 @@ Lady Run tiene su propia jerarquía de monedas, en paralelo a la de Pata y Pico 
 
 1. **Chapas** (`gameState.chapas`, icono `icons/hud/chapas.webp`) — la más fácil de conseguir, sale con frecuencia durante el recorrido.
 2. **Tavern Coin** (`gameState.tavernCoins`) — sale de vez en cuando (cada 4 tramos).
-3. **Huesín** (`gameState.huesin`) — pendiente de diseñar: se entregaría solo al terminar la partida, escalando con lo lejos que llegues. No implementado todavía.
+3. **Huesín** (`gameState.huesin`) — YA IMPLEMENTADO (2026-09-06, la nota de "pendiente de diseñar" quedó obsoleta): sale del 3er tramo de cada fase de 3 (`RUN_MILESTONE_REWARDS`, ver tabla más abajo), nunca se genera suelto en la pista.
+4. **Huesos** (pickup de pista, no es moneda por sí solo) — se convierte en chapas/coins al terminar la run, ver sección propia más abajo.
+
+### Multiplicador de recompensas — "la pata" (`pawFill`)
+
+Icono de pata que se va llenando (0-5, `PAW_FILL_MAX`) una vez por cada tramo/milestone cruzado en Modo Libre, sin tope de tiempo (sube toda la partida, nunca baja hasta que termina la run). Al morir, si `pawFill >= 2`, se aplica como multiplicador PLANO a todo lo acumulado de **coins, huesín y chapas de tramo** en esa run (`claimRunMilestoneRewards`) — con 5 tramos cruzados ya llegas al tope x5. El bono de huesos (ver abajo) queda FUERA de este multiplicador, siempre suma tal cual.
+
+Se muestra en 2 sitios: una barra de progreso en pantalla (posición dentro de la fase actual, se reinicia visualmente cada 3 tramos aunque el nivel de la pata no baje) y, desde 2026-09-06, como primer elemento de la fila de recompensas en Game Over (ver "Revelado de Game Over" más abajo).
+
+### Tabla de recompensas por tramo (`RUN_MILESTONE_REWARDS`)
+
+| Dificultad | Tramo 1 | Tramo 2 | Tramo 3 |
+|---|---|---|---|
+| Fácil | +2 coins | +3 coins | +1 huesín |
+| Medio | +3 coins | +4 coins | +2 huesín |
+| Difícil | +4 coins | +5 coins | +3 huesín |
+
+Se repite cada fase de 3 tramos, toda la partida (sin meta final). Solo se cobran los tramos que ese día, en esa dificultad, todavía no se hubieran cobrado ya (`dailyTramosClaimedToday`, contador independiente por dificultad) — si una run no llega más lejos que tu mejor marca del día, no da nada nuevo de tramos, pero tampoco pierdes el progreso ya guardado.
+
+### Huesos (pickup en carrera, 2026-09-06)
+
+A diferencia de corazón/chapa/coin (que aparecen por tramos o intervalos), el hueso es CONSTANTE durante toda la partida: ciclo de 4 spawns (3 con hueso + 1 hueco), en patrón "bocadillo" (uno antes del obstáculo real, otro después — nunca 2 pegados uno detrás de otro). No empieza hasta el 3er obstáculo de la run (para no coincidir con el regalo de chapa inicial). Exige la acción CONTRARIA al obstáculo real que acompaña, igual que el corazón.
+
+Se acumula en un contador propio de la run (sin recompensa inmediata al cogerlo, solo un contador visible arriba a la derecha de la pista). Al terminar la run, se convierte en recompensa aparte (nunca multiplicada por la pata):
+
+- Cada **20 huesos** → +1 chapa.
+- Cada **100 huesos** → +2 chapas y +1 tavern coin EXTRA (se suma a lo anterior, no lo sustituye).
+- Sin tope, sigue escalando cuantos más consigas.
+
+### Corazón mágico de pista (pickup gratuito, 2026-09-06)
+
+Distinto del "Corazón mágico" de la Tienda (ver sección Tienda): este aparece solo, cada 10 tramos, en las 3 dificultades. No se guarda en ningún inventario — al cogerlo en la pista, activa la invulnerabilidad de 5s al instante (mismo `MAGIC_HEART_INVULN_MS` que la versión de Tienda). Mismo emparejamiento de acción contraria que el resto de pickups.
 
 ### Chapas — regalo de progresión
 
@@ -95,6 +138,16 @@ Nota de proceso: el regalo inicial de chapas se probó primero con un asset de o
 
 Corazón, tavern coin y chapa son más pequeños que un obstáculo normal (`PICKUP_SIZE = 38px` vs 46px). Al recogerlos, se PARAN en el sitio (dejan de moverse con el scroll) y se encogen + desvanecen en 0.35s (`PICKUP_COLLECT_ANIM_MS`), en vez de seguir corriendo como un obstáculo normal.
 
+### Revelado escalonado en Game Over (2026-09-06, solo Modo Libre)
+
+En vez de mostrar todo de golpe, la pantalla de resultado revela por etapas: corazones+perro+nombre (inmediato) → Puntos → metros/récord → fila de recompensas. La fila de recompensas aparece en este orden, de izquierda a derecha, cada una con su propio efecto antes de pasar a la siguiente:
+
+1. **Pata** (multiplicador): aparece vacía, crece al "comprobar", y si `pawFill > 0` se rellena paso a paso (sprite + tamaño +2px por paso) hasta el valor final. Va primero porque explica por qué los números que siguen ya vienen multiplicados.
+2. **Huesos**: crece, y si hay alguno cuenta a saltos (no de 1 en 1 — el total puede ser grande) hasta el total, sin girar. El icono crece por centena alcanzada (tope +15px desde 400).
+3. **Chapas**, 4. **Coins**, 5. **Huesín**: cada una crece, y si tiene algo gira + cuenta 1 a 1 hasta el total; si es 0, vuelve a su tamaño normal y pasa a la siguiente sin más.
+
+Si una recompensa da 0, nunca hace su efecto (ni gira ni cuenta) — pasa directo a la siguiente. El contador de huesos de la pista (arriba a la derecha) se descuenta en espejo mientras el de abajo sube, hasta llegar a 0 en ambos.
+
 ## Límite diario anti-farmeo
 
 Sin este límite, era posible farmear moneda casi gratis: la primera parte de una partida (sobre todo en Fácil) tiene riesgo real casi nulo, así que "empezar → coger el regalo inicial → morir/reiniciar → repetir" daba moneda con coste de tiempo mínimo.
@@ -117,18 +170,19 @@ Debajo de "Empezar"/"Reintentar" se muestra "X/3 con botín completo hoy" o "Bot
 
 ## Tienda ("Tienda" — nombre momentáneo)
 
-Modal propio (`LadyRunShopModal.jsx` + CSS propio), pantalla completa (mismo patrón que Recompensas), separado a propósito del `SkinShopModal` de Pata y Pico para no tocar su economía/precios. 2 pestañas con estilo `.gds-tab` (texto plano, sin iconos, el mismo toggle que usa Misiones Minero/Forja):
+Modal propio (`LadyRunShopModal.jsx` + CSS propio), pantalla completa, separado a propósito del `SkinShopModal` de Pata y Pico para no tocar su economía/precios. Reescrita el 2026-09-06: ya NO tiene pestañas ni sección Skins — una sola pantalla con una rejilla 2x2 de cards (`.lady-run-shop-content`, fondo `diamond.webp`), pegada justo debajo del título.
 
-- **Skins**: vacía, "Próximamente".
-- **Objetos**: 2 filas, solo con precio visible por ahora:
-  - **Corazón extra** — 50 chapas, comprable. Se acumula en `gameState.ladyRunPendingHearts` (consumible, sin tope). Al empezar la próxima partida, se suma entero a las vidas iniciales (3 + bonus) y se consume del todo, sea cual sea el resultado de esa partida. Se ve reflejado en tiempo real en la pantalla de selección (más corazones llenos de lo normal) en cuanto lo compras, sin necesidad de reiniciar. Funciona igual en Modo Libre e Historia (la lógica de vidas iniciales no distingue modo).
-  - **Escudo** — 80 chapas, precio visible pero SIN lógica de compra ni de efecto todavía ("protege de hasta 2 fallos" es solo descripción, no implementado).
+1. **Corazón extra** — 50 chapas. Se acumula en `gameState.ladyRunPendingHearts` (consumible, sin tope). Al empezar la próxima partida, se suma entero a las vidas iniciales (3 + bonus) y se consume del todo, sea cual sea el resultado de esa partida. Se ve reflejado en tiempo real en la pantalla de selección en cuanto lo compras. Funciona igual en Modo Libre e Historia.
+2. **Corazón mágico** — 100 tavern coins, tope 2 guardados (`gameState.ladyRunMagicHearts`). Da 5s de invulnerabilidad al usarlo (botón satélite propio junto al de saltar, con contador de cargas), se mantiene entre partidas si no se usa. Distinto del "corazón mágico de pista" (gratis, ver Economía) — este es de pago y se activa cuando el jugador decide.
+3. **Corazón verde** — 150 chapas, tope 5 guardados (`gameState.ladyRunGreenHearts`). Escudo: al empezar la run, todos los que tengas guardados se muestran como corazones EXTRA verdes pegados a la fila normal de 3 (también visibles en la pantalla inicial, antes de pulsar Empezar). Cada golpe que normalmente restaría 1 vida real, en vez de eso consume 1 corazón verde (si tienes alguno activo); solo cuando se agotan, los golpes vuelven a quitar vida real. Se pierden de verdad al gastarse, no se recuperan. Solo tiene efecto en Modo Libre (en Historia no se ha decidido todavía si se usará). El sistema de vidas normal (tiers 3/6/9) queda intacto, esto es una capa aparte.
+4. **Bomba** — solo idea anotada, card visible sin funcionalidad (botón "Próx." deshabilitado, sin icono). Pensada para comportarse como el corazón mágico (comprable, tope 2, botón satélite) pero limpiando de la pantalla todos los obstáculos de peligro (terrestres y aéreos, no los pickups) al usarla — sin implementar, sin precio decidido.
+
+Todos los botones de compra usan `.runner-start-btn` con estado `:disabled` visual (gris, sin brillo) cuando no llega el dinero o se alcanzó el tope — antes el botón se deshabilitaba por dentro pero se veía igual, se corrigió el 2026-09-06.
 
 ## Pendiente / ideas sin implementar
 
-- Animar los sprites de correr de Lady, Smoke, Tokio, Tuka, Zeus, Nupito (mismo patrón que Gordo/Muna/Druh) para desbloquearlos.
-- Huesín: recompensa de fin de partida, escalando con la distancia — sin diseñar.
-- Escudo: mecánica real (¿absorbe golpes automáticamente? ¿se ve en HUD con contador?) — sin definir.
+- Animar los sprites de correr de Smoke, Tokio, Tuka, Zeus (mismo patrón que Gordo/Muna/Nupito/Lady/Druh) para desbloquearlos.
+- Bomba (Tienda): mecánica real de limpiar obstáculos de la pantalla — solo idea anotada, sin precio ni implementación.
 - Capítulos de Historia (Mina, Ciudad) — decidido que se reconecta bajo Historia, pantalla de lista de capítulos pegada a la derecha, sin implementar todavía (ver sección Historia arriba).
 - Modo 1v1 online (sala + invitar amigo, vía Supabase) — solo diseño de alto nivel hablado, sin empezar. MVP factible: seed de obstáculos compartida entre los 2 clientes + solo eventos de vida/game-over por Realtime, sin sincronizar posición en vivo (eso sería la parte cara).
 - Demo ambiental de CPU en la card de elegir modo (el perro de fondo pasaría a jugar solo de verdad) — solo idea anotada.

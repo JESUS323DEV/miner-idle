@@ -416,6 +416,10 @@
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-hielo-estatica.webp');
 }
 
+.runner-mode-card-static-bosque {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/img-fija/libre-bosque-estatica.webp');
+}
+
 .runner-mode-card-half {
     flex: 0 1 calc(50% - 4px);
 }
