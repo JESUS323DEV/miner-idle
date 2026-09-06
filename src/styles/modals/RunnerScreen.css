@@ -1207,6 +1207,25 @@
     filter: none;
 }
 
+/* Tinte sutil del elemento cuando el perro esta seleccionado: de fondo, detras del icono (mismo nivel
+   que el marco de rareza, ::after pintado encima de el pero siempre detras del <img> del perro). */
+.runner-dog-select-active.runner-dog-select-elembg-fuego::after,
+.runner-dog-select-active.runner-dog-select-elembg-electrico::after,
+.runner-dog-select-active.runner-dog-select-elembg-agua::after,
+.runner-dog-select-active.runner-dog-select-elembg-tierra::after,
+.runner-dog-select-active.runner-dog-select-elembg-oscuro::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+}
+
+.runner-dog-select-active.runner-dog-select-elembg-fuego::after     { background-color: rgba(255, 107, 53, 0.18); }
+.runner-dog-select-active.runner-dog-select-elembg-electrico::after { background-color: rgba(255, 215, 0, 0.18); }
+.runner-dog-select-active.runner-dog-select-elembg-agua::after      { background-color: rgba(79, 195, 247, 0.18); }
+.runner-dog-select-active.runner-dog-select-elembg-tierra::after    { background-color: rgba(139, 105, 20, 0.18); }
+.runner-dog-select-active.runner-dog-select-elembg-oscuro::after    { background-color: rgba(180, 92, 255, 0.18); }
+
 .runner-dog-select-icon {
     width: 48px;
     height: 48px;

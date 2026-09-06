@@ -80,6 +80,8 @@ const LadyRunStandalone = () => {
                 onConsumePendingHearts={() => setGameState(prev => ({ ...prev, ladyRunPendingHearts: 0 }))}
                 magicHearts={gameState.ladyRunMagicHearts ?? 0}
                 onUseMagicHeart={() => setGameState(prev => ({ ...prev, ladyRunMagicHearts: Math.max(0, (prev.ladyRunMagicHearts ?? 0) - 1) }))}
+                greenHearts={gameState.ladyRunGreenHearts ?? 0}
+                onConsumeGreenHeart={() => setGameState(prev => ({ ...prev, ladyRunGreenHearts: Math.max(0, (prev.ladyRunGreenHearts ?? 0) - 1) }))}
                 onBuyItem={(itemId, price) => setGameState(prev => {
                     if (itemId === 'corazon_extra') {
                         if ((prev.chapas ?? 0) < price) return prev;
@@ -88,6 +90,10 @@ const LadyRunStandalone = () => {
                     if (itemId === 'corazon_magico') {
                         if ((prev.ladyRunMagicHearts ?? 0) >= 2 || (prev.tavernCoins ?? 0) < price) return prev;
                         return { ...prev, tavernCoins: prev.tavernCoins - price, ladyRunMagicHearts: (prev.ladyRunMagicHearts ?? 0) + 1 };
+                    }
+                    if (itemId === 'corazon_verde') {
+                        if ((prev.ladyRunGreenHearts ?? 0) >= 5 || (prev.chapas ?? 0) < price) return prev;
+                        return { ...prev, chapas: prev.chapas - price, ladyRunGreenHearts: (prev.ladyRunGreenHearts ?? 0) + 1 };
                     }
                     return prev;
                 })}

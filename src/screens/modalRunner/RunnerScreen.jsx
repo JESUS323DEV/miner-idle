@@ -11,6 +11,7 @@ import lifeHeart1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/
 import lifeHeart2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-2.webp';
 import lifeHeart3 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-3.webp';
 import lifeHeart4 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/vida-base-4.webp';
+import lifeGreenIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/life-green.webp';
 import magicHeartIcon from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-dog/corazon-magico.webp';
 import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
 import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
@@ -147,14 +148,14 @@ const DOG_SELECT_ORDER = ['lady', 'gordo', 'muna', 'nupito', 'smoke', 'tokio', '
 
 // Bloqueados temporalmente: su ciclo de correr todavia no esta animado (webp autoanimado como el resto),
 // se nota mucho mas tosco al lado de los que ya se pasaron. Se desbloquean cuando se animen.
-const LOCKED_DOG_IDS = ['smoke', 'zeus', 'tokio'];
+const LOCKED_DOG_IDS = ['smoke', 'zeus', 'tokio', 'tuka'];
 const UNLOCKED_DOG_IDS = DOG_SELECT_ORDER.filter(id => !LOCKED_DOG_IDS.includes(id));
 // Desbloqueados primero (en su orden habitual), bloqueados al final.
 const DOG_SELECT_DISPLAY_ORDER = [...UNLOCKED_DOG_IDS, ...DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id))];
 
 // De los ya animados (UNLOCKED_DOG_IDS), solo Gordo y Druh son gratis. El resto hay que comprarlo
 // con la moneda del juego (ver unlockedDogIds/onUnlockDog, guardado en gameState.ladyRunUnlockedDogs).
-const PAID_DOG_IDS = ['lady', 'muna', 'nupito', 'tuka'];
+const PAID_DOG_IDS = ['lady', 'muna', 'nupito'];
 const DOG_UNLOCK_PRICE = { huesin: 10, tavernCoins: 5 };
 
 const DOG_RUN_FRAMES = {
@@ -554,6 +555,8 @@ export default function RunnerScreen({
     onUnlockDog,
     magicHearts = 0,
     onUseMagicHeart,
+    greenHearts = 0,
+    onConsumeGreenHeart,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -562,6 +565,8 @@ export default function RunnerScreen({
     onEarnChapasRef.current = onEarnChapas;
     const onEarnHuesinRef = useRef(onEarnHuesin);
     onEarnHuesinRef.current = onEarnHuesin;
+    const onConsumeGreenHeartRef = useRef(onConsumeGreenHeart);
+    onConsumeGreenHeartRef.current = onConsumeGreenHeart;
     const onClaimDailyTramosRef = useRef(onClaimDailyTramos);
     onClaimDailyTramosRef.current = onClaimDailyTramos;
     const onNewDistanceRecordRef = useRef(onNewDistanceRecord);
@@ -582,6 +587,12 @@ export default function RunnerScreen({
     const dailyTramosClaimedToday = dailyTramosClaimedByDifficulty?.[difficulty] ?? 0; // tramos de "meta" ya cobrados hoy en esta dificultad, no vuelven a pagar
     const bestMetersForDog = bestDistanceByDog?.[selectedDogId] ?? 0; // record de distancia guardado para el perro actual
     const [lives, setLives] = useState(MAX_LIVES);
+    // Corazones verdes: escudo comprado en Tienda, se activan al empezar la run con el total que tengas
+    // guardado (greenHearts, persistido), y se consumen 1 a 1 en cada golpe EN VEZ de vida real. Solo
+    // cuando se agotan, los golpes vuelven a restar vida real como siempre. Se pierden de verdad al
+    // gastarse (onConsumeGreenHeart resta del inventario persistido en el mismo momento).
+    const runGreenHeartsRef = useRef(0);
+    const [runGreenHearts, setRunGreenHearts] = useState(0);
     const [bonusLives, setBonusLives] = useState(0); // corazones extra ganados en checkpoints, se suman al maximo
     const [cpuLives, setCpuLives] = useState(MAX_LIVES);
     const [rivalsDefeated, setRivalsDefeated] = useState(0);
@@ -893,6 +904,8 @@ export default function RunnerScreen({
         setCpuAirborne(false);
         setLives(MAX_LIVES + pendingHeartsBonus);
         setBonusLives(0);
+        runGreenHeartsRef.current = greenHearts;
+        setRunGreenHearts(greenHearts);
         setCpuLives(MAX_LIVES);
         setRivalsDefeated(0);
         setCheckpointOpen(false);
@@ -904,7 +917,7 @@ export default function RunnerScreen({
         setSpeedTierDisplay(1);
         setWon(false);
         setPaused(false);
-    }, [pendingHeartsBonus, difficulty]);
+    }, [pendingHeartsBonus, difficulty, greenHearts]);
 
     const claimRunMilestoneRewards = useCallback((totalCrossed) => {
         const rewards = RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil;
@@ -2071,32 +2084,40 @@ export default function RunnerScreen({
                 setHitFlash(true);
                 setTimeout(() => setHitFlash(false), HIT_INVULN_MS);
                 playLadyRunSfx('hitPlayer');
-                setLives(prev => {
-                    const next = prev - 1;
-                    if (next <= 0 && !endingRef.current) {
-                        endingRef.current = true;
-                        setTimeout(() => {
-                            if (arcadeSubMode === 'libre') {
-                                claimRunMilestoneRewards(runTotalMilestonesRef.current);
-                                setObstacles([]);
-                                const meters = Math.floor(runDistanceRef.current / METERS_PER_PX);
-                                setRunMetersEarned(meters);
-                                if (meters > bestMetersForDog) {
-                                    setRunIsNewRecord(true);
-                                    setRunBestMeters(meters);
-                                    onNewDistanceRecordRef.current?.(selectedDogId, meters);
-                                } else {
-                                    setRunIsNewRecord(false);
-                                    setRunBestMeters(bestMetersForDog);
+                if (arcadeSubMode === 'libre' && runGreenHeartsRef.current > 0) {
+                    // Escudo: el golpe consume 1 corazon verde en vez de vida real. Se pierde de verdad
+                    // (onConsumeGreenHeart resta ya del inventario persistido, no vuelve).
+                    runGreenHeartsRef.current -= 1;
+                    setRunGreenHearts(runGreenHeartsRef.current);
+                    onConsumeGreenHeartRef.current?.();
+                } else {
+                    setLives(prev => {
+                        const next = prev - 1;
+                        if (next <= 0 && !endingRef.current) {
+                            endingRef.current = true;
+                            setTimeout(() => {
+                                if (arcadeSubMode === 'libre') {
+                                    claimRunMilestoneRewards(runTotalMilestonesRef.current);
+                                    setObstacles([]);
+                                    const meters = Math.floor(runDistanceRef.current / METERS_PER_PX);
+                                    setRunMetersEarned(meters);
+                                    if (meters > bestMetersForDog) {
+                                        setRunIsNewRecord(true);
+                                        setRunBestMeters(meters);
+                                        onNewDistanceRecordRef.current?.(selectedDogId, meters);
+                                    } else {
+                                        setRunIsNewRecord(false);
+                                        setRunBestMeters(bestMetersForDog);
+                                    }
                                 }
-                            }
-                            setWon(false);
-                            setPhase('gameover');
-                            playLadyRunSfx('loseGame');
-                        }, GAME_END_DELAY_MS);
-                    }
-                    return next;
-                });
+                                setWon(false);
+                                setPhase('gameover');
+                                playLadyRunSfx('loseGame');
+                            }, GAME_END_DELAY_MS);
+                        }
+                        return next;
+                    });
+                }
             }
 
             if (cpuLifeLost) {
@@ -2340,6 +2361,14 @@ export default function RunnerScreen({
                                 <img
                                     key={i}
                                     src={getLifeSlotAsset(lives, i)}
+                                    alt=""
+                                    className="runner-life-heart-img"
+                                />
+                            ))}
+                            {isLibre && Array.from({ length: phase === 'playing' ? runGreenHearts : greenHearts }).map((_, i) => (
+                                <img
+                                    key={`green-${i}`}
+                                    src={lifeGreenIcon}
                                     alt=""
                                     className="runner-life-heart-img"
                                 />
@@ -2700,7 +2729,7 @@ export default function RunnerScreen({
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
-                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity}${selectedDogId === id ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity} runner-dog-select-elembg-${DogsConfig[id]?.element}${selectedDogId === id ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
                                         onClick={() => needsUnlock ? (canAfford && onUnlockDog?.(id)) : setSelectedDogId(id)}
                                         disabled={needsUnlock && !canAfford}
                                     >
@@ -2785,6 +2814,7 @@ export default function RunnerScreen({
                         chapas={chapas}
                         tavernCoins={tavernCoins}
                         magicHearts={magicHearts}
+                        greenHearts={greenHearts}
                         onBuyItem={onBuyItem}
                     />
                 )}

@@ -20,10 +20,9 @@
 
 .lady-run-shop-content {
     width: 100%;
-    flex: 1;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    align-items: center;
+    align-items: start;
     justify-items: center;
     gap: 12px;
 }
@@ -66,4 +65,12 @@
     width: 16px;
     height: 16px;
     object-fit: contain;
+}
+
+.runner-start-btn.lady-run-shop-soon-btn {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    padding: 0.5rem 1.2rem;
+    white-space: nowrap;
 }
