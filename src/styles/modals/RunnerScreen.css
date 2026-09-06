@@ -982,6 +982,7 @@
 }
 
 .runner-mode-btn-pulse {
+    border-radius: 10px;
     animation: runner-mode-btn-pulse 1.5s infinite;
 }
 
