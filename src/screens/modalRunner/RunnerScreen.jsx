@@ -2447,7 +2447,7 @@ export default function RunnerScreen({
                         <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}`}>
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
-                                    <button className="runner-mode-btn runner-mode-btn-pulse" onClick={() => setRunMode('arcade')}>
+                                    <button className="runner-mode-btn runner-mode-btn-glow" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
                                     <button className="runner-mode-btn runner-mode-btn-locked" disabled>
@@ -2474,7 +2474,7 @@ export default function RunnerScreen({
                                     <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
                                     <p className="runner-overlay-title">{runMode === 'historia' && selectedChapter ? `Capítulo ${selectedChapter}` : 'Corre y esquiva'}</p>
                                     <button
-                                        className="runner-start-btn"
+                                        className={`runner-start-btn${runMode === 'arcade' ? ' runner-start-btn-glow' : ''}`}
                                         onClick={runMode === 'arcade' ? startLibreRoulette : resetGame}
                                     >Empezar</button>
                                     {runMode === 'arcade' && (
