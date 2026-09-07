@@ -344,6 +344,8 @@ import runnerEscenarioMina3 from "../assets/ui/icons-hud/hud-modals/game-run/esc
 import runnerEscenarioCiudad1 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp"
 import runnerEscenarioCiudad2 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp"
 import runnerEscenarioCiudad3 from "../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp"
+import runnerPrologoScene1 from "../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part1.webp"
+import runnerPrologoScene0 from "../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0.webp"
 import runnerMinaBoss1 from "../assets/ui/icons-hud/hud-modals/game-run/bosses/bats/new-boss-1.webp"
 import runnerMinaBoss2 from "../assets/ui/icons-hud/hud-modals/game-run/bosses/bats/new-boss-2.webp"
 import runnerObstaculo2 from "../assets/ui/icons-hud/hud-modals/game-run/obstaculos/terrestres/mina/obstaculo2.webp"
@@ -601,7 +603,7 @@ const IMAGES = [
     runnerLifeHeart0, runnerLifeHeart1, runnerLifeHeart2, runnerLifeHeart3, runnerLifeHeart4, runnerMagicHeart, runnerGreenHeart,
     runnerMunaGameOver, runnerDruhGameOver, runnerGordoGameOver, runnerLadyGameOver, runnerNupitoGameOver,
     runnerLibreStaticBosque, runnerLibreStaticCiudad, runnerLibreStaticDesierto, runnerLibreStaticMinas, runnerLibreStaticPradera, runnerLibreStaticHielo,
-    runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2,
+    runnerEscenarioMina1, runnerEscenarioMina2, runnerEscenarioMina3, runnerEscenarioCiudad1, runnerEscenarioCiudad2, runnerEscenarioCiudad3, runnerMinaBoss1, runnerMinaBoss2, runnerPrologoScene1, runnerPrologoScene0,
     runnerObstaculoGato1, runnerObstaculoArmadillo,
     runnerObstaculoAereo, runnerObstaculoAereo2, runnerObstaculoAereo3, runnerObstaculoAereoCuevas, runnerObstaculoAereoCuevas2,
     runnerPowerFuego, runnerPowerElectrico, runnerPowerAgua, runnerPowerTierra, runnerPowerOscuro, runnerAttackAgua, runnerAttackElectrico, runnerAttackBatsBoss, runnerBatBoss,

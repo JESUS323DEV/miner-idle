@@ -86,6 +86,9 @@ import escenarioMina3 from '../../assets/ui/icons-hud/hud-modals/game-run/escena
 import escenarioCiudad1 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-1.webp';
 import escenarioCiudad2 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-2.webp';
 import escenarioCiudad3 from '../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run/card-2/escenario-ciudad-3.webp';
+import prologoScene1 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part1.webp';
+import prologoScene0 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0.webp';
+import prologoScene05 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0-5.webp';
 
 import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
 import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
@@ -143,4 +146,5 @@ export const RUNNER_HISTORIA_PRELOAD_IMAGES = [
     fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle, attackAgua, attackElectrico, attackBatsBoss,
     batBoss, minaBoss1, minaBoss2, spider001, spider002, spiderBossFinal,
     escenarioMina1, escenarioMina2, escenarioMina3, escenarioCiudad1, escenarioCiudad2, escenarioCiudad3,
+    prologoScene1, prologoScene0, prologoScene05,
 ];

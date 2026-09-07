@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Trophy, ArrowLeft, Flame, Zap, Droplets, Mountain, Moon, Skull } from 'lucide-react';
 import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/lock.webp';
+import prologoScene1 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part1.webp';
+import prologoScene0 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0.webp';
+import prologoScene05 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0-5.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
@@ -229,6 +232,26 @@ const CHAPTER_BOSS_ELEMENT = {
     ciudad: 'electrico',
 };
 const BIOME_ORDER = ['mina', 'ciudad'];
+const PROLOGO_PART0_TEXT = [
+    'Durante años, Lady llevó una vida sencilla.',
+    'Dormir. Comer. Pasear. Volver a dormir.',
+];
+const PROLOGO_PART05_TEXT = [
+    'Hasta que un día...',
+];
+const PROLOGO_PART1_TEXT = [
+    'Y vigilar a su humano, siempre frente a esa pantalla.',
+    'Hasta que, una noche, algo cambió.',
+    'La pantalla empezó a fallar.',
+    'Una luz salió del monitor...',
+    '...y se lo llevó.',
+    'Lady corrió. Ladró. Esperó.',
+];
+const PROLOGO_PART0_TYPE_SPEED_MS = 60;
+const PROLOGO_PART0_HOLD_MS = 1400;
+const PROLOGO_PART05_TYPE_SPEED_MS = 60;
+const PROLOGO_PART05_HOLD_MS = 1400;
+const PROLOGO_SCENE1_BTN_DELAY_MS = 16000;
 
 const RUN_FRAME_MS = 130;
 // Pools tematicos por contexto (libre / bioma) -- terrestres
@@ -613,6 +636,7 @@ export default function RunnerScreen({
     // sorteando entre sus 2 pistas cada vez que se entra ahi.
     useEffect(() => {
         if (phase === 'gameover') { setLibreMusicTrack(null); return; }
+        if (runMode === 'historia') { setLibreMusicTrack(null); return; }
         if (phase === 'ready' && !rouletteOpen) { setLibreMusicTrack(BG_PRINCIPAL_TRACK); return; }
         if (arcadeSubMode !== 'libre' || rouletteOpen) { setLibreMusicTrack(null); return; }
         if (libreSceneKey === 'minas') {
@@ -620,7 +644,7 @@ export default function RunnerScreen({
         } else {
             setLibreMusicTrack(LIBRE_SCENE_MUSIC[libreSceneKey] ?? null);
         }
-    }, [phase, arcadeSubMode, libreSceneKey, rouletteOpen]);
+    }, [phase, runMode, arcadeSubMode, libreSceneKey, rouletteOpen]);
     const musicVolume = (() => {
         const saved = localStorage.getItem('music_volume_ladyrun');
         return saved === null ? 0.06 : parseFloat(saved);
@@ -666,6 +690,53 @@ export default function RunnerScreen({
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
+    const [prologoStep, setPrologoStep] = useState(-1); // -1 = cerrado, 0 = parte 0 (lore), 1 = parte 0-5 (respirando, sin texto), 2 = parte 1 (animacion + lore)
+    const [prologoTextIndex, setPrologoTextIndex] = useState(0);
+    const [prologoCharIndex, setPrologoCharIndex] = useState(0);
+    const [prologoBtnReady, setPrologoBtnReady] = useState(false);
+
+    // Prologo Historia: texto tipo maquina de escribir, sin tap del jugador.
+    // Parte 0: 2 bloques, al terminar el ultimo salta solo a la parte 0-5 (sin btn).
+    // Parte 0-5: 1 bloque, se queda visible y al terminar de escribirse aparece el btn Continuar.
+    useEffect(() => {
+        if (prologoStep !== 0 && prologoStep !== 1) return undefined;
+        setPrologoBtnReady(false);
+        const textArr = prologoStep === 0 ? PROLOGO_PART0_TEXT : PROLOGO_PART05_TEXT;
+        const typeSpeedMs = prologoStep === 0 ? PROLOGO_PART0_TYPE_SPEED_MS : PROLOGO_PART05_TYPE_SPEED_MS;
+        const holdMs = prologoStep === 0 ? PROLOGO_PART0_HOLD_MS : PROLOGO_PART05_HOLD_MS;
+        const fullText = textArr[prologoTextIndex] ?? '';
+        setPrologoCharIndex(0);
+        let charCount = 0;
+        let holdTimeout;
+        const typeInterval = setInterval(() => {
+            charCount += 1;
+            setPrologoCharIndex(charCount);
+            if (charCount >= fullText.length) {
+                clearInterval(typeInterval);
+                holdTimeout = setTimeout(() => {
+                    if (prologoTextIndex < textArr.length - 1) {
+                        setPrologoTextIndex(i => i + 1);
+                    } else if (prologoStep === 0) {
+                        setPrologoTextIndex(0);
+                        setPrologoStep(1);
+                    } else if (prologoStep === 1) {
+                        setPrologoBtnReady(true);
+                    }
+                }, holdMs);
+            }
+        }, typeSpeedMs);
+        return () => { clearInterval(typeInterval); clearTimeout(holdTimeout); };
+    }, [prologoStep, prologoTextIndex]);
+
+    // Escena 1 (animacion de la absorcion): sin texto en pantalla, pero se calcula un tiempo
+    // de espera equivalente a lo que tardaria en escribirse PROLOGO_PART1_TEXT (misma velocidad
+    // y pausa que el resto), solo como cronometro interno para saber cuando mostrar "Volver".
+    useEffect(() => {
+        if (prologoStep !== 2) return undefined;
+        setPrologoBtnReady(false);
+        const timeout = setTimeout(() => setPrologoBtnReady(true), PROLOGO_SCENE1_BTN_DELAY_MS);
+        return () => clearTimeout(timeout);
+    }, [prologoStep]);
     const [selectedChapter, setSelectedChapter] = useState(null); // 1 | 2, solo etiqueta por ahora, sin efecto en combate/obstaculos
     const [highScores, setHighScores] = useState(loadHighScores);
     const [powerCharges, setPowerCharges] = useState(SABOTAGE_MAX_CHARGES);
@@ -2316,7 +2387,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                <div className={`runner-tracks${isLibre ? ' runner-tracks-solo' : ''}`}>
+                <div className={`runner-tracks${isLibre ? ' runner-tracks-solo' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-tracks-blank' : ''}`}>
                     {phase !== 'ready' && !isLibre && (
                         <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
@@ -2349,13 +2420,14 @@ export default function RunnerScreen({
                     )}
 
                     <div
-                        className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}`}
+                        className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-track-blank' : ''}`}
                         style={isLibre && phase === 'gameover' ? { backgroundImage: `url(${LIBRE_SCENE_STATIC_IMGS[libreSceneKey]})` } : undefined}
                         ref={trackRef}
                     >
-                        <div className="runner-ground" />
+                        {!(runMode === 'historia' && phase === 'ready') && <div className="runner-ground" />}
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
+                        {!(runMode === 'historia' && phase === 'ready') && (
                         <span className="runner-track-player-lives">
                             {[0, 1, 2].map(i => (
                                 <img
@@ -2374,6 +2446,7 @@ export default function RunnerScreen({
                                 />
                             ))}
                         </span>
+                        )}
 
                         {isLibre && (
                             <span className="runner-track-bone-counter">
@@ -2390,12 +2463,14 @@ export default function RunnerScreen({
                         )}
 
 
+                        {!(runMode === 'historia' && phase === 'ready') && (
                         <img
                             ref={dogElRef}
                             src={dogImg}
                             alt={DogsConfig[selectedDogId]?.name ?? selectedDogId}
                             className={`runner-dog${hitFlash ? ' runner-dog-hit' : ''}${phase === 'gameover' && DOG_GAMEOVER_IMG[selectedDogId] ? ' runner-dog-hidden' : ''}`}
                         />
+                        )}
 
                         {stage === 'boss' && (
                             <img
@@ -2444,15 +2519,14 @@ export default function RunnerScreen({
                         })}
 
                         {(phase === 'ready' || phase === 'gameover') && (
-                        <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}`}>
+                        <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-overlay-blank' : ''}`}>
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
                                     <button className="runner-mode-btn runner-mode-btn-glow" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
-                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
+                                    <button className="runner-mode-btn" onClick={() => setRunMode('historia')}>
                                         <span className="runner-mode-btn-title">Historia</span>
-                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
                                 </div>
                             )}
@@ -2469,19 +2543,36 @@ export default function RunnerScreen({
                                     </div>
                                 </>
                             )}
-                            {phase === 'ready' && runMode && !biomeSelectOpen && !chapterSelectOpen && (
+                            {phase === 'ready' && runMode === 'historia' && !chapterSelectOpen && (
+                                <>
+                                    {prologoStep === -1 && (
+                                        <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
+                                    )}
+                                    <p className="runner-overlay-title">Historia</p>
+                                    <div className="runner-mode-select runner-mode-select-centered">
+                                        <button className="runner-mode-btn" onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(0); }}>
+                                            <span className="runner-mode-btn-title">Nueva Partida</span>
+                                        </button>
+                                        <button className="runner-mode-btn" disabled>
+                                            <span className="runner-mode-btn-title">Continuar</span>
+                                        </button>
+                                        <button className="runner-mode-btn" disabled>
+                                            <span className="runner-mode-btn-title">Guardar</span>
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                            {phase === 'ready' && runMode === 'arcade' && !biomeSelectOpen && !chapterSelectOpen && (
                                 <>
                                     <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
-                                    <p className="runner-overlay-title">{runMode === 'historia' && selectedChapter ? `Capítulo ${selectedChapter}` : 'Corre y esquiva'}</p>
+                                    <p className="runner-overlay-title">Corre y esquiva</p>
                                     <button
-                                        className={`runner-start-btn${runMode === 'arcade' ? ' runner-start-btn-glow' : ''}`}
-                                        onClick={runMode === 'arcade' ? startLibreRoulette : resetGame}
+                                        className="runner-start-btn runner-start-btn-glow"
+                                        onClick={startLibreRoulette}
                                     >Empezar</button>
-                                    {runMode === 'arcade' && (
-                                        <p className="runner-loot-limit-text">
-                                            {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
-                                        </p>
-                                    )}
+                                    <p className="runner-loot-limit-text">
+                                        {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
+                                    </p>
                                 </>
                             )}
                             {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
@@ -2717,7 +2808,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                {phase === 'ready' && runMode && (
+                {phase === 'ready' && runMode === 'arcade' && (
                     <div className="runner-dog-select">
                         {[...UNLOCKED_DOG_IDS]
                             .sort((a, b) => {
@@ -2764,7 +2855,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                {phase === 'ready' && runMode && !biomeSelectOpen && (
+                {phase === 'ready' && runMode === 'arcade' && !biomeSelectOpen && (
                     <div className="runner-difficulty-select">
                         {DIFFICULTY_ORDER.map(id => {
                             const hasBonusLeft = runMode === 'arcade' && (fullLootRunsByDifficulty?.[id] ?? 0) < MAX_FULL_LOOT_RUNS_PER_DAY;
@@ -2781,7 +2872,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                {phase === 'ready' && runMode && (
+                {phase === 'ready' && runMode === 'arcade' && (
                     <div className="runner-dog-select">
                         <span className="runner-dog-select-locked-label">Próximamente</span>
                         {DOG_SELECT_ORDER.filter(id => LOCKED_DOG_IDS.includes(id)).map(id => (
@@ -2824,6 +2915,40 @@ export default function RunnerScreen({
                         greenHearts={greenHearts}
                         onBuyItem={onBuyItem}
                     />
+                )}
+
+                {prologoStep === 0 && (
+                    <div className="lady-run-prologo-test">
+                        <img src={prologoScene0} alt="" className="lady-run-prologo-test-img" />
+                        <p className="lady-run-prologo-lore">{PROLOGO_PART0_TEXT[prologoTextIndex].slice(0, prologoCharIndex)}</p>
+                    </div>
+                )}
+                {prologoStep === 1 && (
+                    <div className="lady-run-prologo-test">
+                        <img src={prologoScene05} alt="" className="lady-run-prologo-test-img" />
+                        <p className="lady-run-prologo-lore">{PROLOGO_PART05_TEXT[0].slice(0, prologoCharIndex)}</p>
+                        {prologoBtnReady && (
+                            <button
+                                className="runner-start-btn lady-run-prologo-test-btn"
+                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(2); }}
+                            >
+                                Continuar
+                            </button>
+                        )}
+                    </div>
+                )}
+                {prologoStep === 2 && (
+                    <div className="lady-run-prologo-test">
+                        <img src={prologoScene1} alt="" className="lady-run-prologo-test-img" />
+                        {prologoBtnReady && (
+                            <button
+                                className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
+                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(-1); }}
+                            >
+                                Volver
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
         </div>

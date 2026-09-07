@@ -151,6 +151,11 @@
     height: auto;
 }
 
+.runner-tracks-blank {
+    position: static;
+    flex: none;
+}
+
 .runner-mode-cards-extra {
     display: flex;
     gap: 8px;
@@ -476,6 +481,15 @@
     height: 220px;
 }
 
+.runner-track-player.runner-track-blank {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
 .runner-track-boss {
     filter: grayscale(100%) brightness(0.55);
 }
@@ -754,6 +768,48 @@
     background: rgba(0, 0, 0, 0.6);
 }
 
+.runner-overlay-blank {
+    background: none;
+}
+
+.lady-run-prologo-test {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: #000;
+}
+
+.lady-run-prologo-test-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.runner-start-btn.lady-run-prologo-test-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%);
+    z-index: 21;
+}
+
+.lady-run-prologo-lore {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 100px;
+    z-index: 21;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+}
+
 .runner-overlay-gameover {
     gap: 4px;
     background: linear-gradient(
@@ -952,6 +1008,14 @@
     gap: 10px;
     width: 100%;
     padding: 0 20px;
+}
+
+.runner-mode-select-centered {
+    align-items: center;
+}
+
+.runner-mode-select-centered .runner-mode-btn {
+    text-align: center;
 }
 
 .runner-mode-btn {
