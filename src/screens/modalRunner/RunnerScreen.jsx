@@ -4,6 +4,10 @@ import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/
 import prologoScene1 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part1.webp';
 import prologoScene0 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0.webp';
 import prologoScene05 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0-5.webp';
+import prologoPart2Bg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-2/fondos/lor-lady-part2-prologo.webp';
+import historiaMenuBg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia.webp';
+import historiaMenuBg2 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia2.webp';
+import historiaMenuBg3 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia3.webp';
 import tavernCoinIcon from '../../assets/ui/icons-hud/hud-principal/coin-tavern1.webp';
 import jumpBtnIcon1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-1.webp';
 import jumpBtnIcon2 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/btn-action/jump-2.webp';
@@ -252,6 +256,7 @@ const PROLOGO_PART0_HOLD_MS = 1400;
 const PROLOGO_PART05_TYPE_SPEED_MS = 60;
 const PROLOGO_PART05_HOLD_MS = 1400;
 const PROLOGO_SCENE1_BTN_DELAY_MS = 16000;
+const HISTORIA_MENU_BG_DURATIONS_MS = [12000, 6000, 8000]; // historia1 -> historia2 -> historia3 (vuelve al punto de partida) -> loop
 
 const RUN_FRAME_MS = 130;
 // Pools tematicos por contexto (libre / bioma) -- terrestres
@@ -690,10 +695,25 @@ export default function RunnerScreen({
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
-    const [prologoStep, setPrologoStep] = useState(-1); // -1 = cerrado, 0 = parte 0 (lore), 1 = parte 0-5 (respirando, sin texto), 2 = parte 1 (animacion + lore)
+    const [prologoStep, setPrologoStep] = useState(-1); // -1 cerrado, 0 parte0, 1 parte0-5, 2 parte1, 3 lista capitulos, 4 lista escenarios del prologo, 5 escenario del prologo (placeholder)
     const [prologoTextIndex, setPrologoTextIndex] = useState(0);
     const [prologoCharIndex, setPrologoCharIndex] = useState(0);
     const [prologoBtnReady, setPrologoBtnReady] = useState(false);
+    const [prologoScenariosDone, setPrologoScenariosDone] = useState(0); // cuantos de los 3 escenarios del prologo ya se completaron, bloquea los siguientes
+    const [prologoRunScene, setPrologoRunScene] = useState(null); // null | 'bosque' | 'ciudad', escena activa DENTRO de la partida real del prologo
+    const [historiaMenuBgStep, setHistoriaMenuBgStep] = useState(0); // 0/1/2 = historia/historia2/historia3, en bucle
+
+    // Fondo del menu de Historia: ciclo historia1 -> historia2 -> historia3 (vuelve al punto de
+    // partida) -> historia1... en bucle mientras se este en el menu. Sin evento nativo para saber
+    // cuando acaba un <img> animado, asi que se usa un timer con la duracion real de cada parte.
+    useEffect(() => {
+        if (!(runMode === 'historia' && phase === 'ready' && prologoStep === -1)) return undefined;
+        const timeout = setTimeout(
+            () => setHistoriaMenuBgStep(step => (step + 1) % HISTORIA_MENU_BG_DURATIONS_MS.length),
+            HISTORIA_MENU_BG_DURATIONS_MS[historiaMenuBgStep]
+        );
+        return () => clearTimeout(timeout);
+    }, [runMode, phase, prologoStep, historiaMenuBgStep]);
 
     // Prologo Historia: texto tipo maquina de escribir, sin tap del jugador.
     // Parte 0: 2 bloques, al terminar el ultimo salta solo a la parte 0-5 (sin btn).
@@ -1150,6 +1170,67 @@ export default function RunnerScreen({
         spawnTimerRef.current = SPAWN_MIN_MS;
         setCheckpointOpen(false);
     }, [runMode, sceneIndex, selectedBiomeId, selectedDogId, resetStats]);
+
+    // Prologo Historia: Escenario 1 (bosque) no lleva boss, al vencer al rival CPU pasa al
+    // Escenario 2 (ciudad) dentro de la MISMA partida. Usa el bioma REAL 'ciudad' de Historia
+    // (no el fondo de Libre) porque el sistema de boss depende de selectedBiomeId para el
+    // elemento del ataque y las pools de obstaculos -- sin bioma real, boss y ataques quedan invisibles.
+    const advancePrologoToCiudad = useCallback(() => {
+        setPrologoRunScene('ciudad');
+        setSelectedBiomeId('ciudad');
+        setSceneIndex(0);
+        const rivalPool = UNLOCKED_DOG_IDS.filter(id => id !== selectedDogId);
+        setCpuDogId(rivalPool[Math.floor(Math.random() * rivalPool.length)]);
+        setCpuLives(MAX_LIVES);
+        setStage('cpu');
+        setBossHp(BOSS_MAX_HP);
+        bossHpRef.current = BOSS_MAX_HP;
+        bossDodgeTimerRef.current = BOSS_DODGE_TOGGLE_MS;
+        bossElevatedRef.current = false;
+        bossCurrentBottomRef.current = BOSS_BOTTOM_PX;
+        bossWindupTimerRef.current = 0;
+        bossAttackStreakRef.current = 0;
+        bossLastAttackAtRef.current = 0;
+        setBossWindingUp(false);
+        projectileChargesRef.current = PROJECTILE_MAX_CHARGES;
+        projectileRechargeTimerRef.current = PROJECTILE_RECHARGE_MS;
+        projectileCooldownUntilRef.current = 0;
+        setProjectileCoolingDown(false);
+        setProjectileCharges(PROJECTILE_MAX_CHARGES);
+        cpuDogYRef.current = 0;
+        cpuVelocityRef.current = 0;
+        cpuIsJumpingRef.current = false;
+        cpuDoubleJumpUsedRef.current = false;
+        cpuJumpAtRef.current = null;
+        cpuDoubleJumpAtRef.current = null;
+        cpuObstacleSeenAtRef.current = new Map();
+        spawnPatternIndexRef.current = 0;
+        if (cpuDogElRef.current) cpuDogElRef.current.style.bottom = `${GROUND_VISUAL_OFFSET}px`;
+        obstaclesDataRef.current = [];
+        setObstacles([]);
+        attacksDataRef.current = [];
+        setAttacks([]);
+        bossObstacleWaveTimerRef.current = BOSS_OBSTACLE_WAVE_MS;
+        spawnTimerRef.current = SPAWN_MIN_MS;
+    }, [selectedDogId]);
+
+    // Empieza la partida real del Prologo: siempre Lady, siempre Facil, sin bioma de Historia
+    // (selectedBiomeId null), el fondo de pista se toma prestado de Modo Libre (bosque -> ciudad).
+    const startPrologoRun = useCallback(() => {
+        setSelectedDogId('lady');
+        setDifficulty('facil');
+        setSelectedBiomeId(null);
+        setPrologoRunScene('bosque');
+        resetGame('bosque');
+    }, [resetGame]);
+
+    // Volver de la partida del Prologo a la lista de escenarios (no al menu Historia entero).
+    const backToPrologoScenarios = useCallback(() => {
+        resetStats();
+        setPrologoRunScene(null);
+        setPhase('ready');
+        setPrologoStep(4);
+    }, [resetStats]);
 
     // Ultimo escenario del capitulo completado: aqui es donde de verdad se "reclama" (recompensa real
     // sin definir todavia). De momento solo termina la partida como victoria.
@@ -2130,7 +2211,11 @@ export default function RunnerScreen({
                     bossHpRef.current = next;
                     if (next <= 0 && !endingRef.current) {
                         endingRef.current = true;
-                        if (runMode === 'historia' && selectedBiomeId) {
+                        if (prologoRunScene === 'ciudad') {
+                            // Escenario 2 del Prologo: este boss cierra el Prologo entero, victoria limpia
+                            // (ignora el checkpoint normal de capitulo aunque selectedBiomeId este puesto).
+                            setTimeout(() => { setWon(true); setPhase('gameover'); }, GAME_END_DELAY_MS);
+                        } else if (runMode === 'historia' && selectedBiomeId) {
                             // Historia con capitulo: SIEMPRE checkpoint al vencer al boss, tanto entre
                             // escenarios (solo "Continuar") como en el ultimo (solo "Reclamar" ahi).
                             setTimeout(() => { setCheckpointOpen(true); endingRef.current = false; }, GAME_END_DELAY_MS);
@@ -2199,6 +2284,12 @@ export default function RunnerScreen({
                     const next = prev - 1;
                     if (next > 0) return next;
                     if (runMode === 'historia') {
+                        if (prologoRunScene === 'bosque') {
+                            // Escenario 1 del Prologo: sin boss, se para en un checkpoint visible
+                            // (no salto instantaneo) antes de pasar al Escenario 2 (ciudad).
+                            setTimeout(() => setCheckpointOpen(true), GAME_END_DELAY_MS);
+                            return next;
+                        }
                         setStage('boss');
                         return next;
                     }
@@ -2215,7 +2306,7 @@ export default function RunnerScreen({
 
         rafId = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(rafId);
-    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex, claimRunMilestoneRewards, bestMetersForDog]);
+    }, [phase, paused, difficulty, selectedDogId, cpuDogId, stage, runMode, checkpointOpen, arcadeSubMode, selectedBiomeId, sceneIndex, claimRunMilestoneRewards, bestMetersForDog, prologoRunScene, advancePrologoToCiudad]);
 
     const dogImg = airborne ? (DOG_JUMP_FRAME[selectedDogId] ?? runFrames[1]) : runFrames[frameIdx];
     const cpuDogImg = cpuAirborne ? (DOG_JUMP_FRAME[cpuDogId] ?? cpuRunFrames[1]) : cpuRunFrames[frameIdx];
@@ -2223,11 +2314,17 @@ export default function RunnerScreen({
         ? (ATTACK_PLAYER_ELEMENT_IMGS[DogsConfig[selectedDogId]?.element] ?? ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element])
         : ELEMENT_POWER_OBSTACLE_IMGS[DogsConfig[selectedDogId]?.element];
     const isLibre = runMode === 'arcade' && arcadeSubMode === 'libre';
+    // Pantalla en blanco del menu de Historia (sin card/perro/vidas) -- excepto en prologoStep 5,
+    // que es la pantalla real de elegir perro (siempre Lady) + Empezar para el Prologo jugable.
+    const historiaMenuBlank = runMode === 'historia' && phase === 'ready' && prologoStep !== 5;
+    const prologoDogPick = runMode === 'historia' && prologoStep === 5;
     const biomeSceneClass = (arcadeSubMode === 'biome' || runMode === 'historia') && selectedBiomeId
         ? ` runner-track-scene-${selectedBiomeId}-${sceneIndex + 1}`
         : arcadeSubMode === 'libre'
             ? ` runner-track-scene-libre-${libreSceneKey}`
-            : '';
+            : runMode === 'historia' && prologoRunScene
+                ? ` runner-track-scene-libre-${prologoRunScene}`
+                : '';
     const skyOverlayClass = `runner-sky-overlay${(arcadeSubMode === 'biome' || runMode === 'historia') && BIOMES[selectedBiomeId]?.interior ? ' runner-sky-overlay-interior' : ''}`;
     const lootRunsLeftToday = Math.max(0, MAX_FULL_LOOT_RUNS_PER_DAY - fullLootRunsToday);
     const bossImg = (runMode === 'historia' && CHAPTER_BOSS_IMAGES[selectedBiomeId]?.[sceneIndex]) || batBoss;
@@ -2387,7 +2484,7 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                <div className={`runner-tracks${isLibre ? ' runner-tracks-solo' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-tracks-blank' : ''}`}>
+                <div className={`runner-tracks${isLibre ? ' runner-tracks-solo' : ''}${historiaMenuBlank ? ' runner-tracks-blank' : ''}`}>
                     {phase !== 'ready' && !isLibre && (
                         <div className={`runner-track runner-track-cpu${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${cpuPowerPending ? ' runner-track-power-pending' : ''}${stage === 'boss' ? ' runner-track-boss' : ''}`}>
                             <div className="runner-ground" />
@@ -2420,14 +2517,21 @@ export default function RunnerScreen({
                     )}
 
                     <div
-                        className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-track-blank' : ''}`}
+                        className={`runner-track runner-track-player${isLibre ? ' runner-track-player-solo' : ''}${phase === 'gameover' ? ' runner-track-static' : ''}${biomeSceneClass}${playerPowerPending ? ' runner-track-power-pending' : ''}${historiaMenuBlank ? ' runner-track-blank' : ''}`}
                         style={isLibre && phase === 'gameover' ? { backgroundImage: `url(${LIBRE_SCENE_STATIC_IMGS[libreSceneKey]})` } : undefined}
                         ref={trackRef}
                     >
-                        {!(runMode === 'historia' && phase === 'ready') && <div className="runner-ground" />}
+                        {runMode === 'historia' && phase === 'ready' && prologoStep === -1 && (
+                            <img
+                                src={[historiaMenuBg, historiaMenuBg2, historiaMenuBg3][historiaMenuBgStep]}
+                                alt=""
+                                className="lady-run-historia-menu-bg"
+                            />
+                        )}
+                        {!historiaMenuBlank && <div className="runner-ground" />}
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
-                        {!(runMode === 'historia' && phase === 'ready') && (
+                        {!historiaMenuBlank && (
                         <span className="runner-track-player-lives">
                             {[0, 1, 2].map(i => (
                                 <img
@@ -2463,7 +2567,7 @@ export default function RunnerScreen({
                         )}
 
 
-                        {!(runMode === 'historia' && phase === 'ready') && (
+                        {!historiaMenuBlank && (
                         <img
                             ref={dogElRef}
                             src={dogImg}
@@ -2519,7 +2623,7 @@ export default function RunnerScreen({
                         })}
 
                         {(phase === 'ready' || phase === 'gameover') && (
-                        <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}${runMode === 'historia' && phase === 'ready' ? ' runner-overlay-blank' : ''}`}>
+                        <div className={`runner-overlay${phase === 'gameover' ? ' runner-overlay-gameover' : ''}${historiaMenuBlank ? ' runner-overlay-blank' : ''}`}>
                             {phase === 'ready' && !runMode && (
                                 <div className="runner-mode-select">
                                     <button className="runner-mode-btn runner-mode-btn-glow" onClick={() => setRunMode('arcade')}>
@@ -2543,21 +2647,16 @@ export default function RunnerScreen({
                                     </div>
                                 </>
                             )}
-                            {phase === 'ready' && runMode === 'historia' && !chapterSelectOpen && (
+                            {phase === 'ready' && runMode === 'historia' && prologoStep === -1 && !chapterSelectOpen && (
                                 <>
-                                    {prologoStep === -1 && (
-                                        <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
-                                    )}
+                                    <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
                                     <p className="runner-overlay-title">Historia</p>
-                                    <div className="runner-mode-select runner-mode-select-centered">
+                                    <div className="lady-run-historia-menu-row">
                                         <button className="runner-mode-btn" onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(0); }}>
                                             <span className="runner-mode-btn-title">Nueva Partida</span>
                                         </button>
-                                        <button className="runner-mode-btn" disabled>
+                                        <button className="runner-mode-btn" onClick={() => setPrologoStep(3)}>
                                             <span className="runner-mode-btn-title">Continuar</span>
-                                        </button>
-                                        <button className="runner-mode-btn" disabled>
-                                            <span className="runner-mode-btn-title">Guardar</span>
                                         </button>
                                     </div>
                                 </>
@@ -2573,6 +2672,16 @@ export default function RunnerScreen({
                                     <p className="runner-loot-limit-text">
                                         {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
                                     </p>
+                                </>
+                            )}
+                            {phase === 'ready' && runMode === 'historia' && prologoStep === 5 && (
+                                <>
+                                    <button className="lady-run-back-btn" onClick={() => setPrologoStep(4)}><ArrowLeft size={16} /></button>
+                                    <p className="runner-overlay-title">Prólogo</p>
+                                    <button
+                                        className="runner-start-btn runner-start-btn-glow"
+                                        onClick={startPrologoRun}
+                                    >Empezar</button>
                                 </>
                             )}
                             {phase === 'ready' && runMode === 'arcade' && biomeSelectOpen && (
@@ -2661,7 +2770,7 @@ export default function RunnerScreen({
 
                     {checkpointOpen && (
                         <div className="runner-overlay">
-                            <p className="runner-overlay-title">¡Meta alcanzada!</p>
+                            <p className="runner-overlay-title">{prologoRunScene === 'bosque' ? '¡Escenario superado!' : '¡Meta alcanzada!'}</p>
                             <p className="runner-overlay-score">Puntos: {score}</p>
                             {lives < MAX_LIVES + bonusLives && (
                                 <button className="runner-start-btn runner-start-btn-secondary" onClick={() => setLives(MAX_LIVES + bonusLives)}>
@@ -2677,7 +2786,9 @@ export default function RunnerScreen({
                                 </button>
                             )}
                             <div className="runner-action-row">
-                                {runMode === 'historia' && checkpointIsFinalScene ? (
+                                {runMode === 'historia' && prologoRunScene === 'bosque' ? (
+                                    <button className="runner-start-btn" onClick={() => { setCheckpointOpen(false); advancePrologoToCiudad(); }}>Continuar</button>
+                                ) : runMode === 'historia' && checkpointIsFinalScene ? (
                                     <button className="runner-start-btn runner-start-btn-secondary" onClick={handleClaimChapter}>Reclamar</button>
                                 ) : (
                                     <button className="runner-start-btn" onClick={handleCheckpointContinue}>Continuar</button>
@@ -2762,8 +2873,14 @@ export default function RunnerScreen({
                 {phase === 'gameover' && (
                     <>
                         <div className="runner-action-row">
-                            <button className="runner-start-btn runner-start-btn-compact" onClick={() => (arcadeSubMode === 'libre' ? startLibreRoulette() : resetGame())}>Reintentar</button>
-                            <button className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact" onClick={backToSelect}>Volver</button>
+                            <button
+                                className="runner-start-btn runner-start-btn-compact"
+                                onClick={() => (arcadeSubMode === 'libre' ? startLibreRoulette() : (runMode === 'historia' && prologoRunScene ? startPrologoRun() : resetGame()))}
+                            >Reintentar</button>
+                            <button
+                                className="runner-start-btn runner-start-btn-secondary runner-start-btn-compact"
+                                onClick={runMode === 'historia' && prologoRunScene ? backToPrologoScenarios : backToSelect}
+                            >Volver</button>
                         </div>
                         {arcadeSubMode === 'libre' && (
                             <p className="runner-loot-limit-text">
@@ -2808,31 +2925,33 @@ export default function RunnerScreen({
                     </div>
                 )}
 
-                {phase === 'ready' && runMode === 'arcade' && (
+                {phase === 'ready' && (runMode === 'arcade' || prologoDogPick) && (
                     <div className="runner-dog-select">
                         {[...UNLOCKED_DOG_IDS]
                             .sort((a, b) => {
-                                const aLocked = runMode !== 'arcade' && PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a);
-                                const bLocked = runMode !== 'arcade' && PAID_DOG_IDS.includes(b) && !unlockedDogIds.includes(b);
+                                const aLocked = prologoDogPick ? a !== 'lady' : (runMode !== 'arcade' && PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a));
+                                const bLocked = prologoDogPick ? b !== 'lady' : (runMode !== 'arcade' && PAID_DOG_IDS.includes(b) && !unlockedDogIds.includes(b));
                                 return aLocked - bLocked;
                             })
                             .map(id => {
                             const elementInfo = ELEMENT_ICON[DogsConfig[id]?.element];
                             // En Modo Libre todos los perros son gratis (se quiere que se prueben todos sin
                             // friccion); el desbloqueo de pago solo sigue activo en Historia. Ver [[feedback_lady_run_modos_independientes]].
+                            // En el Prologo (prologoDogPick) es un caso propio: siempre juegas de Lady, el
+                            // resto se desbloqueara narrativamente mas adelante, sin precio ni compra.
                             // Nota: arcadeSubMode todavia es null aqui (solo se pone 'libre' al pulsar Empezar,
                             // despues de elegir perro), por eso se mira runMode==='arcade' y no arcadeSubMode.
-                            const needsUnlock = runMode !== 'arcade' && PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id);
-                            const canAfford = huesin >= DOG_UNLOCK_PRICE.huesin && tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins;
+                            const needsUnlock = prologoDogPick ? id !== 'lady' : (runMode !== 'arcade' && PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id));
+                            const canAfford = !prologoDogPick && huesin >= DOG_UNLOCK_PRICE.huesin && tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins;
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
                                         className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity} runner-dog-select-elembg-${DogsConfig[id]?.element}${selectedDogId === id ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
                                         onClick={() => needsUnlock ? (canAfford && onUnlockDog?.(id)) : setSelectedDogId(id)}
-                                        disabled={needsUnlock && !canAfford}
+                                        disabled={needsUnlock && (prologoDogPick || !canAfford)}
                                     >
                                         <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
-                                        {needsUnlock && (
+                                        {needsUnlock && !prologoDogPick && (
                                             <span className="runner-dog-select-price">
                                                 <img src={huesinIcon} alt="" />
                                                 <span className={huesin >= DOG_UNLOCK_PRICE.huesin ? '' : 'runner-dog-select-price-short'}>{DOG_UNLOCK_PRICE.huesin}</span>
@@ -2942,12 +3061,56 @@ export default function RunnerScreen({
                         <img src={prologoScene1} alt="" className="lady-run-prologo-test-img" />
                         {prologoBtnReady && (
                             <button
-                                className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
-                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(-1); }}
+                                className="runner-start-btn lady-run-prologo-test-btn"
+                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(3); }}
                             >
-                                Volver
+                                Continuar
                             </button>
                         )}
+                    </div>
+                )}
+                {prologoStep === 3 && (
+                    <div className="lady-run-prologo-test">
+                        <img src={prologoPart2Bg} alt="" className="lady-run-prologo-test-img" />
+                        <div className="lady-run-prologo-section-list">
+                            <button className="runner-start-btn runner-start-btn-compact" onClick={() => setPrologoStep(4)}>Prólogo</button>
+                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 1</button>
+                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 2</button>
+                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 3</button>
+                        </div>
+                        <button
+                            className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
+                            onClick={() => setPrologoStep(-1)}
+                        >
+                            Volver
+                        </button>
+                    </div>
+                )}
+                {prologoStep === 4 && (
+                    <div className="lady-run-prologo-test">
+                        <div className="lady-run-prologo-scenario-cards">
+                            <div className="runner-mode-card-locked runner-mode-card-static-bosque">
+                                <button className="runner-mode-btn" onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}>
+                                    <span className="runner-mode-btn-title">Escenario 1</span>
+                                </button>
+                            </div>
+                            <div className="runner-mode-card-locked runner-mode-card-static-bosque">
+                                <button
+                                    className={`runner-mode-btn${prologoScenariosDone < 1 ? ' runner-mode-btn-locked' : ''}`}
+                                    disabled={prologoScenariosDone < 1}
+                                    onClick={() => setPrologoStep(5)}
+                                >
+                                    <span className="runner-mode-btn-title">Escenario 2</span>
+                                    {prologoScenariosDone < 1 && <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />}
+                                </button>
+                            </div>
+                        </div>
+                        <button
+                            className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
+                            onClick={() => setPrologoStep(3)}
+                        >
+                            Volver
+                        </button>
                     </div>
                 )}
             </div>
