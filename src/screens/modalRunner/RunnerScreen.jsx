@@ -4,7 +4,7 @@ import lockIcon from '../../assets/ui/icons-hud/hud-modals/rewards/icon-rewards/
 import prologoScene1 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part1.webp';
 import prologoScene0 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0.webp';
 import prologoScene05 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-1/escenas/escena-1/lore-lady-prologo-part0-5.webp';
-import prologoPart2Bg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-2/fondos/lor-lady-part2-prologo.webp';
+import prologoPart2Bg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/prologo-part-2/fondos/map-bosque.webp';
 import historiaMenuBg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia.webp';
 import historiaMenuBg2 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia2.webp';
 import historiaMenuBg3 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia3.webp';
@@ -695,7 +695,7 @@ export default function RunnerScreen({
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
-    const [prologoStep, setPrologoStep] = useState(-1); // -1 cerrado, 0 parte0, 1 parte0-5, 2 parte1, 3 lista capitulos, 4 lista escenarios del prologo, 5 escenario del prologo (placeholder)
+    const [prologoStep, setPrologoStep] = useState(-1); // -1 cerrado, 0 parte0, 1 parte0-5, 2 parte1 (absorcion, cierra el Prologo entero), 4 Capitulo 1: El Bosque (camino/escenarios), 5 seleccion de perro + Empezar (sin paso 3, eliminado junto con la lista de capitulos)
     const [prologoTextIndex, setPrologoTextIndex] = useState(0);
     const [prologoCharIndex, setPrologoCharIndex] = useState(0);
     const [prologoBtnReady, setPrologoBtnReady] = useState(false);
@@ -2655,7 +2655,7 @@ export default function RunnerScreen({
                                         <button className="runner-mode-btn" onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(0); }}>
                                             <span className="runner-mode-btn-title">Nueva Partida</span>
                                         </button>
-                                        <button className="runner-mode-btn" onClick={() => setPrologoStep(3)}>
+                                        <button className="runner-mode-btn" onClick={() => setPrologoStep(4)}>
                                             <span className="runner-mode-btn-title">Continuar</span>
                                         </button>
                                     </div>
@@ -3062,54 +3062,57 @@ export default function RunnerScreen({
                         {prologoBtnReady && (
                             <button
                                 className="runner-start-btn lady-run-prologo-test-btn"
-                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(3); }}
+                                onClick={() => { setPrologoBtnReady(false); setPrologoTextIndex(0); setPrologoStep(4); }}
                             >
                                 Continuar
                             </button>
                         )}
                     </div>
                 )}
-                {prologoStep === 3 && (
-                    <div className="lady-run-prologo-test">
-                        <img src={prologoPart2Bg} alt="" className="lady-run-prologo-test-img" />
-                        <div className="lady-run-prologo-section-list">
-                            <button className="runner-start-btn runner-start-btn-compact" onClick={() => setPrologoStep(4)}>Prólogo</button>
-                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 1</button>
-                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 2</button>
-                            <button className="runner-start-btn runner-start-btn-compact" disabled>Capítulo 3</button>
-                        </div>
-                        <button
-                            className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
-                            onClick={() => setPrologoStep(-1)}
-                        >
-                            Volver
-                        </button>
-                    </div>
-                )}
                 {prologoStep === 4 && (
                     <div className="lady-run-prologo-test">
-                        <div className="lady-run-prologo-scenario-cards">
-                            <div className="runner-mode-card-locked runner-mode-card-static-bosque">
-                                <button className="runner-mode-btn" onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}>
-                                    <span className="runner-mode-btn-title">Escenario 1</span>
-                                </button>
-                            </div>
-                            <div className="runner-mode-card-locked runner-mode-card-static-bosque">
-                                <button
-                                    className={`runner-mode-btn${prologoScenariosDone < 1 ? ' runner-mode-btn-locked' : ''}`}
-                                    disabled={prologoScenariosDone < 1}
-                                    onClick={() => setPrologoStep(5)}
-                                >
-                                    <span className="runner-mode-btn-title">Escenario 2</span>
-                                    {prologoScenariosDone < 1 && <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />}
-                                </button>
-                            </div>
-                        </div>
+                        <button className="lady-run-back-btn" onClick={() => setPrologoStep(-1)}><ArrowLeft size={16} /></button>
+                        <img src={prologoPart2Bg} alt="" className="lady-run-prologo-test-img" />
+                        <div className="lady-run-chapter-overlay" />
+                        <p className="runner-overlay-title">Capítulo 1: El Bosque</p>
                         <button
-                            className="runner-start-btn runner-start-btn-secondary lady-run-prologo-test-btn"
-                            onClick={() => setPrologoStep(3)}
+                            className="lady-run-path-node lady-run-path-node-1"
+                            onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}
                         >
-                            Volver
+                            1
+                        </button>
+                        {/* Nodo 1: Pradera (Modo Libre) */}
+                        {/* Nodo 2: Bosque1 (nuevo, capitulo-1-bosque-escenarios) */}
+                        <button
+                            className={`lady-run-path-node lady-run-path-node-2${prologoScenariosDone < 1 ? ' lady-run-path-node-locked' : ''}`}
+                            disabled={prologoScenariosDone < 1}
+                            onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}
+                        >
+                            {prologoScenariosDone < 1 ? <img src={lockIcon} alt="Bloqueado" className="lady-run-path-node-lock" /> : '2'}
+                        </button>
+                        {/* Nodo 3: Bosque2 (nuevo) */}
+                        <button
+                            className={`lady-run-path-node lady-run-path-node-3${prologoScenariosDone < 2 ? ' lady-run-path-node-locked' : ''}`}
+                            disabled={prologoScenariosDone < 2}
+                            onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}
+                        >
+                            {prologoScenariosDone < 2 ? <img src={lockIcon} alt="Bloqueado" className="lady-run-path-node-lock" /> : '3'}
+                        </button>
+                        {/* Nodo 4: Bosque1 otra vez (se repite) */}
+                        <button
+                            className={`lady-run-path-node lady-run-path-node-4${prologoScenariosDone < 3 ? ' lady-run-path-node-locked' : ''}`}
+                            disabled={prologoScenariosDone < 3}
+                            onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}
+                        >
+                            {prologoScenariosDone < 3 ? <img src={lockIcon} alt="Bloqueado" className="lady-run-path-node-lock" /> : '4'}
+                        </button>
+                        {/* Nodo 5: Boss, fondo Bosque de Modo Libre */}
+                        <button
+                            className={`lady-run-path-node lady-run-path-node-5${prologoScenariosDone < 4 ? ' lady-run-path-node-locked' : ''}`}
+                            disabled={prologoScenariosDone < 4}
+                            onClick={() => { setSelectedDogId('lady'); setPrologoStep(5); }}
+                        >
+                            {prologoScenariosDone < 4 ? <img src={lockIcon} alt="Bloqueado" className="lady-run-path-node-lock" /> : '5'}
                         </button>
                     </div>
                 )}

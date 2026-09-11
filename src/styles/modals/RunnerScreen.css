@@ -815,6 +815,13 @@
     object-fit: cover;
 }
 
+.lady-run-chapter-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
 .runner-start-btn.lady-run-prologo-test-btn {
     position: absolute;
     left: 50%;
@@ -849,15 +856,73 @@
     gap: 12px;
 }
 
-.lady-run-prologo-scenario-cards {
+.lady-run-prologo-test .runner-overlay-title {
     position: absolute;
-    left: 16px;
-    right: 16px;
-    top: 24px;
+    left: 0;
+    right: 0;
+    top: 16px;
     z-index: 21;
+    text-align: center;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.lady-run-path-node {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    transform: translate(-50%, -50%);
+    z-index: 21;
+    border-radius: 50%;
+    border: 2px solid #ffd740;
+    background: rgba(20, 16, 12, 0.85);
+    color: #ffd740;
+    font-size: 1.1rem;
+    font-weight: 800;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 215, 64, 0.6);
+}
+
+.lady-run-path-node-locked {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(20, 16, 12, 0.7);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.lady-run-path-node-lock {
+    width: 18px;
+    height: 18px;
+}
+
+/* Capitulo 1: El Bosque -- Nodo 1 Pradera(Libre), 2 Bosque1, 3 Bosque2, 4 Bosque1 (repite), 5 Boss/Bosque(Libre) */
+/* El camino serpentea, cada nodo necesita su propio left ademas del top -- primera pasada, a ajustar con capturas */
+.lady-run-path-node-1 {
+    left: 44%;
+    top: 90%;
+}
+
+.lady-run-path-node-2 {
+    left: 54%;
+    top: 65%;
+}
+
+.lady-run-path-node-3 {
+    left: 40%;
+    top: 40%;
+}
+
+.lady-run-path-node-4 {
+    left: 55%;
+    top: 26%;
+}
+
+.lady-run-path-node-5 {
+    left: 53%;
+    top: 11%;
 }
 
 .lady-run-prologo-scenario-cards .runner-mode-card-locked {
