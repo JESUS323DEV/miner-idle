@@ -522,6 +522,27 @@
     font-size: 0.85rem;
 }
 
+.lady-run-chapter-select-list {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lady-run-chapter-select-list .runner-mode-btn {
+    text-align: center;
+}
+
+.lady-run-chapter-select-list .runner-mode-btn-title {
+    display: block;
+    width: 100px;
+    font-size: 0.85rem;
+}
+
 .runner-boss {
     position: absolute;
     bottom: 20px;
@@ -845,24 +866,14 @@
     pointer-events: none;
 }
 
-.lady-run-prologo-section-list {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 21;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
 .lady-run-prologo-test .runner-overlay-title {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 16px;
+    width: 140px;
     top: 16px;
     z-index: 21;
-    text-align: center;
+    text-align: left;
+    color: #ffffff;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
 }
 
@@ -896,38 +907,6 @@
 .lady-run-path-node-lock {
     width: 18px;
     height: 18px;
-}
-
-/* Capitulo 1: El Bosque -- Nodo 1 Pradera(Libre), 2 Bosque1, 3 Bosque2, 4 Bosque1 (repite), 5 Boss/Bosque(Libre) */
-/* El camino serpentea, cada nodo necesita su propio left ademas del top -- primera pasada, a ajustar con capturas */
-.lady-run-path-node-1 {
-    left: 44%;
-    top: 90%;
-}
-
-.lady-run-path-node-2 {
-    left: 54%;
-    top: 65%;
-}
-
-.lady-run-path-node-3 {
-    left: 40%;
-    top: 40%;
-}
-
-.lady-run-path-node-4 {
-    left: 55%;
-    top: 26%;
-}
-
-.lady-run-path-node-5 {
-    left: 53%;
-    top: 11%;
-}
-
-.lady-run-prologo-scenario-cards .runner-mode-card-locked {
-    flex: none;
-    width: 100%;
 }
 
 .runner-overlay-gameover {

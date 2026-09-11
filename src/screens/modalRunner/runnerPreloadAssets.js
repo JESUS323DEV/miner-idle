@@ -93,6 +93,7 @@ import prologoPart2Bg from '../../assets/ui/icons-hud/hud-modals/game-run/assets
 import historiaMenuBg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia.webp';
 import historiaMenuBg2 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia2.webp';
 import historiaMenuBg3 from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-principal-historia3.webp';
+import chapterSelectBg from '../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/assets-hud-ui/fondos/fondo-fijo-seleccion.webp';
 
 import pawFill0 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-0.webp';
 import pawFill1 from '../../assets/ui/icons-hud/hud-modals/game-run/icons/hud/icons-life/life-1.webp';
@@ -150,5 +151,5 @@ export const RUNNER_HISTORIA_PRELOAD_IMAGES = [
     fuegoObstacle, electricoObstacle, aguaObstacle, tierraObstacle, oscuroObstacle, attackAgua, attackElectrico, attackBatsBoss,
     batBoss, minaBoss1, minaBoss2, spider001, spider002, spiderBossFinal,
     escenarioMina1, escenarioMina2, escenarioMina3, escenarioCiudad1, escenarioCiudad2, escenarioCiudad3,
-    prologoScene1, prologoScene0, prologoScene05, prologoPart2Bg, historiaMenuBg, historiaMenuBg2, historiaMenuBg3,
+    prologoScene1, prologoScene0, prologoScene05, prologoPart2Bg, historiaMenuBg, historiaMenuBg2, historiaMenuBg3, chapterSelectBg,
 ];
