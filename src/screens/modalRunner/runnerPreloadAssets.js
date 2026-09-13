@@ -27,6 +27,9 @@ import zeusRun4 from '../../assets/ui/lady-sprite/sprite-run/zeus-run/zeus-4.web
 import druhRun1 from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-1.webp';
 import druhJump from '../../assets/ui/lady-sprite/sprite-run/druh-run/druh-2.webp';
 
+import logoLadyRun1 from '../../assets/ui/icons-hud/hud-modals/game-run/logo/logo-lady-run1.webp';
+import logoLadyRun2Loop from '../../assets/ui/icons-hud/hud-modals/game-run/logo/logo-lady-run-2-loop-final2.webp';
+
 import ladyIcon    from '../../assets/ui/icons-pets/mineros/lady-icon.webp';
 import gordoIcon   from '../../assets/ui/icons-pets/mineros/gordo-icon.webp';
 import munaIcon    from '../../assets/ui/icons-pets/mineros/muna-icon.webp';
@@ -124,6 +127,7 @@ import nupitoGameOver from '../../assets/ui/icons-hud/hud-modals/game-run/assets
 // Nucleo: lo que hace falta para la pantalla de seleccion y Modo Libre (unico modo jugable ahora
 // mismo, Historia/Tienda estan bloqueados). Esto es lo que bloquea la pantalla de carga inicial.
 export const RUNNER_CORE_PRELOAD_IMAGES = [
+    logoLadyRun1, logoLadyRun2Loop,
     ladyRun1, ladyRun2,
     gordoRun1, gordoJump,
     munaRun1, munaJump,

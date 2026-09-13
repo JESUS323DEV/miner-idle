@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
+import LadyRunLanding from './LadyRunLanding.jsx';
 import { getHuntRotationKey } from '../../game/config/TablonHuntConfig.js';
 import SkinShopModal from '../modalRaid/SkinShopModal.jsx';
 import CurrencyHud from '../../components/CurrencyHud.jsx';
@@ -19,11 +20,12 @@ import '../../styles/standalone/LadyRunStandalone.css';
 const LadyRunStandalone = () => {
     const [gameState, setGameState] = useState(loadSavedState);
     const [view, setView] = useState('run'); // 'run' | 'skins'
+    const [showLanding, setShowLanding] = useState(true);
     const loaded = usePreloadImages(RUNNER_CORE_PRELOAD_IMAGES);
     const { tutStep: ladyRunTutStep, setTutStep: setLadyRunTutStep, advanceTutorial: advanceLadyRunTutorial } = useLadyRunTutorial(
         gameState.ladyRunTutorial?.completed ?? false,
         () => setGameState(prev => ({ ...prev, ladyRunTutorial: { completed: true } })),
-        loaded,
+        loaded && !showLanding,
     );
 
     useEffect(() => {
@@ -43,6 +45,10 @@ const LadyRunStandalone = () => {
                 <div className="lady-run-loading-spinner" />
             </div>
         );
+    }
+
+    if (showLanding) {
+        return <LadyRunLanding onPlay={() => setShowLanding(false)} />;
     }
 
     if (view === 'skins') {

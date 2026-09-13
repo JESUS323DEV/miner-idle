@@ -2891,8 +2891,9 @@ export default function RunnerScreen({
                                     <button className="runner-mode-btn runner-mode-btn-glow" onClick={() => setRunMode('arcade')}>
                                         <span className="runner-mode-btn-title">Modo Libre</span>
                                     </button>
-                                    <button className="runner-mode-btn" onClick={() => setRunMode('historia')}>
+                                    <button className="runner-mode-btn runner-mode-btn-locked" disabled>
                                         <span className="runner-mode-btn-title">Historia</span>
+                                        <img src={lockIcon} alt="Bloqueado" className="runner-mode-btn-lock" />
                                     </button>
                                 </div>
                             )}
