@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react';
 import LandingScreen from './screens/LandingScreen.jsx'
 import { usePreloader } from './components/Preloader.jsx'
 import LadyRunStandalone from './screens/standalone/LadyRunStandalone.jsx'
+import UpdateBanner from './components/UpdateBanner.jsx'
 import './styles/loading.css'
 
 // Import perezoso: GameRoot arrastra todo Pata y Pico (Raids, Combate, Minas, Taberna...),
@@ -44,11 +45,12 @@ function FullGame() {
 }
 
 function App() {
-  if (isStandaloneLadyRun) {
-    return <LadyRunStandalone />;
-  }
-
-  return <FullGame />;
+  return (
+    <>
+      {isStandaloneLadyRun ? <LadyRunStandalone /> : <FullGame />}
+      <UpdateBanner />
+    </>
+  );
 }
 
 export default App
