@@ -671,6 +671,8 @@ const RaidScreen = ({
                         advanceLadyRunTutorial={advanceLadyRunTutorial}
                         ladyRunLibreTutorialCompleted={gameState.ladyRunLibreTutorial?.completed ?? false}
                         onCompleteLadyRunLibreTutorial={() => setGameState(prev => ({ ...prev, ladyRunLibreTutorial: { completed: true } }))}
+                        ladyRunRunTutorialCompleted={gameState.ladyRunRunTutorial?.completed ?? false}
+                        onCompleteLadyRunRunTutorial={() => setGameState(prev => ({ ...prev, ladyRunRunTutorial: { completed: true } }))}
                         onBuyItem={(itemId, price) => setGameState(prev => {
                             if (itemId === 'corazon_extra') {
                                 if ((prev.chapas ?? 0) < price) return prev;

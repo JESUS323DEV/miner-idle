@@ -287,6 +287,11 @@ const CHAPTER1_NODE_RUN_CONFIG = [
 // Orden del Tutorial 2 (Modo Libre, pantalla de elegir perro). Ver useEffect de arranque mas abajo.
 const LIBRE_TUT_STEP_ORDER = ['vidas', 'vidas_verdes', 'botin', 'perros', 'dificultad', 'empezar'];
 
+// Orden del Tutorial 3 (Modo Libre, en plena carrera): arranca justo al terminar el 3-2-1 de la
+// PRIMERA carrera real (justo tras completar el Tutorial 2), congelando la partida (paused=true) en
+// vez de arrancar, ver startCountdown mas abajo.
+const RUN_TUT_STEP_ORDER = ['huesos', 'pata', 'salto', 'corazon_magico'];
+
 const RUN_FRAME_MS = 130;
 // Pools tematicos por contexto (libre / bioma) -- terrestres
 const GROUND_OBSTACLE_IMGS_LIBRE = [obstaculo3, obstaculo4, obstaculo6, obstaculoArmadillo]; // fondo actual de Libre es desierto, mezcla libre+desierto
@@ -621,6 +626,8 @@ export default function RunnerScreen({
     advanceLadyRunTutorial,
     ladyRunLibreTutorialCompleted = false,
     onCompleteLadyRunLibreTutorial,
+    ladyRunRunTutorialCompleted = false,
+    onCompleteLadyRunRunTutorial,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -635,6 +642,8 @@ export default function RunnerScreen({
     onClaimDailyTramosRef.current = onClaimDailyTramos;
     const onNewDistanceRecordRef = useRef(onNewDistanceRecord);
     onNewDistanceRecordRef.current = onNewDistanceRecord;
+    const ladyRunRunTutorialCompletedRef = useRef(ladyRunRunTutorialCompleted);
+    ladyRunRunTutorialCompletedRef.current = ladyRunRunTutorialCompleted;
 
     const [stage, setStage] = useState('cpu'); // 'cpu' | 'boss', sub-fase dentro de 'playing'
     const [runMode, setRunMode] = useState(null); // null | 'historia' | 'arcade'
@@ -670,6 +679,8 @@ export default function RunnerScreen({
     const [countdownValue, setCountdownValue] = useState(null); // 3,2,1,0 (0 = "¡Ya!"), null = sin cuenta atras
     const [biomeSelectOpen, setBiomeSelectOpen] = useState(false);
     const [arcadeSubMode, setArcadeSubMode] = useState(null); // null | 'libre' | 'biome' -- solo 'biome' dispara checkpoints
+    const arcadeSubModeRef = useRef(arcadeSubMode);
+    arcadeSubModeRef.current = arcadeSubMode;
     const [libreMusicTrack, setLibreMusicTrack] = useState(null);
     // Musica de Modo Libre: en las pantallas de seleccion (antes de darle a Empezar) suena
     // bg-principal. Al darle a Empezar se corta (mientras gira la ruleta no suena musica, solo su
@@ -734,7 +745,20 @@ export default function RunnerScreen({
     // Local del todo (no necesita coordinarse con CurrencyHud como el Tutorial 1), ver useLadyRunTutorial.js.
     const [libreTutStep, setLibreTutStep] = useState(null);
     const libreTutStartedRef = useRef(false);
-    const libreTutDogAtStartRef = useRef(null);
+    // true en cuanto tocas CUALQUIER perro real de la rejilla durante el paso 'perros'. Mientras es
+    // false, ningun perro se ve marcado como activo (aunque ya haya uno random por dentro) y no sale
+    // "Continuar" - se pide un clic real para que se sienta como una eleccion de verdad.
+    const [libreTutDogPicked, setLibreTutDogPicked] = useState(false);
+    // Tutorial 3 (en plena carrera): null | 'huesos' | 'pata' | 'salto' | 'corazon_magico'.
+    const [runTutStep, setRunTutStep] = useState(null);
+    // true si la run actual viene de completar los 4 pasos de arriba, para saber si hay que mostrar
+    // el mensaje de cierre (runTutOutro) cuando termine esta run en concreto.
+    const runTutRanThisSessionRef = useRef(false);
+    const [runTutOutro, setRunTutOutro] = useState(false);
+    // Micro-demo del paso 'pata': indice (0-2) de la marca que se muestra reclamada, en bucle, SIN
+    // tocar el progreso real de la carrera (pawFill/runMilestoneIndex se quedan intactos).
+    const [pataDemoStep, setPataDemoStep] = useState(0);
+    const [pataDemoFill, setPataDemoFill] = useState(1);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
     const [historiaStep, setHistoriaStep] = useState(-1); // -1 cerrado, 0 parte0, 1 parte0-5, 2 parte1 (absorcion, cierra el Prologo entero), 4 Capitulo 1: El Bosque (camino/escenarios), 5 seleccion de perro + Empezar (sin paso 3, eliminado junto con la lista de capitulos)
     const [prologoTextIndex, setPrologoTextIndex] = useState(0);
@@ -1098,7 +1122,8 @@ export default function RunnerScreen({
             totalHuesin += r?.huesin ?? 0;
         }
         let totalChapas = runChapasCollectedRef.current;
-        const pawMultiplier = pawFillRef.current >= 2 ? pawFillRef.current : 1;
+        // x2 al cruzar la 1a recompensa, x3 la 2a, x4 la 3a... hasta x6 con la pata llena (PAW_FILL_MAX=5).
+        const pawMultiplier = pawFillRef.current >= 1 ? pawFillRef.current + 1 : 1;
         if (pawMultiplier > 1) {
             totalCoins *= pawMultiplier;
             totalHuesin *= pawMultiplier;
@@ -1128,6 +1153,9 @@ export default function RunnerScreen({
             setCountdownValue(step >= 0 ? step : null);
             if (step > -1) {
                 setTimeout(countdownTick, COUNTDOWN_STEP_MS);
+            } else if (arcadeSubModeRef.current === 'libre' && !ladyRunRunTutorialCompletedRef.current) {
+                // Tutorial 3: en vez de arrancar de verdad, se queda pausada mostrando los pasos.
+                setRunTutStep(RUN_TUT_STEP_ORDER[0]);
             } else {
                 setPaused(false);
             }
@@ -1406,13 +1434,10 @@ export default function RunnerScreen({
         return () => clearTimeout(t);
     }, [ladyRunLibreTutorialCompleted, libreTutStep, isLibreDogPickScreen]);
 
-    // Paso 'perros': guarda que perro estaba seleccionado al empezar este paso, para saber si el
-    // jugador ya toco uno de verdad (y entonces mostrar "Continuar" en vez de esperar sin salida).
+    // Paso 'perros': se reinicia el flag de "ya elegiste uno" cada vez que se entra a este paso.
     useEffect(() => {
-        if (libreTutStep === 'perros') libreTutDogAtStartRef.current = selectedDogId;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [libreTutStep === 'perros']);
-    const libreTutDogPicked = libreTutStep === 'perros' && selectedDogId !== libreTutDogAtStartRef.current;
+        if (libreTutStep === 'perros') setLibreTutDogPicked(false);
+    }, [libreTutStep]);
 
     // No se llama a onCompleteLadyRunLibreTutorial desde dentro del updater de setLibreTutStep (mismo
     // motivo que advanceTutorial en useLadyRunTutorial.js: React avisa si un setState de OTRO
@@ -1426,6 +1451,48 @@ export default function RunnerScreen({
             setLibreTutStep(LIBRE_TUT_STEP_ORDER[idx + 1]);
         }
     }, [libreTutStep, onCompleteLadyRunLibreTutorial]);
+
+    // Ultimo paso: ademas de terminar el tutorial, hay que reanudar la partida de verdad (se quedo
+    // pausada tras el 3-2-1 en vez de arrancar, ver startCountdown mas arriba). No se marca como
+    // completado todavia al terminar estos 4 pasos: falta el mensaje de cierre al acabar la run
+    // (runTutOutro mas abajo), asi que solo se apunta que esta run viene del tutorial.
+    const advanceRunTutorial = useCallback(() => {
+        const idx = RUN_TUT_STEP_ORDER.indexOf(runTutStep);
+        if (idx === -1 || idx === RUN_TUT_STEP_ORDER.length - 1) {
+            runTutRanThisSessionRef.current = true;
+            setRunTutStep(null);
+            setPaused(false);
+        } else {
+            setRunTutStep(RUN_TUT_STEP_ORDER[idx + 1]);
+        }
+    }, [runTutStep]);
+
+    // Micro-demo del paso 'pata': mueve la bandera de marca en marca en bucle (posicion via ref, igual
+    // tecnica que el tick real) y resalta cada recompensa como reclamada, sin tocar el progreso real.
+    // El relleno de la pata (pataDemoFill) NO se resetea entre vueltas, sigue subiendo hasta el maximo
+    // (5, el mismo tope que PAW_FILL_MAX) y ahi la animacion se para del todo, quedandose en la ultima
+    // marca con la pata llena - no es un bucle infinito.
+    useEffect(() => {
+        if (runTutStep !== 'pata') return;
+        const flagEl = runFlagElRef.current;
+        setPataDemoStep(0);
+        setPataDemoFill(1);
+        if (flagEl) flagEl.style.left = `${RUN_MARK_PERCENTS[0]}%`;
+        let step = 0;
+        let fill = 1;
+        const interval = setInterval(() => {
+            step = (step + 1) % RUN_MARK_PERCENTS.length;
+            fill = Math.min(PAW_FILL_MAX, fill + 1);
+            setPataDemoStep(step);
+            setPataDemoFill(fill);
+            if (flagEl) flagEl.style.left = `${RUN_MARK_PERCENTS[step]}%`;
+            if (fill >= PAW_FILL_MAX) clearInterval(interval);
+        }, 1400);
+        return () => {
+            clearInterval(interval);
+            if (flagEl) flagEl.style.left = '0%';
+        };
+    }, [runTutStep]);
 
     // Guarda la puntuacion al entrar en game over, y cuenta esta partida para el limite diario anti-farmeo
     useEffect(() => {
@@ -2597,9 +2664,20 @@ export default function RunnerScreen({
             if (cancelled) return;
             setRewardStep(5);
             await revealCurrency('huesin', runHuesinEarned, setHuesinCountShown);
+            if (cancelled) return;
+            if (runTutRanThisSessionRef.current) setRunTutOutro(true);
         })();
         return () => { cancelled = true; };
     }, [goStage, isLibre, runChapasEarned, runCoinsEarned, runHuesinEarned, runBonesEarned, pawFill]);
+
+    // Mensaje de cierre del Tutorial 3 (ver runTutOutro): al continuar, se marca el tutorial como
+    // terminado de verdad y se vuelve a la pantalla principal de Lady Run.
+    const handleRunTutOutroContinue = useCallback(() => {
+        runTutRanThisSessionRef.current = false;
+        setRunTutOutro(false);
+        onCompleteLadyRunRunTutorial?.();
+        backToSelect();
+    }, [onCompleteLadyRunRunTutorial, backToSelect]);
 
     return (
         <div className={`runner-backdrop${belowHud ? ' runner-backdrop-below-hud' : ''}`} onClick={phase !== 'playing' ? onClose : undefined}>
@@ -2734,7 +2812,10 @@ export default function RunnerScreen({
                         )}
 
                         {isLibre && (
-                            <span className="runner-track-bone-counter">
+                            <span
+                                className={`runner-track-bone-counter${runTutStep === 'huesos' ? ' lady-run-tut-highlight' : ''}`}
+                                data-tutorial="lady-run-tut-run-huesos"
+                            >
                                 <img src={boneIcon} alt="" />
                                 x{phase === 'gameover' ? Math.max(0, runBonesEarned - boneCountShown) : runBonesEarned}
                             </span>
@@ -2965,7 +3046,7 @@ export default function RunnerScreen({
                                             {rewardStep >= 1 && (
                                                 <span className={`runner-run-reward-paw${rewardEffect.key === 'paw' ? ` runner-run-reward-${rewardEffect.mode}` : ''}`}>
                                                     <img src={PAW_FILL_IMAGES[pawStepShown]} alt="" className={`runner-run-reward-paw-step-${pawStepShown}`} />
-                                                    <span className="runner-run-reward-paw-mult">x{pawStepShown}</span>
+                                                    <span className="runner-run-reward-paw-mult">x{pawStepShown >= 1 ? pawStepShown + 1 : 1}</span>
                                                 </span>
                                             )}
                                             {rewardStep >= 2 && (
@@ -3032,7 +3113,10 @@ export default function RunnerScreen({
                     )}
 
                     {isLibre && (phase === 'playing' || phase === 'gameover') && (
-                        <div className="runner-progress-bar">
+                        <div
+                            className={`runner-progress-bar${runTutStep === 'pata' ? ' lady-run-tut-highlight' : ''}`}
+                            data-tutorial="lady-run-tut-run-pata"
+                        >
                             <div className="runner-progress-line">
                                 {RUN_MARK_PERCENTS.map((pct, i) => {
                                     const reward = (RUN_MILESTONE_REWARDS[difficulty] ?? RUN_MILESTONE_REWARDS.facil)[i];
@@ -3040,7 +3124,7 @@ export default function RunnerScreen({
                                     const rewardAmount = reward?.huesin ?? reward?.tavernCoins ?? 0;
                                     const currentPhaseIndex = Math.floor(runTotalMilestonesRef.current / 3);
                                     const claimedToday = (currentPhaseIndex * 3 + i) < dailyTramosClaimedToday;
-                                    const reached = runMilestoneIndex >= i || claimedToday;
+                                    const reached = runTutStep === 'pata' ? pataDemoStep >= i : (runMilestoneIndex >= i || claimedToday);
                                     return (
                                         <div key={i} className="runner-progress-mark-group" style={{ left: `${pct}%` }}>
                                             <span className={`runner-progress-mark-reward${reached ? ' runner-progress-mark-reward-claimed' : ''}`}>
@@ -3052,7 +3136,12 @@ export default function RunnerScreen({
                                         </div>
                                     );
                                 })}
-                                <img ref={runFlagElRef} src={PAW_FILL_IMAGES[pawFill]} alt="" className="runner-progress-flag" />
+                                <img
+                                    ref={runFlagElRef}
+                                    src={PAW_FILL_IMAGES[runTutStep === 'pata' ? pataDemoFill : pawFill]}
+                                    alt=""
+                                    className={`runner-progress-flag${runTutStep === 'pata' ? ' runner-progress-flag-tut-demo' : ''}`}
+                                />
                             </div>
                         </div>
                     )}
@@ -3142,11 +3231,20 @@ export default function RunnerScreen({
                 {phase === 'playing' && (
                     <div className="runner-action-row">
                         <div className="runner-jump-hub">
-                            <button className="runner-jump-btn" onPointerDown={jump}>
+                            <button
+                                className={`runner-jump-btn${runTutStep === 'salto' ? ' lady-run-tut-highlight' : ''}`}
+                                data-tutorial="lady-run-tut-run-salto"
+                                onPointerDown={jump}
+                            >
                                 <img src={canDoubleJump ? jumpBtnIcon2 : jumpBtnIcon1} alt="Saltar" className="runner-jump-btn-img" />
                             </button>
                             {isLibre && (
-                                <button className="runner-power-btn runner-magic-heart-sat" onPointerDown={useMagicHeart} disabled={magicHearts <= 0}>
+                                <button
+                                    className={`runner-power-btn runner-magic-heart-sat${runTutStep === 'corazon_magico' ? ' lady-run-tut-highlight' : ''}`}
+                                    data-tutorial="lady-run-tut-run-corazon-magico"
+                                    onPointerDown={useMagicHeart}
+                                    disabled={magicHearts <= 0}
+                                >
                                     <img src={magicHeartIcon} alt="" className="runner-power-btn-img" />
                                     <span className="runner-power-btn-charges">x{magicHearts}</span>
                                 </button>
@@ -3161,6 +3259,52 @@ export default function RunnerScreen({
                             </button>
                         )}
                     </div>
+                )}
+
+                {runTutStep === 'huesos' && (
+                    <LadyRunTutorialCallout
+                        targetSelector='[data-tutorial="lady-run-tut-run-huesos"]'
+                        title="Huesos"
+                        text="Consigue tantos huesos como puedas. Cuantos más recojas, mejores recompensas obtendrás al terminar la carrera."
+                        actionLabel="Continuar"
+                        onAction={advanceRunTutorial}
+                    />
+                )}
+                {runTutStep === 'pata' && (
+                    <LadyRunTutorialCallout
+                        targetSelector='[data-tutorial="lady-run-tut-run-pata"]'
+                        title="Tu progreso"
+                        text="Tu huella se llena al alcanzar cada recompensa del tramo. Cada marca aumenta tu multiplicador final: x2, x3, x4, x5 y x6. Cuanto más avances, mayor será tu recompensa al terminar."
+                        actionLabel="Continuar"
+                        onAction={advanceRunTutorial}
+                    />
+                )}
+                {runTutStep === 'salto' && (
+                    <LadyRunTutorialCallout
+                        targetSelector='[data-tutorial="lady-run-tut-run-salto"]'
+                        title="Saltar"
+                        text="Toca aquí para saltar. Tienes doble salto: puedes tocarlo dos veces seguidas en el aire para esquivar obstáculos altos."
+                        actionLabel="Continuar"
+                        onAction={advanceRunTutorial}
+                    />
+                )}
+                {runTutStep === 'corazon_magico' && (
+                    <LadyRunTutorialCallout
+                        targetSelector='[data-tutorial="lady-run-tut-run-corazon-magico"]'
+                        title="Corazón mágico"
+                        text="Actívalo para conseguir unos segundos de invulnerabilidad. Se recarga comprando más en la Tienda."
+                        actionLabel="Continuar"
+                        onAction={advanceRunTutorial}
+                    />
+                )}
+                {runTutOutro && (
+                    <LadyRunTutorialCallout
+                        title="¡Ya está todo!"
+                        text="Espero que disfrutes jugando."
+                        subtext="Lady Run es un proyecto personal creado por Jesús, con muchas pruebas, ideas y cariño detrás. Ahora solo queda que juegues, esquives y te diviertas. 🐾"
+                        actionLabel="Continuar"
+                        onAction={handleRunTutOutroContinue}
+                    />
                 )}
 
                 {phase === 'playing' && (
@@ -3195,11 +3339,18 @@ export default function RunnerScreen({
                             // despues de elegir perro), por eso se mira runMode==='arcade' y no arcadeSubMode.
                             const needsUnlock = prologoDogPick ? id !== 'lady' : (runMode !== 'arcade' && PAID_DOG_IDS.includes(id) && !unlockedDogIds.includes(id));
                             const canAfford = !prologoDogPick && huesin >= DOG_UNLOCK_PRICE.huesin && tavernCoins >= DOG_UNLOCK_PRICE.tavernCoins;
+                            // Mientras el Tutorial 2 esta en el paso 'perros' y todavia no has elegido ninguno
+                            // de verdad, se oculta la marca de "activo" aunque ya haya uno random por dentro.
+                            const hideActiveForTutorial = libreTutStep === 'perros' && !libreTutDogPicked;
                             return (
                                 <div key={id} className="runner-dog-select-col">
                                     <button
-                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity} runner-dog-select-elembg-${DogsConfig[id]?.element}${selectedDogId === id ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
-                                        onClick={() => needsUnlock ? (canAfford && onUnlockDog?.(id)) : setSelectedDogId(id)}
+                                        className={`runner-dog-select-btn dog-rarity-${DogsConfig[id]?.rarity} runner-dog-select-elembg-${DogsConfig[id]?.element}${selectedDogId === id && !hideActiveForTutorial ? ' runner-dog-select-active' : ''}${needsUnlock ? ' runner-dog-select-locked' : ''}`}
+                                        onClick={() => {
+                                            if (needsUnlock) { if (canAfford) onUnlockDog?.(id); return; }
+                                            setSelectedDogId(id);
+                                            if (libreTutStep === 'perros') setLibreTutDogPicked(true);
+                                        }}
                                         disabled={needsUnlock && (prologoDogPick || !canAfford)}
                                     >
                                         <img src={DOG_ICONS[id]} alt={DogsConfig[id]?.name ?? id} className="runner-dog-select-icon" />
@@ -3213,7 +3364,7 @@ export default function RunnerScreen({
                                         )}
                                         {needsUnlock ? (
                                             <img src={lockIcon} alt="Bloqueado" className="runner-dog-select-lock" />
-                                        ) : elementInfo && (
+                                        ) : elementInfo && runMode !== 'arcade' && (
                                             <span className={`runner-dog-select-element runner-dog-select-element-${DogsConfig[id]?.element}`}>
                                                 <elementInfo.Icon size={11} color="#14100c" />
                                             </span>

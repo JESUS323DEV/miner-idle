@@ -87,6 +87,10 @@
     gap: 3px;
 }
 
+.runner-track-bone-counter.lady-run-tut-highlight {
+    position: absolute;
+}
+
 .runner-track-bone-counter {
     position: absolute;
     top: 6px;
@@ -330,6 +334,13 @@
     object-fit: contain;
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+
+/* Solo durante la micro-demo del Tutorial 3 (paso 'pata'): la carrera real mueve la pata con
+   actualizaciones continuas de posicion (no necesita transicion), pero la demo la mueve a saltos de
+   marca en marca cada 1.4s, y sin esto se teletransportaria en vez de deslizarse. */
+.runner-progress-flag-tut-demo {
+    transition: left 0.6s ease;
 }
 
 .runner-roulette-overlay {

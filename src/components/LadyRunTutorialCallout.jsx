@@ -4,12 +4,14 @@ import '../styles/components/LadyRunTutorialCallout.css';
 // Cajita de texto del tutorial de Lady Run, propia y aislada de la de Pata y Pico (ver
 // feedback_lady_run_independiente_de_patapico). Se reposiciona sola segun donde este el elemento
 // real senalado (targetSelector via data-tutorial), igual tecnica que el resto del juego
-// (getBoundingClientRect, ver feedback_tutorial_positioning).
-const LadyRunTutorialCallout = ({ targetSelector, title, text, actionLabel, onAction }) => {
+// (getBoundingClientRect, ver feedback_tutorial_positioning). Sin targetSelector (mensaje de cierre,
+// sin nada concreto que señalar) se muestra centrada en pantalla en vez de buscar un elemento.
+const LadyRunTutorialCallout = ({ targetSelector, title, text, subtext, actionLabel, onAction }) => {
     const [dialogStyle, setDialogStyle] = useState({});
-    const [targetFound, setTargetFound] = useState(false);
+    const [targetFound, setTargetFound] = useState(!targetSelector);
 
     useEffect(() => {
+        if (!targetSelector) return undefined;
         setTargetFound(false);
         const el = document.querySelector(targetSelector);
         if (!el) return undefined;
@@ -43,9 +45,14 @@ const LadyRunTutorialCallout = ({ targetSelector, title, text, actionLabel, onAc
         <>
             <div className="lady-run-tut-overlay" onClick={e => e.stopPropagation()} />
             {title && (
-                <div className="lady-run-tut-dialog" style={dialogStyle} onClick={e => e.stopPropagation()}>
+                <div
+                    className={`lady-run-tut-dialog${!targetSelector ? ' lady-run-tut-dialog-centered' : ''}`}
+                    style={targetSelector ? dialogStyle : undefined}
+                    onClick={e => e.stopPropagation()}
+                >
                     <p className="lady-run-tut-dialog-title">{title}</p>
                     <p className="lady-run-tut-dialog-text">{text}</p>
+                    {subtext && <p className="lady-run-tut-dialog-subtext">{subtext}</p>}
                     {actionLabel && (
                         <div className="lady-run-tut-dialog-actions">
                             <button className="lady-run-tut-dialog-btn" onClick={onAction}>{actionLabel}</button>
