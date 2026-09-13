@@ -19,7 +19,7 @@ const HEART_ITEM = { id: 'corazon_extra', name: 'Corazón extra', desc: 'Una vid
 const MAGIC_HEART_ITEM = { id: 'corazon_magico', name: 'Corazón mágico', desc: '5s de invulnerabilidad', price: 100 };
 const MAGIC_HEART_MAX = 2;
 const GREEN_HEART_ITEM = { id: 'corazon_verde', name: 'Corazón verde', desc: 'Absorbe 1 golpe sin perder vida', price: 150 };
-const GREEN_HEART_MAX = 5;
+const GREEN_HEART_MAX = 3; // si se cambia, actualizar tambien el mismo numero en RunnerScreen.jsx (huecos fijos en la fila de vidas)
 // Cada corazon tiene su PROPIO cooldown de 24h independiente (no un unico "primero del dia"): puedes
 // sacar 1 gratis de CADA uno el mismo dia si vas probando. El mismo boton de comprar de siempre pasa a
 // "Gratis" solo mientras el cooldown de ese corazon esta cumplido, sin card ni resaltado aparte - la
@@ -131,7 +131,7 @@ export default function LadyRunShopModal({
                             disabled={!greenUsable}
                             onClick={() => handleBuy(GREEN_HEART_ITEM, greenFree)}
                         >
-                            {greenHeartAtMax ? 'Máx. 5' : greenFree ? 'Gratis' : (
+                            {greenHeartAtMax ? 'Máx. 3' : greenFree ? 'Gratis' : (
                                 <>
                                     <img src={chapaIcon} alt="Chapas" className="lady-run-shop-heart-card-buy-icon" />
                                     {GREEN_HEART_ITEM.price}

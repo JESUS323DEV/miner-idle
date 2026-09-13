@@ -202,6 +202,10 @@ function getLifeSlotAsset(lives, slotIndex) {
     return lifeHeart0;
 }
 
+// Debe coincidir con GREEN_HEART_MAX en LadyRunShopModal.jsx. 3 huecos fijos, igual que las vidas: los
+// que no tienes se muestran en gris (filtro CSS, sin asset nuevo), ver .runner-life-heart-img-empty.
+const GREEN_HEART_MAX = 3;
+
 // Marcador de progreso de Modo Libre: una pata que se va llenando (0 a 5) cada vez que se cruza
 // una recompensa, tope en 5. Al perder, esto luego alimenta una recompensa extra (logica pendiente).
 const PAW_FILL_IMAGES = [pawFill0, pawFill1, pawFill2, pawFill3, pawFill4, pawFill5];
@@ -279,6 +283,9 @@ const CHAPTER1_NODE_RUN_CONFIG = [
     { libreScene: null, custom: 'bosque2' },
     { libreScene: null, custom: 'bosque1' },
 ];
+
+// Orden del Tutorial 2 (Modo Libre, pantalla de elegir perro). Ver useEffect de arranque mas abajo.
+const LIBRE_TUT_STEP_ORDER = ['vidas', 'vidas_verdes', 'botin', 'perros', 'dificultad', 'empezar'];
 
 const RUN_FRAME_MS = 130;
 // Pools tematicos por contexto (libre / bioma) -- terrestres
@@ -612,6 +619,8 @@ export default function RunnerScreen({
     ladyRunTutStep = null,
     setLadyRunTutStep,
     advanceLadyRunTutorial,
+    ladyRunLibreTutorialCompleted = false,
+    onCompleteLadyRunLibreTutorial,
 }) {
     const [phase, setPhase] = useState('ready'); // 'ready' | 'playing' | 'gameover'
     const onEarnTavernCoinsRef = useRef(onEarnTavernCoins);
@@ -721,6 +730,11 @@ export default function RunnerScreen({
     const [bossWindupDurationMs, setBossWindupDurationMs] = useState(BOSS_WINDUP_MS);
     const [scoresOpen, setScoresOpen] = useState(false);
     const [shopOpen, setShopOpen] = useState(false);
+    // Tutorial 2 (Modo Libre, pantalla de elegir perro): null | 'vidas' | 'botin' | 'perros' | 'dificultad' | 'empezar'.
+    // Local del todo (no necesita coordinarse con CurrencyHud como el Tutorial 1), ver useLadyRunTutorial.js.
+    const [libreTutStep, setLibreTutStep] = useState(null);
+    const libreTutStartedRef = useRef(false);
+    const libreTutDogAtStartRef = useRef(null);
     const [chapterSelectOpen, setChapterSelectOpen] = useState(false);
     const [historiaStep, setHistoriaStep] = useState(-1); // -1 cerrado, 0 parte0, 1 parte0-5, 2 parte1 (absorcion, cierra el Prologo entero), 4 Capitulo 1: El Bosque (camino/escenarios), 5 seleccion de perro + Empezar (sin paso 3, eliminado junto con la lista de capitulos)
     const [prologoTextIndex, setPrologoTextIndex] = useState(0);
@@ -1379,6 +1393,39 @@ export default function RunnerScreen({
             setLadyRunTutStep?.('tienda');
         }
     }, [shopOpen, ladyRunTutStep, setLadyRunTutStep]);
+
+    // Tutorial 2: se activa solo (a todos, igual criterio que el Tutorial 1) la primera vez que se
+    // llega a la pantalla de elegir perro de Modo Libre. Local del todo, no necesita coordinarse con
+    // nada fuera de RunnerScreen.
+    const isLibreDogPickScreen = phase === 'ready' && runMode === 'arcade' && !biomeSelectOpen && !chapterSelectOpen;
+    useEffect(() => {
+        if (ladyRunLibreTutorialCompleted || libreTutStep !== null || libreTutStartedRef.current) return;
+        if (!isLibreDogPickScreen) return;
+        libreTutStartedRef.current = true;
+        const t = setTimeout(() => setLibreTutStep('vidas'), 500);
+        return () => clearTimeout(t);
+    }, [ladyRunLibreTutorialCompleted, libreTutStep, isLibreDogPickScreen]);
+
+    // Paso 'perros': guarda que perro estaba seleccionado al empezar este paso, para saber si el
+    // jugador ya toco uno de verdad (y entonces mostrar "Continuar" en vez de esperar sin salida).
+    useEffect(() => {
+        if (libreTutStep === 'perros') libreTutDogAtStartRef.current = selectedDogId;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [libreTutStep === 'perros']);
+    const libreTutDogPicked = libreTutStep === 'perros' && selectedDogId !== libreTutDogAtStartRef.current;
+
+    // No se llama a onCompleteLadyRunLibreTutorial desde dentro del updater de setLibreTutStep (mismo
+    // motivo que advanceTutorial en useLadyRunTutorial.js: React avisa si un setState de OTRO
+    // componente se dispara desde el actualizador funcional de este).
+    const advanceLibreTutorial = useCallback(() => {
+        const idx = LIBRE_TUT_STEP_ORDER.indexOf(libreTutStep);
+        if (idx === -1 || idx === LIBRE_TUT_STEP_ORDER.length - 1) {
+            onCompleteLadyRunLibreTutorial?.();
+            setLibreTutStep(null);
+        } else {
+            setLibreTutStep(LIBRE_TUT_STEP_ORDER[idx + 1]);
+        }
+    }, [libreTutStep, onCompleteLadyRunLibreTutorial]);
 
     // Guarda la puntuacion al entrar en game over, y cuenta esta partida para el limite diario anti-farmeo
     useEffect(() => {
@@ -2649,23 +2696,40 @@ export default function RunnerScreen({
                         {phase === 'playing' && <div className={skyOverlayClass} />}
 
                         {!historiaMenuBlank && (
-                        <span className="runner-track-player-lives">
-                            {[0, 1, 2].map(i => (
-                                <img
-                                    key={i}
-                                    src={getLifeSlotAsset(lives, i)}
-                                    alt=""
-                                    className="runner-life-heart-img"
-                                />
-                            ))}
-                            {isLibre && Array.from({ length: phase === 'playing' ? runGreenHearts : greenHearts }).map((_, i) => (
-                                <img
-                                    key={`green-${i}`}
-                                    src={lifeGreenIcon}
-                                    alt=""
-                                    className="runner-life-heart-img"
-                                />
-                            ))}
+                        <span
+                            className={`runner-track-player-lives${['vidas', 'vidas_verdes'].includes(libreTutStep) ? ' lady-run-tut-active' : ''}`}
+                        >
+                            <span
+                                className={`runner-lives-group${libreTutStep === 'vidas' ? ' lady-run-tut-highlight' : ''}`}
+                                data-tutorial="lady-run-tut-libre-vidas"
+                            >
+                                {[0, 1, 2].map(i => (
+                                    <img
+                                        key={i}
+                                        src={getLifeSlotAsset(lives, i)}
+                                        alt=""
+                                        className="runner-life-heart-img"
+                                    />
+                                ))}
+                            </span>
+                            {runMode !== 'historia' && (
+                                <span
+                                    className={`runner-lives-group${libreTutStep === 'vidas_verdes' ? ' lady-run-tut-highlight' : ''}`}
+                                    data-tutorial="lady-run-tut-libre-vidas-verdes"
+                                >
+                                    {Array.from({ length: GREEN_HEART_MAX }).map((_, i) => {
+                                        const count = phase === 'playing' ? runGreenHearts : greenHearts;
+                                        return (
+                                            <img
+                                                key={`green-${i}`}
+                                                src={lifeGreenIcon}
+                                                alt=""
+                                                className={`runner-life-heart-img runner-life-heart-img-green${i >= count ? ' runner-life-heart-img-empty' : ''}`}
+                                            />
+                                        );
+                                    })}
+                                </span>
+                            )}
                         </span>
                         )}
 
@@ -2781,15 +2845,68 @@ export default function RunnerScreen({
                             {phase === 'ready' && runMode === 'arcade' && !biomeSelectOpen && !chapterSelectOpen && (
                                 <>
                                     <button className="lady-run-back-btn" onClick={() => { setRunMode(null); setBiomeSelectOpen(false); setArcadeSubMode(null); setSelectedBiomeId(null); setChapterSelectOpen(false); setSelectedChapter(null); }}><ArrowLeft size={16} /></button>
-                                    <p className="runner-overlay-title">Corre y esquiva</p>
+                                    <p className={`runner-overlay-title${libreTutStep === 'empezar' ? ' lady-run-tut-highlight' : ''}`}>Corre y esquiva</p>
                                     <button
-                                        className="runner-start-btn runner-start-btn-glow"
-                                        onClick={startLibreRoulette}
+                                        className={`runner-start-btn runner-start-btn-glow${libreTutStep === 'empezar' ? ' lady-run-tut-highlight' : ''}`}
+                                        data-tutorial="lady-run-tut-libre-empezar"
+                                        disabled={libreTutStep !== null && libreTutStep !== 'empezar'}
+                                        onClick={() => { if (libreTutStep === 'empezar') advanceLibreTutorial(); startLibreRoulette(); }}
                                     >Empezar</button>
-                                    <p className="runner-loot-limit-text">
-                                        {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
+                                    <p
+                                        className={`runner-loot-limit-text${libreTutStep === 'botin' ? ' lady-run-tut-highlight' : ''}`}
+                                        data-tutorial="lady-run-tut-libre-botin"
+                                    >
+                                        {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} Botín extra` : `0/${MAX_FULL_LOOT_RUNS_PER_DAY}`}
                                     </p>
                                 </>
+                            )}
+                            {libreTutStep === 'vidas' && (
+                                <LadyRunTutorialCallout
+                                    targetSelector='[data-tutorial="lady-run-tut-libre-vidas"]'
+                                    title="Tus vidas"
+                                    text="Empiezas cada carrera con estos corazones. Al perderlos todos, se acaba la partida."
+                                    actionLabel="Continuar"
+                                    onAction={advanceLibreTutorial}
+                                />
+                            )}
+                            {libreTutStep === 'vidas_verdes' && (
+                                <LadyRunTutorialCallout
+                                    targetSelector='[data-tutorial="lady-run-tut-libre-vidas-verdes"]'
+                                    title="Tus escudos"
+                                    text="Absorben un golpe sin quitarte vida real, pero se gastan al usarse. Consíguelos en la Tienda."
+                                    actionLabel="Continuar"
+                                    onAction={advanceLibreTutorial}
+                                />
+                            )}
+                            {libreTutStep === 'botin' && (
+                                <LadyRunTutorialCallout
+                                    targetSelector='[data-tutorial="lady-run-tut-libre-botin"]'
+                                    title="Botín diario"
+                                    text="Cada día, tus 3 primeras carreras de cada dificultad incluyen botín extra."
+                                    actionLabel="Continuar"
+                                    onAction={advanceLibreTutorial}
+                                />
+                            )}
+                            {libreTutStep === 'perros' && (
+                                <LadyRunTutorialCallout
+                                    targetSelector='[data-tutorial="lady-run-tut-libre-perros"]'
+                                    title="Elige tu perro"
+                                    text="Selecciona con quién quieres correr."
+                                    actionLabel={libreTutDogPicked ? 'Continuar' : null}
+                                    onAction={libreTutDogPicked ? advanceLibreTutorial : undefined}
+                                />
+                            )}
+                            {libreTutStep === 'dificultad' && (
+                                <LadyRunTutorialCallout
+                                    targetSelector='[data-tutorial="lady-run-tut-libre-dificultad"]'
+                                    title="Dificultad"
+                                    text="Cada dificultad cambia el ritmo y los obstáculos de la carrera. Pruébalas todas y consigue mejores recompensas cuanto más difícil sea el reto."
+                                    actionLabel="Continuar"
+                                    onAction={advanceLibreTutorial}
+                                />
+                            )}
+                            {libreTutStep === 'empezar' && (
+                                <LadyRunTutorialCallout targetSelector='[data-tutorial="lady-run-tut-libre-empezar"]' />
                             )}
                             {phase === 'ready' && runMode === 'historia' && historiaStep === 5 && (
                                 <>
@@ -3016,7 +3133,7 @@ export default function RunnerScreen({
                         </div>
                         {arcadeSubMode === 'libre' && (
                             <p className="runner-loot-limit-text">
-                                {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} con botín completo hoy` : 'Botín reducido hoy'}
+                                {lootRunsLeftToday > 0 ? `${lootRunsLeftToday}/${MAX_FULL_LOOT_RUNS_PER_DAY} Botín extra` : `0/${MAX_FULL_LOOT_RUNS_PER_DAY}`}
                             </p>
                         )}
                     </>
@@ -3058,7 +3175,10 @@ export default function RunnerScreen({
                 )}
 
                 {phase === 'ready' && (runMode === 'arcade' || prologoDogPick) && (
-                    <div className="runner-dog-select">
+                    <div
+                        className={`runner-dog-select${libreTutStep === 'perros' ? ' lady-run-tut-highlight' : ''}`}
+                        data-tutorial="lady-run-tut-libre-perros"
+                    >
                         {[...UNLOCKED_DOG_IDS]
                             .sort((a, b) => {
                                 const aLocked = prologoDogPick ? a !== 'lady' : (runMode !== 'arcade' && PAID_DOG_IDS.includes(a) && !unlockedDogIds.includes(a));
@@ -3107,7 +3227,10 @@ export default function RunnerScreen({
                 )}
 
                 {phase === 'ready' && runMode === 'arcade' && !biomeSelectOpen && (
-                    <div className="runner-difficulty-select">
+                    <div
+                        className={`runner-difficulty-select${libreTutStep === 'dificultad' ? ' lady-run-tut-highlight' : ''}`}
+                        data-tutorial="lady-run-tut-libre-dificultad"
+                    >
                         {DIFFICULTY_ORDER.map(id => {
                             const hasBonusLeft = runMode === 'arcade' && (fullLootRunsByDifficulty?.[id] ?? 0) < MAX_FULL_LOOT_RUNS_PER_DAY;
                             return (

@@ -22,16 +22,19 @@ export const useLadyRunTutorial = (completed, onComplete, active = true) => {
         return () => clearTimeout(t);
     }, [active, completed, tutStep]);
 
+    // No se llama a onComplete desde dentro del updater de setTutStep: React avisa ("Cannot update a
+    // component while rendering a different component") si un setState de OTRO componente (el del
+    // padre, aqui) se dispara desde el actualizador funcional de este. Se lee tutStep directo y se
+    // decide fuera, antes de llamar a setTutStep.
     const advanceTutorial = useCallback(() => {
-        setTutStep(prev => {
-            const idx = STEP_ORDER.indexOf(prev);
-            if (idx === -1 || idx === STEP_ORDER.length - 1) {
-                onComplete?.();
-                return null;
-            }
-            return STEP_ORDER[idx + 1];
-        });
-    }, [onComplete]);
+        const idx = STEP_ORDER.indexOf(tutStep);
+        if (idx === -1 || idx === STEP_ORDER.length - 1) {
+            onComplete?.();
+            setTutStep(null);
+        } else {
+            setTutStep(STEP_ORDER[idx + 1]);
+        }
+    }, [tutStep, onComplete]);
 
     return { tutStep, setTutStep, advanceTutorial };
 };

@@ -69,6 +69,21 @@
     left: 8px;
     z-index: 5;
     display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* Eleva el CONTENEDOR (sin el brillo pulsante) por encima del oscurecido cuando el tutorial resalta
+   uno de los 2 grupos de dentro (vidas rojas o corazones verdes) - mismo motivo que .currency-hud.
+   El brillo en si va en el grupo interno via .lady-run-tut-highlight, no aqui. */
+.runner-track-player-lives.lady-run-tut-active {
+    position: absolute;
+    z-index: 751 !important;
+}
+
+.runner-lives-group {
+    display: flex;
+    align-items: center;
     gap: 3px;
 }
 
@@ -99,6 +114,15 @@
     height: 26px;
     object-fit: contain;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+
+.runner-life-heart-img-green {
+    width: 20px;
+    height: 20px;
+}
+
+.runner-life-heart-img-empty {
+    filter: grayscale(80%) brightness(0.5) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
 }
 
 .runner-hud-tier {
@@ -226,12 +250,10 @@
     z-index: 1;
 }
 
-/* La card tiene overflow:hidden y el z-index:1 de arriba gana por especificidad al de
-   .lady-run-tut-highlight; se resalta la CARD entera (no el boton) para que el halo del tutorial
-   de monedas se vea completo y por encima del oscurecido, ver LadyRunTutorialCallout.css */
+/* La card tiene overflow:hidden, que recortaria el halo del brillo; se resalta la CARD entera (no el
+   boton) para que se vea completo, ver LadyRunTutorialCallout.css */
 .runner-mode-card-shop.lady-run-tut-highlight {
     overflow: visible;
-    z-index: 751 !important;
 }
 
 .runner-progress-bar {

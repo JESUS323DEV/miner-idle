@@ -42,15 +42,17 @@ const LadyRunTutorialCallout = ({ targetSelector, title, text, actionLabel, onAc
     return (
         <>
             <div className="lady-run-tut-overlay" onClick={e => e.stopPropagation()} />
-            <div className="lady-run-tut-dialog" style={dialogStyle} onClick={e => e.stopPropagation()}>
-                <p className="lady-run-tut-dialog-title">{title}</p>
-                <p className="lady-run-tut-dialog-text">{text}</p>
-                {actionLabel && (
-                    <div className="lady-run-tut-dialog-actions">
-                        <button className="lady-run-tut-dialog-btn" onClick={onAction}>{actionLabel}</button>
-                    </div>
-                )}
-            </div>
+            {title && (
+                <div className="lady-run-tut-dialog" style={dialogStyle} onClick={e => e.stopPropagation()}>
+                    <p className="lady-run-tut-dialog-title">{title}</p>
+                    <p className="lady-run-tut-dialog-text">{text}</p>
+                    {actionLabel && (
+                        <div className="lady-run-tut-dialog-actions">
+                            <button className="lady-run-tut-dialog-btn" onClick={onAction}>{actionLabel}</button>
+                        </div>
+                    )}
+                </div>
+            )}
         </>
     );
 };
