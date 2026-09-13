@@ -5,6 +5,8 @@ import { playSfx } from '../../game/utils/sfx.js';
 import { useGameContext } from '../../game/context/GameContext.jsx';
 import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import SkinShopModal from './SkinShopModal.jsx';
+import CurrencyHud from '../../components/CurrencyHud.jsx';
+import { useLadyRunTutorial } from '../../game/hooks/useLadyRunTutorial.js';
 import bgRaids        from '../../assets/backgrounds/bg-modal-raids/bg-raids.webp';
 import bgRaidsPassive from '../../assets/backgrounds/bg-modal-raids/bg-raids-passive/raids-passive-bg.png';
 import btnRaidPassive from '../../assets/ui/icons-hud/hud-modals/modal-raids/btn-raid-pasive.webp';
@@ -292,6 +294,11 @@ const RaidScreen = ({
     const [orderAutoResend, setOrderAutoResend] = useState({ trigo: false, lupulo: false });
     const [raidView, setRaidView] = useState('hub');
     const [runnerOpen, setRunnerOpen] = useState(false);
+    const { tutStep: ladyRunTutStep, setTutStep: setLadyRunTutStep, advanceTutorial: advanceLadyRunTutorial } = useLadyRunTutorial(
+        gameState.ladyRunTutorial?.completed ?? false,
+        () => setGameState(prev => ({ ...prev, ladyRunTutorial: { completed: true } })),
+        runnerOpen,
+    );
     const [tablonTab, setTablonTab] = useState('misiones');
     const [tablonTabsHidden, setTablonTabsHidden] = useState(false);
     const tablonScrollLastY = useRef(0);
@@ -620,6 +627,14 @@ const RaidScreen = ({
                 )}
 
                 {runnerOpen && (
+                    <>
+                    <CurrencyHud
+                        chapas={gameState.chapas ?? 0}
+                        tavernCoins={gameState.tavernCoins ?? 0}
+                        huesin={gameState.huesin ?? 0}
+                        tutStep={ladyRunTutStep}
+                        onTutAdvance={advanceLadyRunTutorial}
+                    />
                     <RunnerScreen
                         onClose={() => setRunnerOpen(false)}
                         onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
@@ -646,6 +661,14 @@ const RaidScreen = ({
                         onUseMagicHeart={() => setGameState(prev => ({ ...prev, ladyRunMagicHearts: Math.max(0, (prev.ladyRunMagicHearts ?? 0) - 1) }))}
                         greenHearts={gameState.ladyRunGreenHearts ?? 0}
                         onConsumeGreenHeart={() => setGameState(prev => ({ ...prev, ladyRunGreenHearts: Math.max(0, (prev.ladyRunGreenHearts ?? 0) - 1) }))}
+                        dailyFreeClaimedAt={gameState.ladyRunDailyFreeClaimedAt ?? {}}
+                        onClaimDailyFree={(itemId) => setGameState(prev => ({
+                            ...prev,
+                            ladyRunDailyFreeClaimedAt: { ...(prev.ladyRunDailyFreeClaimedAt ?? {}), [itemId]: Date.now() },
+                        }))}
+                        ladyRunTutStep={ladyRunTutStep}
+                        setLadyRunTutStep={setLadyRunTutStep}
+                        advanceLadyRunTutorial={advanceLadyRunTutorial}
                         onBuyItem={(itemId, price) => setGameState(prev => {
                             if (itemId === 'corazon_extra') {
                                 if ((prev.chapas ?? 0) < price) return prev;
@@ -696,6 +719,7 @@ const RaidScreen = ({
                             ladyRunBestDistance: { ...(prev.ladyRunBestDistance ?? {}), [dogId]: meters },
                         }))}
                     />
+                    </>
                 )}
 
                 {showRaidIntro && (

@@ -226,6 +226,14 @@
     z-index: 1;
 }
 
+/* La card tiene overflow:hidden y el z-index:1 de arriba gana por especificidad al de
+   .lady-run-tut-highlight; se resalta la CARD entera (no el boton) para que el halo del tutorial
+   de monedas se vea completo y por encima del oscurecido, ver LadyRunTutorialCallout.css */
+.runner-mode-card-shop.lady-run-tut-highlight {
+    overflow: visible;
+    z-index: 751 !important;
+}
+
 .runner-progress-bar {
     display: flex;
     align-items: flex-start;
@@ -395,6 +403,14 @@
 
 .runner-track-scene-libre-bosque {
     background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/escenarios-run-libre/libre-bosque.webp');
+}
+
+.runner-track-scene-custom-bosque1 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/capitulo-1-bosque-escenarios/bosque1.webp');
+}
+
+.runner-track-scene-custom-bosque2 {
+    background-image: url('../../assets/ui/icons-hud/hud-modals/game-run/assets-historia/capitulo-1-bosque-escenarios/bosque2.webp');
 }
 
 .runner-track-scene-libre-ciudad {
@@ -1208,6 +1224,12 @@
     color: #ffd740;
     cursor: pointer;
     z-index: 601;
+}
+
+/* .lady-run-tut-highlight pone position:relative por defecto (para las cards de la Tienda, que no
+   tienen position propia) - aqui hay que forzar que se quede fixed, si no pierde su sitio en pantalla. */
+.lady-run-back-btn.lady-run-tut-highlight {
+    position: fixed;
 }
 
 .runner-action-row {

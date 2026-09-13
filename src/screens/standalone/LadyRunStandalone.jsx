@@ -4,6 +4,7 @@ import RunnerScreen from '../modalRunner/RunnerScreen.jsx';
 import { getHuntRotationKey } from '../../game/config/TablonHuntConfig.js';
 import SkinShopModal from '../modalRaid/SkinShopModal.jsx';
 import CurrencyHud from '../../components/CurrencyHud.jsx';
+import { useLadyRunTutorial } from '../../game/hooks/useLadyRunTutorial.js';
 import { loadSavedState } from '../../game/initialState/loadSavedState.js';
 import { usePreloadImages, prefetchImages } from '../../game/hooks/usePreloadImages.js';
 import { RUNNER_CORE_PRELOAD_IMAGES, RUNNER_HISTORIA_PRELOAD_IMAGES } from '../modalRunner/runnerPreloadAssets.js';
@@ -19,6 +20,11 @@ const LadyRunStandalone = () => {
     const [gameState, setGameState] = useState(loadSavedState);
     const [view, setView] = useState('run'); // 'run' | 'skins'
     const loaded = usePreloadImages(RUNNER_CORE_PRELOAD_IMAGES);
+    const { tutStep: ladyRunTutStep, setTutStep: setLadyRunTutStep, advanceTutorial: advanceLadyRunTutorial } = useLadyRunTutorial(
+        gameState.ladyRunTutorial?.completed ?? false,
+        () => setGameState(prev => ({ ...prev, ladyRunTutorial: { completed: true } })),
+        loaded,
+    );
 
     useEffect(() => {
         localStorage.setItem('ladyHungryGame', JSON.stringify({ ...gameState, savedAt: Date.now() }));
@@ -42,7 +48,13 @@ const LadyRunStandalone = () => {
     if (view === 'skins') {
         return (
             <>
-                <CurrencyHud chapas={gameState.chapas} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+                <CurrencyHud
+                    chapas={gameState.chapas}
+                    tavernCoins={gameState.tavernCoins}
+                    huesin={gameState.huesin}
+                    tutStep={ladyRunTutStep}
+                    onTutAdvance={advanceLadyRunTutorial}
+                />
                 <div className="lady-run-standalone-skins">
                     <button className="lady-run-standalone-back" onClick={() => setView('run')}>
                         <ArrowLeft size={16} /> Volver a Lady Run
@@ -55,7 +67,13 @@ const LadyRunStandalone = () => {
 
     return (
         <>
-            <CurrencyHud chapas={gameState.chapas} tavernCoins={gameState.tavernCoins} huesin={gameState.huesin} />
+            <CurrencyHud
+                chapas={gameState.chapas}
+                tavernCoins={gameState.tavernCoins}
+                huesin={gameState.huesin}
+                tutStep={ladyRunTutStep}
+                onTutAdvance={advanceLadyRunTutorial}
+            />
             <RunnerScreen
                 belowHud
                 onEarnTavernCoins={(amount) => setGameState(prev => ({ ...prev, tavernCoins: (prev.tavernCoins ?? 0) + amount }))}
@@ -82,6 +100,14 @@ const LadyRunStandalone = () => {
                 onUseMagicHeart={() => setGameState(prev => ({ ...prev, ladyRunMagicHearts: Math.max(0, (prev.ladyRunMagicHearts ?? 0) - 1) }))}
                 greenHearts={gameState.ladyRunGreenHearts ?? 0}
                 onConsumeGreenHeart={() => setGameState(prev => ({ ...prev, ladyRunGreenHearts: Math.max(0, (prev.ladyRunGreenHearts ?? 0) - 1) }))}
+                dailyFreeClaimedAt={gameState.ladyRunDailyFreeClaimedAt ?? {}}
+                onClaimDailyFree={(itemId) => setGameState(prev => ({
+                    ...prev,
+                    ladyRunDailyFreeClaimedAt: { ...(prev.ladyRunDailyFreeClaimedAt ?? {}), [itemId]: Date.now() },
+                }))}
+                ladyRunTutStep={ladyRunTutStep}
+                setLadyRunTutStep={setLadyRunTutStep}
+                advanceLadyRunTutorial={advanceLadyRunTutorial}
                 onBuyItem={(itemId, price) => setGameState(prev => {
                     if (itemId === 'corazon_extra') {
                         if ((prev.chapas ?? 0) < price) return prev;

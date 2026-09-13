@@ -32,3 +32,11 @@
     font-weight: 800;
     font-size: 0.8rem;
 }
+
+/* .currency-hud es position:fixed con su propio z-index (600), asi que crea su propio contexto de
+   apilamiento: el z-index alto de .lady-run-tut-highlight en un hijo no basta para superar el
+   oscurecido del tutorial si la barra entera se queda por debajo. Se sube la barra completa mientras
+   dura un paso del tutorial que apunte a alguna de sus monedas. */
+.currency-hud.lady-run-tut-active {
+    z-index: 751 !important;
+}
